@@ -1,0 +1,2 @@
+copy Makefile to openwrt/package/xain_embedded/
+git clone git@gitlab.com:xainag/cevt-poc-rpi3.git into openwrt/package/xain_embedded/src

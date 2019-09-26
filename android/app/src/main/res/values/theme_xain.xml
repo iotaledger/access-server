@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~  This file is part of the DAC distribution (https://github.com/xainag/frost)
+  ~  Copyright (c) 2019 XAIN AG.
+  ~
+  ~  This program is free software: you can redistribute it and/or modify
+  ~  it under the terms of the GNU General Public License as published by
+  ~  the Free Software Foundation, version 3.
+  ~
+  ~  This program is distributed in the hope that it will be useful, but
+  ~  WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  ~  General Public License for more details.
+  ~
+  ~  You should have received a copy of the GNU General Public License
+  ~  along with this program. If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="XAIN" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimaryDark">@color/colorPrimaryDarkXAIN</item>
+        <item name="colorPrimary">@color/colorPrimaryXAIN</item>
+        <item name="colorAccent">@color/colorAccentXAIN</item>
+        <item name="button_1_style">@style/Button1.XAIN</item>
+        <item name="button_2_style">@style/Button2.XAIN</item>
+        <item name="button_1_background_color">@color/dark_gray</item>
+        <item name="edit_text_style">@style/EditText.XAIN</item>
+        <item name="android:windowBackground">@color/white</item>
+        <item name="spinner_style">@style/Spinner.XAIN</item>
+        <item name="label_style">@style/Label1.XAIN</item>
+        <item name="spinner_item_style">@style/SpinnerItem.XAIN</item>
+        <item name="separation_label_style">@style/SeparationLabel.XAIN</item>
+        <item name="separator_line_color">@color/mid_gray</item>
+        <item name="toolbar_style">@style/Toolbar.XAIN</item>
+        <item name="command_list_item_header_color">?colorPrimary</item>
+        <item name="large_text_view_style">@style/LargeTextView.XAIN</item>
+        <item name="checkbox_style">@style/Checkbox.XAIN</item>
+        <item name="checkbox_color">@color/white</item>
+        <item name="actionBarSize">@dimen/toolbar_size</item>
+        <item name="preferenceTheme">@style/PreferenceTheme</item>
+        <item name="widget_background">@drawable/rounded_rectangle</item>
+        <item name="label_style_2">@style/TextView2.XAIN</item>
+        <item name="imageButtonStyle">@style/ImageButton.XAIN</item>
+        <item name="label_navigation_header">@style/Label1.XAIN.NavigationHeader</item>
+        <item name="action_menu_icon_color">@color/white</item>
+        <item name="command_list_item_header_label">@style/CommandListItemHeaderLabel.XAIN</item>
+        <item name="command_list_item_header_image_tint">@color/white</item>
+        <item name="button_1_image_color">@color/white</item>
+        <item name="nav_drawer_color_background">@color/white</item>
+        <item name="nav_drawer_color_item_icon_checked">@color/colorPrimaryDarkXAIN</item>
+        <item name="nav_drawer_color_item_icon_unchecked">@color/colorPrimaryXAIN</item>
+        <item name="nav_drawer_color_item_text_checked">@color/colorPrimaryDarkXAIN</item>
+        <item name="nav_drawer_color_item_text_unchecked">@color/colorPrimaryXAIN</item>
+
+        <item name="command_list_item_background">@color/light_gray</item>
+
+        <item name="radio_button_theme">@style/RadioButton.XAIN</item>
+
+        <item name="dialog_style">@style/DialogTheme.XAIN</item>
+
+        <item name="preference_title_color">@color/black</item>
+        <item name="preference_summary_color">@color/black</item>
+    </style>
+
+    <style name="DialogTheme.XAIN" parent="Theme.AppCompat.Dialog">
+        <item name="android:colorBackground">@color/white</item>
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowBackground">@color/white</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowTitleStyle">@null</item>
+        <item name="android:colorBackgroundCacheHint">@null</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
+        <item name="android:windowSoftInputMode">stateUnspecified|adjustPan</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <!-- Radio Button -->
+    <style name="RadioButton.XAIN" parent="Widget.AppCompat.CompoundButton.RadioButton">
+        <item name="colorControlNormal">@color/black</item>
+        <item name="colorControlActivated">@color/colorAccentXAIN</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:fontFamily">@font/roboto_regular</item>
+        <item name="android:textSize">@dimen/general_text_size</item>
+    </style>
+
+    <style name="XAIN.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <!-- Image Button -->
+    <style name="ImageButton.XAIN" parent="Widget.AppCompat.ImageButton">
+        <item name="android:tint">@color/white</item>
+        <item name="android:background">#00000000</item>
+    </style>
+
+    <!-- Button 1 -->
+    <style name="Button1.XAIN" parent="Widget.AppCompat.Button.Colored">
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:background">?attr/widget_background</item>
+        <item name="android:fontFamily">?attr/font_family</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:minHeight">40dp</item>
+        <item name="android:tint">@color/white</item>
+    </style>
+
+    <!-- Button 2 -->
+    <style name="Button2.XAIN" parent="Widget.AppCompat.Button.Colored">
+        <item name="android:colorBackground">@android:color/white</item>
+    </style>
+
+    <!-- Edit Text -->
+    <style name="EditText.XAIN" parent="Widget.AppCompat.EditText">
+        <item name="android:minHeight">40dp</item>
+        <item name="android:background">?attr/widget_background</item>
+        <item name="android:fontFamily">?attr/font_family</item>
+        <item name="android:textColorHint">@color/light_gray</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:gravity">center</item>
+        <item name="android:padding">5dp</item>
+        <item name="android:elevation" tools:ignore="NewApi">5dp</item>
+        <item name="android:textCursorDrawable">@null</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <!-- Label 1 -->
+    <style name="Label1.XAIN" parent="">
+        <item name="android:textSize">@dimen/general_text_size</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:fontFamily">@font/roboto_regular</item>
+    </style>
+
+    <!-- Command list item header label -->
+    <style name="CommandListItemHeaderLabel.XAIN" parent="">
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <!-- Label navigation header -->
+    <style name="Label1.XAIN.NavigationHeader" parent="Label1.XAIN">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <!-- Text View 2 -->
+    <style name="TextView2.XAIN" parent="">
+        <item name="android:textSize">@dimen/general_text_size</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:fontFamily">@font/roboto_regular</item>
+    </style>
+
+    <!-- Large text view -->
+    <style name="LargeTextView.XAIN" parent="">
+        <item name="android:minHeight">40dp</item>
+        <item name="android:background">?attr/widget_background</item>
+        <item name="android:fontFamily">?attr/font_family</item>
+        <item name="android:textColorHint">@color/light_gray</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:padding">5dp</item>
+        <item name="android:elevation" tools:ignore="NewApi">5dp</item>
+        <item name="android:textCursorDrawable">@null</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <!-- Checkbox -->
+    <style name="Checkbox.XAIN" parent="">
+        <item name="android:background">?attr/widget_background</item>
+        <item name="android:paddingLeft">8dp</item>
+        <item name="android:paddingRight">8dp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:fontFamily">?attr/font_family</item>
+    </style>
+
+    <!-- Spinner -->
+    <style name="Spinner.XAIN" parent="">
+        <item name="android:elevation" tools:ignore="NewApi">5dp</item>
+        <item name="android:minHeight">40dp</item>
+        <item name="android:paddingRight">28dp</item>
+        <item name="android:paddingLeft">28dp</item>
+        <item name="android:background">@drawable/bg_spinner</item>
+        <item name="android:color">@color/white</item>
+    </style>
+
+    <!-- Spinner Item -->
+    <style name="SpinnerItem.XAIN" parent="">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:gravity">center_vertical|center</item>
+        <item name="android:textSize">@dimen/label_text_size</item>
+    </style>
+
+    <!-- Toolbar -->
+    <style name="Toolbar.XAIN" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="android:colorBackground">@color/white</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+    <!-- Separation Label -->
+    <style name="SeparationLabel.XAIN" parent="">
+        <item name="android:minHeight">30dp</item>
+        <item name="android:height">30dp</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:background">@drawable/text_view_separation_line</item>
+        <item name="android:textSize">@dimen/general_text_size</item>
+    </style>
+
+</resources>

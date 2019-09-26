@@ -1,0 +1,12 @@
+{
+    "server": {
+        "listeningPort": "PORT_NUMBER"
+    },
+    "provider": {
+        "ipAddress": "IP_ADDRESS",
+        "portNumber": "PORT_NUMBER"
+    },
+    "contract": {
+        "address": "CONTRACT_ADDRESS"
+    }
+}

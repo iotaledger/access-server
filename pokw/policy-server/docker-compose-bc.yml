@@ -1,0 +1,28 @@
+version: '3'
+services:
+  bc-ps-http:
+    build:
+      context: .
+      dockerfile: ./docker/bc/http/Dockerfile
+    image: "bc-ps-http:latest"
+    container_name: "bc-ps-http"
+    restart: always
+    network_mode: "host"
+    volumes:
+      - "./config/bc:/home/node/app/config/"
+    env_file:
+      - ".env"
+
+  bc-ps-tcp:
+    build:
+      context: .
+      dockerfile: ./docker/bc/tcp/Dockerfile
+    image: "bc-ps-tcp:latest"
+    container_name: "bc-ps-tcp"
+    restart: always
+    network_mode: "host"
+    volumes:
+      - "./config/bc:/home/node/app/config/"
+    env_file:
+      - ".env"
+  

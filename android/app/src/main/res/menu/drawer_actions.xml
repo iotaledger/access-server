@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~  This file is part of the DAC distribution (https://github.com/xainag/frost)
+  ~  Copyright (c) 2019 XAIN AG.
+  ~
+  ~  This program is free software: you can redistribute it and/or modify
+  ~  it under the terms of the GNU General Public License as published by
+  ~  the Free Software Foundation, version 3.
+  ~
+  ~  This program is distributed in the hope that it will be useful, but
+  ~  WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  ~  General Public License for more details.
+  ~
+  ~  You should have received a copy of the GNU General Public License
+  ~  along with this program. If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group
+        android:id="@+id/upper_drawer_group"
+        android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/home_menu_item"
+            android:icon="@drawable/ic_home"
+            android:orderInCategory="1"
+            android:title="@string/nav_menu_item_home" />
+        <item
+            android:id="@+id/delegation_editor_menu_item"
+            android:icon="@drawable/ic_edit"
+            android:orderInCategory="2"
+            android:title="@string/nav_menu_item_delegation_editor" />
+        <item
+            android:id="@+id/log_menu_item"
+            android:icon="@drawable/ic_log"
+            android:orderInCategory="3"
+            android:title="@string/nav_menu_log" />
+        <item
+            android:id="@+id/settings_manu_item"
+            android:icon="@drawable/ic_action_settings"
+            android:orderInCategory="4"
+            android:title="@string/nav_menu_item_settings" />
+    </group>
+    <group
+        android:id="@+id/lower_drawer_group"
+        android:checkableBehavior="all">
+        <item
+            android:id="@+id/log_out_menu_item"
+            android:icon="@drawable/ic_logout"
+            android:orderInCategory="100"
+            android:title="@string/nav_menu_item_log_out" />
+    </group>
+</menu>
