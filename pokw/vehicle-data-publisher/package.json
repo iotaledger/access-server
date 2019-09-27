@@ -1,0 +1,23 @@
+{
+  "name": "vehicle-data-publisher",
+  "version": "1.0.0",
+  "author": "Robert Cernjanski <robert.cernjanski@nttdata.ro>",
+  "license": "UNLICENSED",
+  "scripts": {
+    "build": "./node_modules/typescript/bin/tsc"
+  },
+  "dependencies": {
+    "@iota/converter": "1.0.0-beta.21",
+    "@iota/mam": "0.7.3",
+    "@types/config": "0.0.34",
+    "@types/node": "12.7.2",
+    "config": "3.2.2",
+    "dotenv": "8.1.0",
+    "ipfs-http-client": "35.1.0",
+    "moment": "2.24.0",
+    "web3": "1.2.1"
+  },
+  "devDependencies": {
+    "typescript": "3.6.3"
+  }
+}

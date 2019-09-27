@@ -1,0 +1,34 @@
+version: '3'
+services:
+  bc-vd-publisher:
+    build:
+      context: .
+      dockerfile: ./docker/bc/Dockerfile
+    image: vd-bc-publisher:latest
+    container_name: bc-vd-publisher
+    restart: always
+    volumes:
+      - "./config/bc:/home/node/app/config"
+      - "publisher-data:/home/node/app/data"
+    network_mode: host
+    env_file:
+      - ".env"
+
+  # ipfs_host:
+  #   image: ipfs/go-ipfs:latest
+  #   container_name: ipfs_host
+  #   volumes:
+  #     - "ipfs_staging:/export"
+  #     - "ipfs_data:/data/ipfs"
+  #   ports:
+  #     - "4001:4001"
+  #     - "127.0.0.1:8080:8080"
+  #     - "127.0.0.1:5001:5001"
+
+volumes:
+  publisher-data:
+    driver: local
+  # ipfs_staging:
+  #   driver: local
+  # ipfs_data:
+  #   driver: local

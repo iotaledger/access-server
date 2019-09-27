@@ -1,0 +1,5 @@
+.dockerignore
+src
+node_modules
+data
+config
