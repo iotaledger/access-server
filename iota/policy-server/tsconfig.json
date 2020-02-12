@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "ESNEXT",
+    "module": "commonjs",
+    "allowJs": true,
+    "outDir": "./dist",
+    "strict": true,                         
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true
+  },
+  "include": [
+    "src/**/*",
+    "./node_modules/web3/types/index.d.ts"
+  ],
+  "exclude": [
+      "**/*.spec.ts"
+  ],
+  "typedocOptions": {
+    "mode": "modules",
+    "out": "docs"
+  }
+}

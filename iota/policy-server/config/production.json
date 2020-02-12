@@ -1,0 +1,18 @@
+{
+    "server": {
+        "rest": {
+            "listeningPort": 6008
+        },
+        "tcp": {
+            "listeningPort": 6007
+        }
+    },
+    "db": {
+        "host": "database",
+        "port": 5432
+    },
+    "iri": {
+        "host": "193.239.219.4",
+        "port": 6005
+    }
+}
