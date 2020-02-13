@@ -50,11 +50,11 @@ export class PgDatabase implements Database {
         // try to connect to database
         this.db.connect()
             .then((obj: any) => {
-                logger.info('Successfully connected to database');
+                logger.info('Successfully connected to the database');
                 obj.done();
             })
             .catch((error: any) => {
-                logger.error('Unable to connect to database: ', error);
+                logger.error('Unable to connect to the database: ', error);
             })
     }
 

@@ -1,5 +1,5 @@
 /**
- * Defautl response for every REST call
+ * Default response for every REST call
  */
 export interface DefaultResponse {
     error: boolean,

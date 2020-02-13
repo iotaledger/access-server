@@ -33,7 +33,7 @@ const main = () => {
     if (config.has('iri.host')) {
         PROVIDER_IP_ADDR= config.get('provider.host');
     } else {
-        logger.error('Must define iri.host inside config file. Exiting...');
+        logger.error('Config file is missing iri.host definition. Exiting...');
         return process.exit(1);
     }
    
@@ -41,7 +41,7 @@ const main = () => {
     if (config.has('iri.port')) {
         PROVIDER_PORT_NUMBER = config.get('iri.port');
     } else {
-        logger.error('Must define iri.port inside config file. Exiting...');
+        logger.error('Config file is missing iri.port definition. Exiting...');
         return process.exit(1);
     }
 
@@ -49,7 +49,7 @@ const main = () => {
     if (config.has('server.tcp.listeningPort')) {
         SERVER_LISTENING_PORT = config.get('server.tcp.listeningPort');
     } else {
-        logger.error('Must define server.tcp.listeningPort inside config file. Exiting...');
+        logger.error('Config file is missing server.tcp.listeningPort definition. Exiting...');
         return process.exit(1);
     }
 
@@ -75,15 +75,15 @@ const main = () => {
         socket.on('data', async data => {
             try {
                 const json = parseJSON(data.toString());
-                logger.info('Request:', json);
+                logger.info('Request: ', json);
                 if (json == -1) {
                     return socket.end(JSON.stringify({ error: "Malformed JSON." }));
                 }
                 const response = await policy(json);
-                logger.info('Response:', response);
+                logger.info('Response: ', response);
                 return socket.end(JSON.stringify(response));
             } catch(err) {
-                logger.error('Error:', err, 'For request:', data.toString());
+                logger.error('Error: ', err, 'For request: ', data.toString());
                 return socket.end(JSON.stringify(utils.defaultResponse(true, err)));
             }
         });

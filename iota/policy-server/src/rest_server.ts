@@ -18,7 +18,7 @@ const main = () => {
         PROVIDER_IP_ADDR = config.get('iri.host');
     } else {
 
-        logger.error('Must define iri.host inside config file. Exiting...');
+        logger.error('Config file is missing iri.host definition. Exiting...');
         return process.exit(1);
     }
 
@@ -26,7 +26,7 @@ const main = () => {
     if (config.has('iri.port')) {
         PROVIDER_PORT_NUMBER = config.get('iri.port');
     } else {
-        logger.error('Must define iri.port inside config file. Exiting...');
+        logger.error('Config file is missing iri.port definition. Exiting...');
         return process.exit(1);
     }
 
@@ -34,7 +34,7 @@ const main = () => {
     if (config.has('server.rest.listeningPort')) {
         SERVER_LISTENING_PORT = config.get('server.rest.listeningPort');
     } else {
-        logger.error('Must define server.rest.listeningPort inside config file. Exiting...');
+        logger.error('Config file is missing server.rest.listeningPort definition. Exiting...');
         return process.exit(1);
     }
 

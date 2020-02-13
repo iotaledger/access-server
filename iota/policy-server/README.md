@@ -1,11 +1,10 @@
-# IOTA POLICY SERVER
-
+# POLICY SERVER
 ## Overview
 Interface server for managing delegation policies on IOTA tangle.
-It accepts REST and TCP requests and communicates with IOTA IRI node for storing policies and local SQL database where their tangle addresses are stored.
+It is able to manage REST and TCP requests and communicates with IOTA IRI node for storing policies and local SQL database where their tangle addresses are stored.
 
 ## 1. Compiling
-Server is written in `TypeScript`, so to be able to run it, it must be compiled to `JavaScript` using `TypeScript` compiler. Make sure you have `TypeScript` compiler installed on your sistem and run it in root directory:
+Server is written in `TypeScript`. To run it, server must be compiled to `JavaScript` using `TypeScript` compiler. Make sure you have `TypeScript` compiler installed on your sistem and run it in root directory:
 ```bash
 tsc
 ```
@@ -61,7 +60,7 @@ POSTGRES_DB=
 Published port numbers must match corresponding port numbers in `config` files.
 
 ## 3. Start
-You must have installed `Docker` on your sistem in order to run all servers. You also have to have running and accessible IRI node.
+Install `Docker` on your sistem in order to run all servers. It is also required to have running and accessible IRI node.
 
 To start all servers (rest, tcp and database) just run:
 ```bash
@@ -76,4 +75,4 @@ To stop all servers (rest, tcp, database) just run:
 
 ## 5. Testing/Developing
 
-For testing and developing you can create private tangle by using `one-command-tangle` project which can be found [here](https://github.com/iota-community/one-command-tangle).
+For testing and development create private tangle using `one-command-tangle` project which can be found [here](https://github.com/iota-community/one-command-tangle).
