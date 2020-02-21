@@ -40,4 +40,4 @@
  *
  * @return  DENY (0), GRANT (1)
  */
-int pep_request_access(char *request, int *obl);
+int pep_request_access(char *request);

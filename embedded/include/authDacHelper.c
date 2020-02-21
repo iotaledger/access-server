@@ -42,31 +42,51 @@
 
 #define Dlog_printf printf
 
-void boradcast_status(char *a, char* c)
+void broadcast_status(char *a, char* c, bool is_successfull)
 {
-
+    if (a == NULL || c == NULL)
+    {
+        return;
+    }
+    
+    is_successfull ? Dlog_printf("\n\nAction %s %s performed successfully\n\n", a, c) : Dlog_printf("\n\nAction %s %s failed\n\n", a, c);
 }
 
-int ledControl(int decision, char *action, int *obl)
+int ledControl(int decision, char *obligation, char *action)
 {
+    bool should_log = FALSE;
+    
+    //TODO: only "log_event" obligation is supported currently
+    if(0 == memcmp(obligation, "log_event", 9))
+    {
+        should_log = TRUE;
+    }
+    
     if(decision == 1)
     {
         if((0 == memcmp(action,"open_trunk", 10)))
         {
             Resolver_action03();
-            boradcast_status("trunk", "unlock");
+            if(should_log)
+            {
+                broadcast_status("trunk", "unlock", TRUE);
+            }
         }
         else if ((0 == memcmp(action,"open_door", 9)))
         {
-            *obl = 1;//lpu
             Resolver_action01();
-            boradcast_status("door", "unlock");
+            if(should_log)
+            {
+                broadcast_status("door", "unlock", TRUE);
+            }
         }
         else if ((0 == memcmp(action,"close_door", 10)))
         {
-            *obl = 2;//lpl
             Resolver_action02();
-            boradcast_status("door", "lock");
+            if(should_log)
+            {
+                broadcast_status("door", "lock", TRUE);
+            }
         }
         else if ((0 == memcmp(action,"start_engine", 12)))
         {

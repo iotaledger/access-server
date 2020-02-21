@@ -138,25 +138,6 @@ static int get_server_state()
     return state;
 }
 
-static int resolve_obligation(int obligation)
-{
-/*
-    if(1 == obligation)
-    {
-        printf("\nUnlock");
-    }
-    else if(2 == obligation)
-    {
-        printf("\nLock");
-    }
-    else
-    {
-    printf("\nUNDEFINED %d", obligation);
-    }
-*/
-    return 0;
-}
-
 static int append_action_item_to_str(char *str, int pos, list_t *action_item)
 {
     if(action_item == NULL)
@@ -227,7 +208,7 @@ static int list_to_string(list_t *action_list, char *output_str)
     return buffer_position;
 }
 
-static unsigned int doAuthWorkTiny(char **recvData, int *obl)
+static unsigned int doAuthWorkTiny(char **recvData)
 {
     int request_code = -1;
     int decision = -1;
@@ -245,7 +226,7 @@ static unsigned int doAuthWorkTiny(char **recvData, int *obl)
     {
         /** "resolve" command */
 
-        decision = pep_request_access(*recvData, obl);
+        decision = pep_request_access(*recvData);
 
         if(decision == 1)
         {
@@ -499,7 +480,6 @@ static void *server_thread(void *ptr)
                 unsigned short recv_len = 0;
                 int auth = -1;
                 int decision = -1;
-                int obligation = -1;
 
                 dacInitServer(&session, &connfd);
 
@@ -514,7 +494,7 @@ static void *server_thread(void *ptr)
                 if(auth == 0)
                 {
                     dacReceive(&session, (unsigned char**)&recvData, &recv_len);
-                    decision = doAuthWorkTiny(&recvData, &obligation);
+                    decision = doAuthWorkTiny(&recvData);
                     sendDecision_new(decision, &session, recvData, decision);
                 }
                 else
@@ -538,7 +518,6 @@ static void *server_thread(void *ptr)
 
                 unsigned char try = 0;
                 while((get_server_state() != 0) && ( try++ < 350));
-                resolve_obligation(obligation);
             }
 
             // pthread_mutex_unlock(&lock);

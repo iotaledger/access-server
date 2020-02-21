@@ -64,6 +64,8 @@ operation_t get_operation_new(const char *operation, int size)
 			ret = LT;
 		else if (memcmp("gt", operation, size) == 0)
 			ret = GT;
+		else if (memcmp("if", operation, size) == 0)
+			ret = IF;
 	}
 	else if (size == 3)
 	{
@@ -634,7 +636,7 @@ int resolve_attribute(policy_t *pol, int atribute_position)
 			int start = get_start_of_token(type);
 			int size_of_type = get_size_of_token(type);
 
-			if((size_of_type == 7) && (memcmp(pol->policy_c + start, "boolean", 7) == 0))
+			if((size_of_type == 7) && ((memcmp(pol->policy_c + start, "boolean", 7) == 0) || (memcmp(pol->policy_c + start, "Boolean", 7) == 0)))
 			{
 				int value = json_get_value(pol->policy_c, atribute_position, "value");
 				int start_of_value = get_start_of_token(value);
@@ -654,21 +656,138 @@ int resolve_attribute(policy_t *pol, int atribute_position)
 	return ret;
 }
 
-pdp_decision_t pdp_calculate_decision(policy_t *pol, char *action)
+int get_obligation(policy_t *pol, int obl_position, char *obligation)
+{
+	int ret = PDP_ERROR;
+	
+	int type = json_get_token_index_from_pos(pol->policy_c, obl_position, "type");
+	if(type != -1)
+	{
+		int start = get_start_of_token(type);
+		int size_of_type = get_size_of_token(type);
+
+		if((size_of_type == 10) && 
+		(!memcmp(pol->policy_c + start, "obligation", 10) ||
+		!memcmp(pol->policy_c + start, "Obligation", 10)))
+		{
+			int value = json_get_token_index_from_pos(pol->policy_c, obl_position, "value");
+			int start_of_value = get_start_of_token(value);
+			int size_of_value = get_size_of_token(value);
+
+			// Size of obligation buffer is 15
+			if(size_of_value > 15)
+			{
+				size_of_value = 15;
+			}
+			
+			if(value >= 0)
+			{
+				memcpy(obligation, pol->policy_c + start_of_value, size_of_value);
+				ret = value;
+			}
+		}
+	}
+	
+	return ret;
+}
+
+//TODO: obligations should be linked list of the elements of the 'obligation_s' structure type
+int resolve_obligation(policy_t *pol, int obl_position, char *obligation)
+{
+	int ret = PDP_ERROR;
+	int operation = -1;
+	int attribute_list = -1;
+	int operation_start = -1;
+	int operation_end = -1;
+	int att_list_size = -1;
+	int obl_value = -1;
+	operation_t opt;
+	
+	if(pol == NULL || obligation == NULL)
+	{
+		Dlog_printf("\n\nERROR[%s]: Wrong input parameters\n\n",__FUNCTION__);
+		return ret;
+	}
+	
+	// Size of obligation buff is 15
+	memset(obligation, 0, sizeof(char) * 15);
+
+	operation = json_get_token_index_from_pos(pol->policy_c, obl_position, "operation");
+	attribute_list = json_get_token_index_from_pos(pol->policy_c, obl_position, "attribute_list");
+	obl_value = json_get_token_index_from_pos(pol->policy_c, obl_position, "obligations");
+	
+	// In case of IF operation, multiple obligations are available
+	if(attribute_list >= 0 && operation >= 0)
+	{
+		// Check if operation is listed before or after attribure list
+		if(operation > attribute_list)
+		{
+			// If attribute list is listed first, get operation given after att. list
+			
+			att_list_size = get_array_size(attribute_list);
+			
+			operation = json_get_token_index_from_pos(pol->policy_c, attribute_list + att_list_size, "operation");
+		}
+
+		operation_start = get_start_of_token(operation);
+		operation_end = get_end_of_token(operation);
+
+		opt = get_operation_new(pol->policy_c + operation_start, operation_end - operation_start);
+
+		//TODO: For now, only IF operation is supported
+		switch(opt)
+		{
+			case IF:
+				if(!resolve_attribute(pol, attribute_list))
+				{
+					// Take second obligation if condition is false (else branch)
+					obl_value = json_get_token_index_from_pos(pol->policy_c, obl_value + 1, "obligations");
+				}
+
+				break;
+
+			default:
+				break;
+		}
+	}
+	
+	if(obl_value >= 0)
+	{
+		ret = get_obligation(pol, obl_value, obligation);
+	}
+	
+	return ret;
+}
+
+//TODO: obligations should be linked list of the elements of the 'obligation_s' structure type
+pdp_decision_t pdp_calculate_decision(policy_t *pol, char *obligation, char *action)
 {
 	int ret = PDP_ERROR;
 
-	if (pol == NULL)
+	if(pol == NULL)
 	{
-		Dlog_printf("\n\nERROR: Unknown policy\n\n");
+		Dlog_printf("\n\nERROR[%s]: Unknown policy\n\n",__FUNCTION__);
+		return ret;
+	}
+	
+	if(obligation == NULL)
+	{
+		Dlog_printf("\n\nERROR[%s]: Invalid obligation buffer\n\n",__FUNCTION__);
 		return ret;
 	}
 
+	if(action == NULL)
+	{
+		Dlog_printf("\n\nERROR[%s]: Invalid action buffer\n\n",__FUNCTION__);
+		return ret;
+	}
 
 	json_parser_init(pol->policy_c);
 
 	int policy_goc = json_get_token_index(pol->policy_c, "policy_goc");//json_get_value(pol->policy_c, 0, "policy_goc");
 	int policy_doc = json_get_token_index(pol->policy_c, "policy_doc");//json_get_value(pol->policy_c, 0, "policy_doc");
+	int policy_gobl = json_get_token_index(pol->policy_c, "obligation_grant");
+	int policy_dobl = json_get_token_index(pol->policy_c, "obligation_deny");
 
 	if(policy_goc == -1)
 	{
@@ -679,17 +798,40 @@ pdp_decision_t pdp_calculate_decision(policy_t *pol, char *action)
 	{
 		Dlog_printf("\nPOLICY policy_doc IS NULL\n");
 	}
+	
+	if(policy_gobl == -1)
+	{
+		Dlog_printf("\nOBLIGATION obligation_grant IS NULL\n");
+	}
+
+	if(policy_dobl == -1)
+	{
+		Dlog_printf("\nOBLIGATION obligation_deny IS NULL\n");
+	}
 
 	int pol_goc = resolve_attribute(pol, policy_goc);
 	int pol_doc = resolve_attribute(pol, policy_doc);
 
 
 	ret = pol_goc + 2 * pol_doc;  // => (0, 1, 2, 3) <=> (gap, grant, deny, conflict)
-
+	
 	if(ret == 1)
 	{
+		//FIXME: Should action be taken for deny case also?
 		int number_of_tokens = json_parser_init(pol->policy_c);
 		get_action(action, pol->policy_c, number_of_tokens);
+		
+		if(policy_gobl >= 0)
+		{
+			resolve_obligation(pol, policy_gobl, obligation);
+		}
+	}
+	else if(ret == 2)
+	{
+		if(policy_dobl >= 0)
+		{
+			resolve_obligation(pol, policy_dobl, obligation);
+		}
 	}
 
 	Dlog_printf("\nPOLICY GOC RESOLVED: %d", pol_goc);

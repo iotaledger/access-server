@@ -32,6 +32,9 @@
 #include "libauthdac.h"
 #include "parson.h"
 
+#define TRUE 1
+#define FALSE 0
+
 /**
  * @fn      int sendDecision(int decision, dacSession_t *session)
  *
@@ -65,11 +68,12 @@ int checkMsgFormat(JSON_Value *request_json);
  * @brief   Function that controls led lights based on decision received from pdp
  *
  * @param   decision        Decision from pdp
- * @param   polID           ID of requested policy
+ * @param   obligation      Obligation from policy
+ * @param   action          Action from policy
  *
  * @return  0 if it succeeds.
  */
-int ledControl(int decision, char *action, int *obl);
+int ledControl(int decision, char *obligation, char *action);
 
 /**
  * @fn      int checkMsgFormat_new(const char *request)

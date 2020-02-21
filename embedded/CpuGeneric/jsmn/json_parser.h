@@ -24,7 +24,7 @@
 #include "jsmn.h"
 
 #define JSON_ERROR (-1)
-
+#define bool _Bool
 
 int json_parser_init(const char *policy);
 //void json_parser_init();
@@ -55,4 +55,6 @@ int get_action(char *action, char* policy, int number_of_tokens);
 jsmntok_t get_token_at(int i);
 
 int json_get_token_index(const char *json, const char *s);
+
+int json_get_token_index_from_pos(const char *json, int pos, const char *s);
 

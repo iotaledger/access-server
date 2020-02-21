@@ -42,13 +42,17 @@
 
 #include "resolver.h"
 
-static char* datahex(char* string, int slength) {
+static char* datahex(char* string, int slength) 
+{
 
 	if(string == NULL)
+	{
 		return NULL;
-
+	}
 	if((slength % 2) != 0) // must be even
+	{
 		return NULL;
+	}
 
 	int dlength = 32;
 
@@ -56,16 +60,24 @@ static char* datahex(char* string, int slength) {
 	memset(data, 0, dlength);
 
 	size_t index = 0;
-	while (index < slength) {
+	while (index < slength) 
+	{
 		char c = string[index];
 		int value = 0;
 		if(c >= '0' && c <= '9')
+		{
 			value = (c - '0');
+		}
 		else if (c >= 'A' && c <= 'F')
+		{
 			value = (10 + (c - 'A'));
+		}
 		else if (c >= 'a' && c <= 'f')
+		{
 			value = (10 + (c - 'a'));
-		else {
+		}
+		else 
+		{
 			return NULL;
 		}
 
@@ -77,7 +89,7 @@ static char* datahex(char* string, int slength) {
 	return data;
 }
 
-int pep_request_access(char *request, int *obl)
+int pep_request_access(char *request)
 {
 	pdp_decision_t ret = PDP_ERROR;
 	policy_t *pol = NULL;
@@ -85,21 +97,25 @@ int pep_request_access(char *request, int *obl)
     char *request_policy_id_hex;
     int request_policy_id = -1;
     char action[15];
+    //TODO: obligations should be linked list of the elements of the 'obligation_s' structure type
+    char obligation[15];
+    memset(obligation, 0, 15 * sizeof(char));
     int action_l = 15;
-
 
 	request_policy_id = json_get_value(request, 0, "policy_id");
     size = get_size_of_token(request_policy_id);
     request_policy_id_hex = datahex(request + get_start_of_token(request_policy_id), size);
 
 	pol = PolicyStore_get_policy(request_policy_id_hex, 32);
-	ret = pdp_calculate_decision(pol, action);
+	
+	ret = pdp_calculate_decision(pol, obligation, action);
 
 	if (ret == PDP_GRANT)
+	{
 		pol->num_of_executions++;
+	}
 
-	ledControl(ret, action, obl);
-
+	ledControl(ret, obligation, action);
 
 	return ret;
 }

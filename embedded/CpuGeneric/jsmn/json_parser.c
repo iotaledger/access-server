@@ -26,6 +26,8 @@
 #include <string.h>
 #include "jsmn.h"
 
+#define GOBL_SIZE 16
+#define DOBL_SIZE 15
 
 //const char array[] = {"{\"obligation_deny\":{},\"obligation_grant\":{},\"policy_doc\":{\"type\":\"boolean\",\"value\":\"false\"},\"policy_goc\":{\"attribute_list\":[{\"attribute_list\":[{\"type\":\"str\",\"value\":\"0x3c9d985c5d630e6e02f676997c5e9f03b45c6b7529b2491e8de03c18af3c9d87f0a65ecb5dd8f390dee13835354b222df414104684ce9f1079a059f052ca6e51\"},{\"type\":\"str\",\"value\":\"0x3c9d985c5d630e6e02f676997c5e9f03b45c6b7529b2491e8de03c18af3c9d87f0a65ecb5dd8f390dee13835354b222df414104684ce9f1079a059f052ca6e51\"}],\"operation\":\"eq\"},{\"attribute_list\":[{\"type\":\"str\",\"value\":\"0xc73b8388fb1bd8f924af16308dba6615ff6aad1ae7e5d994016a35718ef039f6814e53df2cf5a22294d807aa43346a69c8bf229129b6fb93abb70cf3ad1277f0\"},{\"type\":\"str\",\"value\":\"0xc73b8388fb1bd8f924af16308dba6615ff6aad1ae7e5d994016a35718ef039f6814e53df2cf5a22294d807aa43346a69c8bf229129b6fb93abb70cf3ad1277f0\"}],\"operation\":\"eq\"},{\"attribute_list\":[{\"type\":\"str\",\"value\":\"open_door\"},{\"type\":\"str\",\"value\":\"open_door\"}],\"operation\":\"eq\"},{\"attribute_list\":[{\"type\":\"str\",\"value\":\"0\"},{\"type\":\"str\",\"value\":\"1\"}],\"operation\":\"eq\"},{\"attribute_list\":[{\"type\":\"str\",\"value\":\"3537973953\"},{\"type\":\"str\",\"value\":\"3537973953\"}],\"operation\":\"eq\"}],\"operation\":\"and\"}}"};
 
@@ -276,10 +278,13 @@ int get_action(char *action, char* policy, int number_of_tokens)
 		current += size_of_token(current);*/
 		if((t[i].end - t[i].start) == 6)
 		{
-			if(memcmp(policy + t[i].start,"action",6) == 0)
+			if((memcmp(policy + t[i].start,"action",6) == 0) ||
+				(memcmp(policy + t[i].start,"Action",6) == 0) ||
+				(memcmp(policy + t[i].start,"ACTION",6) == 0))
 			{
 				memcpy(action,policy + t[i + 2].start,t[i + 2].end - t[i + 2].start);
 //				Dlog_printf("ACTION IS: %.*s\n",t[i + 2].end - t[i + 2].start,action);
+				ret = t[i + 2].start; 
 				break;
 			}
 		}
@@ -313,7 +318,30 @@ int json_get_token_index(const char *json, const char *s)
 	return ret;
 }
 
+int json_get_token_index_from_pos(const char *json, int pos, const char *s)
+{
+	int ret = JSON_ERROR;
+	int tok_len;
+	int tok_len_1;
+	int tok_len_2;
+	
+	tok_len_1 = strlen(s);
+	
+	for (int i = pos; i < r; i++)
+	{
+		tok_len_2 = t[i].end - t[i].start;
+		tok_len = tok_len_1 < tok_len_2 ? tok_len_1 : tok_len_2;
+		
+		if (memcmp(json + t[i].start, s, tok_len) == 0)
+		{
+			ret = i + 1;
+			break;
+		}
+	}
 
+	
+	return ret;
+}
 
 
 

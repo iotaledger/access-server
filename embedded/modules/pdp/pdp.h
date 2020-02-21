@@ -41,18 +41,12 @@
 #define ERROR    (666)
 
 typedef enum operation {
-   AND, OR, NOT, EQ, LEQ, GEQ, UNDEFINED, LT, GT
+   AND, OR, NOT, EQ, LEQ, GEQ, UNDEFINED, LT, GT, IF
 } operation_t;
 
 typedef enum type {
     STRING, NUMBER, TIME, BOOLEAN, UNKNOWN
 } type_t;
-
-typedef struct attribute_value {
-    type_t type;
-    void *value;
-    int size;
-} attribute_value_t;
 
 typedef enum pdp_decision {
 	PDP_ERROR = -1,
@@ -61,6 +55,12 @@ typedef enum pdp_decision {
 	PDP_DENY = 2,
 	PDP_CONFLICT = 3
 } pdp_decision_t;
+
+typedef struct attribute_value {
+    type_t type;
+    void *value;
+    int size;
+} attribute_value_t;
 
 /**
  * @fn      pdp_decision pdp_calculate_decision(policy_t *pol)
@@ -71,4 +71,5 @@ typedef enum pdp_decision {
  *
  * @return  pdp_decision decision made
  */
-pdp_decision_t pdp_calculate_decision(policy_t *pol, char *action);
+//TODO: obligations should be linked list of the elements of the 'obligation_s' structure type
+pdp_decision_t pdp_calculate_decision(policy_t *pol, char *obligation, char *action);
