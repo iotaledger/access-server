@@ -1,20 +1,20 @@
-# POLICY SERVER
+# POLICY STORE
 ## Overview
-Interface server for managing delegation policies on IOTA tangle.
-It is able to manage REST and TCP requests and communicates with IOTA IRI node for storing policies and local SQL database where their tangle addresses are stored.
+Policy store consists of interface servers for managing delegation policies on IOTA tangle.
+It is able to manage REST and TCP requests and it communicates with IOTA IRI node for storing policies and local SQL database where their tangle addresses are stored.
 
 ## 1. Compiling
-Server is written in `TypeScript`. To run it, server must be compiled to `JavaScript` using `TypeScript` compiler. Make sure you have `TypeScript` compiler installed on your sistem and run it in root directory:
+Store is written in `TypeScript`. To run it, it must be compiled to `JavaScript` using `TypeScript` compiler. Make sure you have `TypeScript` compiler installed on your sistem and run it in root directory:
 ```bash
 tsc
 ```
-It will generate `dist` folder containing `JavaScript` code for server.
+It will generate `dist` folder containing `JavaScript` code for store.
 
 ## 2. Configuring
 Configuring is done via `config`, `.env` and `Dockerfile` files.
 
 ### 2.1. Config files
-There are two config files, `default.json` used for development, and `production.json` used when running server in production environment. They both have the same structure:
+There are two config files, `default.json` used for development, and `production.json` used when running store in production environment. They both have the same structure:
 ```JSON
 {
     "server": {
@@ -60,17 +60,17 @@ POSTGRES_DB=
 Published port numbers must match corresponding port numbers in `config` files.
 
 ## 3. Start
-Install `Docker` on your sistem in order to run all servers. It is also required to have running and accessible IRI node.
+Install `Docker` on your sistem in order to run store. It is also required to have running and accessible IRI node.
 
-To start all servers (rest, tcp and database) just run:
+To start store run:
 ```bash
-./start_servers.sh
+./start_store.sh
 ```
 
 ## 4. Stop
-To stop all servers (rest, tcp, database) just run:
+To stop store run:
 ```bash
-./stop_servers.sh
+./stop_store.sh
 ```
 
 ## 5. Testing/Developing

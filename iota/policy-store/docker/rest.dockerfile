@@ -1,4 +1,4 @@
-FROM node:10.19.0-alpine3.11
+FROM node:10
 
 RUN mkdir -p /home/node/app/node_modules /home/node/app/config
 
@@ -12,4 +12,4 @@ RUN npm install
 
 COPY . .
 
-ENTRYPOINT [ "node", "dist/tcp_server.js" ]
+ENTRYPOINT [ "node", "dist/rest_server.js" ]
