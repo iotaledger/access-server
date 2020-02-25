@@ -1,0 +1,20 @@
+# Dependency directory
+node_modules/
+
+# Ignore built ts files
+dist/**/*
+
+# Docker related files
+.dockerignore
+Dockerfile
+docker-compose.yml
+
+# Software version controll
+.git
+.gitignore
+
+# API keys and secrets
+.env
+
+# IDE files
+.vscode
