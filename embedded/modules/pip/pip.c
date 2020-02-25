@@ -171,8 +171,21 @@ int pip_get_data(policy_t *pol, char *request, char *data, int length)
 {
 	char dot[] = ".";
 	char temp[131];
+
+	if(pol == NULL || request == NULL || data == NULL)
+	{
+		Dlog_printf("\n\nERROR[%s] - Invalid input parameter\n\n",__FUNCTION__);
+		return -1;
+	}
+
 	memcpy(temp,request, length);
 	char * ptr  = strtok(temp,dot);
+
+	if(ptr == NULL)
+	{
+		Dlog_printf("\n\nERROR[%s] - Tokenisation failed\n\n",__FUNCTION__);
+		return -1;
+	}
 
 	int ret = -1;
 

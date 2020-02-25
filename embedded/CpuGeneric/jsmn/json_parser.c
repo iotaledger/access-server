@@ -307,7 +307,7 @@ int json_get_token_index(const char *json, const char *s)
 		tok_len_2 = t[i].end - t[i].start;
 		tok_len = tok_len_1 < tok_len_2 ? tok_len_1 : tok_len_2;
 		
-		if (memcmp(json + t[i].start, s, tok_len) == 0)
+		if ((memcmp(json + t[i].start, s, tok_len) == 0) && (tok_len != 0))
 		{
 			ret = i + 1;
 			break;
@@ -331,8 +331,8 @@ int json_get_token_index_from_pos(const char *json, int pos, const char *s)
 	{
 		tok_len_2 = t[i].end - t[i].start;
 		tok_len = tok_len_1 < tok_len_2 ? tok_len_1 : tok_len_2;
-		
-		if (memcmp(json + t[i].start, s, tok_len) == 0)
+
+		if ((memcmp(json + t[i].start, s, tok_len) == 0) && (tok_len != 0))
 		{
 			ret = i + 1;
 			break;
@@ -343,7 +343,10 @@ int json_get_token_index_from_pos(const char *json, int pos, const char *s)
 	return ret;
 }
 
-
+int get_token_num(void)
+{
+	return r;
+}
 
 
 

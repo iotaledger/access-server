@@ -58,3 +58,5 @@ int json_get_token_index(const char *json, const char *s);
 
 int json_get_token_index_from_pos(const char *json, int pos, const char *s);
 
+int get_token_num(void);
+

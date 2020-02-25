@@ -577,20 +577,35 @@ int resolve_attribute(policy_t *pol, int atribute_position)
 	int ret = -1;
 	operation_t opt;
 
-	int operation = json_get_value(pol->policy_c, atribute_position, "operation");
+	int operation = json_get_token_index_from_pos(pol->policy_c, atribute_position, "operation");
 	int operation_start = -1;
 	int operation_end = -1;
 
 	int attribute_list = -1;
 
-	if(operation != -1)
+	if((operation != -1) && (get_start_of_token(operation) < get_end_of_token(atribute_position)))// Check only operations within this json object
 	{
+		attribute_list = json_get_token_index_from_pos(pol->policy_c, atribute_position, "attribute_list");
+
+		// Check if operation is listed before or after attribure list
+		if(attribute_list >= 0 && operation > attribute_list)
+		{
+			// If attribute list is listed first, get operation given after att. list
+
+			int number_of_tokens = get_token_num();
+			int tok_cnt = attribute_list;
+
+			while((get_end_of_token(attribute_list) > get_start_of_token(operation)) && (tok_cnt <= number_of_tokens) && (tok_cnt >= 0))
+			{
+				operation = json_get_token_index_from_pos(pol->policy_c, tok_cnt, "operation");
+				tok_cnt = operation;
+			}
+		}
+
 		operation_start = get_start_of_token(operation);
 		operation_end = get_end_of_token(operation);
 
 		opt = get_operation_new(pol->policy_c + operation_start, operation_end - operation_start);
-
-		attribute_list = json_get_value(pol->policy_c, atribute_position, "attribute_list");
 
 		switch(opt)
 		{
@@ -630,15 +645,15 @@ int resolve_attribute(policy_t *pol, int atribute_position)
 	}
 	else
 	{
-		int type = json_get_value(pol->policy_c, atribute_position, "type");
-		if(type != -1)
+		int type = json_get_token_index_from_pos(pol->policy_c, atribute_position, "type");
+		if((type != -1) && (get_start_of_token(type) < get_end_of_token(atribute_position)))// Check only type within this json object
 		{
 			int start = get_start_of_token(type);
 			int size_of_type = get_size_of_token(type);
 
 			if((size_of_type == 7) && ((memcmp(pol->policy_c + start, "boolean", 7) == 0) || (memcmp(pol->policy_c + start, "Boolean", 7) == 0)))
 			{
-				int value = json_get_value(pol->policy_c, atribute_position, "value");
+				int value = json_get_token_index_from_pos(pol->policy_c, atribute_position, "value");
 				int start_of_value = get_start_of_token(value);
 				int size_of_value = get_size_of_token(value);
 				if((size_of_value >= 4) && (memcmp(pol->policy_c + start_of_value, "true", 4) == 0))
@@ -661,7 +676,7 @@ int get_obligation(policy_t *pol, int obl_position, char *obligation)
 	int ret = PDP_ERROR;
 	
 	int type = json_get_token_index_from_pos(pol->policy_c, obl_position, "type");
-	if(type != -1)
+	if((type != -1) && (get_start_of_token(type) < get_end_of_token(obl_position)))// Check only type within this json object
 	{
 		int start = get_start_of_token(type);
 		int size_of_type = get_size_of_token(type);
@@ -699,7 +714,6 @@ int resolve_obligation(policy_t *pol, int obl_position, char *obligation)
 	int attribute_list = -1;
 	int operation_start = -1;
 	int operation_end = -1;
-	int att_list_size = -1;
 	int obl_value = -1;
 	operation_t opt;
 	
@@ -717,16 +731,24 @@ int resolve_obligation(policy_t *pol, int obl_position, char *obligation)
 	obl_value = json_get_token_index_from_pos(pol->policy_c, obl_position, "obligations");
 	
 	// In case of IF operation, multiple obligations are available
-	if(attribute_list >= 0 && operation >= 0)
+	if((attribute_list >= 0) &&
+	(get_start_of_token(attribute_list) < get_end_of_token(obl_position)) &&
+	(operation >= 0) &&
+	(get_start_of_token(operation) < get_end_of_token(obl_position)))
 	{
 		// Check if operation is listed before or after attribure list
 		if(operation > attribute_list)
 		{
 			// If attribute list is listed first, get operation given after att. list
 			
-			att_list_size = get_array_size(attribute_list);
+			int number_of_tokens = get_token_num();
+			int tok_cnt = attribute_list;
 			
-			operation = json_get_token_index_from_pos(pol->policy_c, attribute_list + att_list_size, "operation");
+			while((get_end_of_token(attribute_list) > get_start_of_token(operation)) && (tok_cnt <= number_of_tokens) && (tok_cnt >= 0))
+			{
+				operation = json_get_token_index_from_pos(pol->policy_c, tok_cnt, "operation");
+				tok_cnt = operation;
+			}
 		}
 
 		operation_start = get_start_of_token(operation);
@@ -818,7 +840,7 @@ pdp_decision_t pdp_calculate_decision(policy_t *pol, char *obligation, char *act
 	if(ret == 1)
 	{
 		//FIXME: Should action be taken for deny case also?
-		int number_of_tokens = json_parser_init(pol->policy_c);
+		int number_of_tokens = get_token_num();
 		get_action(action, pol->policy_c, number_of_tokens);
 		
 		if(policy_gobl >= 0)
