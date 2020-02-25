@@ -31,7 +31,7 @@ function parseJSON(data: string) {
 const main = () => {
     let PROVIDER_IP_ADDR: string;
     if (config.has('iri.host')) {
-        PROVIDER_IP_ADDR= config.get('provider.host');
+        PROVIDER_IP_ADDR= config.get('iri.host');
     } else {
         logger.error('Config file is missing iri.host definition. Exiting...');
         return process.exit(1);
