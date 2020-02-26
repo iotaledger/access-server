@@ -57,14 +57,14 @@ int ledControl(int decision, char *obligation, char *action)
     bool should_log = FALSE;
     
     //TODO: only "log_event" obligation is supported currently
-    if(0 == memcmp(obligation, "log_event", 9))
+    if(0 == memcmp(obligation, "log_event", strlen("log_event")))
     {
         should_log = TRUE;
     }
     
     if(decision == 1)
     {
-        if((0 == memcmp(action,"open_trunk", 10)))
+        if((0 == memcmp(action,"open_trunk", strlen("open_trunk"))))
         {
             Resolver_action03();
             if(should_log)
@@ -72,7 +72,7 @@ int ledControl(int decision, char *obligation, char *action)
                 broadcast_status("trunk", "unlock", TRUE);
             }
         }
-        else if ((0 == memcmp(action,"open_door", 9)))
+        else if ((0 == memcmp(action,"open_door", strlen("open_door"))))
         {
             Resolver_action01();
             if(should_log)
@@ -80,7 +80,7 @@ int ledControl(int decision, char *obligation, char *action)
                 broadcast_status("door", "unlock", TRUE);
             }
         }
-        else if ((0 == memcmp(action,"close_door", 10)))
+        else if ((0 == memcmp(action,"close_door", strlen("close_door"))))
         {
             Resolver_action02();
             if(should_log)
@@ -88,19 +88,19 @@ int ledControl(int decision, char *obligation, char *action)
                 broadcast_status("door", "lock", TRUE);
             }
         }
-        else if ((0 == memcmp(action,"start_engine", 12)))
+        else if ((0 == memcmp(action,"start_engine", strlen("start_engine"))))
         {
             Resolver_action04();
         }
-        else if ((0 == memcmp(action, "honk", 4)))
+        else if ((0 == memcmp(action, "honk", strlen("honk"))))
         {
             Resolver_action03();
         }
-        else if ((0 == memcmp(action, "alarm_on", 8)))
+        else if ((0 == memcmp(action, "alarm_on", strlen("alarm_on"))))
         {
             Resolver_action04();
         }
-        else if ((0 == memcmp(action, "alarm_off", 9)))
+        else if ((0 == memcmp(action, "alarm_off", strlen("alarm_off"))))
         {
             Resolver_action05();
         }
@@ -150,7 +150,7 @@ int checkMsgFormat_new(const char *request)
 
     int cmd = json_get_value(request, 0, "cmd");
 
-    if(memcmp(request + get_start_of_token(cmd) , "resolve", 7) == 0)
+    if(memcmp(request + get_start_of_token(cmd) , "resolve", strlen("resolve")) == 0)
     {
         if(json_get_value(request, 0, "policy_id") == -1)
         {
@@ -162,7 +162,7 @@ int checkMsgFormat_new(const char *request)
             return 0;
         }
     }
-    else if(memcmp(request + get_start_of_token(cmd) , "get_policy_list", 15) == 0)
+    else if(memcmp(request + get_start_of_token(cmd) , "get_policy_list", strlen("get_policy_list")) == 0)
     {
         if(json_get_value(request, 0, "user_id") == -1)
         {
@@ -174,7 +174,7 @@ int checkMsgFormat_new(const char *request)
             return 1;
         }
     }
-    else if(memcmp(request + get_start_of_token(cmd) , "enable_policy", 13) == 0)
+    else if(memcmp(request + get_start_of_token(cmd) , "enable_policy", strlen("enable_policy")) == 0)
     {
         if(json_get_value(request, 0, "policy_id") == -1)
         {
@@ -186,7 +186,7 @@ int checkMsgFormat_new(const char *request)
             return 2;
         }
     }
-    else if (memcmp(request + get_start_of_token(cmd), "set_dataset", 11) == 0)
+    else if (memcmp(request + get_start_of_token(cmd), "set_dataset", strlen("set_dataset")) == 0)
     {
         if (json_get_value(request, 0, "dataset_list") == -1)
         {
@@ -197,11 +197,11 @@ int checkMsgFormat_new(const char *request)
             return 3;
         }
     }
-    else if (memcmp(request + get_start_of_token(cmd), "get_dataset", 11) == 0)
+    else if (memcmp(request + get_start_of_token(cmd), "get_dataset", strlen("get_dataset")) == 0)
     {
         return 4;
     }
-    else if (memcmp(request + get_start_of_token(cmd), "get_user", 8) == 0)
+    else if (memcmp(request + get_start_of_token(cmd), "get_user", strlen("get_user")) == 0)
     {
         if (json_get_value(request, 0, "username") == -1)
         {
@@ -212,7 +212,7 @@ int checkMsgFormat_new(const char *request)
             return 5;
         }
     }
-    else if (memcmp(request + get_start_of_token(cmd), "get_auth_user_id", 16) == 0)
+    else if (memcmp(request + get_start_of_token(cmd), "get_auth_user_id", strlen("get_auth_user_id")) == 0)
     {
         if (json_get_value(request, 0, "username") == -1)
         {
@@ -223,7 +223,7 @@ int checkMsgFormat_new(const char *request)
             return 6;
         }
     }
-    else if (memcmp(request + get_start_of_token(cmd), "register_user", 13) == 0)
+    else if (memcmp(request + get_start_of_token(cmd), "register_user", strlen("register_user")) == 0)
     {
         if (json_get_value(request, 0, "user") == -1)
         {
@@ -234,11 +234,11 @@ int checkMsgFormat_new(const char *request)
             return 7;
         }
     }
-    else if (memcmp(request + get_start_of_token(cmd), "get_all_users", 13) == 0)
+    else if (memcmp(request + get_start_of_token(cmd), "get_all_users", strlen("get_all_users")) == 0)
     {
         return 8;
     }
-    else if (memcmp(request + get_start_of_token(cmd), "clear_all_users", 15) == 0)
+    else if (memcmp(request + get_start_of_token(cmd), "clear_all_users", strlen("clear_all_users")) == 0)
     {
         return 9;
     }

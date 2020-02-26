@@ -29,6 +29,7 @@
 
 #define GOBL_SIZE 16
 #define DOBL_SIZE 15
+#define TOK_MAX_SIZE 256
 
 //const char array[] = {"{\"obligation_deny\":{},\"obligation_grant\":{},\"policy_doc\":{\"type\":\"boolean\",\"value\":\"false\"},\"policy_goc\":{\"attribute_list\":[{\"attribute_list\":[{\"type\":\"str\",\"value\":\"0x3c9d985c5d630e6e02f676997c5e9f03b45c6b7529b2491e8de03c18af3c9d87f0a65ecb5dd8f390dee13835354b222df414104684ce9f1079a059f052ca6e51\"},{\"type\":\"str\",\"value\":\"0x3c9d985c5d630e6e02f676997c5e9f03b45c6b7529b2491e8de03c18af3c9d87f0a65ecb5dd8f390dee13835354b222df414104684ce9f1079a059f052ca6e51\"}],\"operation\":\"eq\"},{\"attribute_list\":[{\"type\":\"str\",\"value\":\"0xc73b8388fb1bd8f924af16308dba6615ff6aad1ae7e5d994016a35718ef039f6814e53df2cf5a22294d807aa43346a69c8bf229129b6fb93abb70cf3ad1277f0\"},{\"type\":\"str\",\"value\":\"0xc73b8388fb1bd8f924af16308dba6615ff6aad1ae7e5d994016a35718ef039f6814e53df2cf5a22294d807aa43346a69c8bf229129b6fb93abb70cf3ad1277f0\"}],\"operation\":\"eq\"},{\"attribute_list\":[{\"type\":\"str\",\"value\":\"open_door\"},{\"type\":\"str\",\"value\":\"open_door\"}],\"operation\":\"eq\"},{\"attribute_list\":[{\"type\":\"str\",\"value\":\"0\"},{\"type\":\"str\",\"value\":\"1\"}],\"operation\":\"eq\"},{\"attribute_list\":[{\"type\":\"str\",\"value\":\"3537973953\"},{\"type\":\"str\",\"value\":\"3537973953\"}],\"operation\":\"eq\"}],\"operation\":\"and\"}}"};
 
@@ -64,7 +65,7 @@ char array81[] = {"{\"obligation_deny\":{},\"obligation_grant\":{},\"policy_doc\
 static int r;
 
 static jsmn_parser p;
-static jsmntok_t t[256];
+static jsmntok_t t[TOK_MAX_SIZE];
 
 static int jsoneq(const char *json, jsmntok_t *tok, const char *s) {
 	if (tok->type == JSMN_STRING && (int) strlen(s) == tok->end - tok->start &&
@@ -279,7 +280,7 @@ int get_action(char *action, char* policy, int number_of_tokens)
 		current += size_of_token(current);*/
 		if((t[i].end - t[i].start) == 6)
 		{
-			if((strncasecmp(policy + t[i].start,"action",6) == 0))
+			if((strncasecmp(policy + t[i].start,"action",strlen("action")) == 0))
 			{
 				memcpy(action,policy + t[i + 2].start,t[i + 2].end - t[i + 2].start);
 //				Dlog_printf("ACTION IS: %.*s\n",t[i + 2].end - t[i + 2].start,action);

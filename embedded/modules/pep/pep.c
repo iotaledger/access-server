@@ -96,11 +96,11 @@ int pep_request_access(char *request)
     int size = -1;
     char *request_policy_id_hex;
     int request_policy_id = -1;
-    char action[15];
-    //TODO: obligations should be linked list of the elements of the 'obligation_s' structure type
-    char obligation[15];
-    memset(obligation, 0, 15 * sizeof(char));
     int action_l = 15;
+    char action[action_l];
+    //TODO: obligations should be linked list of the elements of the 'obligation_s' structure type
+    char obligation[OBLIGATION_LEN];
+    memset(obligation, 0, OBLIGATION_LEN * sizeof(char));
 
 	request_policy_id = json_get_value(request, 0, "policy_id");
     size = get_size_of_token(request_policy_id);

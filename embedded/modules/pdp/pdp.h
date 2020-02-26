@@ -40,6 +40,8 @@
 #define TRUE     (1)
 #define ERROR    (666)
 
+#define OBLIGATION_LEN (15)
+
 typedef enum operation {
    AND, OR, NOT, EQ, LEQ, GEQ, UNDEFINED, LT, GT, IF
 } operation_t;

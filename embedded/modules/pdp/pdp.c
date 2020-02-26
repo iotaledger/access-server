@@ -42,14 +42,16 @@
 #include "Dlog.h"
 #include "pip.h"
 
+#define DATA_VAL_SIZE 131
+#define DATA_TYPE_SIZE 21
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 int resolve_attribute(policy_t *pol, int atribute_position);
 
-char data_value[131];
-char data_type[21];
+char data_value[DATA_VAL_SIZE];
+char data_type[DATA_TYPE_SIZE];
 
 operation_t get_operation_new(const char *operation, int size)
 {
@@ -170,7 +172,7 @@ int eq(policy_t *pol, int attribute_list)
 
 	int data_length = 0;
 
-	data_value[130] = '\0';
+	data_value[DATA_VAL_SIZE - 1] = '\0';
 	data_length = pip_get_data(pol, url_value, data_value, url_size);
 
 	if(data_length == -1)
@@ -181,7 +183,7 @@ int eq(policy_t *pol, int attribute_list)
 
 	int type_length = 0;
 
-	data_type[20] = '\0';
+	data_type[DATA_TYPE_SIZE - 1] = '\0';
 	type_length = pip_get_data(pol, url_type, data_type, url_sizet);
 
 	if(type_length == -1)
@@ -249,7 +251,7 @@ int leq(policy_t *pol, int attribute_list)
 
 	int data_length = 0;
 
-	data_value[130] = '\0';
+	data_value[DATA_VAL_SIZE - 1] = '\0';
 	data_length = pip_get_data(pol, url_value, data_value, url_size);
 
 
@@ -263,7 +265,7 @@ int leq(policy_t *pol, int attribute_list)
 	int type_length = 0;
 
 
-	data_type[20] = '\0';
+	data_type[DATA_TYPE_SIZE - 1] = '\0';
 	type_length = pip_get_data(pol, url_type,data_type,url_sizet);
 
 
@@ -342,7 +344,7 @@ int lt(policy_t *pol, int attribute_list)
 
 	int data_length = 0;
 
-	data_value[130] = '\0';
+	data_value[DATA_VAL_SIZE - 1] = '\0';
 	data_length = pip_get_data(pol, url_value, data_value, url_size);
 
 
@@ -356,7 +358,7 @@ int lt(policy_t *pol, int attribute_list)
 	int type_length = 0;
 
 
-	data_type[20] = '\0';
+	data_type[DATA_TYPE_SIZE - 1] = '\0';
 	type_length = pip_get_data(pol, url_type,data_type,url_sizet);
 
 
@@ -428,7 +430,7 @@ int geq(policy_t *pol, int attribute_list)
 
 	int data_length = 0;
 
-	data_value[130] = '\0';
+	data_value[DATA_VAL_SIZE - 1] = '\0';
 	data_length = pip_get_data(pol, url_value, data_value, url_size);
 
 
@@ -442,7 +444,7 @@ int geq(policy_t *pol, int attribute_list)
 	int type_length = 0;
 
 
-	data_type[20] = '\0';
+	data_type[DATA_TYPE_SIZE - 1] = '\0';
 	type_length = pip_get_data(pol, url_type,data_type,url_sizet);
 
 
@@ -513,7 +515,7 @@ int gt(policy_t *pol, int attribute_list)
 
 	int data_length = 0;
 
-	data_value[130] = '\0';
+	data_value[DATA_VAL_SIZE - 1] = '\0';
 	data_length = pip_get_data(pol, url_value,data_value, url_size);
 
 
@@ -527,7 +529,7 @@ int gt(policy_t *pol, int attribute_list)
 	int type_length = 0;
 
 
-	data_type[20] = '\0';
+	data_type[DATA_TYPE_SIZE - 1] = '\0';
 	type_length = pip_get_data(pol, url_type,data_type,url_sizet);
 
 
@@ -652,12 +654,12 @@ int resolve_attribute(policy_t *pol, int atribute_position)
 			int start = get_start_of_token(type);
 			int size_of_type = get_size_of_token(type);
 
-			if((size_of_type == 7) && ((memcmp(pol->policy_c + start, "boolean", 7) == 0) || (memcmp(pol->policy_c + start, "Boolean", 7) == 0)))
+			if((size_of_type == strlen("boolean")) && (strncasecmp(pol->policy_c + start, "boolean", strlen("boolean")) == 0))
 			{
 				int value = json_get_token_index_from_pos(pol->policy_c, atribute_position, "value");
 				int start_of_value = get_start_of_token(value);
 				int size_of_value = get_size_of_token(value);
-				if((size_of_value >= 4) && (memcmp(pol->policy_c + start_of_value, "true", 4) == 0))
+				if((size_of_value >= strlen("true")) && (memcmp(pol->policy_c + start_of_value, "true", strlen("true")) == 0))
 				{
 					ret = TRUE;
 				}
@@ -682,17 +684,16 @@ int get_obligation(policy_t *pol, int obl_position, char *obligation)
 		int start = get_start_of_token(type);
 		int size_of_type = get_size_of_token(type);
 
-		if((size_of_type == 10) && 
-		(!strncasecmp(pol->policy_c + start, "obligation", 10)))
+		if((size_of_type == strlen("obligation")) &&
+		(!strncasecmp(pol->policy_c + start, "obligation", strlen("obligation"))))
 		{
 			int value = json_get_token_index_from_pos(pol->policy_c, obl_position, "value");
 			int start_of_value = get_start_of_token(value);
 			int size_of_value = get_size_of_token(value);
 
-			// Size of obligation buffer is 15
-			if(size_of_value > 15)
+			if(size_of_value > OBLIGATION_LEN)
 			{
-				size_of_value = 15;
+				size_of_value = OBLIGATION_LEN;
 			}
 			
 			if(value >= 0)
@@ -724,7 +725,7 @@ int resolve_obligation(policy_t *pol, int obl_position, char *obligation)
 	}
 	
 	// Size of obligation buff is 15
-	memset(obligation, 0, sizeof(char) * 15);
+	memset(obligation, 0, sizeof(char) * OBLIGATION_LEN);
 
 	operation = json_get_token_index_from_pos(pol->policy_c, obl_position, "operation");
 	attribute_list = json_get_token_index_from_pos(pol->policy_c, obl_position, "attribute_list");

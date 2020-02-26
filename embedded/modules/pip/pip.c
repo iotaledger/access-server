@@ -39,6 +39,7 @@
 
 #include "Dlog.h"
 
+#define MAX_BUF_SIZE 131
 
 unsigned char lockState = 0;
 unsigned char trunkState = 0;
@@ -170,7 +171,7 @@ unsigned char getTrunkState()
 int pip_get_data(policy_t *pol, char *request, char *data, int length)
 {
 	char dot[] = ".";
-	char temp[131];
+	char temp[MAX_BUF_SIZE];
 
 	if(pol == NULL || request == NULL || data == NULL)
 	{
@@ -189,21 +190,21 @@ int pip_get_data(policy_t *pol, char *request, char *data, int length)
 
 	int ret = -1;
 
-    if(memcmp(ptr,"request",7)==0)
+    if(memcmp(ptr,"request",strlen("request"))==0)
     {
     	ptr = strtok(NULL, dot);
-    	if(memcmp(ptr,"subject",7)==0)
+    	if(memcmp(ptr,"subject",strlen("subject"))==0)
     	{
 
 			ptr = strtok(NULL, dot);
 			//TODO: change this later
 			ret = -2;
 			//TODO: implement pip module with support for request for subject
-			if(memcmp(ptr, "value", 5 ) == 0)
+			if(memcmp(ptr, "value", strlen("value")) == 0)
 			{
 
 			}
-			else if(memcmp(ptr, "type", 4 ) == 0)
+			else if(memcmp(ptr, "type", strlen("type")) == 0)
 			{
 
 			}
@@ -213,16 +214,16 @@ int pip_get_data(policy_t *pol, char *request, char *data, int length)
 			}
 
     	}
-    	else if( memcmp(ptr,"object",6)==0)
+    	else if( memcmp(ptr,"object",strlen("object"))==0)
     	{
 
     		ptr = strtok(NULL, dot);
 
-    		if (memcmp (ptr, "value", 5) == 0)
+    		if (memcmp (ptr, "value", strlen("value")) == 0)
 			{
 				ret = fetch_data(pol, PIP_VEHICLE_ID_ID, data);
 			}
-			else if (memcmp (ptr, "type", 4) == 0)
+			else if (memcmp (ptr, "type", strlen("type")) == 0)
 			{
 				strcpy(data, PIP_PUBLIC_ID_TYPE_STR);
 				ret = strlen(data);
@@ -235,11 +236,11 @@ int pip_get_data(policy_t *pol, char *request, char *data, int length)
     	else if(memcmp(ptr, PIP_TIME_TYPE_STR, strlen(PIP_TIME_TYPE_STR))==0)
     	{
     		ptr = strtok(NULL, dot);
-    		if (memcmp ( ptr, "value", 5) == 0)
+    		if (memcmp ( ptr, "value", strlen("value")) == 0)
 			{
 				ret = fetch_data(pol, PIP_TIME_ID, data);
 			}
-			else if (memcmp ( ptr, "type", 4) == 0)
+			else if (memcmp ( ptr, "type", strlen("type")) == 0)
 			{
 				strcpy(data, PIP_TIME_TYPE_STR);
 				ret = strlen(data);
@@ -253,11 +254,11 @@ int pip_get_data(policy_t *pol, char *request, char *data, int length)
     	else if (memcmp(ptr, PIP_EXECUTION_NUM_STR, strlen(PIP_EXECUTION_NUM_STR)) == 0)
     	{
     		ptr = strtok(NULL, dot);
-    		if (memcmp(ptr, "value", 5) == 0)
+    		if (memcmp(ptr, "value", strlen("value")) == 0)
 			{
 				ret = fetch_data(pol, PIP_EXECUTION_NUM_ID, data);
 			}
-			else if (memcmp(ptr, "type", 4) == 0)
+			else if (memcmp(ptr, "type", strlen("type")) == 0)
 			{
 				strcpy(data, PIP_EXECUTION_NUM_STR);
 				ret = strlen(data);
