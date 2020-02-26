@@ -31,6 +31,7 @@
  * 09.11.2018 Modified to work together with PIP module
  ****************************************************************************/
 
+#include <strings.h>
 #include "pdp.h"
 #include <time.h>
 #include "zlib.h"
@@ -210,8 +211,8 @@ int eq(policy_t *pol, int attribute_list)
 	int size_of_value2 = strlen(data_value);
 
 
-	if(((size_of_type1 == size_of_type2) && (memcmp(pol->policy_c + get_start_of_token(type1), data_type, size_of_type1) == 0 )) &&
-			((size_of_value1 == size_of_value2) && (memcmp(pol->policy_c + get_start_of_token(value1), data_value, size_of_value1) == 0 )))
+	if(((size_of_type1 == size_of_type2) && (strncasecmp(pol->policy_c + get_start_of_token(type1), data_type, size_of_type1) == 0 )) &&
+			((size_of_value1 == size_of_value2) && (strncasecmp(pol->policy_c + get_start_of_token(value1), data_value, size_of_value1) == 0 )))
 	{
 		ret = TRUE;
 	}
@@ -293,12 +294,12 @@ int leq(policy_t *pol, int attribute_list)
 	int size_of_value2 = strlen(data_value);
 
 //	Dlog_printf("\nLEQ ");
-	if(((size_of_type1 == size_of_type2) && (memcmp(pol->policy_c + get_start_of_token(type1), data_type, size_of_type1) == 0 )))
+	if(((size_of_type1 == size_of_type2) && (strncasecmp(pol->policy_c + get_start_of_token(type1), data_type, size_of_type1) == 0 )))
 	{
 		if(size_of_value1 < size_of_value2)
 		{
 			ret = TRUE;
-		}else if((size_of_value1 == size_of_value2) && memcmp(pol->policy_c + get_start_of_token(value1), data_value, size_of_value1) <= 0 )
+		}else if((size_of_value1 == size_of_value2) && strncasecmp(pol->policy_c + get_start_of_token(value1), data_value, size_of_value1) <= 0 )
 		{
 			ret = TRUE;
 		}
@@ -386,13 +387,13 @@ int lt(policy_t *pol, int attribute_list)
 	int size_of_value2 = strlen(data_value);
 
 //	Dlog_printf("\nLEQ ");
-	if(((size_of_type1 == size_of_type2) && (memcmp(pol->policy_c + get_start_of_token(type1), data_type, size_of_type1) == 0 )))
+	if(((size_of_type1 == size_of_type2) && (strncasecmp(pol->policy_c + get_start_of_token(type1), data_type, size_of_type1) == 0 )))
 	{
 		if(size_of_value1 < size_of_value2)
 		{
 			ret = TRUE;
 		}
-		else if((size_of_value1 == size_of_value2) && memcmp(pol->policy_c + get_start_of_token(value1), data_value, size_of_value1) < 0 )
+		else if((size_of_value1 == size_of_value2) && strncasecmp(pol->policy_c + get_start_of_token(value1), data_value, size_of_value1) < 0 )
 		{
 			ret = TRUE;
 		}
@@ -472,13 +473,13 @@ int geq(policy_t *pol, int attribute_list)
 	int size_of_value2 = strlen(data_value);
 
 //	Dlog_printf("\nGEQ ");
-	if(((size_of_type1 == size_of_type2) && (memcmp(pol->policy_c + get_start_of_token(type1), data_type, size_of_type1) == 0 )))
+	if(((size_of_type1 == size_of_type2) && (strncasecmp(pol->policy_c + get_start_of_token(type1), data_type, size_of_type1) == 0 )))
 	{
 		if(size_of_value1 > size_of_value2)
 		{
 			ret = TRUE;
 		}
-		else if((size_of_value1 == size_of_value2) && memcmp(pol->policy_c + get_start_of_token(value1), data_value, size_of_value1) >= 0 )
+		else if((size_of_value1 == size_of_value2) && strncasecmp(pol->policy_c + get_start_of_token(value1), data_value, size_of_value1) >= 0 )
 		{
 			ret = TRUE;
 		}
@@ -557,12 +558,12 @@ int gt(policy_t *pol, int attribute_list)
 	int size_of_value2 = strlen(data_value);
 
 //	Dlog_printf("\nLEQ ");
-	if(((size_of_type1 == size_of_type2) && (memcmp(pol->policy_c + get_start_of_token(type1), data_type, size_of_type1) == 0 )))
+	if(((size_of_type1 == size_of_type2) && (strncasecmp(pol->policy_c + get_start_of_token(type1), data_type, size_of_type1) == 0 )))
 	{
 		if(size_of_value1 > size_of_value2)
 		{
 			ret = TRUE;
-		}else if((size_of_value1 == size_of_value2) && memcmp(pol->policy_c + get_start_of_token(value1), data_value, size_of_value1) > 0 )
+		}else if((size_of_value1 == size_of_value2) && strncasecmp(pol->policy_c + get_start_of_token(value1), data_value, size_of_value1) > 0 )
 		{
 			ret = TRUE;
 		}
@@ -682,8 +683,7 @@ int get_obligation(policy_t *pol, int obl_position, char *obligation)
 		int size_of_type = get_size_of_token(type);
 
 		if((size_of_type == 10) && 
-		(!memcmp(pol->policy_c + start, "obligation", 10) ||
-		!memcmp(pol->policy_c + start, "Obligation", 10)))
+		(!strncasecmp(pol->policy_c + start, "obligation", 10)))
 		{
 			int value = json_get_token_index_from_pos(pol->policy_c, obl_position, "value");
 			int start_of_value = get_start_of_token(value);

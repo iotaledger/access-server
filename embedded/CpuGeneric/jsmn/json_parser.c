@@ -24,6 +24,7 @@
 #include "json_parser.h"
 #include "Dlog.h"
 #include <string.h>
+#include <strings.h>
 #include "jsmn.h"
 
 #define GOBL_SIZE 16
@@ -278,9 +279,7 @@ int get_action(char *action, char* policy, int number_of_tokens)
 		current += size_of_token(current);*/
 		if((t[i].end - t[i].start) == 6)
 		{
-			if((memcmp(policy + t[i].start,"action",6) == 0) ||
-				(memcmp(policy + t[i].start,"Action",6) == 0) ||
-				(memcmp(policy + t[i].start,"ACTION",6) == 0))
+			if((strncasecmp(policy + t[i].start,"action",6) == 0))
 			{
 				memcpy(action,policy + t[i + 2].start,t[i + 2].end - t[i + 2].start);
 //				Dlog_printf("ACTION IS: %.*s\n",t[i + 2].end - t[i + 2].start,action);
@@ -307,7 +306,7 @@ int json_get_token_index(const char *json, const char *s)
 		tok_len_2 = t[i].end - t[i].start;
 		tok_len = tok_len_1 < tok_len_2 ? tok_len_1 : tok_len_2;
 		
-		if ((memcmp(json + t[i].start, s, tok_len) == 0) && (tok_len != 0))
+		if ((strncasecmp(json + t[i].start, s, tok_len) == 0) && (tok_len != 0))
 		{
 			ret = i + 1;
 			break;
@@ -332,7 +331,7 @@ int json_get_token_index_from_pos(const char *json, int pos, const char *s)
 		tok_len_2 = t[i].end - t[i].start;
 		tok_len = tok_len_1 < tok_len_2 ? tok_len_1 : tok_len_2;
 
-		if ((memcmp(json + t[i].start, s, tok_len) == 0) && (tok_len != 0))
+		if ((strncasecmp(json + t[i].start, s, tok_len) == 0) && (tok_len != 0))
 		{
 			ret = i + 1;
 			break;
