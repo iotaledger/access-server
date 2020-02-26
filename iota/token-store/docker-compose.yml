@@ -1,0 +1,25 @@
+version: '2.2'
+services:
+  ts-iota-rest:
+    build:
+      context: .
+      dockerfile: ./docker/rest.dockerfile
+    image: ts-iota-rest
+    container_name: ts-iota-rest
+    restart: always
+    ports:
+      - ${LISTENING_PORT}:${LISTENING_PORT}
+    env_file:
+      - .env
+
+  ts-iota-hub-initializer:
+    build:
+      context: .
+      dockerfile: ./docker/rest.dockerfile
+    image: ts-iota-rest
+    container_name: ts-iota-hub-initializer
+    env_file:
+      - .env
+    entrypoint:
+      - node
+      - /home/node/app/dist/hub_init.js
