@@ -1,75 +1,74 @@
 import BigNumber from 'bignumber.js';
 
 /**
- * Make default response for every REST response
- * 
- * @param {boolean} error   true if error happened, false otherwise
- * @param {string}  message Response message
- * @param {object}  data    (Optional) data object
+ * Type of default REST response.
  */
-export const defaultResponse = (error: boolean, message: string, data?: object) => {
-    return {
-        error: error,
-        message: message,
-        data: data
-    };
+export type DefaultResponse = {
+  error: boolean
+  message: string,
+  data?: object
+}
+
+/**
+ * Make default response for every REST response.
+ * 
+ * @param error True if error happened, false otherwise.
+ * @param message Response message.
+ * @param data Data object.
+ * 
+ * @returns Default REST response.
+ */
+export const defaultResponse = (
+  error: boolean,
+  message: string,
+  data?: object
+): DefaultResponse => {
+  return {
+    error: error,
+    message: message,
+    data: data
+  };
 };
 
 /**
- * Convert provided amount to not use decimal points (if any)
+ * Convert provided amount to not use decimal points (if any).
  * 
- * @param amount Amount to convert
- * @param decimals Number of decimals
+ * @param amount Amount to convert.
+ * @param decimals Number of decimals.
+ * 
+ * @returns Amount of tokens without decimal point.
  */
-export const toTokenWithoutDecimals = (amount: number, decimals: number): string => {
-    return new BigNumber(String(amount))
-        .multipliedBy(new BigNumber(10).exponentiatedBy(decimals))
-        .toString();
+export const toTokenWithoutDecimals = (
+  amount: number,
+  decimals: number
+): string => {
+  return new BigNumber(String(amount))
+    .multipliedBy(new BigNumber(10).exponentiatedBy(decimals))
+    .toString();
 }
 
 /**
- * Convert provided amount to use decimal points (if any)
+ * Convert provided amount to use decimal points (if any).
  * 
- * @param amount Amount to convert
- * @param decimals Number of decimals
+ * @param amount Amount to convert.
+ * @param decimals Number of decimals.
+ * 
+ * @returns Amount of tokens with decimal point for easier readability.
  */
-export const toTokenWithDecimals = (amount: number, decimals: number): string => {
-    return new BigNumber(String(amount))
-        .dividedBy(new BigNumber(10).exponentiatedBy(decimals))
-        .toString();
+export const toTokenWithDecimals = (
+  amount: number,
+  decimals: number
+): string => {
+  return new BigNumber(String(amount))
+    .dividedBy(new BigNumber(10).exponentiatedBy(decimals))
+    .toString();
 }
 
+/**
+ * Creates message explaining which environment variable must be provided.
+ * 
+ * @param item Name of environment variable that is missing.
+ */
 export const mandatoryEnvMissing = (item: string): string => {
-    return `${item} must be provided as environment variable. Exiting...`;
-}
-
-export const parseJson = (json: string) => {
-    if (typeof json !== 'string')
-        return;
-    
-    let start = -1;
-    let end = -1;
-    let balance = 0;
-    [...json].forEach((element, index) => {
-        if (element === '{') {
-            if (start == -1) {
-                start = index;
-            }
-            balance += 1;
-        }
-        else if (element === '}') {
-            end = index;
-            balance -= 1; 
-        }
-    });
-
-    if (balance != 0 || start == -1 || end == -1)
-        return;
-    
-    try {
-        return JSON.parse(json.substring(start, end + 1));
-    } catch(err) {
-        console.log(err);
-        return;
-    }
+  return `${item} must be provided as environment variable. Exiting...`;
 }

@@ -1,12 +1,12 @@
 import * as utils from '../utils/utils';
 import { mandatoryEnvMissing } from '../utils/utils';
-import { ethers } from 'ethers';
 import * as Iota from '@iota/core';
-import { Controller } from './controller';
+import Controller from './controller';
 import * as Converter from '@iota/converter';
+import * as iotaUtils from '../utils/iota_utils';
+import uuid from 'uuid';
 const grpc = require('grpc');
 const protoLoader = require('@grpc/proto-loader');
-import * as iotaUtils from '../utils/iota_utils';
 
 const PROTO_PATH = __dirname + '../../../protos/hub.proto';
 
@@ -24,6 +24,8 @@ var packageDefinition = protoLoader.loadSync(
 const hubProto = grpc.loadPackageDefinition(packageDefinition).hub.rpc;
 
 const DEFAULT_DECIMALS = 1;
+const DEFAULT_SECURITY_LEVEL = 2;
+const DEFAULT_MAX_MIOTA = 2779530283277761;
 
 export class IotaController implements Controller {
 
@@ -33,19 +35,31 @@ export class IotaController implements Controller {
   private iota: Iota.API;
 
   /**
-   * Constructor of Iota Controller
+   * Constructor of Iota Controller.
    * 
-   * @param iriUrl URL of IRI node, eg. 'http://127.0.0.1:14265'
-   * @param hubUrl URL of HUB, eg. '127.0.0.1:50051'
+   * @param iriUrl URL of IRI node, eg. 'http://127.0.0.1:14265'.
+   * 
+   * @param hubUrl URL of HUB, eg. '127.0.0.1:50051'.
+   * 
    * @param decimals  Optional variable. If omitted, default value is 1.
-   * It represents number of decimal points used for human readable representation of tokens.
-   * For example if DECIMALS=3 and you send someone 27 tokens, internally transaction of 27 000 tokens will be made.
-   * This has purpose of simplifying transactions of large number of tokens with low value.
-   * @param masterId ID of master user in IOTA HUB from who's account payments are being made.
-   * It can be regularly created account if Token Store is connected to IOTA main Tangle,
-   * or it can be created using build in tool for initializing IOTA HUB when using private Tangle.
+   * It represents number of decimal points used for human readable
+   * representation of tokens.
+   * 
+   * For example if decimals is equal to 3 and user sends someone 27 tokens,
+   * internally transaction of 27 000 MIOTAs will be made. It's purpose is to
+   * simplifying transactions of large number of tokens.
+   * 
+   * @param masterId ID of master user in IOTA HUB from who's payments are being
+   * made. It can be regularly created account if Token Store is connected to
+   * IOTA main Tangle, or it can be created using build in tool for initializing
+   * IOTA HUB when using private Tangle.
    */
-  constructor(iriUrl: string, hubUrl: string, decimals: number, masterId?: string) {
+  constructor(
+    iriUrl: string,
+    hubUrl: string,
+    decimals: number = DEFAULT_DECIMALS,
+    masterId?: string
+  ) {
     this.masterId = masterId;
     this.decimals = decimals;
     this.hub = new hubProto.Hub(hubUrl, grpc.credentials.createInsecure());
@@ -56,6 +70,14 @@ export class IotaController implements Controller {
     this.masterId = masterId;
   }
 
+  /**
+   * Initializes [[IotaController]] from process environment.
+   * 
+   * @throws Error with explanation if some of mandatory process environment
+   * variables is missing.
+   * 
+   * @returns Newly created [[IotaController]].
+   */
   public static initialize(): IotaController {
     const iriHost = process.env.IRI_HOST;
     if (iriHost === undefined) {
@@ -85,16 +107,16 @@ export class IotaController implements Controller {
     return new IotaController(iriUrl, hubUrl, decimals);
   }
 
+  /** @inheritdoc */
   public async createAccount(): Promise<string> {
     try {
-      // create ethereum address and use it as userId
-      const address = await ethers.Wallet.createRandom().getAddress();
+      const userId = uuid.v4();
       return new Promise((resolve, reject) => {
-        this.hub.createUser({ userId: address }, (err: any, response: any) => {
+        this.hub.createUser({ userId: userId }, (err: any, response: any) => {
           if (err)
             reject(err);
           else
-            resolve(address);
+            resolve(userId);
         });
       });
     } catch (err) {
@@ -102,6 +124,7 @@ export class IotaController implements Controller {
     }
   }
 
+  /** @inheritdoc */
   public getBalance(address: string): Promise<string> {
     return new Promise((resolve, reject) => {
       this.hub.getBalance({ userId: address }, (err: any, response: any) => {
@@ -113,6 +136,7 @@ export class IotaController implements Controller {
     });
   }
 
+  /** @inheritdoc */
   public send(from: string, to: string, amount: number): Promise<void> {
     return new Promise(async (resolve, reject) => {
       let payoutAddress;
@@ -123,9 +147,14 @@ export class IotaController implements Controller {
         return;
       }
 
-      const convertedAmount = parseInt(utils.toTokenWithoutDecimals(amount, this.decimals));
+      // Converts provided amount of tokens in human representation with
+      // decimals to actual amount of MIOTAs
+      const convertedAmount = parseInt(utils.toTokenWithoutDecimals(
+        amount,
+        this.decimals
+      ));
 
-      // create request for withdraw
+      // Create request for withdraw
       const userWithdrawRequest = {
         userId: from,
         payoutAddress: payoutAddress,
@@ -144,6 +173,7 @@ export class IotaController implements Controller {
     });
   }
 
+  /** @inheritdoc */
   public fund(receiver: string, amount: number): Promise<void> {
     if (this.masterId === undefined)
       return Promise.reject('Master ID not provided, unable to fund')
@@ -152,15 +182,26 @@ export class IotaController implements Controller {
   }
 
   /**
+   * Creates Master user on HUB and transfers provided amount of MIOTAs
+   * to it.
    * 
-   * @param seed SEED of account on tangle containing tokens
-   * @param security Level of security for addresses for provided SEED (1, 2 or 3)
-   * @param amount Amount of IOTA tokens to be transferred to HUB's master account
+   * @param seed Seed of account on tangle containing MIOTAs.
+   * @param security Level of security for addresses for provided seed
+   * (1, 2 or 3).
+   * 
+   * @param amount Amount of MIOTAs to be transferred to HUB's master user.
+   * Default amount is 2779530283277761 (max number of MIOTAs).
+   * 
+   * @returns Promise containing ID of newly created master user.
    */
-  public async transferToHub(seed: string, security: number = 2, amount: number = 2779530283277761) {
+  public async createMasterUserAndFundIt(
+    seed: string,
+    security: number = DEFAULT_SECURITY_LEVEL,
+    amount: number = DEFAULT_MAX_MIOTA
+  ): Promise<string> {
     return new Promise(async (resolve, reject) => {
       try {
-        // check is balance for seed already transferred to HUB
+        // Check if balance for seed is already transferred to HUB
         const seedAddresses = await this.iota.getNewAddress(seed, {
           index: 0,
           security: security,
@@ -173,14 +214,14 @@ export class IotaController implements Controller {
         const isEmpty = balance.balances[0] === 0;
 
         if (isEmpty) {
-          // account already emptied out
+          // Account is already emptied out
           reject('account already emptied out');
         } else {
-          // create new master account
-          const masterAccount = await this.createAccount();
-          const masterDepositAddress = await this.getNewDepositAddress(masterAccount);
+          // Create new master account
+          const masterUser = await this.createAccount();
+          const masterDepositAddress = await this.getNewDepositAddress(masterUser);
 
-          const tag = '';//Converter.asciiToTrytes('initial funding');
+          const tag = '';
 
           const transfers: Iota.Transfer[] = [
             {
@@ -195,8 +236,8 @@ export class IotaController implements Controller {
           const bundle = await this.iota.sendTrytes(trytes, 3, 9);
 
           await iotaUtils.confirmTransaction(this.iota, bundle[0].hash);
-          this.masterId = masterAccount;
-          resolve(masterAccount);
+          this.masterId = masterUser;
+          resolve(masterUser);
         }
       } catch (err) {
         reject(err);
@@ -204,14 +245,23 @@ export class IotaController implements Controller {
     });
   }
 
+  /**
+   * Gets new deposit address from HUB for user with provided ID.
+   * 
+   * @param userId ID of user.
+   * 
+   * @returns Promise containing new deposit address.
+   */
   private getNewDepositAddress(userId: string): Promise<string> {
     return new Promise((resolve, reject) => {
-      this.hub.getDepositAddress({ userId: userId, includeChecksum: false }, (err: any, response: any) => {
-        if (err)
-          reject(err);
-        else
-          resolve(response.address);
-      });
+      this.hub.getDepositAddress(
+        { userId: userId, includeChecksum: false },
+        (err: any, response: any) => {
+          if (err)
+            reject(err);
+          else
+            resolve(response.address);
+        });
     });
   };
 }

@@ -1,3 +1,10 @@
 #!/usr/bin/env bash
 
-docker-compose -f docker-compose.yml run -d ts-iota-rest
+source .env
+
+docker-compose \
+    -f docker-compose.yml \
+    run -d \
+    --service-ports \
+    --name ts-iota-rest \
+    ts-iota-rest

@@ -8,7 +8,7 @@ services:
     container_name: ts-iota-rest
     restart: always
     ports:
-      - "${LISTENING_PORT}:${LISTENING_PORT}"
+      - ${LISTENING_PORT}:${LISTENING_PORT}
     env_file:
       - .env
 

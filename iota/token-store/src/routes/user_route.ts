@@ -1,41 +1,44 @@
 import { Router } from 'express';
-import * as utils from '../utils/utils';
-import _ from 'lodash';
-import { Controller } from '../controllers/controller';
+import { defaultResponse } from '../utils/utils';
+import Controller from '../controllers/controller';
 import logger from '../utils/logger';
+import { StringRes } from '../assets/string_res';
 
 let _controller: Controller;
 
-const router = Router();
+const _router = Router();
 
-router.put('/account', async function(req, res) {
-    let address;
+_router.put('/account', async function (req, res) {
+  let address;
 
-    try {
-        address = await _controller.createAccount();
-        logger.info('Account successfully created with address:', address);
-    } catch (err) {
-        logger.error('Unable to create account with error:', err);
-    }
+  try {
+    address = await _controller.createAccount();
+    logger.info('Account successfully created ', address);
+  } catch (err) {
+    logger.warn('Unable to create account with error ', err);
+  }
 
-    if (address === undefined) {
-        return res.status(400)
-            .send(utils.defaultResponse(true, 'unable to create new account')); 
-    } else {
-        return res.status(200)
-            .send(utils.defaultResponse(
-                false, 
-                'account successfully created',
-                {
-                    address: address
-                }
-            ));
-    }
+  if (address === undefined) {
+    return res.status(400)
+      .send(defaultResponse(true, StringRes.CREATE_ACCOUNT_FAILURE));
+  } else {
+    return res.status(200)
+      .send(defaultResponse(
+        false,
+        StringRes.CREATE_ACCOUNT_SUCCESS,
+        { address }
+      ));
+  }
 });
 
-const initialize = (controller: Controller) => { 
-    _controller = controller;
-    return router
+/**
+ * Initializes router with provided controller.
+ * 
+ * @param controller Controller.
+ */
+const initialize = (controller: Controller) => {
+  _controller = controller;
+  return _router
 };
 
-export = initialize;
+export default initialize;

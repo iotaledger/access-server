@@ -1,7 +1,7 @@
 import { IotaController } from './controllers/iota_controller';
-require('dotenv').config();
 import logger from './utils/logger';
 import { mandatoryEnvMissing } from './utils/utils';
+require('dotenv').config();
 
 const main = () => {
   try {
@@ -13,9 +13,9 @@ const main = () => {
 
     const controller = IotaController.initialize();
 
-    controller.transferToHub(seed)
+    controller.createMasterUserAndFundIt(seed)
       .then((masterAccount) => {
-        logger.info('ID of master account:', masterAccount);
+        logger.info('ID of master user:', masterAccount);
       })
       .catch(err => logger.warn(err));
   } catch (err) {
