@@ -27,6 +27,8 @@
 
 #define MAX_STR_SIZE 256
 
+#define MAX_STR_SIZE 256
+
 static canopen01_vehicle_dataset_t *wanted_signals;
 static int data_available = 0;
 static int end_loop = 0;
