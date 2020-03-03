@@ -20,6 +20,7 @@
  *
  * \history
  * 11.10.2018. Initial version.
+ * 21.02.2020. API extension, solved bugs regarding token position.
  ****************************************************************************/
 #include "json_parser.h"
 #include "Dlog.h"

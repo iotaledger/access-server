@@ -28,6 +28,7 @@
  * \history
  * 25.09.2018. Initial version.
  * 18.02.2019. Added enforce_request_action from resolver module.
+ * 21.02.2020. Added obligations functionality.
  ****************************************************************************/
 
 #include <stdio.h>

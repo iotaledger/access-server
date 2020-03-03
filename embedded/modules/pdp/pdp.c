@@ -29,6 +29,7 @@
  * \history
  * 04.09.2018. Initial version.
  * 09.11.2018 Modified to work together with PIP module
+ * 21.02.2020. Added obligations functionality.
  ****************************************************************************/
 
 #include <strings.h>

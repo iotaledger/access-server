@@ -27,6 +27,7 @@
  *
  * \history
  * 03.10.2018. Initial version.
+ * 28.02.2020. Added data sharing through action functionality
  ****************************************************************************/
 
 #include <sys/socket.h>
@@ -47,8 +48,16 @@
 #include <wiringPi.h>
 #include <piFace.h>
 
+#include "can_receiver.h"
+#include "canopen_receiver.h"
+#include "vehicle_datashering_dataset.h"
+#include "vehicle_dataset.h"
+#include "json_interface.h"
+
 #define BOARD_INDICATION
 #define CAR_RELAY
+#define DATASET_NUM_SIZE 2
+#define DATASET_NUM_POSITION 9
 
 unsigned int flashing_counter[MAX_LED_NUMBER]={0};
 unsigned int on_counter[MAX_LED_NUMBER]={0};
@@ -332,6 +341,165 @@ int Resolver_action05()
 
     Dlog_printf("%s %s\tResolver action 5\n", buf, action_s);
     return res_action_05_p();
+}
+
+int Resolver_action06(char *action)
+{
+    static VehicleDataset_state_t vdstate = {0};
+
+    if (action == NULL)
+    {
+        Dlog_printf("\nERROR[%s] - Wrong input parameter\n", __FUNCTION__);
+        return -1;
+    }
+
+    // Initialize interface
+    if (CanReceiver_isInUse())
+    {
+        //FIXME: Temp solution, will be refactored after Tiny Embedded is ifdef-ed
+        char can0_port_name[MAX_STR_SIZE];
+        char can1_port_name[MAX_STR_SIZE];
+
+        CanReceiver_getBodyChannel(can0_port_name, MAX_STR_SIZE);
+        CanReceiver_getChasChannel(can1_port_name, MAX_STR_SIZE);
+        CanReceiver_deinit();
+        // Re-init receiver with new dataset
+
+        Resolver_init_can01_remote();
+        vdstate.options = &VehicleDatasetCan01_options[0];
+        vdstate.dataset = (can01_vehicle_dataset_t*)malloc(sizeof(can01_vehicle_dataset_t));
+        VehicleDataset_init(&vdstate);
+        CanReceiver_init(can0_port_name, can1_port_name, vdstate.dataset, JSONInterface_get_mutex());
+    }
+    else if (CanopenReceiver_isInUse())
+    {
+        //FIXME: Temp solution, will be refactored after Tiny Embedded is ifdef-ed
+        char canopen_port_name[MAX_STR_SIZE];
+        int canopen_node_id;
+
+        CanopenReceiver_getPortName(canopen_port_name, MAX_STR_SIZE);
+        canopen_node_id = CanopenReceiver_getNodeId();
+        CanopenReceiver_deinit();
+        // Re-init receiver with new dataset
+
+        Resolver_init_canopen01();
+        vdstate.options = &VehicleDatasetCanopen01_options[0];
+        vdstate.dataset = (canopen01_vehicle_dataset_t*)malloc(sizeof(canopen01_vehicle_dataset_t));
+        VehicleDataset_init(&vdstate);
+        CanopenReceiver_init(vdstate.dataset, JSONInterface_get_mutex(), canopen_port_name, canopen_node_id);
+    }
+
+    // Chose dataset
+    char* dataset;
+    char dataset_num[DATASET_NUM_SIZE];
+
+    memcpy(dataset_num, &action[DATASET_NUM_POSITION], DATASET_NUM_SIZE);
+
+    switch(atoi(dataset_num))
+    {
+        case 1:
+            dataset = VehicleDataset01_options;
+            break;
+        case 2:
+            dataset = VehicleDataset02_options;
+            break;
+        case 3:
+            dataset = VehicleDataset03_options;
+            break;
+        case 4:
+            dataset = VehicleDataset04_options;
+            break;
+        case 5:
+            dataset = VehicleDataset05_options;
+            break;
+        case 6:
+            dataset = VehicleDataset06_options;
+            break;
+        case 7:
+            dataset = VehicleDataset07_options;
+            break;
+        case 8:
+            dataset = VehicleDataset08_options;
+            break;
+        case 9:
+            dataset = VehicleDataset09_options;
+            break;
+        case 10:
+            dataset = VehicleDataset10_options;
+            break;
+        case 11:
+            dataset = VehicleDataset11_options;
+            break;
+        case 12:
+            dataset = VehicleDataset12_options;
+            break;
+        case 13:
+            dataset = VehicleDataset13_options;
+            break;
+        case 14:
+            dataset = VehicleDataset14_options;
+            break;
+        case 15:
+            dataset = VehicleDataset15_options;
+            break;
+        case 16:
+            dataset = VehicleDataset16_options;
+            break;
+        default:
+            dataset = NULL;
+            break;
+    }
+
+    // Tokenize dataset
+    char* tok = NULL;
+
+    tok = strtok(dataset, "|");
+
+    while (tok != NULL)
+    {
+        for (int i = 0; i < vdstate.options_count; i++)
+        {
+            // Set options that needs to ne acquried
+            if (strncmp(vdstate.tokens[i].name, tok, strlen(tok) < strlen(vdstate.tokens[i].name) ? strlen(tok) : strlen(vdstate.tokens[i].name)) == 0)
+            {
+                vdstate.tokens[i].val = 1;
+            }
+        }
+
+        tok = strtok(NULL, "|");
+    }
+
+    unsigned char *dataset_uint8 = (unsigned char*)vdstate.dataset;
+
+    for (int i = 0; i < vdstate.options_count; i ++)
+    {
+        dataset_uint8[i] = vdstate.tokens[i].val;
+    }
+
+    if (CanReceiver_isInUse())
+    {
+        CanReceiver_start();
+    }
+    else if (CanopenReceiver_isInUse())
+    {
+        CanopenReceiver_start();
+    }
+
+    return 0;
+}
+
+int Resolver_action07()
+{
+    if (CanReceiver_isInUse())
+    {
+        CanReceiver_deinit();
+    }
+    else if (CanopenReceiver_isInUse())
+    {
+        CanopenReceiver_deinit();
+    }
+
+    return 0;
 }
 
 int policy_update_indication()

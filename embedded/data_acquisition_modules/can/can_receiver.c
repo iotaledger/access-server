@@ -41,6 +41,8 @@
 #include "can_receiver.h"
 #include "json_interface.h"
 
+#define MAX_STR_SIZE 256
+
 static void be2le(unsigned char *in, unsigned char *out)
 {
     unsigned char data[8];
@@ -54,6 +56,9 @@ static void be2le(unsigned char *in, unsigned char *out)
 
 static can01_vehicle_dataset_t *wanted_signals;
 static int data_available = 0;
+static bool is_in_use = FALSE;
+static char body_chan[MAX_STR_SIZE];
+static char chas_chan[MAX_STR_SIZE];
 
 // CAN data stuff
 static double latitude = -1.;
@@ -232,6 +237,11 @@ void CanReceiver_init(const char* can_body_channel, const char* can_chas_channel
     json_sync_lock = json_mutex;
     CanThread_init(&can_body_instance, can_body_channel, can_body_frame_read_cb);
     CanThread_init(&can_chas_instance, can_chas_channel, can_chas_frame_read_cb);
+    memset(body_chan, 0, MAX_STR_SIZE * sizeof(char));
+    memcpy(body_chan, can_body_channel, strlen(can_body_channel));
+    memset(chas_chan, 0, MAX_STR_SIZE * sizeof(char));
+    memcpy(chas_chan, can_chas_channel, strlen(can_chas_channel));
+    is_in_use = TRUE;
 }
 
 void CanReceiver_start()
@@ -244,7 +254,29 @@ int CanReceiver_deinit()
 {
     if (CanThread_stop(&can_chas_instance)) return 1;
     if (CanThread_stop(&can_body_instance)) return 2;
+    is_in_use = FALSE;
     return 0;
+}
+
+bool CanReceiver_isInUse()
+{
+    return is_in_use;
+}
+
+void CanReceiver_getBodyChannel(char* channel_buff, int channel_buff_len)
+{
+    if (channel_buff != NULL && channel_buff_len > 0)
+    {
+        memcpy(channel_buff, body_chan, channel_buff_len > MAX_STR_SIZE ? MAX_STR_SIZE : channel_buff_len);
+    }
+}
+
+void CanReceiver_getChasChannel(char* channel_buff, int channel_buff_len)
+{
+    if (channel_buff != NULL && channel_buff_len > 0)
+    {
+        memcpy(channel_buff, chas_chan, channel_buff_len > MAX_STR_SIZE ? MAX_STR_SIZE : channel_buff_len);
+    }
 }
 
 static fjson_object* gen_interpreted_door_status(int status) {
