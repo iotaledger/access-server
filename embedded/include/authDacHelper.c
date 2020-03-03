@@ -27,6 +27,8 @@
  *
  * \history
  * 02.10.2018. Initial version.
+ * 21.02.2020. Added obligations handling
+ * 28.02.2020. Added data sharing through action functionality
  ****************************************************************************/
 
 #include "authDacHelper.h"
@@ -103,6 +105,14 @@ int ledControl(int decision, char *obligation, char *action)
         else if ((0 == memcmp(action, "alarm_off", strlen("alarm_off"))))
         {
             Resolver_action05();
+        }
+        else if ((0 == memcmp(action, "start_ds_", strlen("start_ds_") - 1))) // Do not count '\0' character for memcmp
+        {
+            Resolver_action06(action);
+        }
+        else if ((0 == memcmp(action, "stop_ds", strlen("stop_ds"))))
+        {
+            Resolver_action07();
         }
     }
     else

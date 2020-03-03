@@ -24,9 +24,13 @@
 
 #include <unistd.h>
 
+#define MAX_STR_SIZE 256
+
 static canopen01_vehicle_dataset_t *wanted_signals;
 static int data_available = 0;
 static int end_loop = 0;
+static bool is_in_use = FALSE;
+static char port_name[MAX_STR_SIZE];
 
 // CANopen data stuff
 
@@ -522,6 +526,9 @@ void CanopenReceiver_init(canopen01_vehicle_dataset_t *dataset, pthread_mutex_t 
     json_sync_lock = json_mutex;
     node_id = _node_id;
     CanThread_init(&can_instance, can_interface_name, can_read_callback);
+    is_in_use = TRUE;
+    memset(port_name, 0, MAX_STR_SIZE * sizeof(char));
+    memcpy(port_name, can_interface_name, strlen(can_interface_name));
 }
 
 static void* canopen_bg_thread_func(void* _)
@@ -648,4 +655,23 @@ void CanopenReceiver_deinit()
 {
     end_loop = 1;
     CanThread_stop(&can_instance);
+    is_in_use = FALSE;
+}
+
+bool CanopenReceiver_isInUse()
+{
+    return is_in_use;
+}
+
+void CanopenReceiver_getPortName(char* p_name_buff, int p_name_buff_len)
+{
+    if (p_name_buff != NULL && p_name_buff_len > 0)
+    {
+        memcpy(p_name_buff, port_name, p_name_buff_len > MAX_STR_SIZE ? MAX_STR_SIZE : p_name_buff_len);
+    }
+}
+
+int CanopenReceiver_getNodeId(void)
+{
+    return node_id;
 }

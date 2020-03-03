@@ -24,5 +24,8 @@
 void CanopenReceiver_init(canopen01_vehicle_dataset_t *dataset, pthread_mutex_t *json_mutex, const char *can_interface_name, int node_id);
 int CanopenReceiver_start();
 void CanopenReceiver_deinit();
+bool CanopenReceiver_isInUse();
+void CanopenReceiver_getPortName(char* p_name_buff, int p_name_buff_len);
+int CanopenReceiver_getNodeId(void);
 
 #endif

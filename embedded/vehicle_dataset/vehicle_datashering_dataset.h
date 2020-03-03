@@ -17,31 +17,56 @@
 
 /****************************************************************************
  * \project Decentralized Access Control
- * \file can_receiver.h
+ * \file vehicle_datashering_dataset.h
  * \brief
- * CAN receiver server header file
+ * Datasets which can be shared via policy action response.
  *
- * @Author Djordje Golubovic
+ * @Author Strahinja Golic
  *
  * \notes
  *
  * \history
- * 04.15.2019. Initial version.
+ * 28.02.2020. Initial version.
  ****************************************************************************/
+#ifndef _VEHICLE_DATASHERING_DATASET_H_
+#define _VEHICLE_DATASHERING_DATASET_H_
 
-#ifndef _CAN_RECEIVER_H_
-#define _CAN_RECEIVER_H_
+#include <stddef.h>
+#include <stdint.h>
 
-#include <pthread.h>
-#include <libfastjson/json.h>
-#include "vehicle_dataset.h"
-#include "can_thread.h"
 
-void CanReceiver_init(const char* can_body_channel, const char* can_chas_channel, can01_vehicle_dataset_t *dataset, pthread_mutex_t *json_mutex);
-void CanReceiver_start();
-int CanReceiver_deinit();
-bool CanReceiver_isInUse();
-void CanReceiver_getBodyChannel(char* channel_buff, int channel_buff_len);
-void CanReceiver_getChasChannel(char* channel_buff, int channel_buff_len);
+char VehicleDataset01_options[] =
+    "DoorDrvrSts"
+	"|DoorDrvrReSts";
+
+char VehicleDataset02_options[];
+
+char VehicleDataset03_options[];
+
+char VehicleDataset04_options[];
+
+char VehicleDataset05_options[];
+
+char VehicleDataset06_options[];
+
+char VehicleDataset07_options[];
+
+char VehicleDataset08_options[];
+
+char VehicleDataset09_options[];
+
+char VehicleDataset10_options[];
+
+char VehicleDataset11_options[];
+
+char VehicleDataset12_options[];
+
+char VehicleDataset13_options[];
+
+char VehicleDataset14_options[];
+
+char VehicleDataset15_options[];
+
+char VehicleDataset16_options[];
 
 #endif
