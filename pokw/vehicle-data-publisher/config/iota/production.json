@@ -1,9 +1,0 @@
-{
-    "server": {
-        "listeningPort": 6003
-    },
-    "iri": {
-        "ipAddress": "127.0.0.1",
-        "portNumber": 14265
-    }
-}

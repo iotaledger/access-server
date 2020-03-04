@@ -2,7 +2,7 @@
 This is code and instructions for running servers with same api for Ethereum ERC20 tokens.
 
 ## 1.0 Build
-To build TypeScript run
+To build project run
 ```bash
 npm install
 npm run build
