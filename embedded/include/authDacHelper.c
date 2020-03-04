@@ -108,7 +108,7 @@ int ledControl(int decision, char *obligation, char *action, unsigned long start
         }
         else if ((0 == memcmp(action, "start_ds_", strlen("start_ds_") - 1))) // Do not count '\0' character for memcmp
         {
-            Resolver_action06(action);
+            Resolver_action06(action, end_time);
         }
         else if ((0 == memcmp(action, "stop_ds", strlen("stop_ds"))))
         {

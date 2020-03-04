@@ -645,7 +645,7 @@ void get_time_from_attr(policy_t *pol, int atribute_position, operation_t attr_o
 				int value = json_get_token_index_from_pos(pol->policy_c, atribute_position, "value");
 				int start_of_value = get_start_of_token(value);
 				int size_of_value = get_size_of_token(value);
-				char *val_str = malloc(sizoef(char) * size_of_value);
+				char *val_str = malloc(sizeof(char) * size_of_value);
 				memcpy(val_str, pol->policy_c + start_of_value, size_of_value);
 
 				switch(attr_operation)

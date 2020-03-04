@@ -112,6 +112,7 @@ SRCS = \
     $(AWS_DAEMON)psDaemon.c \
     $(RESOLVER)resolver.c \
     include/json_interface.c \
+    include/timer.c \
     config_manager/config_manager.c \
     config_manager/ini/ini.c \
     $(GPS)minmea/minmea.c \

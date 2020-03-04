@@ -112,7 +112,7 @@ int pep_request_access(char *request)
 
 	action.value = action_value;
 	
-	ret = pdp_calculate_decision(pol, obligation, action);
+	ret = pdp_calculate_decision(pol, obligation, &action);
 
 	if (ret == PDP_GRANT)
 	{

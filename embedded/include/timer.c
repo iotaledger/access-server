@@ -48,7 +48,7 @@ typedef struct timer_node
 	time_handler		callback;
 	void*				user_data;
 	unsigned int		interval;
-	timer_t				type;
+	timer_mode_t		type;
 	struct timer_node*	next;
 } timer_node_t;
 
@@ -87,7 +87,7 @@ void Timer_deinit()
     pthread_join(thread_id, NULL);
 }
 
-int Timer_start(unsigned int interval, time_handler handler, timer_t type, void* user_data)
+int Timer_start(unsigned int interval, time_handler handler, timer_mode_t type, void* user_data)
 {
 	int i = 0;
 	timer_node_t* new_node = NULL;

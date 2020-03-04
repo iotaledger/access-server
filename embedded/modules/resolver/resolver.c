@@ -288,7 +288,7 @@ int run_led()
     return 0;
 }
 
-void time_handler(size_t timer_id, void * user_data)
+void timer_handler(size_t timer_id, void * user_data)
 {
     Resolver_action07();
 }
@@ -488,7 +488,7 @@ int Resolver_action06(char *action, unsigned long end_time)
     if (CanReceiver_isInUse())
     {
         CanReceiver_start();
-        timerId = Timer_start(end_time - getEpochTime(), time_handler, TIMER_SINGLE_SHOT, NULL);
+        timerId = Timer_start(end_time - getEpochTime(), timer_handler, TIMER_SINGLE_SHOT, NULL);
     }
     else if (CanopenReceiver_isInUse())
     {

@@ -34,17 +34,19 @@
 #include <stdlib.h>
 
 #define bool _Bool
+#define FALSE 0
+#define TRUE 1
  
 typedef enum
 {
 	TIMER_SINGLE_SHOT = 0, // Periodic Timer
 	TIMER_PERIODIC         // Single Shot Timer
-} timer_t;
+} timer_mode_t;
  
 typedef void (*time_handler)(int timer_id, void* user_data);
  
 int Timer_init(void);
 void Timer_deinit(void);
-int Timer_start(unsigned int interval, time_handler handler, timer_t type, void* user_data);
-void Timer_stop_(int timer_id);
+int Timer_start(unsigned int interval, time_handler handler, timer_mode_t type, void* user_data);
+void Timer_stop(int timer_id);
 #endif
