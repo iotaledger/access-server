@@ -23,6 +23,9 @@
 
 #define bool _Bool
 
+#ifndef TINY_EMBEDDED
+void CanopenReceiver_preInitSetup(const char *can_interface_name, int _node_id);
+#endif
 void CanopenReceiver_init(canopen01_vehicle_dataset_t *dataset, pthread_mutex_t *json_mutex, const char *can_interface_name, int node_id);
 int CanopenReceiver_start();
 void CanopenReceiver_deinit();

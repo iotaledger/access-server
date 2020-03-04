@@ -522,6 +522,16 @@ static void can_read_callback(struct can_frame *frame)
     }
 }
 
+#ifndef TINY_EMBEDDED
+void CanopenReceiver_preInitSetup(const char *can_interface_name, int _node_id)
+{
+    is_in_use = TRUE;
+    memset(port_name, 0, MAX_STR_SIZE * sizeof(char));
+    memcpy(port_name, can_interface_name, strlen(can_interface_name));
+    node_id = _node_id;
+}
+#endif
+
 void CanopenReceiver_init(canopen01_vehicle_dataset_t *dataset, pthread_mutex_t *json_mutex, const char *can_interface_name, int _node_id)
 {
     wanted_signals = dataset;
@@ -529,9 +539,11 @@ void CanopenReceiver_init(canopen01_vehicle_dataset_t *dataset, pthread_mutex_t 
     json_sync_lock = json_mutex;
     node_id = _node_id;
     CanThread_init(&can_instance, can_interface_name, can_read_callback);
+#ifdef TINY_EMBEDDED
     is_in_use = TRUE;
     memset(port_name, 0, MAX_STR_SIZE * sizeof(char));
     memcpy(port_name, can_interface_name, strlen(can_interface_name));
+#endif
 }
 
 static void* canopen_bg_thread_func(void* _)
@@ -658,7 +670,9 @@ void CanopenReceiver_deinit()
 {
     end_loop = 1;
     CanThread_stop(&can_instance);
+#ifdef TINY_EMBEDDED
     is_in_use = FALSE;
+#endif
 }
 
 bool CanopenReceiver_isInUse()

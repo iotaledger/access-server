@@ -230,6 +230,17 @@ static CanThread_instance_t can_body_instance;
 static void can_body_frame_read_cb(struct can_frame *frame);
 static void can_chas_frame_read_cb(struct can_frame *frame);
 
+#ifndef TINY_EMBEDDED
+void CanReceiver_preInitSetup(const char* can_body_channel, const char* can_chas_channel)
+{
+    memset(body_chan, 0, MAX_STR_SIZE * sizeof(char));
+    memcpy(body_chan, can_body_channel, strlen(can_body_channel));
+    memset(chas_chan, 0, MAX_STR_SIZE * sizeof(char));
+    memcpy(chas_chan, can_chas_channel, strlen(can_chas_channel));
+    is_in_use = TRUE;
+}
+#endif
+
 void CanReceiver_init(const char* can_body_channel, const char* can_chas_channel, can01_vehicle_dataset_t *dataset, pthread_mutex_t *json_mutex)
 {
     wanted_signals = dataset;
@@ -237,11 +248,13 @@ void CanReceiver_init(const char* can_body_channel, const char* can_chas_channel
     json_sync_lock = json_mutex;
     CanThread_init(&can_body_instance, can_body_channel, can_body_frame_read_cb);
     CanThread_init(&can_chas_instance, can_chas_channel, can_chas_frame_read_cb);
+#ifdef TINY_EMBEDDED
     memset(body_chan, 0, MAX_STR_SIZE * sizeof(char));
     memcpy(body_chan, can_body_channel, strlen(can_body_channel));
     memset(chas_chan, 0, MAX_STR_SIZE * sizeof(char));
     memcpy(chas_chan, can_chas_channel, strlen(can_chas_channel));
     is_in_use = TRUE;
+#endif
 }
 
 void CanReceiver_start()
@@ -254,7 +267,9 @@ int CanReceiver_deinit()
 {
     if (CanThread_stop(&can_chas_instance)) return 1;
     if (CanThread_stop(&can_body_instance)) return 2;
+#ifdef TINY_EMBEDDED
     is_in_use = FALSE;
+#endif
     return 0;
 }
 

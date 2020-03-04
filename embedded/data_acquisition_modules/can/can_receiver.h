@@ -39,6 +39,9 @@
 
 #define bool _Bool
 
+#ifndef TINY_EMBEDDED
+void CanReceiver_preInitSetup(const char* can_body_channel, const char* can_chas_channel);
+#endif
 void CanReceiver_init(const char* can_body_channel, const char* can_chas_channel, can01_vehicle_dataset_t *dataset, pthread_mutex_t *json_mutex);
 void CanReceiver_start();
 int CanReceiver_deinit();

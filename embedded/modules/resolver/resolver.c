@@ -356,14 +356,15 @@ int Resolver_action06(char *action)
     // Initialize interface
     if (CanReceiver_isInUse())
     {
-        //FIXME: Temp solution, will be refactored after Tiny Embedded is ifdef-ed
         char can0_port_name[MAX_STR_SIZE];
         char can1_port_name[MAX_STR_SIZE];
 
         CanReceiver_getBodyChannel(can0_port_name, MAX_STR_SIZE);
         CanReceiver_getChasChannel(can1_port_name, MAX_STR_SIZE);
+#ifdef TINY_EMBEDDED
         CanReceiver_deinit();
         // Re-init receiver with new dataset
+#endif
 
         Resolver_init_can01_remote();
         vdstate.options = &VehicleDatasetCan01_options[0];
@@ -373,14 +374,15 @@ int Resolver_action06(char *action)
     }
     else if (CanopenReceiver_isInUse())
     {
-        //FIXME: Temp solution, will be refactored after Tiny Embedded is ifdef-ed
         char canopen_port_name[MAX_STR_SIZE];
         int canopen_node_id;
 
         CanopenReceiver_getPortName(canopen_port_name, MAX_STR_SIZE);
         canopen_node_id = CanopenReceiver_getNodeId();
+#ifdef TINY_EMBEDDED
         CanopenReceiver_deinit();
         // Re-init receiver with new dataset
+#endif
 
         Resolver_init_canopen01();
         vdstate.options = &VehicleDatasetCanopen01_options[0];
