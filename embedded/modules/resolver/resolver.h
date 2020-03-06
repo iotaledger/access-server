@@ -103,7 +103,7 @@ int Resolver_action05();
  * @brief   Start data sharing
  *
  */
-int Resolver_action06(char *action);
+int Resolver_action06(char *action, unsigned long end_time);
 
 /**
  * @fn  int Resolver_action07(void)

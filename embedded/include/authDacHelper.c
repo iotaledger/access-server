@@ -54,7 +54,7 @@ void broadcast_status(char *a, char* c, bool is_successfull)
     is_successfull ? Dlog_printf("\n\nAction %s %s performed successfully\n\n", a, c) : Dlog_printf("\n\nAction %s %s failed\n\n", a, c);
 }
 
-int ledControl(int decision, char *obligation, char *action)
+int ledControl(int decision, char *obligation, char *action, unsigned long start_time, unsigned long end_time)
 {
     bool should_log = FALSE;
     

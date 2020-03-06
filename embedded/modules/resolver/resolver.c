@@ -53,6 +53,7 @@
 #include "vehicle_datashering_dataset.h"
 #include "vehicle_dataset.h"
 #include "json_interface.h"
+#include "timer.h"
 
 #define BOARD_INDICATION
 #define CAR_RELAY
@@ -63,6 +64,7 @@ unsigned int flashing_counter[MAX_LED_NUMBER]={0};
 unsigned int on_counter[MAX_LED_NUMBER]={0};
 
 static char relayboard_addr[128] = "127.0.0.1";
+static int timerId = -1;
 
 // piface stuff
 #define PIFACE_BASE  64
@@ -286,6 +288,11 @@ int run_led()
     return 0;
 }
 
+void time_handler(size_t timer_id, void * user_data)
+{
+    Resolver_action07();
+}
+
 int Resolver_action02()
 {
     char       buf[80];
@@ -343,7 +350,7 @@ int Resolver_action05()
     return res_action_05_p();
 }
 
-int Resolver_action06(char *action)
+int Resolver_action06(char *action, unsigned long end_time)
 {
     static VehicleDataset_state_t vdstate = {0};
 
@@ -481,6 +488,7 @@ int Resolver_action06(char *action)
     if (CanReceiver_isInUse())
     {
         CanReceiver_start();
+        timerId = Timer_start(end_time - getEpochTime(), time_handler, TIMER_SINGLE_SHOT, NULL);
     }
     else if (CanopenReceiver_isInUse())
     {
@@ -492,6 +500,8 @@ int Resolver_action06(char *action)
 
 int Resolver_action07()
 {
+    Timer_stop(timerId);
+
     if (CanReceiver_isInUse())
     {
         CanReceiver_deinit();

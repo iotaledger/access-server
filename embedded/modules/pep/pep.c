@@ -98,7 +98,8 @@ int pep_request_access(char *request)
     char *request_policy_id_hex;
     int request_policy_id = -1;
     int action_l = 15;
-    char action[action_l];
+	action_t action;
+    char action_value[action_l];
     //TODO: obligations should be linked list of the elements of the 'obligation_s' structure type
     char obligation[OBLIGATION_LEN];
     memset(obligation, 0, OBLIGATION_LEN * sizeof(char));
@@ -108,6 +109,8 @@ int pep_request_access(char *request)
     request_policy_id_hex = datahex(request + get_start_of_token(request_policy_id), size);
 
 	pol = PolicyStore_get_policy(request_policy_id_hex, 32);
+
+	action.value = action_value;
 	
 	ret = pdp_calculate_decision(pol, obligation, action);
 
@@ -116,7 +119,7 @@ int pep_request_access(char *request)
 		pol->num_of_executions++;
 	}
 
-	ledControl(ret, obligation, action);
+	ledControl(ret, obligation, action.value, action.start_time, action.stop_time);
 
 	return ret;
 }

@@ -576,6 +576,118 @@ int gt(policy_t *pol, int attribute_list)
 	return ret;
 }
 
+void get_time_from_attr(policy_t *pol, int atribute_position, operation_t attr_operation, unsigned long *start_time, unsigned long *end_time)
+{
+	if(pol == NULL)
+	{
+		Dlog_printf("\n\nERROR[%s]: Wrong input parameters\n\n", __FUNCTION__);
+		return;
+	}
+
+	if(start_time == NULL || end_time == NULL)
+	{
+		// Not an error. Sometimes, time is not needed
+		return;
+	}
+	else
+	{
+		*start_time = 0;
+		*end_time = 0;
+	}
+
+	int operation = json_get_token_index_from_pos(pol->policy_c, atribute_position, "operation");
+	int operation_start = -1;
+	int operation_end = -1;
+	int attribute_list = -1;
+	int i = 0;
+	operation_t opt;
+
+	if((operation != -1) && (get_start_of_token(operation) < get_end_of_token(atribute_position)))// Check only operations within this json object
+	{
+		attribute_list = json_get_token_index_from_pos(pol->policy_c, atribute_position, "attribute_list");
+
+		// Check if operation is listed before or after attribure list
+		if(attribute_list >= 0 && operation > attribute_list)
+		{
+			// If attribute list is listed first, get operation given after att. list
+
+			int number_of_tokens = get_token_num();
+			int tok_cnt = attribute_list;
+
+			while((get_end_of_token(attribute_list) > get_start_of_token(operation)) && (tok_cnt <= number_of_tokens) && (tok_cnt >= 0))
+			{
+				operation = json_get_token_index_from_pos(pol->policy_c, tok_cnt, "operation");
+				tok_cnt = operation;
+			}
+		}
+
+		operation_start = get_start_of_token(operation);
+		operation_end = get_end_of_token(operation);
+
+		opt = get_operation_new(pol->policy_c + operation_start, operation_end - operation_start);
+
+		i = 0;
+		while(i < get_array_size(attribute_list))
+		{
+			get_time_from_attr(pol, get_attribute_from_array(attribute_list, i), opt, start_time, end_time);
+		}
+	}
+	else
+	{
+		int type = json_get_token_index_from_pos(pol->policy_c, atribute_position, "type");
+		if((type != -1) && (get_start_of_token(type) < get_end_of_token(atribute_position)))// Check only type within this json object
+		{
+			int start = get_start_of_token(type);
+			int size_of_type = get_size_of_token(type);
+
+			if((size_of_type == strlen("time")) && (strncasecmp(pol->policy_c + start, "time", strlen("time")) == 0))
+			{
+				int value = json_get_token_index_from_pos(pol->policy_c, atribute_position, "value");
+				int start_of_value = get_start_of_token(value);
+				int size_of_value = get_size_of_token(value);
+				char *val_str = malloc(sizoef(char) * size_of_value);
+				memcpy(val_str, pol->policy_c + start_of_value, size_of_value);
+
+				switch(attr_operation)
+				{
+					case EQ:
+					{
+						start_time = atoi(val_str);
+						end_time = start_time;
+						break;
+					}
+					case LEQ:
+					{
+						end_time = atoi(val_str);
+						break;
+					}
+					case GEQ:
+					{
+						start_time = atoi(val_str);
+						break;
+					}
+					case LT:
+					{
+						end_time = atoi(val_str) - 1; // Must be less then value
+						break;
+					}
+					case GT:
+					{
+						start_time = atoi(val_str) + 1; // Must be greater then value
+						break;
+					}
+					default:
+					{
+						break;
+					}
+				}
+
+				free(val_str);
+			}
+		}
+	}
+}
+
 int resolve_attribute(policy_t *pol, int atribute_position)
 {
 	int ret = -1;
@@ -784,7 +896,7 @@ int resolve_obligation(policy_t *pol, int obl_position, char *obligation)
 }
 
 //TODO: obligations should be linked list of the elements of the 'obligation_s' structure type
-pdp_decision_t pdp_calculate_decision(policy_t *pol, char *obligation, char *action)
+pdp_decision_t pdp_calculate_decision(policy_t *pol, char *obligation, action_t *action)
 {
 	int ret = PDP_ERROR;
 
@@ -800,7 +912,7 @@ pdp_decision_t pdp_calculate_decision(policy_t *pol, char *obligation, char *act
 		return ret;
 	}
 
-	if(action == NULL)
+	if(action == NULL || action->value == NULL)
 	{
 		Dlog_printf("\n\nERROR[%s]: Invalid action buffer\n\n",__FUNCTION__);
 		return ret;
@@ -843,7 +955,8 @@ pdp_decision_t pdp_calculate_decision(policy_t *pol, char *obligation, char *act
 	{
 		//FIXME: Should action be taken for deny case also?
 		int number_of_tokens = get_token_num();
-		get_action(action, pol->policy_c, number_of_tokens);
+		get_action(action->value, pol->policy_c, number_of_tokens);
+		get_time_from_attr(pol, policy_goc, UNDEFINED, action->start_time, action->stop_time);
 		
 		if(policy_gobl >= 0)
 		{

@@ -44,6 +44,7 @@
 
 #include <time.h>
 #include "globals_declarations.h"
+#include "timer.h"
 
 int g_task_sleep_time;
 
@@ -90,6 +91,8 @@ int main(int argc, char** argv)
 
     json_mutex = JSONInterface_get_mutex();
     UserManagement_init(config.bc_hostname, config.bc_hostname_port, config.device_id);
+
+    Timer_init();
 
     if (strncmp(config.client, CONFIG_CLIENT_CAN01, strlen(CONFIG_CLIENT_CAN01)) == 0)
     {
@@ -184,6 +187,8 @@ int main(int argc, char** argv)
     if (using_gps == 1) GpsReceiver_end();
     if (using_can == 1) CanReceiver_deinit();
     if (using_modbus == 1) ModbusReceiver_stop();
+
+    Timer_deinit();
 
     UserManagement_deinit();
     JSONInterface_deinit();
