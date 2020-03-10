@@ -34,6 +34,7 @@
 #include <pthread.h>
 #include <poll.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #include "timer.h"
 #include "Dlog.h"
@@ -93,12 +94,6 @@ int Timer_start(unsigned int interval, time_handler handler, timer_mode_t type, 
 	timer_node_t* new_node = NULL;
 	timer_node_t* temp = NULL;
 	itimerspec_t new_value;
-
-	if (user_data == NULL)
-	{
-		Dlog_printf("\n\nERROR[%s]: Bad input parameter\n\n", __FUNCTION__);
-		return -1;
-	}
 
 	new_node = (timer_node_t*)malloc(sizeof(timer_node_t));
 

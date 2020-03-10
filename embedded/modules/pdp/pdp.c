@@ -589,11 +589,6 @@ void get_time_from_attr(policy_t *pol, int atribute_position, operation_t attr_o
 		// Not an error. Sometimes, time is not needed
 		return;
 	}
-	else
-	{
-		*start_time = 0;
-		*end_time = 0;
-	}
 
 	int operation = json_get_token_index_from_pos(pol->policy_c, atribute_position, "operation");
 	int operation_start = -1;
@@ -629,7 +624,8 @@ void get_time_from_attr(policy_t *pol, int atribute_position, operation_t attr_o
 		i = 0;
 		while(i < get_array_size(attribute_list))
 		{
-			get_time_from_attr(pol, get_attribute_from_array(attribute_list, i), opt, start_time, end_time);
+			get_time_from_attr(pol, get_array_member(attribute_list, i), opt, start_time, end_time);
+			i++;
 		}
 	}
 	else
@@ -645,35 +641,36 @@ void get_time_from_attr(policy_t *pol, int atribute_position, operation_t attr_o
 				int value = json_get_token_index_from_pos(pol->policy_c, atribute_position, "value");
 				int start_of_value = get_start_of_token(value);
 				int size_of_value = get_size_of_token(value);
-				char *val_str = malloc(sizeof(char) * size_of_value);
+				char *val_str = malloc(sizeof(char) * size_of_value + 1);
 				memcpy(val_str, pol->policy_c + start_of_value, size_of_value);
+				val_str[size_of_value] = '\0';
 
 				switch(attr_operation)
 				{
 					case EQ:
 					{
-						start_time = atoi(val_str);
-						end_time = start_time;
+						*start_time = strtoul(val_str, NULL, 10);
+						*end_time = *start_time;
 						break;
 					}
 					case LEQ:
 					{
-						end_time = atoi(val_str);
+						*end_time = strtoul(val_str, NULL, 10);
 						break;
 					}
 					case GEQ:
 					{
-						start_time = atoi(val_str);
+						*start_time = strtoul(val_str, NULL, 10);
 						break;
 					}
 					case LT:
 					{
-						end_time = atoi(val_str) - 1; // Must be less then value
+						*end_time = strtoul(val_str, NULL, 10) - 1; // Must be less then value
 						break;
 					}
 					case GT:
 					{
-						start_time = atoi(val_str) + 1; // Must be greater then value
+						*start_time = strtoul(val_str, NULL, 10) + 1; // Must be greater then value
 						break;
 					}
 					default:
@@ -956,7 +953,9 @@ pdp_decision_t pdp_calculate_decision(policy_t *pol, char *obligation, action_t 
 		//FIXME: Should action be taken for deny case also?
 		int number_of_tokens = get_token_num();
 		get_action(action->value, pol->policy_c, number_of_tokens);
-		get_time_from_attr(pol, policy_goc, UNDEFINED, action->start_time, action->stop_time);
+		action->start_time = 0;
+		action->stop_time = 0;
+		get_time_from_attr(pol, policy_goc, UNDEFINED, &(action->start_time), &(action->stop_time));
 		
 		if(policy_gobl >= 0)
 		{

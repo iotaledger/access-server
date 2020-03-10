@@ -54,6 +54,7 @@
 #include "vehicle_dataset.h"
 #include "json_interface.h"
 #include "timer.h"
+#include "time_manager.h"
 
 #define BOARD_INDICATION
 #define CAR_RELAY
@@ -488,7 +489,7 @@ int Resolver_action06(char *action, unsigned long end_time)
     if (CanReceiver_isInUse())
     {
         CanReceiver_start();
-        timerId = Timer_start(end_time - getEpochTime(), timer_handler, TIMER_SINGLE_SHOT, NULL);
+        timerId = Timer_start(end_time - getEpochTime(), (time_handler)timer_handler, TIMER_SINGLE_SHOT, NULL);
     }
     else if (CanopenReceiver_isInUse())
     {
