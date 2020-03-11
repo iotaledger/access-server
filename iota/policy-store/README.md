@@ -4,7 +4,7 @@ Policy store consists of interface servers for managing delegation policies on I
 It is able to manage REST and TCP requests and it communicates with IOTA IRI node for storing policies and local SQL database where their tangle addresses are stored.
 
 ## 1. Compiling
-Store is written in `TypeScript`. To run it, it must be compiled to `JavaScript` using `TypeScript` compiler. Make sure you have `TypeScript` compiler installed on your sistem and run it in root directory:
+Store is written in `TypeScript`. To run it, it must be compiled to `JavaScript` using `TypeScript` compiler. Make sure you have `TypeScript` compiler installed on your system and run it in root directory:
 ```bash
 tsc
 ```
@@ -60,7 +60,7 @@ POSTGRES_DB=
 Published port numbers must match corresponding port numbers in `config` files.
 
 ## 3. Start
-Install `Docker` on your sistem in order to run store. It is also required to have running and accessible IRI node.
+Install `Docker` on your system in order to run store. It is also required to have running and accessible IRI node.
 
 To start store run:
 ```bash

@@ -2,7 +2,7 @@
   "name": "iota-token-store",
   "version": "1.0.0",
   "author": "Robert Černjanski <robert.cernjanski@nttdata.ro>",
-  "license": "GPL-3.0",
+  "license": "Apache 2.0",
   "scripts": {
     "generate_docs": "node_modules/.bin/typedoc"
   },
