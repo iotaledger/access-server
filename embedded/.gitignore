@@ -3,11 +3,6 @@ __pycache__
 *.o
 *.pyc
 /clientTest
-/docker/delegation_server/config.ini
-/docker/delegation_server/delegation_srvr
-/docker/ipfs_bc_if/config.ini
-/docker/ipfs_bc_if/ipfs.py
-/docker/ipfs_bc_if/webui.py
 /json_log/
 /serverTest
 /users.db
