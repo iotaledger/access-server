@@ -66,6 +66,12 @@ typedef struct attribute_value {
     int size;
 } attribute_value_t;
 
+typedef struct action {
+	unsigned long start_time;
+	unsigned long stop_time;
+	char* value;
+} action_t;
+
 /**
  * @fn      pdp_decision pdp_calculate_decision(policy_t *pol)
  *
@@ -76,4 +82,4 @@ typedef struct attribute_value {
  * @return  pdp_decision decision made
  */
 //TODO: obligations should be linked list of the elements of the 'obligation_s' structure type
-pdp_decision_t pdp_calculate_decision(policy_t *pol, char *obligation, char *action);
+pdp_decision_t pdp_calculate_decision(policy_t *pol, char *obligation, action_t *action);

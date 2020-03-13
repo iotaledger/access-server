@@ -72,10 +72,12 @@ int checkMsgFormat(JSON_Value *request_json);
  * @param   decision        Decision from pdp
  * @param   obligation      Obligation from policy
  * @param   action          Action from policy
+ * @param   start_time      Time when action starts
+ * @param   end_time        Time when action ends
  *
  * @return  0 if it succeeds.
  */
-int ledControl(int decision, char *obligation, char *action);
+int ledControl(int decision, char *obligation, char *action, unsigned long start_time, unsigned long end_time);
 
 /**
  * @fn      int checkMsgFormat_new(const char *request)

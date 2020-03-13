@@ -41,6 +41,8 @@ int get_size_of_token(int token_id);
 
 int get_array_size(int token_id);
 
+int get_array_member(int token_id, int member_index);
+
 int get_attribute_from_array(int token_id, int index);
 
 int has_token(const char *policy, const char *value, int size);

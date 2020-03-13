@@ -46,6 +46,7 @@
 
 #include <time.h>
 #include "globals_declarations.h"
+#include "timer.h"
 
 int g_task_sleep_time;
 
@@ -93,8 +94,11 @@ int main(int argc, char** argv)
     json_mutex = JSONInterface_get_mutex();
     UserManagement_init(config.bc_hostname, config.bc_hostname_port, config.device_id);
 
+    Timer_init();
+
     if (strncmp(config.client, CONFIG_CLIENT_CAN01, strlen(CONFIG_CLIENT_CAN01)) == 0)
     {
+#ifdef TINY_EMBEDDED
         Resolver_init_can01_remote();
         vdstate.options = &VehicleDatasetCan01_options[0];
         vdstate.dataset = (can01_vehicle_dataset_t*)malloc(sizeof(can01_vehicle_dataset_t));
@@ -103,9 +107,13 @@ int main(int argc, char** argv)
         //GpsReceiver_init(config.gps_tty_device, json_mutex);
         using_can = 1;
         //using_gps = 1;
+#else
+        CanReceiver_preInitSetup(config.can0_port_name, config.can1_port_name);
+#endif
     }
     else if (strncmp(config.client, CONFIG_CLIENT_CANOPEN01, strlen(CONFIG_CLIENT_CANOPEN01)) == 0)
     {
+#ifdef TINY_EMBEDDED
         Resolver_init_canopen01();
         vdstate.options = &VehicleDatasetCanopen01_options[0];
         vdstate.dataset = (canopen01_vehicle_dataset_t*)malloc(sizeof(canopen01_vehicle_dataset_t));
@@ -114,6 +122,9 @@ int main(int argc, char** argv)
         //ModbusReceiver_init(config.modbus_tty_device, vdstate.dataset, json_mutex);
         using_canopen = 1;
         //using_modbus = 1;
+#else
+        CanopenReceiver_preInitSetup(config.canopen_port_name, config.canopen_node_id);
+#endif
     }
     else if (strncmp(config.client, CONFIG_CLIENT_OBDII, strlen(CONFIG_CLIENT_OBDII)) == 0)
     {
@@ -178,6 +189,8 @@ int main(int argc, char** argv)
     if (using_gps == 1) GpsReceiver_end();
     if (using_can == 1) CanReceiver_deinit();
     if (using_modbus == 1) ModbusReceiver_stop();
+
+    Timer_deinit();
 
     UserManagement_deinit();
     JSONInterface_deinit();

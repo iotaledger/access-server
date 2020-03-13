@@ -20,6 +20,7 @@
  *
  * \history
  * 11.10.2018. Initial version.
+ * 21.02.2020. API extension, solved bugs regarding token position.
  ****************************************************************************/
 #include "json_parser.h"
 #include "Dlog.h"
@@ -182,6 +183,36 @@ int get_array_size(int token_id)
 	else
 	{
 		//error not an array
+	}
+
+	return ret;
+}
+
+int get_array_member(int token_id, int member_index)
+{
+	int ret = -1;
+	int i = 0;
+	int temp_id = token_id + 1;
+
+	if(t[token_id].type == JSMN_ARRAY)
+	{
+		if(member_index > t[token_id].size)
+		{
+			//error: should never happen
+			return ret;
+		}
+
+		ret = token_id + 1;
+
+		for(i = 0; i < member_index; i++)
+		{
+			while(t[ret].end >= t[temp_id].start)
+			{
+				temp_id++;
+			}
+
+			ret = temp_id;
+		}
 	}
 
 	return ret;

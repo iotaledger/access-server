@@ -29,6 +29,7 @@
  *
  * \history
  * 03.10.2018. Initial version.
+ * 28.02.2020. Added data sharing through action functionality
  ****************************************************************************/
 
 
@@ -36,6 +37,7 @@
 #define _RESOLVER_H_
 
 #define MAX_LED_NUMBER 10
+#define MAX_STR_SIZE 256
 #define CAR_STATE_LOCK 1
 #define CAR_STATE_UNLOCK 2
 #define CAR_STATE_OPEN_TRUNK 3
@@ -96,6 +98,22 @@ int Resolver_action03();
 
 int Resolver_action04();
 int Resolver_action05();
+
+/**
+ * @fn  int Resolver_action06(char*)
+ *
+ * @brief   Start data sharing
+ *
+ */
+int Resolver_action06(char *action, unsigned long end_time);
+
+/**
+ * @fn  int Resolver_action07(void)
+ *
+ * @brief   Stop data sharing
+ *
+ */
+int Resolver_action07();
 
 /**
  * @fn  void policy_update_indication(void)
