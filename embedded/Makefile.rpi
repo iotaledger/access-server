@@ -182,7 +182,7 @@ CFLAGS = \
     -I$(MODBUS) \
     -I$(FASTJSON)
 
-all: $(BINARY_SERVER) docker_preparation can_simulator
+all: $(BINARY_SERVER) can_simulator
 
 clean:
 	@echo "Deleting all binaries..."
@@ -207,9 +207,3 @@ $(BINARY_CLIENT): $(OBJS_CLIENT) $(OBJS)
 $(BINARY_SERVER): $(OBJS_SERVER) $(OBJS)
 	@echo LINK $(BINARY_SERVER)
 	$(AT)$(CC) -o $(BINARY_SERVER) -g -O0 $(OBJS_SERVER) $(OBJS) $(LDFLAGS) $(CURL_LDFLAGS) $(SQLITE_LDFLAGS)
-
-docker_preparation: $(BINARY_SERVER)
-	cp $(BINARY_SERVER) docker/delegation_server/delegation_srvr
-	cp bc_webui/*.py docker/ipfs_bc_if/
-	cp config.ini docker/delegation_server/config.ini
-	cp config.ini docker/ipfs_bc_if/config.ini
