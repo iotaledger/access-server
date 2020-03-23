@@ -24,9 +24,13 @@
 #define FALSE 0
 
 /***************************************************************************
- * ENUMERATIONS
+ * TYPES
 ****************************************************************************/
 typedef _Bool bool;
+
+/***************************************************************************
+ * ENUMERATIONS
+****************************************************************************/
 
 typedef enum
 {
@@ -47,6 +51,33 @@ typedef enum
     DG_HAS_OPP = 0x08,
     DG_HAS_ALL = 0x0F
 } Validator_policy_docgoc_level_e;
+
+typedef enum
+{
+    CT_INT,
+    CT_FLOAT,
+    CT_HASH_FN,
+    CT_ID,
+    CT_TIME
+} Validator_cmp_types;
+
+typedef enum
+{
+    CR_FALSE,
+    CR_TRUE,
+    CR_NOT_SUPPORTED,
+    CR_BAD_ARG
+} Validator_check_res;
+
+typedef enum
+{
+    OP_EQ,
+    OP_LEQ,
+    OP_GEQ,
+    OP_LTE,
+    OP_GTE,
+    OP_UNKNOWN
+} Validator_operations;
 
 /***************************************************************************
  * STRUCTURES
