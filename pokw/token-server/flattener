@@ -1,6 +1,0 @@
-#!/usr/bin/env bash
-
-rm -rf flats/*
-
-truffle-flattener ./contracts/NTTToken.sol --output flats/NTTToken_flat.sol
-
