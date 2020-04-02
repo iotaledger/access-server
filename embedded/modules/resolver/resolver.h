@@ -36,6 +36,11 @@
 #ifndef _RESOLVER_H_
 #define _RESOLVER_H_
 
+#include <stdlib.h>
+
+#include "vehicle_dataset.h"
+#include "vehicle_datasharing_dataset.h"
+
 #define MAX_LED_NUMBER 10
 #define MAX_STR_SIZE 256
 #define CAR_STATE_LOCK 1
@@ -43,6 +48,19 @@
 #define CAR_STATE_OPEN_TRUNK 3
 #define CAR_STATE_CLOSE_TRUNK 4
 
+#define MAX_RESOLVER_ACTIONS 10
+#define RESOLVER_ACTION_NAME_SIZE 16
+typedef int (*resolver_action_t)(int should_log);
+typedef struct {
+	char action_names[MAX_RESOLVER_ACTIONS][RESOLVER_ACTION_NAME_SIZE];
+    resolver_action_t actions[MAX_RESOLVER_ACTIONS];
+    size_t count;
+    void (*init_ds_interface_cb)(VehicleDataset_state_t*);
+    void (*start_ds_interface_cb)(void);
+    void (*stop_ds_interface_cb)(void);
+} resolver_plugin_t;
+
+typedef void (*resolver_plugin_initializer_t)(resolver_plugin_t*);
 
 /**
  * @fn  void run_led(void)
@@ -72,40 +90,22 @@ void set_led_flashing(unsigned char led, unsigned int duration);
 void set_led_on(unsigned char led, unsigned int duration);
 
 /**
- * @fn  void Resolver_action02(void)
+ * @fn int Resolver_action(const char* action, int should_log, void* arg)
  *
- * @brief   Indication of car lock
- *
+ * @brief Perform action mapped to action string
+ * @param action 		name of the action to be performed
+ * @param should_log	if action should be logged
+ * @param arg			optional parameter for action
  */
-int Resolver_action02();
+int Resolver_action(const char* action, int should_log, void* arg);
 
 /**
- * @fn  void Resolver_action01(void)
- *
- * @brief   Indication of car unlock
- *
- */
-int Resolver_action01();
-
-/**
- * @fn  void Resolver_action03(void)
- *
- * @brief   Indication of trunk open
- *
- */
-int Resolver_action03();
-
-
-int Resolver_action04();
-int Resolver_action05();
-
-/**
- * @fn  int Resolver_action06(char*)
+ * @fn  int Resolver_start_data_sharing(char*)
  *
  * @brief   Start data sharing
  *
  */
-int Resolver_action06(char *action, unsigned long end_time);
+int Resolver_start_data_sharing(const char *action, unsigned long end_time);
 
 /**
  * @fn  int Resolver_action07(void)
@@ -113,7 +113,7 @@ int Resolver_action06(char *action, unsigned long end_time);
  * @brief   Stop data sharing
  *
  */
-int Resolver_action07();
+int Resolver_stop_data_sharing();
 
 /**
  * @fn  void policy_update_indication(void)
@@ -125,10 +125,7 @@ int policy_update_indication();
 
 int get_time(char *buf);
 
-void Resolver_set_relayboard_addr(const char* addr);
+void Resolver_init(resolver_plugin_initializer_t initializer, VehicleDataset_state_t *vdstate);
 
-void Resolver_init_can01_remote();
-void Resolver_init_can01_remote_tcp();
-void Resolver_init_canopen01();
 
 #endif //_RESOLVER_H_

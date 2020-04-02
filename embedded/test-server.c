@@ -35,6 +35,8 @@
 #include "json_interface.h"
 #include "config_manager.h"
 #include "resolver.h"
+#include "demo_plugin_01.h"
+#include "demo_plugin_02.h"
 #include "can_receiver.h"
 #include "gps_receiver.h"
 #include "canopen_receiver.h"
@@ -67,6 +69,8 @@ static ConfigManager_config_t config;
 
 static VehicleDataset_state_t vdstate = {0};
 
+extern void DemoPlugin01_set_relayboard_addr(const char* addr);
+
 int main(int argc, char** argv)
 {
     signal(SIGINT, signal_handler);
@@ -83,7 +87,7 @@ int main(int argc, char** argv)
 
     g_task_sleep_time = (int)(config.thread_sleep_period * 1000);
 
-    Resolver_set_relayboard_addr(config.relaybrd_ipaddress);
+    DemoPlugin01_set_relayboard_addr(config.relaybrd_ipaddress);
     PSDaemon_set_policy_store_address(config.policy_store_service_ip);
     PSDaemon_set_policy_store_port(config.policy_store_service_port);
     PSDaemon_set_device_id(config.device_id);
@@ -99,7 +103,7 @@ int main(int argc, char** argv)
     if (strncmp(config.client, CONFIG_CLIENT_CAN01, strlen(CONFIG_CLIENT_CAN01)) == 0)
     {
 #ifdef TINY_EMBEDDED
-        Resolver_init_can01_remote();
+        Resolver_init(DemoPlugin01_initializer, &vdstate);
         vdstate.options = &VehicleDatasetCan01_options[0];
         vdstate.dataset = (can01_vehicle_dataset_t*)malloc(sizeof(can01_vehicle_dataset_t));
         VehicleDataset_init(&vdstate);
@@ -114,7 +118,7 @@ int main(int argc, char** argv)
     else if (strncmp(config.client, CONFIG_CLIENT_CANOPEN01, strlen(CONFIG_CLIENT_CANOPEN01)) == 0)
     {
 #ifdef TINY_EMBEDDED
-        Resolver_init_canopen01();
+        Resolver_init(DemoPlugin02_initializer, &vdstate);
         vdstate.options = &VehicleDatasetCanopen01_options[0];
         vdstate.dataset = (canopen01_vehicle_dataset_t*)malloc(sizeof(canopen01_vehicle_dataset_t));
         VehicleDataset_init(&vdstate);

@@ -113,6 +113,9 @@ SRCS = \
     $(POLICYSTORE)policystore.c \
     $(AWS_DAEMON)psDaemon.c \
     $(RESOLVER)resolver.c \
+    $(RESOLVER)relay_interface.c \
+    $(RESOLVER)plugins/demo_plugin_01.c \
+    $(RESOLVER)plugins/demo_plugin_02.c \
     include/json_interface.c \
     include/timer.c \
     config_manager/config_manager.c \
@@ -165,6 +168,7 @@ CFLAGS = \
     -I$(PDP) \
     -I$(CRYPTO)ref/ \
     -I$(RESOLVER) \
+    -I$(RESOLVER)plugins \
     -I$(CAN) \
     -I$(OBDII) \
     -I$(OBDII)ejv_obdii \
@@ -209,3 +213,7 @@ $(BINARY_CLIENT): $(OBJS_CLIENT) $(OBJS)
 $(BINARY_SERVER): $(OBJS_SERVER) $(OBJS)
 	@echo LINK $(BINARY_SERVER)
 	$(AT)$(CC) -o $(BINARY_SERVER) -g -O0 $(OBJS_SERVER) $(OBJS) $(LDFLAGS) $(CURL_LDFLAGS) $(SQLITE_LDFLAGS)
+
+tests/relay_interface_test: tests/relay_interface_test.o $(RESOLVER)relay_interface.o
+	@echo  LINK relay_interface_test
+	$(AT)$(CC) -o tests/relay_interface_test -g -O0 $^ $(LDFLAGS)
