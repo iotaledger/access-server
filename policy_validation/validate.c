@@ -22,6 +22,7 @@
 #include <string.h>
 
 #include "validator.h"
+#include "optimizator.h"
 
 /***************************************************************************
  * DEFINES
@@ -53,7 +54,7 @@ int main(int argc, char** argv)
     FILE *fp;
 
     // Check arguments
-    if (argc != 2)
+    if (argc < 2)
     {
         printf("Input file required!\n");
         return 1;
@@ -84,6 +85,11 @@ int main(int argc, char** argv)
     printf("validator report:\n - valid json: %s\n - proper format: %s\n",
         YESNO(report.valid_json == 1),
         YESNO(report.proper_format == 1));
+
+    if (argc >= 3)
+    {
+        Optimizator_optimize_pol(policy_data, argv[2]);
+    }
 
     return 0;
 }

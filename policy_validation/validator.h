@@ -12,6 +12,8 @@
  * Designed-by: Djordje Golubovic
  * 
  * History:     21.02.2020. - Initial version
+ *              22.03.2020. - Value limitations check
+ *              25.03.2020. - Moved parser enum to helper module
  *****************************************************************************/
 #ifndef __VALIDATOR_H__
 #define __VALIDATOR_H__
@@ -59,7 +61,7 @@ typedef enum
     CT_HASH_FN,
     CT_ID,
     CT_TIME
-} Validator_cmp_types;
+} Validator_cmp_types_e;
 
 typedef enum
 {
@@ -67,17 +69,7 @@ typedef enum
     CR_TRUE,
     CR_NOT_SUPPORTED,
     CR_BAD_ARG
-} Validator_check_res;
-
-typedef enum
-{
-    OP_EQ,
-    OP_LEQ,
-    OP_GEQ,
-    OP_LTE,
-    OP_GTE,
-    OP_UNKNOWN
-} Validator_operations;
+} Validator_check_res_e;
 
 /***************************************************************************
  * STRUCTURES
