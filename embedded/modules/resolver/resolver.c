@@ -52,7 +52,7 @@
 
 #include "can_receiver.h"
 #include "canopen_receiver.h"
-#include "vehicle_datashering_dataset.h"
+#include "vehicle_datasharing_dataset.h"
 #include "vehicle_dataset.h"
 #include "json_interface.h"
 #include "timer.h"

@@ -130,6 +130,7 @@ SRCS = \
     $(CANOPEN)canopen_receiver.c \
     $(CANOPEN)canopen_sdo.c \
     $(VEHICLE_DATASET)vehicle_dataset.c \
+    $(VEHICLE_DATASET)vehicle_datasharing_dataset.c \
     $(TCP_SERVER)tcp_server.c \
     user_management/user_management.c \
     $(MODBUS)modbus.c \

@@ -17,9 +17,9 @@
 
 /****************************************************************************
  * \project Decentralized Access Control
- * \file vehicle_datashering_dataset.h
+ * \file vehicle_datasharing_dataset.h
  * \brief
- * Datasets which can be shared via policy action response.
+ * Declarations of datasets which can be shared via policy action response.
  *
  * @Author Strahinja Golic
  *
@@ -28,45 +28,43 @@
  * \history
  * 28.02.2020. Initial version.
  ****************************************************************************/
-#ifndef _VEHICLE_DATASHERING_DATASET_H_
-#define _VEHICLE_DATASHERING_DATASET_H_
+#ifndef _VEHICLE_DATASHARING_DATASET_H_
+#define _VEHICLE_DATASHARING_DATASET_H_
 
 #include <stddef.h>
 #include <stdint.h>
 
 
-char VehicleDataset01_options[] =
-    "DoorDrvrSts"
-	"|DoorDrvrReSts";
+extern char VehicleDataset01_options[];
 
-char VehicleDataset02_options[];
+extern char VehicleDataset02_options[];
 
-char VehicleDataset03_options[];
+extern char VehicleDataset03_options[];
 
-char VehicleDataset04_options[];
+extern char VehicleDataset04_options[];
 
-char VehicleDataset05_options[];
+extern char VehicleDataset05_options[];
 
-char VehicleDataset06_options[];
+extern char VehicleDataset06_options[];
 
-char VehicleDataset07_options[];
+extern char VehicleDataset07_options[];
 
-char VehicleDataset08_options[];
+extern char VehicleDataset08_options[];
 
-char VehicleDataset09_options[];
+extern char VehicleDataset09_options[];
 
-char VehicleDataset10_options[];
+extern char VehicleDataset10_options[];
 
-char VehicleDataset11_options[];
+extern char VehicleDataset11_options[];
 
-char VehicleDataset12_options[];
+extern char VehicleDataset12_options[];
 
-char VehicleDataset13_options[];
+extern char VehicleDataset13_options[];
 
-char VehicleDataset14_options[];
+extern char VehicleDataset14_options[];
 
-char VehicleDataset15_options[];
+extern char VehicleDataset15_options[];
 
-char VehicleDataset16_options[];
+extern char VehicleDataset16_options[];
 
 #endif
