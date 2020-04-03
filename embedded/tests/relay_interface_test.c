@@ -48,19 +48,19 @@ int main(int argc, char** argv)
 
     if (strncmp(argv[1], "on", strlen("on")) == 0)
     {
-        RelayInterface_on(atoi(argv[1]));
+        RelayInterface_on(atoi(argv[2]));
     }
     else if (strncmp(argv[1], "off", strlen("off")) == 0)
     {
-        RelayInterface_off(atoi(argv[1]));
+        RelayInterface_off(atoi(argv[2]));
     }
     else if (strncmp(argv[1], "toggle", strlen("toggle")) == 0)
     {
-        RelayInterface_toggle(atoi(argv[1]));
+        RelayInterface_toggle(atoi(argv[2]));
     }
     else if (strncmp(argv[1], "pulse", strlen("pulse")) == 0)
     {
-        RelayInterface_pulse(atoi(argv[1]));
+        RelayInterface_pulse(atoi(argv[2]));
     }
     else
     {
