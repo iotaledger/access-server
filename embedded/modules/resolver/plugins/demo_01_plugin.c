@@ -19,7 +19,7 @@
 
 /****************************************************************************
  * \project IOTA Access
- * \file demo_plugin_01.c
+ * \file demo_01_plugin.c
  * \brief
  * Resolver plugin for CAN demo. There are two variants, one is using relay
  * board directly connected to rpi3, and other is using relay board
@@ -33,7 +33,7 @@
  * 04.03.2020. Initial version.
  ****************************************************************************/
 
-#include "demo_plugin_01.h"
+#include "demo_01_plugin.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -51,7 +51,7 @@
 
 static char relayboard_addr[128] = "127.0.0.1";
 
-void DemoPlugin01_set_relayboard_addr(const char* addr)
+void Demo01Plugin_set_relayboard_addr(const char* addr)
 {
     strncpy(relayboard_addr, addr, sizeof(relayboard_addr));
 }
@@ -159,8 +159,8 @@ static void init_ds_interface(VehicleDataset_state_t* vdstate)
     // Re-init receiver with new dataset
 #endif
 
-    DemoPlugin01_initializer(NULL);
-    vdstate->options = &VehicleDatasetCan01_options[0];
+    Demo01Plugin_initializer(NULL);
+    vdstate->options = &VehicleDatasetDemo01_options[0];
     VehicleDataset_init(vdstate);
     CanReceiver_init(can0_port_name, can1_port_name, vdstate->dataset, JSONInterface_get_mutex());
 }
@@ -177,8 +177,8 @@ static void init_ds_interface_tcp(VehicleDataset_state_t* vdstate)
     // Re-init receiver with new dataset
 #endif
 
-    DemoPlugin01_initializer_tcp(NULL);
-    vdstate->options = &VehicleDatasetCan01_options[0];
+    Demo01Plugin_initializer_tcp(NULL);
+    vdstate->options = &VehicleDatasetDemo01_options[0];
     VehicleDataset_init(vdstate);
     CanReceiver_init(can0_port_name, can1_port_name, vdstate->dataset, JSONInterface_get_mutex());
 }
@@ -193,7 +193,7 @@ static void stop_ds_interface()
     CanReceiver_deinit();
 }
 
-void DemoPlugin01_initializer(resolver_plugin_t* action_set)
+void Demo01Plugin_initializer(resolver_plugin_t* action_set)
 {
     if (g_action_set == NULL && action_set == NULL) return;
     if (action_set != NULL)
@@ -214,7 +214,7 @@ void DemoPlugin01_initializer(resolver_plugin_t* action_set)
     g_action_set->start_ds_interface_cb = start_ds_interface;
 }
 
-void DemoPlugin01_initializer_tcp(resolver_plugin_t* action_set)
+void Demo01Plugin_initializer_tcp(resolver_plugin_t* action_set)
 {
     if (g_action_set == NULL && action_set == NULL) return;
     if (action_set != NULL)

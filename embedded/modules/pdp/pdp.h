@@ -38,8 +38,12 @@
 #define GRANT    (1)
 #define DENY     (2)
 #define CONFLICT (3)
+#ifndef FALSE
 #define FALSE    (0)
+#endif
+#ifndef TRUE
 #define TRUE     (1)
+#endif
 #define ERROR    (666)
 
 #define OBLIGATION_LEN (15)

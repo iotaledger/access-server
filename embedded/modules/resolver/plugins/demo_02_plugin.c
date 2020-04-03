@@ -19,7 +19,7 @@
 
 /****************************************************************************
  * \project IOTA Access
- * \file plugin_03.c
+ * \file demo_02_plugin.c
  * \brief
  * Resolver plugin for CANOpen demo using relay board connected directly to
  * rpi3.
@@ -32,7 +32,7 @@
  * 04.03.2020. Initial version.
  ****************************************************************************/
 
-#include "demo_plugin_02.h"
+#include "demo_02_plugin.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -43,31 +43,31 @@
 #include "resolver.h"
 #include "json_interface.h"
 
-static int canopen01_car_lock(int should_log)
+static int demo02_vehicle_lock(int should_log)
 {
     RelayInterface_off(3);
     return 0;
 }
 
-static int canopen01_car_unlock(int should_log)
+static int demo02_vehicle_unlock(int should_log)
 {
     RelayInterface_on(3);
     return 0;
 }
 
-static int canopen01_start_engine(int should_log)
-{
-    RelayInterface_on(1);
-    return 0;
-}
-
-static int canopen01_open_trunk(int should_log)
+static int demo02_honk(int should_log)
 {
     RelayInterface_pulse(2);
     return 0;
 }
 
-static int canopen01_alarm_off(int should_log)
+static int demo02_alarm_on(int should_log)
+{
+    RelayInterface_on(1);
+    return 0;
+}
+
+static int demo02_alarm_off(int should_log)
 {
     RelayInterface_off(1);
     return 0;
@@ -87,8 +87,8 @@ static void init_cb(VehicleDataset_state_t* vdstate)
     // Re-init receiver with new dataset
 #endif
 
-    DemoPlugin02_initializer(NULL);
-    vdstate->options = &VehicleDatasetCanopen01_options[0];
+    Demo02Plugin_initializer(NULL);
+    vdstate->options = &VehicleDatasetDemo02_options[0];
     VehicleDataset_init(vdstate);
     CanopenReceiver_init(vdstate->dataset, JSONInterface_get_mutex(), canopen_port_name, canopen_node_id);
 }
@@ -96,7 +96,7 @@ static void init_cb(VehicleDataset_state_t* vdstate)
 static void start_cb() {}
 static void stop_cb() {}
 
-void DemoPlugin02_initializer(resolver_plugin_t* action_set)
+void Demo02Plugin_initializer(resolver_plugin_t* action_set)
 {
     if (action_set == NULL && g_action_set == NULL) return;
     if (action_set != NULL)
@@ -104,11 +104,11 @@ void DemoPlugin02_initializer(resolver_plugin_t* action_set)
         g_action_set = action_set;
     }
 
-    g_action_set->actions[0] = canopen01_car_unlock;
-    g_action_set->actions[1] = canopen01_car_lock;
-    g_action_set->actions[2] = canopen01_open_trunk;
-    g_action_set->actions[3] = canopen01_start_engine;
-    g_action_set->actions[4] = canopen01_alarm_off;
+    g_action_set->actions[0] = demo02_vehicle_unlock;
+    g_action_set->actions[1] = demo02_vehicle_lock;
+    g_action_set->actions[2] = demo02_honk;
+    g_action_set->actions[3] = demo02_alarm_on;
+    g_action_set->actions[4] = demo02_alarm_off;
     strncpy(g_action_set->action_names[0], "open_door", RESOLVER_ACTION_NAME_SIZE);
     strncpy(g_action_set->action_names[1], "close_door", RESOLVER_ACTION_NAME_SIZE);
     strncpy(g_action_set->action_names[2], "honk", RESOLVER_ACTION_NAME_SIZE);

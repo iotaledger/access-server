@@ -130,7 +130,7 @@ int Resolver_action(const char* action, int should_log, void* arg)
     {
         for (int i = 0; i < resolver_action_set.count; i++)
         {
-            if (strncmp(action, resolver_action_set.action_names[i], RESOLVER_ACTION_NAME_SIZE) == 0)
+            if (memcmp(action, resolver_action_set.action_names[i], strlen(resolver_action_set.action_names[i])) == 0)
             {
                 get_time(buf);
                 Dlog_printf("%s %s\t%s\n", buf, action, action_s);

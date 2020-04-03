@@ -64,7 +64,7 @@ void RelayInterface_init()
 
 void RelayInterface_on(int idx)
 {
-    printf("RELAY ON\n");
+    printf("RELAY ON %d\n", idx);
     pifacerelayplus_init_maybe();
     toggle_state[idx] = HIGH;
     digitalWrite(PIFACE_LED + idx, HIGH);
@@ -72,7 +72,7 @@ void RelayInterface_on(int idx)
 
 void RelayInterface_off(int idx)
 {
-    printf("RELAY OFF\n");
+    printf("RELAY OFF %d\n", idx);
     pifacerelayplus_init_maybe();
     toggle_state[idx] = LOW;
     digitalWrite(PIFACE_LED + idx, LOW);
@@ -80,7 +80,7 @@ void RelayInterface_off(int idx)
 
 void RelayInterface_toggle(int idx)
 {
-    printf("RELAY TOGGLE\n");
+    printf("RELAY TOGGLE %d\n", idx);
     pifacerelayplus_init_maybe();
     if (toggle_state[idx] == LOW)
     {
@@ -96,7 +96,7 @@ void RelayInterface_toggle(int idx)
 
 void RelayInterface_pulse(int idx)
 {
-    printf("RELAY PULSE\n");
+    printf("RELAY PULSE %d\n", idx);
     pifacerelayplus_init_maybe();
     digitalWrite(PIFACE_LED + idx, HIGH);
     delay(500);

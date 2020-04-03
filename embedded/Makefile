@@ -114,8 +114,8 @@ SRCS = \
     $(AWS_DAEMON)psDaemon.c \
     $(RESOLVER)resolver.c \
     $(RESOLVER)relay_interface.c \
-    $(RESOLVER)plugins/demo_plugin_01.c \
-    $(RESOLVER)plugins/demo_plugin_02.c \
+    $(RESOLVER)plugins/demo_01_plugin.c \
+    $(RESOLVER)plugins/demo_02_plugin.c \
     include/json_interface.c \
     include/timer.c \
     config_manager/config_manager.c \
