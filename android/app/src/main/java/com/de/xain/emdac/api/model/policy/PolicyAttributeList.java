@@ -60,7 +60,7 @@ public class PolicyAttributeList extends PolicyAttribute {
         @SerializedName("leq") LESS_OR_EQUAL,
         @SerializedName("geq") GREATER_OR_EQUAL,
         @SerializedName("lt") LESS_THAN,
-        @SerializedName("gt") GREATER_THEN,
+        @SerializedName("gt") GREATER_THAN,
         @SerializedName("and") AND,
         @SerializedName("or") OR;
 
@@ -75,7 +75,7 @@ public class PolicyAttributeList extends PolicyAttribute {
                     return "geq";
                 case LESS_THAN:
                     return "lt";
-                case GREATER_THEN:
+                case GREATER_THAN:
                     return "gt";
                 case AND:
                     return "and";
