@@ -36,8 +36,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
-extern char VehicleDatasetCan01_options[];
-extern char VehicleDatasetCanopen01_options[];
+extern char VehicleDatasetDemo01_options[];
+extern char VehicleDatasetDemo02_options[];
 
 typedef struct {
 	char* name;

@@ -66,60 +66,10 @@ int ledControl(int decision, char *obligation, char *action, unsigned long start
         should_log = TRUE;
     }
     
-    if(decision == 1)
+    if (decision == 1)
     {
-        if((0 == memcmp(action,"open_trunk", strlen("open_trunk"))))
-        {
-            Resolver_action03();
-            if(should_log)
-            {
-                broadcast_status("trunk", "unlock", TRUE);
-            }
-        }
-        else if ((0 == memcmp(action,"open_door", strlen("open_door"))))
-        {
-            Resolver_action01();
-            if(should_log)
-            {
-                broadcast_status("door", "unlock", TRUE);
-            }
-        }
-        else if ((0 == memcmp(action,"close_door", strlen("close_door"))))
-        {
-            Resolver_action02();
-            if(should_log)
-            {
-                broadcast_status("door", "lock", TRUE);
-            }
-        }
-        else if ((0 == memcmp(action,"start_engine", strlen("start_engine"))))
-        {
-            Resolver_action04();
-        }
-        else if ((0 == memcmp(action, "honk", strlen("honk"))))
-        {
-            Resolver_action03();
-        }
-        else if ((0 == memcmp(action, "alarm_on", strlen("alarm_on"))))
-        {
-            Resolver_action04();
-        }
-        else if ((0 == memcmp(action, "alarm_off", strlen("alarm_off"))))
-        {
-            Resolver_action05();
-        }
-        else if ((0 == memcmp(action, "start_ds_", strlen("start_ds_") - 1))) // Do not count '\0' character for memcmp
-        {
-            Resolver_action06(action, end_time);
-        }
-        else if ((0 == memcmp(action, "stop_ds", strlen("stop_ds"))))
-        {
-            Resolver_action07();
-        }
-    }
-    else
-    {
-
+        // TODO: better handling of end_time parameter
+        Resolver_action(action, should_log, &end_time);
     }
 
     return 0;

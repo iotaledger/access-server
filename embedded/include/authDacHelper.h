@@ -34,8 +34,12 @@
 #include "libauthdac.h"
 #include "parson.h"
 
+#ifndef TRUE
 #define TRUE 1
+#endif
+#ifndef FALSE
 #define FALSE 0
+#endif
 
 /**
  * @fn      int sendDecision(int decision, dacSession_t *session)

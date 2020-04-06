@@ -38,7 +38,7 @@
 #include <string.h>
 #include "jsmn.h"
 
-char VehicleDatasetCan01_options[] =
+char VehicleDatasetDemo01_options[] =
     "DoorDrvrReSts"
     "|DoorDrvrSts"
     "|VehMtnStSafe"
@@ -74,7 +74,7 @@ char VehicleDatasetCan01_options[] =
     "|DrvrPrpsnTqReq"
     "|CluPedlRat";
 
-char VehicleDatasetCanopen01_options[] =
+char VehicleDatasetDemo02_options[] =
     "bms_bat_voltage"
     "|analogue_brake_full_voltage"
     "|analogue_brake_off_voltage"
