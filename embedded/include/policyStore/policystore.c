@@ -125,10 +125,20 @@ int datahex2(const char* string) {
 	return 0;
 }
 
-int PolicyStore_put_policy_from_aws(char *policy_id, int policy_id_size, char *policy, int policy_size, char *policy_cost, short policy_cost_size)
+int PolicyStore_put_policy(char *policy_id, int policy_id_size, char *policy, int policy_size,
+                           char *policy_id_signature, int policy_id_signature_size, char *policy_cost, short policy_cost_size)
 {
 	int ret = 0;
 	short size = 32;
+
+	if (policy_id == NULL ||
+		policy == NULL ||
+		policy_id_signature == NULL ||
+		policy_cost == NULL)
+	{
+		Dlog_printf("ERROR[%s]: Bad input parameter.", __FUNCTION__);
+		return -1;
+	}
 
 	ret = datahex2(policy_id);
 
