@@ -125,11 +125,13 @@ int datahex2(const char* string) {
 	return 0;
 }
 
+//@FIXME: Memory for policies is never freed. This must be implemented.
 int PolicyStore_put_policy(char *policy_id, int policy_id_size, char *policy, int policy_size,
                            char *policy_id_signature, int policy_id_signature_size, char *policy_cost, short policy_cost_size)
 {
-	int ret = 0;
 	short size = 32;
+	int ret = 0;
+	policy_id_signature_t signature;
 
 	if (policy_id == NULL ||
 		policy == NULL ||
@@ -137,6 +139,24 @@ int PolicyStore_put_policy(char *policy_id, int policy_id_size, char *policy, in
 		policy_cost == NULL)
 	{
 		Dlog_printf("ERROR[%s]: Bad input parameter.", __FUNCTION__);
+		return -1;
+	}
+
+	signature.signature_algorithm_size = policy_id_signature[0];
+	signature.signature_algorithm = &policy_id_signature[1];
+	signature.signature_size = policy_id_signature[signature.signature_algorithm_size + 1];
+	signature.signature = &policy_id_signature[signature.signature_algorithm_size + 2];
+	signature.public_key_size = policy_id_signature[signature.signature_algorithm_size + 1 + signature.signature_size + 1];
+	signature.public_key = &policy_id_signature[signature.signature_algorithm_size + 1 + signature.signature_size + 2];
+
+	if (memcmp(signature.signature_algorithm, "ECDSA", signature.signature_algorithm_size) == 0)
+	{
+		//@TODO: check signature validity
+	}
+	else
+	{
+		//at this moment only ECDSA is supported
+		Dlog_printf("ERROR[%s]: Not supported signature algorithm.", __FUNCTION__);
 		return -1;
 	}
 

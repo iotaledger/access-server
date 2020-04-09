@@ -76,12 +76,12 @@ typedef struct list {
 } list_t;
 
 typedef struct policy_id_signature {
-    char *signature_algorithm;
     int signature_algorithm_size;
-    char *signature;
+    char *signature_algorithm;
     int signature_size;
-    char *public_key;
+    char *signature;
     int public_key_size;
+    char *public_key;
 } policy_id_signature_t;
 
 /**
