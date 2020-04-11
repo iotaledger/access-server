@@ -70,4 +70,8 @@ void sc25519_window5(signed char r[51], const sc25519 *s);
 
 void sc25519_2interleave2(unsigned char r[127], const sc25519 *s1, const sc25519 *s2);
 
+int sc25519_is_canonical(const unsigned char s[32]);
+
+void sc25519_reduce(unsigned char s[64]);
+
 #endif

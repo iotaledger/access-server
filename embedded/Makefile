@@ -99,6 +99,7 @@ SRCS = \
     $(CRYPTO)ref/open.c \
     $(CRYPTO)ref/sign.c \
     $(CRYPTO)ref/verify.c \
+    $(CRYPTO)ref/utils.c \
     $(TINYE)libdacUtils.c \
     $(TINYE)libdacServer.c \
     $(TINYE)libdacClient.c \
