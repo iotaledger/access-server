@@ -44,6 +44,7 @@
 #include "test_internal.h"
 #include "resolver.h"
 #include "utils_string.h"
+#include "apiorig.h"
 
 #include "Dlog.h"
 
@@ -149,9 +150,26 @@ int PolicyStore_put_policy(char *policy_id, int policy_id_size, char *policy, in
 	signature.public_key_size = policy_id_signature[signature.signature_algorithm_size + 1 + signature.signature_size + 1];
 	signature.public_key = &policy_id_signature[signature.signature_algorithm_size + 1 + signature.signature_size + 2];
 
+	if ((signature.signature_algorithm_size + signature.signature_size + signature.public_key_size) > policy_id_signature_size)
+	{
+		Dlog_printf("ERROR[%s]: Bad input parameter.", __FUNCTION__);
+		return -1;
+	}
+
 	if (memcmp(signature.signature_algorithm, "ECDSA", signature.signature_algorithm_size) == 0)
 	{
-		//@TODO: check signature validity
+		if (crypto_sign_verify_detached(signature.signature, policy, &policy_size, signature.public_key) != 0)
+		{
+			//signature verification failed
+			free(policy_id_signature);
+			Dlog_printf("ERROR[%s]: Signature did not match with public key.", __FUNCTION__);
+			return -1;
+		}
+		else
+		{
+			//@TODO: Consider if policy id signature needs to be stored here. Until then, free memory used for policy id signature.
+			free(policy_id_signature);
+		}
 	}
 	else
 	{
