@@ -158,7 +158,7 @@ int PolicyStore_put_policy(char *policy_id, int policy_id_size, char *policy, in
 
 	if (memcmp(signature.signature_algorithm, "ECDSA", signature.signature_algorithm_size) == 0)
 	{
-		if (crypto_sign_verify_detached(signature.signature, policy, &policy_size, signature.public_key) != 0)
+		if (crypto_sign_verify_detached(signature.signature, policy, policy_size, signature.public_key) != 0)
 		{
 			//signature verification failed
 			free(policy_id_signature);
