@@ -46,9 +46,9 @@ TOOL_PREFIX ?= /usr/bin/
 CC = $(TOOL_PREFIX)gcc
 LD = $(TOOL_PREFIX)ld
 
-BINARY_SERVER = serverTest
+BINARY_MAIN = main
 
-OBJS_SERVER = test-server.o
+OBJS_MAIN = main.o
 
 INCLUDE = include/
 MODULE = ./modules/
@@ -186,11 +186,11 @@ CFLAGS = \
     -I$(MODBUS) \
     -I$(FASTJSON)
 
-all: $(BINARY_SERVER) can_simulator
+all: $(BINARY_MAIN) can_simulator
 
 clean:
 	@echo "Deleting all binaries..."
-	@rm serverTest can_simulator tests/*/*_test tests/*/*.o $(OBJS) $(OBJS_SERVER) -f
+	@rm main can_simulator tests/*/*_test tests/*/*.o $(OBJS) $(OBJS_MAIN) -f
 
 %.o: %.c
 	@echo CC $@
@@ -200,9 +200,9 @@ can_simulator: can_simulator.o $(CAN)can_linux.o $(CAN)lib.o config_manager/conf
 	@echo LINK can_simulator
 	$(AT)$(CC) -o can_simulator $^
 
-$(BINARY_SERVER): $(OBJS_SERVER) $(OBJS)
-	@echo LINK $(BINARY_SERVER)
-	$(AT)$(CC) -o $(BINARY_SERVER) -g -O0 $(OBJS_SERVER) $(OBJS) $(LDFLAGS) $(CURL_LDFLAGS) $(SQLITE_LDFLAGS)
+$(BINARY_MAIN): $(OBJS_MAIN) $(OBJS)
+	@echo LINK $(BINARY_MAIN)
+	$(AT)$(CC) -o $(BINARY_MAIN) -g -O0 $(OBJS_MAIN) $(OBJS) $(LDFLAGS) $(CURL_LDFLAGS) $(SQLITE_LDFLAGS)
 
 relay_interface_test: tests/relay_interface/relay_interface_test.o $(RESOLVER)relay_interface.o
 	@echo  LINK relay_interface_test
