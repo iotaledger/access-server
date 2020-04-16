@@ -132,8 +132,8 @@ int PolicyStore_init( );
  *
  * @param   policy_id                policy ID
  * @param   policy_id_size           policy id size
- * @param   policy                   policy
- * @param   policy_size              policy size
+ * @param   signed_policy            signed policy
+ * @param   signed_policy_size       signed policy size
  * @param   policy_id_signature      policy id signature
  * @param   policy_id_signature_size policy id signature size
  * @param   policy_cost              policy cost
@@ -141,7 +141,7 @@ int PolicyStore_init( );
  *
  * @return  0 if it succeeds, 1 if the policy is already located in the policy store, -1 for error.
  */
-int PolicyStore_put_policy(char *policy_id, int policy_id_size, char *policy, int policy_size,
+int PolicyStore_put_policy(char *policy_id, int policy_id_size, char *signed_policy, int signed_policy_size,
                            char *policy_id_signature, int policy_id_signature_size, char *policy_cost, short policy_cost_size);
 
 /**

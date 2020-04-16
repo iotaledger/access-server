@@ -127,15 +127,18 @@ int datahex2(const char* string) {
 }
 
 //@FIXME: Memory for policies is never freed. This must be implemented.
-int PolicyStore_put_policy(char *policy_id, int policy_id_size, char *policy, int policy_size,
+int PolicyStore_put_policy(char *policy_id, int policy_id_size, char *signed_policy, int signed_policy_size,
                            char *policy_id_signature, int policy_id_signature_size, char *policy_cost, short policy_cost_size)
 {
 	short size = 32;
 	short sa_size_offset = 0;
 	short s_size_offset = 0;
 	short pk_size_offset = 0;
+	char *policy = malloc(signed_policy_size);
+	memset(policy, 0, signed_policy_size);
 	int ret = 0;
 	int pos = 0;
+	unsigned long long policy_size;
 	policy_id_signature_t signature;
 
 	if (policy_id == NULL ||
@@ -217,10 +220,11 @@ int PolicyStore_put_policy(char *policy_id, int policy_id_size, char *policy, in
 
 	if (memcmp(signature.signature_algorithm, "ECDSA", signature.signature_algorithm_size) == 0)
 	{
-		if (crypto_sign_verify_detached(signature.signature, policy, policy_size, signature.public_key) != 0)
+		if (crypto_sign_open(policy, &policy_size, signed_policy, signed_policy_size, signature.public_key) != 0)
 		{
 			//signature verification failed
 			Dlog_printf("\n\nERROR[%s]: Signature did not match with public key. %s\n\n", __FUNCTION__,signature.public_key);
+			free(policy);
 			free(signature.signature_algorithm);
 			free(signature.signature);
 			free(signature.public_key);
@@ -238,6 +242,7 @@ int PolicyStore_put_policy(char *policy_id, int policy_id_size, char *policy, in
 	{
 		//at this moment only ECDSA is supported
 		Dlog_printf("\n\nERROR[%s]: Not supported signature algorithm.\n\n", __FUNCTION__);
+		free(policy);
 		return -1;
 	}
 
@@ -277,6 +282,7 @@ int PolicyStore_put_policy(char *policy_id, int policy_id_size, char *policy, in
 		//Dlog_printf("\nLocal policy store full");
 	}
 
+	free(policy);
 	return ret;
 }
 
