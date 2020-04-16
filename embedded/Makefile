@@ -47,10 +47,8 @@ CC = $(TOOL_PREFIX)gcc
 LD = $(TOOL_PREFIX)ld
 
 BINARY_SERVER = serverTest
-BINARY_CLIENT = clientTest
 
 OBJS_SERVER = test-server.o
-OBJS_CLIENT = test-client.o
 
 INCLUDE = include/
 MODULE = ./modules/
@@ -192,28 +190,29 @@ all: $(BINARY_SERVER) can_simulator
 
 clean:
 	@echo "Deleting all binaries..."
-	@rm serverTest clientTest can_simulator $(OBJS) $(OBJS_CLIENT) $(OBJS_SERVER) -f
+	@rm serverTest can_simulator tests/*/*_test tests/*/*.o $(OBJS) $(OBJS_SERVER) -f
 
 %.o: %.c
 	@echo CC $@
 	$(AT)$(CC) -c $(CFLAGS) $< -o $@
 
-user_mgmt_test: user_mgmt_test.o user_management/user_management.o $(JSMN)jsmn.o
-	@echo LINK $(BINARY_CLIENT)
-	$(AT)$(CC) -o user_mgmt_test user_mgmt_test.o user_management/user_management.o $(JSMN)jsmn.o $(SQLITE_LDFLAGS) $(LDFLAGS) $(CURL_LDFLAGS)
-
 can_simulator: can_simulator.o $(CAN)can_linux.o $(CAN)lib.o config_manager/config_manager.o config_manager/ini/ini.o
 	@echo LINK can_simulator
 	$(AT)$(CC) -o can_simulator $^
-
-$(BINARY_CLIENT): $(OBJS_CLIENT) $(OBJS)
-	@echo LINK $(BINARY_CLIENT)
-	$(AT)$(CC) -o $(BINARY_CLIENT) $(OBJS_CLIENT) $(OBJS) $(LDFLAGS) $(CURL_LDFLAGS) $(SQLITE_LDFLAGS)
 
 $(BINARY_SERVER): $(OBJS_SERVER) $(OBJS)
 	@echo LINK $(BINARY_SERVER)
 	$(AT)$(CC) -o $(BINARY_SERVER) -g -O0 $(OBJS_SERVER) $(OBJS) $(LDFLAGS) $(CURL_LDFLAGS) $(SQLITE_LDFLAGS)
 
-tests/relay_interface_test: tests/relay_interface_test.o $(RESOLVER)relay_interface.o
+relay_interface_test: tests/relay_interface/relay_interface_test.o $(RESOLVER)relay_interface.o
 	@echo  LINK relay_interface_test
-	$(AT)$(CC) -o tests/relay_interface_test -g -O0 $^ $(LDFLAGS)
+	$(AT)$(CC) -o tests/relay_interface/relay_interface_test -g -O0 $^ $(LDFLAGS)
+
+user_management_test: tests/user_management/user_management_test tests/user_management/user_management_test.o $(JSMN)jsmn.o
+	@echo LINK $(DAC_test)
+	$(AT)$(CC) -o tests/user_management_test user_management/user_management_test.o $(JSMN)jsmn.o $(SQLITE_LDFLAGS) $(LDFLAGS) $(CURL_LDFLAGS)
+
+dac_test: tests/dac_test/dac_test.o $(OBJS)
+	@echo LINK tests/dac_test/dac_test
+	$(AT)$(CC) -o tests/dac_test/dac_test tests/dac_test/dac_test.o $(OBJS) $(LDFLAGS) $(CURL_LDFLAGS) $(SQLITE_LDFLAGS)
+

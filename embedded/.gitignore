@@ -8,3 +8,7 @@ __pycache__
 /users.db
 /can_simulator
 /make.log
+tests/*/*.o
+tests/relay_interface/relay_interface_test
+tests/dac_test/dac_test
+tests/user_management/user_management
