@@ -971,3 +971,12 @@ int fe25519_isnegative(const fe25519 *f)
 
   return s[0] & 1;
 }
+
+int fe25519_iszero_new(const fe25519 *f)
+{
+    unsigned char s[32];
+
+    fe25519_tobytes(s, f);
+
+    return sodium_is_zero(s, 32);
+}

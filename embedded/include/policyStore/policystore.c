@@ -131,7 +131,11 @@ int PolicyStore_put_policy(char *policy_id, int policy_id_size, char *policy, in
                            char *policy_id_signature, int policy_id_signature_size, char *policy_cost, short policy_cost_size)
 {
 	short size = 32;
+	short sa_size_offset = 0;
+	short s_size_offset = 0;
+	short pk_size_offset = 0;
 	int ret = 0;
+	int pos = 0;
 	policy_id_signature_t signature;
 
 	if (policy_id == NULL ||
@@ -139,20 +143,75 @@ int PolicyStore_put_policy(char *policy_id, int policy_id_size, char *policy, in
 		policy_id_signature == NULL ||
 		policy_cost == NULL)
 	{
-		Dlog_printf("ERROR[%s]: Bad input parameter.", __FUNCTION__);
+		Dlog_printf("\n\nERROR[%s]: Bad input parameter.\n\n", __FUNCTION__);
 		return -1;
 	}
 
-	signature.signature_algorithm_size = policy_id_signature[0];
-	signature.signature_algorithm = &policy_id_signature[1];
-	signature.signature_size = policy_id_signature[signature.signature_algorithm_size + 1];
-	signature.signature = &policy_id_signature[signature.signature_algorithm_size + 2];
-	signature.public_key_size = policy_id_signature[signature.signature_algorithm_size + 1 + signature.signature_size + 1];
-	signature.public_key = &policy_id_signature[signature.signature_algorithm_size + 1 + signature.signature_size + 2];
+	signature.signature_algorithm_size = atoi(&policy_id_signature[pos]);
+	//check how many characters in buffer is taken for signature_algorithm_size
+	if (signature.signature_algorithm_size < 10)
+	{
+		sa_size_offset = 1;
+	}
+	else if (signature.signature_algorithm_size < 100)
+	{
+		sa_size_offset = 2;
+	}
+	else
+	{
+		sa_size_offset = 3;
+	}
+	pos += sa_size_offset;
+	signature.signature_algorithm = malloc(signature.signature_algorithm_size * sizeof(char));
+	memset(signature.signature_algorithm, 0, signature.signature_algorithm_size * sizeof(char));
+	memcpy(signature.signature_algorithm, &policy_id_signature[pos], signature.signature_algorithm_size);
+	signature.signature_algorithm[signature.signature_algorithm_size] = '\0';
+	pos += signature.signature_algorithm_size;
+
+	signature.signature_size = atoi(&policy_id_signature[pos]);
+	//check how many characters in buffer is taken for signature_size
+	if (signature.signature_size < 10)
+	{
+		s_size_offset = 1;
+	}
+	else if (signature.signature_size < 100)
+	{
+		s_size_offset = 2;
+	}
+	else
+	{
+		s_size_offset = 3;
+	}
+	pos += s_size_offset;
+	signature.signature = malloc(signature.signature_size * sizeof(char));
+	memset(signature.signature, 0, signature.signature_size * sizeof(char));
+	memcpy(signature.signature, &policy_id_signature[pos], signature.signature_size);
+	signature.signature[signature.signature_size] = '\0';
+	pos += signature.signature_size;
+
+	signature.public_key_size = atoi(&policy_id_signature[pos]);
+	//check how many characters in buffer is taken for public_key_size
+	if (signature.public_key_size < 10)
+	{
+		pk_size_offset = 1;
+	}
+	else if (signature.public_key_size < 100)
+	{
+		pk_size_offset = 2;
+	}
+	else
+	{
+		pk_size_offset = 3;
+	}
+	pos += pk_size_offset;
+	signature.public_key = malloc(signature.public_key_size * sizeof(char));
+	memset(signature.public_key, 0, signature.public_key_size * sizeof(char));
+	memcpy(signature.public_key, &policy_id_signature[pos], signature.public_key_size);
+	signature.public_key[signature.public_key_size] = '\0';
 
 	if ((signature.signature_algorithm_size + signature.signature_size + signature.public_key_size) > policy_id_signature_size)
 	{
-		Dlog_printf("ERROR[%s]: Bad input parameter.", __FUNCTION__);
+		Dlog_printf("\n\nERROR[%s]: Bad input parameter.\n\n", __FUNCTION__);
 		return -1;
 	}
 
@@ -161,20 +220,24 @@ int PolicyStore_put_policy(char *policy_id, int policy_id_size, char *policy, in
 		if (crypto_sign_verify_detached(signature.signature, policy, policy_size, signature.public_key) != 0)
 		{
 			//signature verification failed
-			free(policy_id_signature);
-			Dlog_printf("ERROR[%s]: Signature did not match with public key.", __FUNCTION__);
+			Dlog_printf("\n\nERROR[%s]: Signature did not match with public key. %s\n\n", __FUNCTION__,signature.public_key);
+			free(signature.signature_algorithm);
+			free(signature.signature);
+			free(signature.public_key);
 			return -1;
 		}
 		else
 		{
 			//@TODO: Consider if policy id signature needs to be stored here. Until then, free memory used for policy id signature.
-			free(policy_id_signature);
+			free(signature.signature_algorithm);
+			free(signature.signature);
+			free(signature.public_key);
 		}
 	}
 	else
 	{
 		//at this moment only ECDSA is supported
-		Dlog_printf("ERROR[%s]: Not supported signature algorithm.", __FUNCTION__);
+		Dlog_printf("\n\nERROR[%s]: Not supported signature algorithm.\n\n", __FUNCTION__);
 		return -1;
 	}
 

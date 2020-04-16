@@ -82,4 +82,6 @@ void fe25519_pow22523(fe25519 *out, const fe25519 *z);
 
 int fe25519_isnegative(const fe25519 *f);
 
+int fe25519_iszero_new(const fe25519 *f);
+
 #endif

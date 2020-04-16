@@ -645,3 +645,16 @@ void ge25519_tobytes(unsigned char *s, const ge25519_p2 *h)
   fe25519_tobytes(s, &y);
   s[31] ^= fe25519_isnegative(&x) << 7;
 }
+
+void ge25519_p3_tobytes(unsigned char *s, const ge25519_p3 *h)
+{
+    fe25519 recip;
+    fe25519 x;
+    fe25519 y;
+
+    fe25519_invert(&recip, &h->z);
+    fe25519_mul(&x, &h->x, &recip);
+    fe25519_mul(&y, &h->y, &recip);
+    fe25519_tobytes(s, &y);
+    s[31] ^= fe25519_isnegative(&x) << 7;
+}
