@@ -34,10 +34,10 @@
 #ifndef __RELAY_INTERFACE_H__
 #define __RELAY_INTERFACE_H__
 
-void RelayInterface_init();
-void RelayInterface_on(int idx);
-void RelayInterface_off(int idx);
-void RelayInterface_toggle(int idx);
-void RelayInterface_pulse(int idx);
+int RelayInterface_init();
+int RelayInterface_on(int idx);
+int RelayInterface_off(int idx);
+int RelayInterface_toggle(int idx);
+int RelayInterface_pulse(int idx);
 
 #endif

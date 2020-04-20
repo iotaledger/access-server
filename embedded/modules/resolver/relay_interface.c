@@ -35,70 +35,117 @@
 
 #include <stdio.h>
 
-#include <wiringPi.h>
-#include <piFace.h>
+#include <pigpio.h>
 
+#define	LOW	0
+#define	HIGH	1
 
-// piface stuff
-#define PIFACE_BASE  64
-#define PIFACE_BASE  64
-#define PIFACE_LED   (PIFACE_BASE)
+/* BCM Pinout: https://pinout.xyz/ */
+uint8_t idx2bcm[] = {4, 17, 27, 22};
 
-static int pifacerelayplus_initialized = 0;
-static void pifacerelayplus_init_maybe()
-{
-    if (pifacerelayplus_initialized == 0)
-    {
-        pifacerelayplus_initialized = 1;
-        wiringPiSetupSys();
-        piFaceSetup(PIFACE_BASE);
+static int check_idx(int idx){
+    if (idx < 0 || idx > 3){
+        return -1;
     }
 }
 
-static int toggle_state[4] = {LOW, LOW, LOW, LOW};
-
-void RelayInterface_init()
-{
-    pifacerelayplus_init_maybe();
-}
-
-void RelayInterface_on(int idx)
+int RelayInterface_on(int idx)
 {
     printf("RELAY ON %d\n", idx);
-    pifacerelayplus_init_maybe();
-    toggle_state[idx] = HIGH;
-    digitalWrite(PIFACE_LED + idx, HIGH);
+
+    if (gpioInitialise() < 0 || check_idx(idx) < 0)
+    {
+        fprintf(stderr, "pigpio initialisation failed\n");
+        return 1;
+    }
+
+    uint8_t bcm = idx2bcm[idx];
+
+    /* Set GPIO mode */
+    gpioSetMode(bcm, PI_OUTPUT);
+
+    /* on */
+    gpioWrite(bcm, HIGH);
+
+    /* Stop DMA, release resources */
+    gpioTerminate();
+
+    return 0;
 }
 
-void RelayInterface_off(int idx)
+int RelayInterface_off(int idx)
 {
     printf("RELAY OFF %d\n", idx);
-    pifacerelayplus_init_maybe();
-    toggle_state[idx] = LOW;
-    digitalWrite(PIFACE_LED + idx, LOW);
+ 
+    if (gpioInitialise() < 0 || check_idx(idx) < 0)
+    {
+        fprintf(stderr, "pigpio initialisation failed\n");
+        return 1;
+    }
+
+    uint8_t bcm = idx2bcm[idx];
+
+    /* Set GPIO modes */
+    gpioSetMode(bcm, PI_OUTPUT);
+
+    /* off */
+    gpioWrite(bcm, LOW);
+
+    /* Stop DMA, release resources */
+    gpioTerminate();
+
+    return 0;
 }
 
-void RelayInterface_toggle(int idx)
+int RelayInterface_toggle(int idx)
 {
     printf("RELAY TOGGLE %d\n", idx);
-    pifacerelayplus_init_maybe();
-    if (toggle_state[idx] == LOW)
+
+    if (gpioInitialise() < 0 || check_idx(idx) < 0)
     {
-        toggle_state[idx] = HIGH;
-        digitalWrite(PIFACE_LED + idx, HIGH);
+        fprintf(stderr, "pigpio initialisation failed\n");
+        return 1;
     }
-    else if (toggle_state[idx] == HIGH)
-    {
-        toggle_state[idx] = LOW;
-        digitalWrite(PIFACE_LED + idx, LOW);
+
+    uint8_t bcm = idx2bcm[idx];
+
+    /* Set GPIO modes */
+    gpioSetMode(bcm, PI_OUTPUT);
+
+    int current_state = gpioRead(bcm);
+    if (current_state == LOW){
+        gpioWrite(bcm, HIGH); /* on */
+    } else if (current_state == HIGH){
+        gpioWrite(bcm, LOW); /* off */
     }
+
+    /* Stop DMA, release resources */
+    gpioTerminate();
+
+    return 0;
 }
 
-void RelayInterface_pulse(int idx)
+int RelayInterface_pulse(int idx)
 {
     printf("RELAY PULSE %d\n", idx);
-    pifacerelayplus_init_maybe();
-    digitalWrite(PIFACE_LED + idx, HIGH);
-    delay(500);
-    digitalWrite(PIFACE_LED + idx, LOW);
+
+    if (gpioInitialise() < 0 || check_idx(idx) < 0)
+    {
+        fprintf(stderr, "pigpio initialisation failed\n");
+        return 1;
+    }
+
+    uint8_t bcm = idx2bcm[idx];
+
+    /* Set GPIO modes */
+    gpioSetMode(bcm, PI_OUTPUT);
+
+    gpioWrite(bcm, HIGH); /* on */
+    time_sleep(0.5);
+    gpioWrite(bcm, LOW); /* off */
+
+    /* Stop DMA, release resources */
+    gpioTerminate();
+
+    return 0;
 }
