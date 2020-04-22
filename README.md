@@ -37,7 +37,7 @@ Development of the PoC is currently focused on [Raspbian Buster](https://www.ras
 2. Install dependencies:
 ```
 $ sudo apt-get update
-$ sudo apt-get install git python3-distutils libfastjson-dev libcurl4-gnutls-dev libsqlite3-dev
+$ sudo apt-get install git python3-distutils libfastjson-dev libcurl4-gnutls-dev libsqlite3-dev pigpio
 ```
 
 3. Download, build and install [`pigpio`](http://abyz.me.uk/rpi/pigpio/):
