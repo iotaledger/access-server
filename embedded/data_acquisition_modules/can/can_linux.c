@@ -31,54 +31,55 @@
  * 04.15.2019. Initial version.
  ****************************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <time.h>
-#include <sys/select.h>
 
 #include "can_linux.h"
 #include "globals_declarations.h"
 
+#define CAN_DEVICE_NAME_LEN 5
+#define CAN_CTRLMSG_LEN 1024
+#define CAN_MSGIOV_LEN 1
+#define CAN_TIMEOUT_SEC 0
+#define CAN_TIMEOUT_uSEC 30000
+
 int CAN_open(CAN_t *can_connection, const char* can_device){
-    if (can_connection == NULL) return -1;
+    if (can_connection == NULL) return CAN_OPEN_CONNECTION_ERROR;
 
     if ((can_connection->sock = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0) {
         perror("socket");
-        return -2;
+        return CAN_OPEN_SOCKET_ERROR;
     }
 
     can_connection->addr.can_family = AF_CAN;
 
     memset(&can_connection->ifr.ifr_name, 0, sizeof(can_connection->ifr.ifr_name));
     if (can_device == NULL) {
-        strncpy(can_connection->ifr.ifr_name, "can0", 4);
+        strncpy(can_connection->ifr.ifr_name, "can0", strlen("can0"));
     } else {
-        strncpy(can_connection->ifr.ifr_name, can_device, 5);
+        strncpy(can_connection->ifr.ifr_name, can_device, CAN_DEVICE_NAME_LEN);
     }
 
     if (ioctl(can_connection->sock, SIOCGIFINDEX, &can_connection->ifr) < 0) {
         perror("SIOCGIFINDEX");
-        return -3;
+        return CAN_OPEN_IOCTL_ERROR;
     }
     can_connection->addr.can_ifindex = can_connection->ifr.ifr_ifindex;
 
     if (bind(can_connection->sock, (struct sockaddr *)&can_connection->addr, sizeof(can_connection->addr)) < 0) {
         perror("bind");
-        return -4;
+        return CAN_OPEN_BIND_ERROR;
     }
 
     can_connection->end_loop = 0;
 
-    return 0;
+    return CAN_OPEN_NO_ERROR;
 }
 
 int CAN_send_frame_str(CAN_t *can_connection, char* frame_data){
     struct can_frame frame;
-    int nbytes;
 
-    if (frame_data == NULL) return -1;
+    if (frame_data == NULL) return CAN_SEND_FRAME_DATA_ERROR;
 
     /* parse CAN frame */
     if (parse_canframe(frame_data, &frame)){
@@ -90,28 +91,27 @@ int CAN_send_frame_str(CAN_t *can_connection, char* frame_data){
         fprintf(stderr, "e.g. 5A1#11.2233.44556677.88 / 123#DEADBEEF / ");
         fprintf(stderr, "5AA# /\n     1F334455#1122334455667788 / 123#R ");
         fprintf(stderr, "for remote transmission request.\n\n");
-        return -1;
+        return CAN_SEND_FRAME_DATA_ERROR;
     }
 
-    if ((nbytes = write(can_connection->sock, &frame, sizeof(frame))) != sizeof(frame)) {
+    if ((write(can_connection->sock, &frame, sizeof(frame))) != sizeof(frame)) {
         perror("write");
-        return -2;
+        return CAN_SEND_WRITE_ERROR;
     }
 
-    return 0;
+    return CAN_SEND_NO_ERROR;
 }
 
 int CAN_send_frame(CAN_t *can_connection, struct can_frame *frame) {
-    int nbytes;
 
-    if (can_connection == NULL || frame == NULL) return -1;
+    if (can_connection == NULL || frame == NULL) return CAN_SEND_FRAME_DATA_ERROR;
 
-    if ((nbytes = write(can_connection->sock, frame, sizeof(struct can_frame))) != sizeof(struct can_frame)) {
+    if ((write(can_connection->sock, frame, sizeof(struct can_frame))) != sizeof(struct can_frame)) {
         perror("write");
-        return -2;
+        return CAN_SEND_WRITE_ERROR;
     }
 
-    return 0;
+    return CAN_SEND_NO_ERROR;
 }
 
 int CAN_end_loop(CAN_t *can_connection){
@@ -123,21 +123,21 @@ int CAN_read_loop(CAN_t *can_connection, void (*frame_read_cb)(struct can_frame 
     struct iovec iov;
     struct can_frame frame;
     struct msghdr msg;
-    char ctrlmsg[1024];
-    int ret;
+    char ctrlmsg[CAN_CTRLMSG_LEN];
+    int ret = CAN_READ_NO_ERROR;
     int nbytes;
 
-    if (can_connection == NULL) return -1;
+    if (can_connection == NULL) return CAN_READ_CONNECTION_ERROR;
 
     iov.iov_base = &frame;
     msg.msg_name = &can_connection->addr;
     msg.msg_iov = &iov;
-    msg.msg_iovlen = 1;
+    msg.msg_iovlen = CAN_MSGIOV_LEN;
     msg.msg_control = &ctrlmsg;
 
     struct timeval tv_timeout;
-    tv_timeout.tv_sec = 0;
-    tv_timeout.tv_usec = 30000;
+    tv_timeout.tv_sec = CAN_TIMEOUT_SEC;
+    tv_timeout.tv_usec = CAN_TIMEOUT_uSEC;
 
     while(can_connection->end_loop != 1){
         FD_ZERO(&rdfs);
@@ -146,8 +146,8 @@ int CAN_read_loop(CAN_t *can_connection, void (*frame_read_cb)(struct can_frame 
         if ((ret = select(can_connection->sock+1, &rdfs, NULL, NULL, &tv_timeout)) < 0) {
             break;
         }
-        tv_timeout.tv_sec = 0;
-        tv_timeout.tv_usec = 30000;
+        tv_timeout.tv_sec = CAN_TIMEOUT_SEC;
+        tv_timeout.tv_usec = CAN_TIMEOUT_uSEC;
 
         if (FD_ISSET(can_connection->sock, &rdfs)) {
             iov.iov_len = sizeof(frame);
@@ -158,12 +158,12 @@ int CAN_read_loop(CAN_t *can_connection, void (*frame_read_cb)(struct can_frame 
             nbytes = recvmsg(can_connection->sock, &msg, 0);
             if (nbytes < 0) {
                 perror("read");
-                return -2;
+                return CAN_READ_RECEIVE_ERROR;
             }
 
             if (nbytes < sizeof(struct can_frame)) {
                 fprintf(stderr, "read: incomplete CAN frame\n");
-                return -3;
+                return CAN_READ_INCOMPLETE_ERROR;
             }
 
             if (frame_read_cb != NULL) {
@@ -176,11 +176,11 @@ int CAN_read_loop(CAN_t *can_connection, void (*frame_read_cb)(struct can_frame 
         fflush(stdout);
     }
 
-    return 0;
+    return ret;
 }
 
 int CAN_close(CAN_t *can_connection){
-    if (can_connection == NULL) return -1;
+    if (can_connection == NULL) return CAN_CLOSE_ERROR;
     close(can_connection->sock);
-    return 0;
+    return CAN_CLOSE_NO_ERROR;
 }

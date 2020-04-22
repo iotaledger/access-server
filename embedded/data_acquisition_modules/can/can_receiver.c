@@ -31,41 +31,38 @@
  * 04.15.2019. Initial version.
  ****************************************************************************/
 
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <time.h>
-#include <pthread.h>
 #include <string.h>
 
-#include "can_linux.h"
 #include "can_msgs.h"
 
 #include "can_receiver.h"
 #include "json_interface.h"
 
 #define MAX_STR_SIZE 256
+#define DATA_SIZE 8
+#define CAN_JSON_NAME "can_data"
+#define CAN_STR_LEN 1024
+#define CAN_ID_MASK 0x7ff
+#define JSON_DUMP_PERIOD_S 6
+#define JSON_DUMP_TO_IPFS 1
 
 static void be2le(unsigned char *in, unsigned char *out)
 {
-    unsigned char data[8];
-    for (int i=0; i<8; i++){
-        data[i] = in[7-i];
+    unsigned char data[DATA_SIZE];
+    for (int i=0; i<DATA_SIZE; i++){
+        data[i] = in[(DATA_SIZE-1)-i];
     }
-    for (int i=0; i<8; i++){
+    for (int i=0; i<DATA_SIZE; i++){
         out[i] = data[i];
     }
 }
 
 static can01_vehicle_dataset_t *wanted_signals;
-static int data_available = 0;
 static bool is_in_use = FALSE;
 static char body_chan[MAX_STR_SIZE];
 static char chas_chan[MAX_STR_SIZE];
 
 // CAN data stuff
-static double latitude = -1.;
-static double longitude = -1.;
-static double speed = -1.;
 static fjson_object *fj_obj_can;
 static fjson_object *fj_values_array_ambient_air_temperature;
 static fjson_object *fj_values_array_fuel_tank_level;
@@ -97,14 +94,11 @@ static fjson_object* can_json_filler()
 {
     fjson_object *fj_data_array = fjson_object_new_array();
 
-    data_available = 0;
-
     if (wanted_signals->AmbTIndcd == 1) {
         fjson_object* fj_obj_tmp = fjson_object_new_object();
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(AmbTIndcd_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
         fj_values_array_ambient_air_temperature = fj_obj_tmp;
-        data_available = 1;
     }
     else
     {
@@ -116,7 +110,6 @@ static fjson_object* can_json_filler()
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(FuLvlIndcdVal_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
         fj_values_array_fuel_tank_level = fj_obj_tmp;
-        data_available = 1;
     } else {
         fj_values_array_fuel_tank_level = NULL;
     }
@@ -126,7 +119,6 @@ static fjson_object* can_json_filler()
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(LockgCenStsForUsrFb_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
         fj_values_array_lock_status = fj_obj_tmp;
-        data_available = 1;
     } else {
         fj_values_array_lock_status = NULL;
     }
@@ -136,7 +128,6 @@ static fjson_object* can_json_filler()
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(TrSts_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
         fj_values_array_trunk_status = fj_obj_tmp;
-        data_available = 1;
     } else {
         fj_values_array_trunk_status = NULL;
     }
@@ -146,7 +137,6 @@ static fjson_object* can_json_filler()
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(DoorDrvrSts_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
         fj_values_array_driver_door_status = fj_obj_tmp;
-        data_available = 1;
     } else {
         fj_values_array_driver_door_status = NULL;
     }
@@ -156,7 +146,6 @@ static fjson_object* can_json_filler()
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(DoorDrvrReSts_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
         fj_values_array_driver_door_rear_status = fj_obj_tmp;
-        data_available = 1;
     } else {
         fj_values_array_driver_door_rear_status = NULL;
     }
@@ -166,7 +155,6 @@ static fjson_object* can_json_filler()
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(DoorPassSts_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
         fj_values_array_passenger_door_status = fj_obj_tmp;
-        data_available = 1;
     } else {
         fj_values_array_passenger_door_status = NULL;
     }
@@ -176,7 +164,6 @@ static fjson_object* can_json_filler()
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(DoorPassReSts_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
         fj_values_array_passenger_door_rear_status = fj_obj_tmp;
-        data_available = 1;
     } else {
         fj_values_array_passenger_door_rear_status = NULL;
     }
@@ -186,7 +173,6 @@ static fjson_object* can_json_filler()
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(DrvrBrkTqAtWhlsReqd_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
         fj_values_array_requested_brake_torque_at_wheels = fj_obj_tmp;
-        data_available = 1;
     } else {
         fj_values_array_requested_brake_torque_at_wheels = NULL;
     }
@@ -196,7 +182,6 @@ static fjson_object* can_json_filler()
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(DrvrPrpsnTqReq_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
         fj_values_array_requested_propulsion_torque = fj_obj_tmp;
-        data_available = 1;
     } else {
         fj_values_array_requested_propulsion_torque = NULL;
     }
@@ -206,7 +191,6 @@ static fjson_object* can_json_filler()
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(CluPedlRat_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
         fj_values_array_clutch_pedal_position = fj_obj_tmp;
-        data_available = 1;
     } else {
         fj_values_array_clutch_pedal_position = NULL;
     }
@@ -216,14 +200,13 @@ static fjson_object* can_json_filler()
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(BrkPedlPsd_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
         fj_values_array_brake_pedal_pressed = fj_obj_tmp;
-        data_available = 1;
     } else {
         fj_values_array_brake_pedal_pressed = NULL;
     }
 
     return fj_data_array;
 }
-#define CAN_JSON_NAME "can_data"
+
 // !CAN data stuff
 
 static pthread_mutex_t *json_sync_lock;
@@ -300,13 +283,13 @@ static fjson_object* gen_interpreted_door_status(int status) {
     fjson_object* fj_value = fjson_object_new_object();
     fjson_object* fj_value_string;
     switch (status) {
-        case 0x0:
+        case CAN_DOOR_UNKNOWN:
             fj_value_string = fjson_object_new_string("Unknown");
             break;
-        case 0x1:
+        case CAN_DOOR_OPENED:
             fj_value_string = fjson_object_new_string("Opened");
             break;
-        case 0x2:
+        case CAN_DOOR_CLOSED:
             fj_value_string = fjson_object_new_string("Closed");
             break;
         default:
@@ -320,19 +303,19 @@ static fjson_object* gen_interpreted_lock_status(int status) {
     fjson_object* fj_value = fjson_object_new_object();
     fjson_object* fj_value_string;
     switch (status) {
-        case 0x0:
+        case CAN_LOCK_UNDEF:
             fj_value_string = fjson_object_new_string("Undefined");
             break;
-        case 0x1:
+        case CAN_LOCK_OPENED:
             fj_value_string = fjson_object_new_string("Opened");
             break;
-        case 0x2:
+        case CAN_LOCK_CLOSED:
             fj_value_string = fjson_object_new_string("Closed");
             break;
-        case 0x3:
+        case CAN_LOCK_LOCKED:
             fj_value_string = fjson_object_new_string("Locked");
             break;
-        case 0x4:
+        case CAN_LOCK_SAFE:
             fj_value_string = fjson_object_new_string("Safe");
             break;
         default:
@@ -346,13 +329,13 @@ static fjson_object* gen_interpreted_temperature_unit(int status) {
     fjson_object* fj_value = fjson_object_new_object();
     fjson_object* fj_value_string;
     switch (status) {
-        case 0x0:
+        case CAN_TEMP_UNIT_C:
             fj_value_string = fjson_object_new_string("C");
             break;
-        case 0x1:
+        case CAN_TEMP_UNIT_F:
             fj_value_string = fjson_object_new_string("F");
             break;
-        case 0x2:
+        case CAN_TEMP_UNIT_UNKNOWN:
             fj_value_string = fjson_object_new_string("Unknown unit");
             break;
         default:
@@ -364,16 +347,19 @@ static fjson_object* gen_interpreted_temperature_unit(int status) {
 
 static void can_body_frame_read_cb(struct can_frame *frame)
 {
-    char can_frame_string[1024];
     be2le(frame->data, frame->data);
+#ifdef DEBUG_MODE
+    char can_frame_string[CAN_STR_LEN];
     sprint_canframe(&can_frame_string[0], frame, 1);
-    //fprintf(stdout, "read can frame: %s\n", can_frame_string);
-    unsigned canid = frame->can_id&0x7ff;
+    fprintf(stdout, "read can frame: %s\n", can_frame_string);
+#endif
+    unsigned canid = frame->can_id&CAN_ID_MASK;
     if (CanMsgs_body_msg_supported(canid)) {
         CanMsgs_BodyMessage_t bm;
-        memcpy(&bm, frame->data, 8);
+        memcpy(&bm, frame->data, DATA_SIZE);
 
         pthread_mutex_lock(json_sync_lock);
+        //CAN ID values are stated in can_msgs API
         switch (canid) {
             case 0x40:
                 if (bm.msg_0x40.DoorDrvrReSts_UB == 1 && wanted_signals->DoorDrvrReSts == 1 && fj_values_array_driver_door_rear_status != NULL)
@@ -629,5 +615,5 @@ static void can_chas_frame_read_cb(struct can_frame *frame)
         }
         pthread_mutex_unlock(json_sync_lock);
     }
-    JSONInterface_dump_if_needed(6, 1);
+    JSONInterface_dump_if_needed(JSON_DUMP_PERIOD_S, JSON_DUMP_TO_IPFS);
 }
