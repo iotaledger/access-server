@@ -35,8 +35,6 @@
 #define _POLICYSOTRE_H_
 
 #include <stdio.h>
-#include <stdlib.h>
-#include "parson.h"
 
 #define HASH_L (32)
 
@@ -48,31 +46,30 @@ typedef struct policy {
     int is_paid;
     int num_of_executions;
 
-	char *policy_cost;
+    char *policy_cost;
     char *policy_id;
     char *policy_c;
 } policy_t;
 
 typedef enum {
-        OK,
-        ERROR,
-        } error_t;
+    OK,
+    ERROR,
+} error_t;
 
 typedef struct node {
     policy_t *pol;
-
     struct node * next;
 } node_t;
 
 typedef struct list {
-	char *policyID;
-	char *action;
-	int action_length;
+    char *policyID;
+    char *action;
+    int action_length;
 
-	char *policy_cost;
-	int policy_cost_size;
+    char *policy_cost;
+    int policy_cost_size;
 
-	struct list *next;
+    struct list *next;
 } list_t;
 
 /**
@@ -96,15 +93,6 @@ void PolicyStore_free_policy(policy_t *pol);
  * @param	item Pointer to action
  */
 void PolicyStore_free_action_list_item(list_t *item);
-
-/**
- * @fn      int PolicyStore_normalizeJSON()
- *
- * @brief   Function that takes policy and normalizes it
- *
- * @return  0.
- */
-int PolicyStore_normalizeJSON();
 
 /**
  * @fn      int PolicyStore_init( )
@@ -251,6 +239,16 @@ int PolicyStore_is_policy_paid(char *policy_id, int policy_id_size);
  */
 int PolicyStore_enable_policy(char *policy_id, int policy_id_size);
 
+/**
+ * @fn		policy_t *PolicyStore_get_policy(char *policy_id, int policy_id_size)
+ *
+ * @brief	Function that gets policy.
+ *
+ * @param	policy_id	policy ID
+ * @param 	policy_id_size	policy ID size
+ *
+ * @return 	Required policy
+ */
 policy_t *PolicyStore_get_policy(char *policy_id, int policy_id_size);
 
 #endif // _POLICYSOTRE_H_

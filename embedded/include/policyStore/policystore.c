@@ -32,36 +32,40 @@
  * 01.10.2018. Added new functions that work without JSON paresr.
  ****************************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include "parson.h"
+#include <pthread.h>
+
 #include "policystore.h"
 #include "json_parser.h"
 
-#include "sha256.h"
-#include "zlib.h"
 #include "test_internal.h"
 #include "resolver.h"
 #include "utils_string.h"
 
-#include "Dlog.h"
-
-#include <pthread.h>
 #define Dlog_printf printf
 
+#ifndef TRUE
 #define TRUE 1
+#endif
+#ifndef FALSE
 #define FALSE 0
+#endif
 
-//char policy_array[]		= {"{\"obligation_deny\":{},\"obligation_grant\":{},\"policy_doc\":{\"type\":\"boolean\",\"value\":\"false\"},\"policy_goc\":{\"attribute_list\":[{\"attribute_list\":[{\"type\":\"str\",\"value\":\"3c9d985c5d630e6e02f676997c5e9f03b45c6b7529b2491e8de03c18af3c9d87f0a65ecb5dd8f390dee13835354b222df414104684ce9f1079a059f052ca6e51\"},{\"type\":\"str\",\"value\":\"3c9d985c5d630e6e02f676997c5e9f03b45c6b7529b2491e8de03c18af3c9d87f0a65ecb5dd8f390dee13835354b222df414104684ce9f1079a059f052ca6e51\"}],\"operation\":\"eq\"},{\"attribute_list\":[{\"type\":\"str\",\"value\":\"c73b8388fb1bd8f924af16308dba6615ff6aad1ae7e5d994016a35718ef039f6814e53df2cf5a22294d807aa43346a69c8bf229129b6fb93abb70cf3ad1277f0\"},{\"type\":\"str\",\"value\":\"c73b8388fb1bd8f924af16308dba6615ff6aad1ae7e5d994016a35718ef039f6814e53df2cf5a22294d807aa43346a69c8bf229129b6fb93abb70cf3ad1277f0\"}],\"operation\":\"eq\"},{\"attribute_list\":[{\"type\":\"action\",\"value\":\"open_door\"},{\"type\":\"action\",\"value\":\"open_door\"}],\"operation\":\"eq\"},{\"attribute_list\":[{\"type\":\"str\",\"value\":\"0\"},{\"type\":\"str\",\"value\":\"0\"}],\"operation\":\"eq\"},{\"attribute_list\":[{\"type\":\"str\",\"value\":\"3537973953\"},{\"type\":\"str\",\"value\":\"3537973953\"}],\"operation\":\"eq\"}],\"operation\":\"and\"}}"};
+#define PS_POL_BUFF_LEN 2048
+#define PS_REC_DATA_LEN 32
+#define PS_STR_LEN 64
+#define PS_BUFF_LEN 80
+#define PS_ID_SIZE 32
+#define PS_TOK_ARRAY_LEN 256
+
 char policy_array_od[]	= {"{\"obligation_deny\":{},\"obligation_grant\":{},\"policy_doc\":{\"type\":\"boolean\",\"value\":\"false\"},\"policy_goc\":{\"attribute_list\":[{\"attribute_list\":[{\"type\":\"str\",\"value\":\"0x3c9d985c5d630e6e02f676997c5e9f03b45c6b7529b2491e8de03c18af3c9d87f0a65ecb5dd8f390dee13835354b222df414104684ce9f1079a059f052ca6e51\"},{\"type\":\"str\",\"value\":\"0x3c9d985c5d630e6e02f676997c5e9f03b45c6b7529b2491e8de03c18af3c9d87f0a65ecb5dd8f390dee13835354b222df414104684ce9f1079a059f052ca6e51\"}],\"operation\":\"eq\"},{\"attribute_list\":[{\"type\":\"str\",\"value\":\"0xc73b8388fb1bd8f924af16308dba6615ff6aad1ae7e5d994016a35718ef039f6814e53df2cf5a22294d807aa43346a69c8bf229129b6fb93abb70cf3ad1277f0\"},{\"type\":\"str\",\"value\":\"0xc73b8388fb1bd8f924af16308dba6615ff6aad1ae7e5d994016a35718ef039f6814e53df2cf5a22294d807aa43346a69c8bf229129b6fb93abb70cf3ad1277f0\"}],\"operation\":\"eq\"},{\"attribute_list\":[{\"type\":\"action\",\"value\":\"open_door\"},   {\"type\":\"action\",\"value\":\"open_door\"}],   \"operation\":\"eq\"},{\"attribute_list\":[{\"type\":\"str\",\"value\":\"0\"},{\"type\":\"str\",\"value\":\"0\"}],\"operation\":\"eq\"},{\"attribute_list\":[{\"type\":\"str\",\"value\":\"3537973953\"},{\"type\":\"str\",\"value\":\"3537973953\"}],\"operation\":\"eq\"}],\"operation\":\"and\"}}"};
 char policy_array_cd[]	= {"{\"obligation_deny\":{},\"obligation_grant\":{},\"policy_doc\":{\"type\":\"boolean\",\"value\":\"false\"},\"policy_goc\":{\"attribute_list\":[{\"attribute_list\":[{\"type\":\"str\",\"value\":\"0x3c9d985c5d630e6e02f676997c5e9f03b45c6b7529b2491e8de03c18af3c9d87f0a65ecb5dd8f390dee13835354b222df414104684ce9f1079a059f052ca6e51\"},{\"type\":\"str\",\"value\":\"0x3c9d985c5d630e6e02f676997c5e9f03b45c6b7529b2491e8de03c18af3c9d87f0a65ecb5dd8f390dee13835354b222df414104684ce9f1079a059f052ca6e51\"}],\"operation\":\"eq\"},{\"attribute_list\":[{\"type\":\"str\",\"value\":\"0xc73b8388fb1bd8f924af16308dba6615ff6aad1ae7e5d994016a35718ef039f6814e53df2cf5a22294d807aa43346a69c8bf229129b6fb93abb70cf3ad1277f0\"},{\"type\":\"str\",\"value\":\"0xc73b8388fb1bd8f924af16308dba6615ff6aad1ae7e5d994016a35718ef039f6814e53df2cf5a22294d807aa43346a69c8bf229129b6fb93abb70cf3ad1277f0\"}],\"operation\":\"eq\"},{\"attribute_list\":[{\"type\":\"action\",\"value\":\"close_door\"},  {\"type\":\"action\",\"value\":\"close_door\"}],  \"operation\":\"eq\"},{\"attribute_list\":[{\"type\":\"str\",\"value\":\"0\"},{\"type\":\"str\",\"value\":\"0\"}],\"operation\":\"eq\"},{\"attribute_list\":[{\"type\":\"str\",\"value\":\"3537973953\"},{\"type\":\"str\",\"value\":\"3537973953\"}],\"operation\":\"eq\"}],\"operation\":\"and\"}}"};
 char policy_array_h[]	= {"{\"obligation_deny\":{},\"obligation_grant\":{},\"policy_doc\":{\"type\":\"boolean\",\"value\":\"false\"},\"policy_goc\":{\"attribute_list\":[{\"attribute_list\":[{\"type\":\"str\",\"value\":\"0x3c9d985c5d630e6e02f676997c5e9f03b45c6b7529b2491e8de03c18af3c9d87f0a65ecb5dd8f390dee13835354b222df414104684ce9f1079a059f052ca6e51\"},{\"type\":\"str\",\"value\":\"0x3c9d985c5d630e6e02f676997c5e9f03b45c6b7529b2491e8de03c18af3c9d87f0a65ecb5dd8f390dee13835354b222df414104684ce9f1079a059f052ca6e51\"}],\"operation\":\"eq\"},{\"attribute_list\":[{\"type\":\"str\",\"value\":\"0xc73b8388fb1bd8f924af16308dba6615ff6aad1ae7e5d994016a35718ef039f6814e53df2cf5a22294d807aa43346a69c8bf229129b6fb93abb70cf3ad1277f0\"},{\"type\":\"str\",\"value\":\"0xc73b8388fb1bd8f924af16308dba6615ff6aad1ae7e5d994016a35718ef039f6814e53df2cf5a22294d807aa43346a69c8bf229129b6fb93abb70cf3ad1277f0\"}],\"operation\":\"eq\"},{\"attribute_list\":[{\"type\":\"action\",\"value\":\"honk\"},  {\"type\":\"action\",\"value\":\"honk\"}],  \"operation\":\"eq\"},{\"attribute_list\":[{\"type\":\"str\",\"value\":\"0\"},{\"type\":\"str\",\"value\":\"0\"}],\"operation\":\"eq\"},{\"attribute_list\":[{\"type\":\"str\",\"value\":\"3537973953\"},{\"type\":\"str\",\"value\":\"3537973953\"}],\"operation\":\"eq\"}],\"operation\":\"and\"}}"};
 char policy_array_aon[]	= {"{\"policy_doc\":{\"type\":\"boolean\",\"value\":\"false\"},\"policy_goc\":{\"attribute_list\":[{\"attribute_list\":[{\"type\":\"public_id\",\"value\":\"0x3c9d985c5d630e6e02f676997c5e9f03b45c6b7529b2491e8de03c18af3c9d87f0a65ecb5dd8f390dee13835354b222df414104684ce9f1079a059f052ca6e51\"},{\"type\":\"request.subject.type\",\"value\":\"request.subject.value\"}],\"operation\":\"eq\"},{\"attribute_list\":[{\"type\":\"action\",\"value\":\"alarm_on\"},{\"type\":\"action\",\"value\":\"alarm_on\"}],\"operation\":\"eq\"}],\"operation\":\"and\"}}"};
 char policy_array_aoff[] = {"{\"policy_doc\":{\"type\":\"boolean\",\"value\":\"false\"},\"policy_goc\":{\"attribute_list\":[{\"attribute_list\":[{\"type\":\"public_id\",\"value\":\"0x3c9d985c5d630e6e02f676997c5e9f03b45c6b7529b2491e8de03c18af3c9d87f0a65ecb5dd8f390dee13835354b222df414104684ce9f1079a059f052ca6e51\"},{\"type\":\"request.subject.type\",\"value\":\"request.subject.value\"}],\"operation\":\"eq\"},{\"attribute_list\":[{\"type\":\"action\",\"value\":\"alarm_off\"},{\"type\":\"action\",\"value\":\"alarm_off\"}],\"operation\":\"eq\"}],\"operation\":\"and\"}}"};
 
-char temp_policy[2048]	= {0};
-char received_data[32]	= {0};
+char temp_policy[PS_POL_BUFF_LEN]	= {0};
+char received_data[PS_REC_DATA_LEN]	= {0};
 
 static node_t head = {NULL, NULL};
 
@@ -69,14 +73,14 @@ pthread_mutex_t lock_ps;
 
 const int MAX_NUM_OF_POLICIES = 10;
 
-void free_policy(policy_t *pol) {
+void PolicyStore_free_policy(policy_t *pol)
+{
 	free(pol->policy_cost);
-	//free(pol->policy_id);
-	//free(pol->policy_c);
 	free(pol);
 }
 
-void free_action_list_item(list_t *item)
+
+void PolicyStore_free_action_list_item(list_t *item)
 {
 	free(item);
 }
@@ -92,28 +96,38 @@ int PolicyStore_init()
     return 0;
 }
 
-int datahex2(const char* string) {
+int datahex2(const char* string)
+{
 
 	if(string == NULL)
+	{
 		return -1;
+	}
 
-	size_t slength = 64;
-
+	size_t slength = PS_STR_LEN;
 	size_t dlength = slength / 2;
 
 	memset(received_data, 0, dlength);
 
 	size_t index = 0;
-	while (index < slength) {
+	while (index < slength)
+	{
 		unsigned char c = string[index];
 		int value = 0;
 		if(c >= '0' && c <= '9')
+		{
 			value = (c - '0');
+		}
 		else if (c >= 'A' && c <= 'F')
+		{
 			value = (10 + (c - 'A'));
+		}
 		else if (c >= 'a' && c <= 'f')
+		{
 			value = (10 + (c - 'a'));
-		else {
+		}
+		else
+		{
 			return -1;
 		}
 
@@ -128,15 +142,12 @@ int datahex2(const char* string) {
 int PolicyStore_put_policy_from_aws(char *policy_id, int policy_id_size, char *policy, int policy_size, char *policy_cost, short policy_cost_size)
 {
 	int ret = 0;
-	short size = 32;
+	short size = PS_REC_DATA_LEN;
 
 	ret = datahex2(policy_id);
 
-	char buf[80];
+	char buf[PS_BUFF_LEN];
 	get_time(buf);
-
-	//Dlog_printf("%s <Policy store>\t\tNew policy added", buf);
-	//Dlog_printf("- ID: %.*s\n", policy_id_size, policy_id);
 
 	if(PolicyStore_has_string(received_data, size))
 	{
@@ -144,7 +155,7 @@ int PolicyStore_put_policy_from_aws(char *policy_id, int policy_id_size, char *p
 		Dlog_printf("- ID: %.*s\n", policy_id_size, policy_id);
 		ret = 1;
 	}
-	else if(pol_store_counter < MAX_NUM_OF_POLICIES)//5
+	else if(pol_store_counter < MAX_NUM_OF_POLICIES)
 	{
 		Dlog_printf("%s <Policy store>\t\tNew policy added", buf);
 		Dlog_printf("- ID: %.*s\n", policy_id_size, policy_id);
@@ -155,24 +166,13 @@ int PolicyStore_put_policy_from_aws(char *policy_id, int policy_id_size, char *p
 		PolicyStore_put_string(pol_store[pol_store_counter], demo_pol_store[pol_store_counter], policy_cost, policy_cost_size);
 		pol_store_counter++;
 		policy_update_indication();
-
-		//Dlog_printf("\n%s <Policy store> New policy added to the policy store from the AWS", buf);
-		//Dlog_printf("%s <Policy store>\t\tNew policy added", buf);
-		//Dlog_printf("- ID: %.*s\n", policy_id_size, policy_id);
 	}
 	else
 	{
 		Dlog_printf("%s <Policy store>\t\tLocal policy store full\n", buf);
-		//Dlog_printf("\nLocal policy store full");
 	}
 
 	return ret;
-}
-
-int normalizeJSON()
-{
-
-  return 0;
 }
 
 void fill_node(node_t *n, char *policy_id, short policy_id_size, char *pol_val, char *policy_cost, short policy_cost_size, int is_paid, node_t *next)
@@ -191,7 +191,7 @@ int PolicyStore_put_string(char *pol_val, char *sig_val, char *policy_cost, int 
 {
 	node_t *current = NULL;
 	node_t *new_node;
-	short size_of_id = 32;
+	short size_of_id = PS_ID_SIZE;
 
 	pthread_mutex_lock(&lock_ps);
 
@@ -243,7 +243,7 @@ int PolicyStore_put_string(char *pol_val, char *sig_val, char *policy_cost, int 
 	return 0;
 }
 
-int psGetString(char **pol_string, char *psID, short policyIDSize)
+int PolicyStore_get_string(char **pol_string, char *psID, short policyIDSize)
 {
 	int ret = 1;
 	node_t *current = NULL;
@@ -270,30 +270,25 @@ int psGetString(char **pol_string, char *psID, short policyIDSize)
 					*pol_string = head.pol->policy_c;
 
 					ret = 0;
-					pthread_mutex_unlock(&lock_ps);
-					return ret;
 				}
 			}
 			current = head.next;
 		}
 
-		while(current != NULL)
+		while(current != NULL && ret != 0)
 		{
 			if(current->pol->policy_ID_size == policyIDSize)
 			{
 				if(memcmp(current->pol->policy_id, psID, policyIDSize) == 0)
 				{
-					if(head.pol->policy_c == NULL)
+					if(current->pol->policy_c == NULL)
 					{
 						Dlog_printf("\nPolicy string is NULL\n");
 					}
 					else
 					{
 						*pol_string = current->pol->policy_c;
-
 						ret = 0;
-						pthread_mutex_unlock(&lock_ps);
-						return ret;
 					}
 				}
 			}
@@ -325,24 +320,19 @@ int PolicyStore_has_string(char *policyID, short policyIDSize)
 		{
 			if(memcmp(head.pol->policy_id, policyID, policyIDSize) == 0)
 			{
-				//TODO: move ret to the end and in conditions while ret != 1;
 				ret = 1;
-				pthread_mutex_unlock(&lock_ps);
-				return ret;
 			}
 		}
 
 		current = head.next;
 
-		while(current != NULL)
+		while(current != NULL && ret != 1)
 		{
 			if(current->pol->policy_ID_size == policyIDSize)
 			{
 				if(memcmp(current->pol->policy_id, policyID, policyIDSize) == 0)
 				{
 					ret = 1;
-					pthread_mutex_unlock(&lock_ps);
-					return ret;
 				}
 			}
 			current = current->next;
@@ -354,7 +344,7 @@ int PolicyStore_has_string(char *policyID, short policyIDSize)
 	return ret;
 }
 
-int psDel(char *policyID, int policyIDSize)
+int PolicyStore_del_policy(char *policyID, int policyIDSize)
 {
    int ret = 1;
 
@@ -369,24 +359,23 @@ int psDel(char *policyID, int policyIDSize)
 	   pthread_mutex_unlock(&lock_ps);
        return ret;
    }
+
    // Check first
    if((current->pol->policy_ID_size == policyIDSize) && (memcmp(current->pol->policy_id, policyID, policyIDSize) == 0))
    {
        ret = 0;
        if(head.next != NULL)
        {
-           //head = *head.next;
-
-    	   //test this
     	   free(head.pol);
-    	   current = head.next;
     	   head.pol = head.next->pol;
     	   head.next = head.next->next;
+    	   head = *head.next;
 
     	   free(current);
        }
        else
        {
+		   free(head.pol);
            head.next = NULL;
            head.pol = NULL;
        }
@@ -397,6 +386,7 @@ int psDel(char *policyID, int policyIDSize)
        previous = current;
        current = current->next;
    }
+
    // Check rest
    while(current != NULL)
    {
@@ -412,7 +402,7 @@ int psDel(char *policyID, int policyIDSize)
        current = current->next;
    }
 
-	pthread_mutex_unlock(&lock_ps);
+   pthread_mutex_unlock(&lock_ps);
 
    return ret;
 }
@@ -426,20 +416,15 @@ int PolicyStore_get_list_of_actions(char *subject_id, int subject_id_length, lis
 	list_t *temp_action;
 
 	static jsmn_parser p;
-	static jsmntok_t t[256];
+	static jsmntok_t t[PS_TOK_ARRAY_LEN];
 	int r;
-
 	int token = -1;
-
 	int l = 0;
-//	Dlog_printf("\nsubject_id_length (%d)", subject_id_length);
-	//Dlog_printf("\nSize of token: subject_id (%.*s)", subject_id_length, subject_id);
 
 	pthread_mutex_lock(&lock_ps);
 
 	while(current != NULL)
 	{
-//		Dlog_printf("\n(%d)", l++);
 		jsmn_init(&p);
 		r = jsmn_parse(&p, current->pol->policy_c, strlen(current->pol->policy_c), t, sizeof(t)/sizeof(t[0]));
 
@@ -449,7 +434,7 @@ int PolicyStore_get_list_of_actions(char *subject_id, int subject_id_length, lis
 			{
 				for(int i = 0; i < r; i++)
 				{
-					if(((t[i].end - t[i].start) == 6) && (memcmp(current->pol->policy_c + t[i].start, "action", 6) == 0))
+					if(((t[i].end - t[i].start) == strlen("action")) && (memcmp(current->pol->policy_c + t[i].start, "action", strlen("action")) == 0))
 					{
 						token = i + 2;	// Skip 'value' token and return requested token
 						break;
@@ -470,8 +455,6 @@ int PolicyStore_get_list_of_actions(char *subject_id, int subject_id_length, lis
 				temp_action->policy_cost = current->pol->policy_cost;
 				temp_action->policy_cost_size = current->pol->policy_cost_size;
 				temp_action->next = NULL;
-
-//				Dlog_printf("\nnew action");
 
 				if(current_action == NULL)
 				{
@@ -494,9 +477,7 @@ int PolicyStore_get_list_of_actions(char *subject_id, int subject_id_length, lis
 
 	pthread_mutex_unlock(&lock_ps);
 
-//	printf("\nFinished the list!\n");
-
-	char buf[80];
+	char buf[PS_BUFF_LEN];
 
 	get_time(buf);
 	printf("\n%s <Action performed>\tSent list of actions\n", buf);
@@ -518,14 +499,10 @@ int PolicyStore_clean()
 	else
 	{
 		//Skip first four policies from the policy store
+		//TODO: WHY????
 		current = head.next->next->next->next;
 		head.next->next->next->next = NULL;
-		/*
-		  //Clears all policies from the policy store
-		  free(head.pol);
-	      head.pol = NULL;
-	      head.next = NULL;
-		 */
+
 		while(current != NULL)
 		{
 			next = current->next;
@@ -549,7 +526,7 @@ int PolicyStore_clear_list_of_actions(list_t *action_list)
 	while(current != NULL)
 	{
 		next = current->next;
-		free_action_list_item(current);
+		PolicyStore_free_action_list_item(current);
 		current = next;
 	}
 
@@ -569,6 +546,7 @@ int PolicyStore_ps_aws_sync(char *AWS_list, int number_of_policies)
 	pthread_mutex_lock(&lock_ps);
 
 	//skip first three
+	//TODO: WHY????
 	current = head.next->next->next;
 	previous = head.next->next;
 
@@ -577,7 +555,7 @@ int PolicyStore_ps_aws_sync(char *AWS_list, int number_of_policies)
 		for(i = 0; i < number_of_policies; i++)
 		{
 			datahex2(AWS_list + get_start_of_token(3 + i));
-			if((get_size_of_token(3 + i) == 64) &&
+			if((get_size_of_token(3 + i) == PS_STR_LEN) &&
 			   (memcmp(received_data, current->pol->policy_id, get_size_of_token(3 + i)) == 0))
 			{
 				found = 1;
@@ -652,16 +630,6 @@ int PolicyStore_is_policy_paid(char *policy_id, int policy_id_size)
     return ret;
 }
 
-void print_policy_id(char *policy_id, int policy_id_size)
-{
-	char *pol_id = calloc(policy_id_size + 1, 1);
-	memcpy(pol_id, policy_id, policy_id_size);
-	pol_id[policy_id_size] = '\0';
-
-	Dlog_printf("Policy id: %s\n\n", pol_id);
-	free(pol_id);
-}
-
 int PolicyStore_enable_policy(char *policy_id, int policy_id_size)
 {
 	policy_t *pol = NULL;
@@ -669,7 +637,9 @@ int PolicyStore_enable_policy(char *policy_id, int policy_id_size)
 
 
 	if (pol == NULL)
+	{
 		return 1;
+	}
 
 	pol->is_paid = 1;
 	return 0;
