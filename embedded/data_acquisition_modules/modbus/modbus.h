@@ -21,7 +21,7 @@
  * \project Decentralized Access Control
  * \file modbus.h
  * \brief
- * Modbus RTU interface header file
+ * Modbus MODBUS interface header file
  *
  * @Author Djordje Golubovic
  *
@@ -36,8 +36,10 @@
 
 #include <stdint.h>
 
+#define MODBUS_DEV_NAME_LEN 128
+
 typedef struct {
-    char device_name[128];
+    char device_name[MODBUS_DEV_NAME_LEN];
     int fd;
 } Modbus_t;
 

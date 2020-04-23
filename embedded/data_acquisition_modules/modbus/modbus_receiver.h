@@ -34,7 +34,6 @@
 #ifndef _MODBUS_RECEIVER_H_
 #define _MODBUS_RECEIVER_H_
 
-#include <pthread.h>
 #include <libfastjson/json.h>
 #include "vehicle_dataset.h"
 #include "modbus.h"
