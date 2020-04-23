@@ -17,15 +17,32 @@
  * limitations under the License.
  */
 
+/****************************************************************************
+ * \project Decentralized Access Control
+ * \file canopen_sdo.h
+ * \brief
+ * Implementation of interface for CANOPEN
+ *
+ * @Author
+ *
+ * \notes
+ *
+ * \history
+ * XX.YY.ZZZZ. Initial version.
+ ****************************************************************************/
+
 #ifndef _CANOPEN_SDO_H_
 #define _CANOPEN_SDO_H_
 
 #include <stdint.h>
 
+#define CANOPEN_SDO_NAME_LEN 64
+#define CANOPEN_SDO_UNIT_LEN 32
+
 typedef struct {
     int index;
-    char name[64];
-    char unit[32];
+    char name[CANOPEN_SDO_NAME_LEN];
+    char unit[CANOPEN_SDO_UNIT_LEN];
     float factor;
     float offset;
     int min;
@@ -38,8 +55,8 @@ typedef struct {
 
 typedef struct {
     double value;
-    char unit[32];
-    char name[64];
+    char unit[CANOPEN_SDO_UNIT_LEN];
+    char name[CANOPEN_SDO_NAME_LEN];
     int type;
 } CanopenSdo_parsed_data_t;
 

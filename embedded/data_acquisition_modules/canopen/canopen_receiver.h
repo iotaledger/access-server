@@ -17,13 +17,42 @@
  * limitations under the License.
  */
 
+/****************************************************************************
+ * \project Decentralized Access Control
+ * \file canopen_receiver.h
+ * \brief
+ * Implementation of interface for CANOPEN receiver
+ *
+ * @Author
+ *
+ * \notes
+ *
+ * \history
+ * XX.YY.ZZZZ. Initial version.
+ ****************************************************************************/
 #ifndef _CANOPEN_RECEIVER_H_
 #define _CANOPEN_RECEIVER_H_
 
 #include <pthread.h>
 #include "vehicle_dataset.h"
 
+#ifndef bool
 #define bool _Bool
+#endif
+
+typedef enum {
+	CANOPEN_SHD_INITIALIZING = 0x00,
+	CANOPEN_SHD_STOPPED = 0x04,
+	CANOPEN_SHD_OPERATIONAL = 0x05,
+	CANOPEN_SHD_PREOPERATIONAL = 0x7f
+} Canopen_service_heartbeat_data_e;
+
+typedef enum {
+	CANOPEN_STC_4BYTES = 0x43,
+	CANOPEN_STC_3BYTES = 0x47,
+	CANOPEN_STC_2BYTES = 0x4b,
+	CANOPEN_STC_1BYTE = 0x4f
+} Canopen_service_tsdo_command_e;
 
 #ifndef TINY_EMBEDDED
 void CanopenReceiver_preInitSetup(const char *can_interface_name, int _node_id);
