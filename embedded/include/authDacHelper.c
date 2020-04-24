@@ -34,27 +34,11 @@
  ****************************************************************************/
 
 #include "authDacHelper.h"
-//#include "IfxPort_PinMap.h"
 #include "resolver.h"
 #include "json_parser.h"
-//#include "compstatus.h"
-#include "Dlog.h"
 #include <string.h>
 
-//#define OPEN_TRUNCK &IfxPort_P20_13
-//#define LOCK_DOOR &IfxPort_P20_14
-
 #define Dlog_printf printf
-
-void broadcast_status(char *a, char* c, bool is_successfull)
-{
-    if (a == NULL || c == NULL)
-    {
-        return;
-    }
-    
-    is_successfull ? Dlog_printf("\n\nAction %s %s performed successfully\n\n", a, c) : Dlog_printf("\n\nAction %s %s failed\n\n", a, c);
-}
 
 int ledControl(int decision, char *obligation, char *action, unsigned long start_time, unsigned long end_time)
 {
@@ -72,7 +56,7 @@ int ledControl(int decision, char *obligation, char *action, unsigned long start
         Resolver_action(action, should_log, &end_time);
     }
 
-    return 0;
+    return ADH_NO_ERROR;
 }
 
 int sendDecision(int decision, dacSession_t *session)
@@ -102,12 +86,12 @@ int checkMsgFormat_new(const char *request)
 {
     if (request == NULL)
     {
-        return -2;
+        return ADH_ERROR_JSON_NULL;
     }
 
     if (json_get_value(request, 0, "cmd") == -1)
     {
-        return -3;
+        return ADH_ERROR_CMD_NOT_FND;
     }
 
     int cmd = json_get_value(request, 0, "cmd");
@@ -117,11 +101,11 @@ int checkMsgFormat_new(const char *request)
         if(json_get_value(request, 0, "policy_id") == -1)
         {
             //error invalid request
-            return -4;
+            return ADH_ERROR_POLID_NOT_FND;
         }
         else
         {
-            return 0;
+            return ADH_NO_ERROR;
         }
     }
     else if(memcmp(request + get_start_of_token(cmd) , "get_policy_list", strlen("get_policy_list")) == 0)
@@ -129,11 +113,11 @@ int checkMsgFormat_new(const char *request)
         if(json_get_value(request, 0, "user_id") == -1)
         {
             //error invalid request
-            return -6;
+            return ADH_ERROR_USRID_NOT_FND;
         }
         else
         {
-            return 1;
+            return ADH_NO_ERROR_GET_POL_LIST;
         }
     }
     else if(memcmp(request + get_start_of_token(cmd) , "enable_policy", strlen("enable_policy")) == 0)
@@ -141,71 +125,71 @@ int checkMsgFormat_new(const char *request)
         if(json_get_value(request, 0, "policy_id") == -1)
         {
             //error invalid request
-            return -4;
+            return ADH_ERROR_POLID_NOT_FND;
         }
         else
         {
-            return 2;
+            return ADH_NO_ERROR_EN_POL;
         }
     }
     else if (memcmp(request + get_start_of_token(cmd), "set_dataset", strlen("set_dataset")) == 0)
     {
         if (json_get_value(request, 0, "dataset_list") == -1)
         {
-            return -7;
+            return ADH_ERROR_DATASET_LIST_NOT_FND;
         }
         else
         {
-            return 3;
+            return ADH_NO_ERROR_SET_DATASET;
         }
     }
     else if (memcmp(request + get_start_of_token(cmd), "get_dataset", strlen("get_dataset")) == 0)
     {
-        return 4;
+        return ADH_NO_ERROR_GET_DATASET;
     }
     else if (memcmp(request + get_start_of_token(cmd), "get_user", strlen("get_user")) == 0)
     {
         if (json_get_value(request, 0, "username") == -1)
         {
-            return -8;
+            return ADH_ERROR_GETUSR_NOT_FND;
         }
         else
         {
-            return 5;
+            return ADH_NO_ERROR_GETUSR;
         }
     }
     else if (memcmp(request + get_start_of_token(cmd), "get_auth_user_id", strlen("get_auth_user_id")) == 0)
     {
         if (json_get_value(request, 0, "username") == -1)
         {
-            return -9;
+            return ADH_ERROR_GETUSRID_NOT_FND;
         }
         else
         {
-            return 6;
+            return ADH_NO_ERROR_GETUSRID;
         }
     }
     else if (memcmp(request + get_start_of_token(cmd), "register_user", strlen("register_user")) == 0)
     {
         if (json_get_value(request, 0, "user") == -1)
         {
-            return -10;
+            return ADH_ERROR_REGUSR_NOT_FND;
         }
         else
         {
-            return 7;
+            return ADH_NO_ERROR_REGUSR;
         }
     }
     else if (memcmp(request + get_start_of_token(cmd), "get_all_users", strlen("get_all_users")) == 0)
     {
-        return 8;
+        return ADH_NO_ERROR_GETALLUSR;
     }
     else if (memcmp(request + get_start_of_token(cmd), "clear_all_users", strlen("clear_all_users")) == 0)
     {
-        return 9;
+        return ADH_NO_ERROR_CLRALLUSR;
     }
     else
     {
-        return -5;
+        return ADH_ERROR_NEQ_RESOLVE;
     }
 }
