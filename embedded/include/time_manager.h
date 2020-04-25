@@ -35,24 +35,6 @@
 #ifndef _TIMEMANAGER_H
 #define _TIMEMANAGER_H
 
-
-
-/**
- * @fn  time_manager_run()
- *
- * @brief counter generator for time manager
- *
- */
-void time_manager_run();
-
-/**
- * @fn  getTime(void)
- *
- * @brief Request to get time using the TIME protocol, RFC-868
- *
- */
-void getTime(void);
-
 /**
  * @fn  getStringTime(void)
  *
