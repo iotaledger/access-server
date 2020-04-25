@@ -308,6 +308,8 @@ static void parsePolicy()
     int policy_id_len = 0;
     char *policy_buff = NULL;
     int policy_len = 0;
+    char *policy_id_signature_buff = NULL;
+    int policy_id_signature_len = 0;
     int policy_retrieved = 0;
 
     jsmn_init(&p);
@@ -351,6 +353,16 @@ static void parsePolicy()
         }
         for (int i = 0; i<r; i++)
         {
+            if (memcmp(Policy + t[i].start, "policy_id_signature", 19) == 0) {
+                policy_id_signature_len = t[i+1].end - t[i+1].start;
+                policy_id_signature_buff = calloc(policy_id_signature_len+1, 1);
+                memcpy(policy_id_signature_buff, Policy + t[i+1].start, policy_id_signature_len);
+                policy_retrieved++;
+                break;
+            }
+        }
+        for (int i = 0; i<r; i++)
+        {
             if (memcmp(Policy + t[i].start, "cost", 4) == 0) {
                 policy_cost_len = t[i+1].end - t[i+1].start;
                 policy_cost = calloc(policy_len+1, 1);
@@ -359,9 +371,10 @@ static void parsePolicy()
                 break;
             }
         }
-        if (policy_retrieved == 3) {
+        if (policy_retrieved == 4) {
             Dlog_printf("\nPut policy\n");
-            PolicyStore_put_policy_from_aws(policy_id_buff, policy_id_len, policy_buff, policy_len, policy_cost, policy_cost_len);
+            PolicyStore_put_policy(policy_id_buff, policy_id_len, policy_buff, policy_len,
+                                    policy_id_signature_buff, policy_id_signature_len, policy_cost, policy_cost_len);
         }
     }
 

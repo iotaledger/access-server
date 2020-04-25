@@ -72,6 +72,15 @@ typedef struct list {
     struct list *next;
 } list_t;
 
+typedef struct policy_id_signature {
+    int signature_algorithm_size;
+    char *signature_algorithm;
+    int signature_size;
+    char *signature;
+    int public_key_size;
+    char *public_key;
+} policy_id_signature_t;
+
 /**
  * @fn 		void PolicyStore_free_policy(policy_t *pol)
  *
@@ -104,20 +113,24 @@ void PolicyStore_free_action_list_item(list_t *item);
 int PolicyStore_init( );
 
 /**
- * @fn      int PolicyStore_put_policy_from_aws(char *policy_id, int policy_id_size, char *policy, int policy_size)
+ * @fn      int PolicyStore_put_policy(char *policy_id, int policy_id_size, char *policy, int policy_size,
+ *                                     char *policy_id_signature, int policy_id_signature_size, char *policy_cost, short policy_cost_sizechar *policy_id, int policy_id_size, char *policy, int policy_size)
  *
- * @brief   Function that receives policy from AWS and puts new policy to the policy store
+ * @brief   Function that receives policy from cloud and puts new policy to the policy store
  *
- * @param   policy_id       	policy ID
- * @param	policy_id_size		policy id size
- * @param	policy				policy
- * @param   policy_size     	policy size
- * @param	policy_cost			policy cost
- * @param	policy_cost_size	policy cost size
+ * @param   policy_id                policy ID
+ * @param   policy_id_size           policy id size
+ * @param   signed_policy            signed policy
+ * @param   signed_policy_size       signed policy size
+ * @param   policy_id_signature      policy id signature
+ * @param   policy_id_signature_size policy id signature size
+ * @param   policy_cost              policy cost
+ * @param   policy_cost_size         policy cost size
  *
- * @return  0 if it succeeds, 1 if the policy is already located in the policy store.
+ * @return  0 if it succeeds, 1 if the policy is already located in the policy store, -1 for error.
  */
-int PolicyStore_put_policy_from_aws(char *policy_id, int policy_id_size, char *policy, int policy_size, char *policy_cost, short policy_cost_size);
+int PolicyStore_put_policy(char *policy_id, int policy_id_size, char *signed_policy, int signed_policy_size,
+                           char *policy_id_signature, int policy_id_signature_size, char *policy_cost, short policy_cost_size);
 
 /**
  * @fn      int PolicyStore_put_string(char *pol_val, char *sig_val)
