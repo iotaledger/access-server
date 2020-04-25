@@ -33,7 +33,9 @@
 #define _TIMER_H_
 #include <stdlib.h>
 
+#ifndef bool
 #define bool _Bool
+#endif
 #ifndef FALSE
 #define FALSE 0
 #endif
