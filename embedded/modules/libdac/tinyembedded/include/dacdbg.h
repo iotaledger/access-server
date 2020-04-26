@@ -25,9 +25,6 @@
 #ifndef DACDBG_H_
 #define DACDBG_H_
 
-#include <stdio.h>
-#include <errno.h>
-#include <string.h>
 #include "Dlog.h"
 
 #define RESET   "\033[0m"
