@@ -23,7 +23,9 @@
 
 #include "user_management.h"
 
-static char response[4096];
+#define RESPONSE_LEN 4096
+
+static char response[RESPONSE_LEN];
 
 void main()
 {
