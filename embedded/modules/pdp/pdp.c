@@ -34,19 +34,14 @@
  * 21.02.2020. Added obligations functionality.
  ****************************************************************************/
 
-#include <strings.h>
 #include "pdp.h"
-#include <time.h>
-#include "zlib.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include "parson.h"
 #include "json_parser.h"
 #include "Dlog.h"
 #include "pip.h"
 
 #define DATA_VAL_SIZE 131
 #define DATA_TYPE_SIZE 21
+#define STRTOUL_BASE 10
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -153,7 +148,6 @@ int or(policy_t *pol, int attribute_list)
 int eq(policy_t *pol, int attribute_list)
 {
 	int ret = FALSE;
-//	Dlog_printf("\neq");
 
 	int attr1 = -1;
 	int attr2 = -1;
@@ -232,7 +226,6 @@ int eq(policy_t *pol, int attribute_list)
 int leq(policy_t *pol, int attribute_list)
 {
 	int ret = FALSE;
-//	Dlog_printf("\nleq");
 
 	int attr1 = -1;
 	int attr2 = -1;
@@ -298,26 +291,17 @@ int leq(policy_t *pol, int attribute_list)
 	int size_of_value1 = get_size_of_token(value1);
 	int size_of_value2 = strlen(data_value);
 
-//	Dlog_printf("\nLEQ ");
 	if(((size_of_type1 == size_of_type2) && (strncasecmp(pol->policy_c + get_start_of_token(type1), data_type, size_of_type1) == 0 )))
 	{
 		if(size_of_value1 < size_of_value2)
 		{
 			ret = TRUE;
-		}else if((size_of_value1 == size_of_value2) && strncasecmp(pol->policy_c + get_start_of_token(value1), data_value, size_of_value1) <= 0 )
+		}
+		else if((size_of_value1 == size_of_value2) && strncasecmp(pol->policy_c + get_start_of_token(value1), data_value, size_of_value1) <= 0 )
 		{
 			ret = TRUE;
 		}
-		else
-		{
-
-		}
 	}
-	else
-	{
-
-	}
-
 
 	return ret;
 }
@@ -325,7 +309,6 @@ int leq(policy_t *pol, int attribute_list)
 int lt(policy_t *pol, int attribute_list)
 {
 	int ret = FALSE;
-//	Dlog_printf("\nleq");
 
 	int attr1 = -1;
 	int attr2 = -1;
@@ -391,7 +374,6 @@ int lt(policy_t *pol, int attribute_list)
 	int size_of_value1 = get_size_of_token(value1);
 	int size_of_value2 = strlen(data_value);
 
-//	Dlog_printf("\nLEQ ");
 	if(((size_of_type1 == size_of_type2) && (strncasecmp(pol->policy_c + get_start_of_token(type1), data_type, size_of_type1) == 0 )))
 	{
 		if(size_of_value1 < size_of_value2)
@@ -404,14 +386,12 @@ int lt(policy_t *pol, int attribute_list)
 		}
 	}
 
-
 	return ret;
 }
 
 int geq(policy_t *pol, int attribute_list)
 {
 	int ret = FALSE;
-//	Dlog_printf("\ngeq");
 
 	int attr1 = -1;
 	int attr2 = -1;
@@ -477,7 +457,6 @@ int geq(policy_t *pol, int attribute_list)
 	int size_of_value1 = get_size_of_token(value1);
 	int size_of_value2 = strlen(data_value);
 
-//	Dlog_printf("\nGEQ ");
 	if(((size_of_type1 == size_of_type2) && (strncasecmp(pol->policy_c + get_start_of_token(type1), data_type, size_of_type1) == 0 )))
 	{
 		if(size_of_value1 > size_of_value2)
@@ -496,7 +475,6 @@ int geq(policy_t *pol, int attribute_list)
 int gt(policy_t *pol, int attribute_list)
 {
 	int ret = FALSE;
-//	Dlog_printf("\nleq");
 
 	int attr1 = -1;
 	int attr2 = -1;
@@ -562,18 +540,17 @@ int gt(policy_t *pol, int attribute_list)
 	int size_of_value1 = get_size_of_token(value1);
 	int size_of_value2 = strlen(data_value);
 
-//	Dlog_printf("\nLEQ ");
 	if(((size_of_type1 == size_of_type2) && (strncasecmp(pol->policy_c + get_start_of_token(type1), data_type, size_of_type1) == 0 )))
 	{
 		if(size_of_value1 > size_of_value2)
 		{
 			ret = TRUE;
-		}else if((size_of_value1 == size_of_value2) && strncasecmp(pol->policy_c + get_start_of_token(value1), data_value, size_of_value1) > 0 )
+		}
+		else if((size_of_value1 == size_of_value2) && strncasecmp(pol->policy_c + get_start_of_token(value1), data_value, size_of_value1) > 0 )
 		{
 			ret = TRUE;
 		}
 	}
-
 
 	return ret;
 }
@@ -651,28 +628,28 @@ void get_time_from_attr(policy_t *pol, int atribute_position, operation_t attr_o
 				{
 					case EQ:
 					{
-						*start_time = strtoul(val_str, NULL, 10);
+						*start_time = strtoul(val_str, NULL, STRTOUL_BASE);
 						*end_time = *start_time;
 						break;
 					}
 					case LEQ:
 					{
-						*end_time = strtoul(val_str, NULL, 10);
+						*end_time = strtoul(val_str, NULL, STRTOUL_BASE);
 						break;
 					}
 					case GEQ:
 					{
-						*start_time = strtoul(val_str, NULL, 10);
+						*start_time = strtoul(val_str, NULL, STRTOUL_BASE);
 						break;
 					}
 					case LT:
 					{
-						*end_time = strtoul(val_str, NULL, 10) - 1; // Must be less then value
+						*end_time = strtoul(val_str, NULL, STRTOUL_BASE) - 1; // Must be less then value
 						break;
 					}
 					case GT:
 					{
-						*start_time = strtoul(val_str, NULL, 10) + 1; // Must be greater then value
+						*start_time = strtoul(val_str, NULL, STRTOUL_BASE) + 1; // Must be greater then value
 						break;
 					}
 					default:
@@ -724,19 +701,23 @@ int resolve_attribute(policy_t *pol, int atribute_position)
 
 		switch(opt)
 		{
-			case OR:{
+			case OR:
+			{
 				ret = or(pol, attribute_list);
 				break;
 			}
-			case AND:{
+			case AND:
+			{
 				ret = and(pol, attribute_list);
 				break;
 			}
-			case EQ:{
+			case EQ:
+			{
 				ret = eq(pol, attribute_list);
 				break;
 			}
-			case LEQ:{
+			case LEQ:
+			{
 				ret = leq(pol, attribute_list);
 				break;
 			}
@@ -744,15 +725,18 @@ int resolve_attribute(policy_t *pol, int atribute_position)
 				ret = geq(pol, attribute_list);
 				break;
 			}
-			case LT:{
+			case LT:
+			{
 				ret = lt(pol, attribute_list);
 				break;
 			}
-			case GT:{
+			case GT:
+			{
 				ret = gt(pol, attribute_list);
 				break;
 			}
-			default:{
+			default:
+			{
 				ret = FALSE;
 				break;
 			}
@@ -845,9 +829,9 @@ int resolve_obligation(policy_t *pol, int obl_position, char *obligation)
 	
 	// In case of IF operation, multiple obligations are available
 	if((attribute_list >= 0) &&
-	(get_start_of_token(attribute_list) < get_end_of_token(obl_position)) &&
-	(operation >= 0) &&
-	(get_start_of_token(operation) < get_end_of_token(obl_position)))
+		(get_start_of_token(attribute_list) < get_end_of_token(obl_position)) &&
+		(operation >= 0) &&
+		(get_start_of_token(operation) < get_end_of_token(obl_position)))
 	{
 		// Check if operation is listed before or after attribure list
 		if(operation > attribute_list)
@@ -950,7 +934,7 @@ pdp_decision_t pdp_calculate_decision(policy_t *pol, char *obligation, action_t 
 
 	ret = pol_goc + 2 * pol_doc;  // => (0, 1, 2, 3) <=> (gap, grant, deny, conflict)
 	
-	if(ret == 1)
+	if(ret == GRANT)
 	{
 		//FIXME: Should action be taken for deny case also?
 		int number_of_tokens = get_token_num();
@@ -964,7 +948,7 @@ pdp_decision_t pdp_calculate_decision(policy_t *pol, char *obligation, action_t 
 			resolve_obligation(pol, policy_gobl, obligation);
 		}
 	}
-	else if(ret == 2)
+	else if(ret == DENY)
 	{
 		if(policy_dobl >= 0)
 		{
