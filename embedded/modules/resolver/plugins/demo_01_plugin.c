@@ -35,12 +35,8 @@
 
 #include "demo_01_plugin.h"
 
-#include <stdio.h>
 #include <string.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <arpa/inet.h>
-#include <stdlib.h>
 #include <unistd.h>
 
 #include "relay_interface.h"
@@ -48,8 +44,9 @@
 #include "can_receiver.h"
 #include "json_interface.h"
 
+#define ADDR_SIZE 128
 
-static char relayboard_addr[128] = "127.0.0.1";
+static char relayboard_addr[ADDR_SIZE] = "127.0.0.1";
 
 void Demo01Plugin_set_relayboard_addr(const char* addr)
 {
@@ -82,13 +79,14 @@ static int demo01_open_trunk(int should_log)
 
 static void socket_send_byte_to_port(int portname)
 {
-    int sockfd, connfd;
-    struct sockaddr_in servaddr, cli;
+    int sockfd;
+    struct sockaddr_in servaddr;
     char data = '1';
 
     // socket create and varification
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd == -1) {
+    if (sockfd == -1)
+    {
         printf("Socket creation failed... Not sending\n");
     }
 
@@ -195,7 +193,11 @@ static void stop_ds_interface()
 
 void Demo01Plugin_initializer(resolver_plugin_t* action_set)
 {
-    if (g_action_set == NULL && action_set == NULL) return;
+    if (g_action_set == NULL && action_set == NULL)
+    {
+        return;
+    }
+
     if (action_set != NULL)
     {
         g_action_set = action_set;
@@ -216,7 +218,11 @@ void Demo01Plugin_initializer(resolver_plugin_t* action_set)
 
 void Demo01Plugin_initializer_tcp(resolver_plugin_t* action_set)
 {
-    if (g_action_set == NULL && action_set == NULL) return;
+    if (g_action_set == NULL && action_set == NULL)
+    {
+        return;
+    }
+
     if (action_set != NULL)
     {
         g_action_set = action_set;
