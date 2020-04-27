@@ -44,7 +44,6 @@
 #define MODBUS_SERIAL_DEV_LEN 64
 #define MODBUS_DATA_RESOLUTION 4096.
 #define MODBUS_JSON_DUMP_PERIOD_S 6
-#define MODBUS_JSON_DUMP_TO_IPFS 1
 #define MODBUS_BRAKE_1_VOLTAGE_REGADDR 0x010f
 #define MODBUS_BRAKE_2_VOLTAGE_REGADDR 0x0110
 #define MODBUS_RPM_REGADDR 0x107
@@ -172,7 +171,7 @@ static void *thread_loop(void *ptr)
             fjson_object_object_add(fj_obj_throttle_voltage, "value", fjson_object_new_double((double)data / MODBUS_DATA_RESOLUTION));
         }
 
-        JSONInterface_dump_if_needed(MODBUS_JSON_DUMP_PERIOD_S, MODBUS_JSON_DUMP_TO_IPFS);
+        JSONInterface_dump_if_needed(MODBUS_JSON_DUMP_PERIOD_S);
         usleep(g_task_sleep_time);
     }
 }

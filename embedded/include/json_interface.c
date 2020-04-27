@@ -37,16 +37,16 @@
 
 #include "json_interface.h"
 
+#define JSONIF_STR_LEN 128
+#define JSONIF_NAME_LEN 64
+#define JSONIF_FILENAME_LEN 128
+#define JSONIF_UNIX_RWX 0700
+
 fjson_object *fj_root;
 
 static pthread_mutex_t json_sync_lock;
 
 static time_t json_started;
-
-#define JSONIF_STR_LEN 128
-#define JSONIF_NAME_LEN 64
-#define JSONIF_FILENAME_LEN 128
-#define JSONIF_UNIX_RWX 0700
 
 static char ipaddr[JSONIF_STR_LEN] = "127.0.0.1";
 static char device_id[JSONIF_STR_LEN] = "";
@@ -90,7 +90,6 @@ static void JSONInterface_clear_filler_node_list()
     {
         return;
     }
-
     cur = cur->next;
 
     while (cur->next != NULL)
@@ -197,7 +196,7 @@ static void socket_send_string(const char* data)
     close(sockfd);
 }
 
-int JSONInterface_dump_if_needed(int dump_period_s, int dump_to_ipfs)
+int JSONInterface_dump_if_needed(int dump_period_s)
 {
     time_t current_time = time(NULL);
     char filename[JSONIF_FILENAME_LEN];
@@ -212,14 +211,12 @@ int JSONInterface_dump_if_needed(int dump_period_s, int dump_to_ipfs)
             {
                 mkdir("./json_log", JSONIF_UNIX_RWX);
             }
-
             snprintf(filename, JSONIF_FILENAME_LEN - 1, "./json_log/%ld.json", json_started);
             fjson_object_to_file_ext(filename, fj_root, FJSON_TO_STRING_PRETTY);
 
-            if (dump_to_ipfs == 1)
-            {
-                socket_send_string(fjson_object_to_json_string_ext(fj_root, FJSON_TO_STRING_PRETTY));
-            }
+#if DUMP_TO_CLOUD == 1
+            socket_send_string(fjson_object_to_json_string_ext(fj_root, FJSON_TO_STRING_PRETTY));
+#endif
 
             fjson_object_put(fj_root);
             JSONInterface_init(NULL, -1, NULL);
@@ -235,7 +232,6 @@ fjson_object* JSONInterface_get(const char* name)
 {
     fjson_object *retval = NULL;
     struct fjson_object_iterator fj_iter = fjson_object_iter_begin(fj_root);
-
     while (fj_iter.objs_remain > 0)
     {
         if (strncmp(fjson_object_iter_peek_name(&fj_iter), name, strlen(name)) == 0)

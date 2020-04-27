@@ -40,20 +40,6 @@
 #define bool _Bool
 #endif
 
-typedef enum {
-	CANOPEN_SHD_INITIALIZING = 0x00,
-	CANOPEN_SHD_STOPPED = 0x04,
-	CANOPEN_SHD_OPERATIONAL = 0x05,
-	CANOPEN_SHD_PREOPERATIONAL = 0x7f
-} Canopen_service_heartbeat_data_e;
-
-typedef enum {
-	CANOPEN_STC_4BYTES = 0x43,
-	CANOPEN_STC_3BYTES = 0x47,
-	CANOPEN_STC_2BYTES = 0x4b,
-	CANOPEN_STC_1BYTE = 0x4f
-} Canopen_service_tsdo_command_e;
-
 #ifndef TINY_EMBEDDED
 void CanopenReceiver_preInitSetup(const char *can_interface_name, int _node_id);
 #endif

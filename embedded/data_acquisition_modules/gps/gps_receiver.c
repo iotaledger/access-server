@@ -49,7 +49,6 @@
 #define GPS_STR_LEN 64
 #define GPS_READ_BUFF_LEN 100
 #define GPS_JSON_DUMP_PERIOD_S 6
-#define GPS_JSON_DUMP_TO_IPFS 1
 
 // GPS data stuff
 static fjson_object* fj_obj_gps;
@@ -147,42 +146,6 @@ fjson_object *create_rmc_json_record(struct minmea_sentence_rmc *frame)
     fjson_object_object_add(fj_root, "latitude", fj_latitude);
     fjson_object_object_add(fj_root, "longitude", fj_longitude);
     fjson_object_object_add(fj_root, "speed", fj_speed);
-
-    return fj_root;
-}
-
-fjson_object *create_gsv_json_record(struct minmea_sentence_gsv *frame)
-{
-    fjson_object *fj_root = fjson_object_new_object();
-#ifdef USE_JSON_RECORD
-    fjson_object_object_add(fj_root, "sentence_id", fjson_object_new_string("gsv"));
-    fjson_object_object_add(fj_root, "msg_nr", fjson_object_new_int(frame->msg_nr));
-    fjson_object_object_add(fj_root, "total_msgs", fjson_object_new_int(frame->total_msgs));
-    fjson_object_object_add(fj_root, "total_sats", fjson_object_new_int(frame->total_sats));
-    fjson_object *fj_sat_array = fjson_object_new_array();
-    fjson_object_object_add(fj_root, "sats", fj_sat_array);
-    for (int i=0; i<frame->total_sats; i++)
-    {
-        fjson_object *fj_sat_root = fjson_object_new_object();
-        fjson_object_object_add(fj_sat_root, "nr", fjson_object_new_int(frame->sats[i].nr));
-        fjson_object_object_add(fj_sat_root, "elevation", fjson_object_new_int(frame->sats[i].elevation));
-        fjson_object_object_add(fj_sat_root, "azimuth", fjson_object_new_int(frame->sats[i].azimuth));
-        fjson_object_object_add(fj_sat_root, "snr", fjson_object_new_int(frame->sats[i].snr));
-        fjson_object_array_add(fj_sat_array, fj_sat_root);
-    }
-#endif
-    return fj_root;
-}
-
-fjson_object *create_gsa_json_record(struct minmea_sentence_gsa *frame)
-{
-    fjson_object *fj_root = fjson_object_new_object();
-    fjson_object_object_add(fj_root, "sentence_id", fjson_object_new_string("gsa"));
-#ifdef USE_JSON_RECORD
-    fjson_object_object_add(fj_root, "pdop", fjson_object_new_double(minmea_tofloat(&frame->pdop)));
-    fjson_object_object_add(fj_root, "hdop", fjson_object_new_double(minmea_tofloat(&frame->hdop)));
-    fjson_object_object_add(fj_root, "vdop", fjson_object_new_double(minmea_tofloat(&frame->vdop)));
-#endif
 
     return fj_root;
 }
@@ -318,7 +281,7 @@ static void *gps_thread_loop(void *ptr)
                     nmea_sentence_next_idx += strlen(token);
                 }
                 token = strtok(NULL, "\n\r");
-                JSONInterface_dump_if_needed(GPS_JSON_DUMP_PERIOD_S, GPS_JSON_DUMP_TO_IPFS);
+                JSONInterface_dump_if_needed(GPS_JSON_DUMP_PERIOD_S);
             }
         }
         usleep(g_task_sleep_time);

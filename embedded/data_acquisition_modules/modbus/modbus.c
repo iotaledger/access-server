@@ -21,7 +21,7 @@
  * \project Decentralized Access Control
  * \file modbus.h
  * \brief
- * Modbus MODBUS interface implementation
+ * Modbus RTU interface implementation
  *
  * @Author Djordje Golubovic
  *
@@ -43,10 +43,9 @@
 #define MODBUS_DEVICE_NAME_LEN 127
 #define MODBUS_SLAVE_DEVICE_BUFF_LEN 8
 #define MODBUS_READ_REG_FN 0x03
-#define MODBUS_CRC_LEN 6
 #define MODBUS_READ_BUFF_LEN 100
 #define MODBUS_DATA_LEN 256
-#define MODBUS_READ_TIMEOUT 5
+#define MODBUS_0_5S_TIMEOUT 5
 #define MODBUS_CRC_SHIFT 8
 #define MODBUS_CRC_AND_MASK 0x0001
 #define MODBUS_CRC_XOR_MASK 0xA001
@@ -81,14 +80,14 @@ int Modbus_read_registers(Modbus_t* modbus, int slave_device_address, uint16_t r
     buff[4] = ((uint8_t*)(&quantity_to_read))[1];
     buff[5] = ((uint8_t*)(&quantity_to_read))[0];
 
-    uint16_t crc = calculate_crc(buff, MODBUS_CRC_LEN);
+    uint16_t crc = calculate_crc(buff, 6);
 
     buff[6] = ((uint8_t*)(&crc))[0];
     buff[7] = ((uint8_t*)(&crc))[1];
 
     ssize_t wsize = write(modbus->fd, buff, MODBUS_SLAVE_DEVICE_BUFF_LEN);
     uint8_t buffer[MODBUS_READ_BUFF_LEN] = {0};
-    ssize_t length = read(modbus->fd, &buffer, sizeof(buffer));
+    ssize_t length = read(modbus->fd, &buffer, MODBUS_READ_BUFF_LEN);
 
     int bytes_read = buffer[2];
     int response_len = 3 + bytes_read; // length, not including 2 bytes of CRC
@@ -132,7 +131,7 @@ static int set_interface_attribs (int fd, int speed, int parity)
                                     // no canonical processing
     tty.c_oflag = 0;                // no remapping, no delays
     tty.c_cc[VMIN]  = 0;            // read doesn't block
-    tty.c_cc[VTIME] = MODBUS_READ_TIMEOUT; // 0.5 seconds read timeout
+    tty.c_cc[VTIME] = MODBUS_0_5S_TIMEOUT; // 0.5 seconds read timeout
 
     tty.c_iflag &= ~(IXON | IXOFF | IXANY); // shut off xon/xoff ctrl
 
@@ -162,7 +161,7 @@ static void set_blocking (int fd, int should_block)
     }
 
     tty.c_cc[VMIN]  = should_block ? 1 : 0;
-    tty.c_cc[VTIME] = MODBUS_READ_TIMEOUT; // 0.5 seconds read timeout
+    tty.c_cc[VTIME] = MODBUS_0_5S_TIMEOUT; // 0.5 seconds read timeout
 
     if (tcsetattr (fd, TCSANOW, &tty) != 0)
     {
@@ -177,12 +176,12 @@ static uint16_t calculate_crc(uint8_t* buf, int len)
     {
         crc ^= (uint16_t)buf[pos];
 
-        for (int i = MODBUS_CRC_SHIFT; i != 0; i--)
+        for (int i = 8; i != 0; i--)
         {
-            if ((crc & MODBUS_CRC_AND_MASK) != 0)
+            if ((crc & 0x0001) != 0)
             {
                 crc >>= 1;
-                crc ^= MODBUS_CRC_XOR_MASK;
+                crc ^= 0xA001;
             }
             else
             {

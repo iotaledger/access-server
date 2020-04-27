@@ -43,8 +43,7 @@
 #define CAN_JSON_NAME "can_data"
 #define CAN_STR_LEN 1024
 #define CAN_ID_MASK 0x7ff
-#define JSON_DUMP_PERIOD_S 6
-#define JSON_DUMP_TO_IPFS 1
+#define JSON_DUMP_PERIOD_6S 6
 
 static void be2le(unsigned char *in, unsigned char *out)
 {
@@ -370,16 +369,6 @@ static void can_body_frame_read_cb(struct can_frame *frame)
                 {
                     fjson_object_object_add(fj_values_array_driver_door_status, "value", gen_interpreted_door_status(bm.msg_0x40.DoorDrvrSts));
                 }
-                if (bm.msg_0x40.VehMtnStSafeGroup_UB == 1)
-                {
-                    //emit_signal("VehMtnStSafe", bm.msg_0x40.VehMtnStSafe, -1);
-                }
-                break;
-            case 0xB0:
-                if (bm.msg_0xB0.EngCooltLvl_UB == 1)
-                {
-                    //emit_signal("EngCooltLvl", bm.msg_0xB0.EngCooltLvl, -1);
-                }
                 break;
             case 0xE0:
                 if (bm.msg_0xE0.TrSts_UB == 1 && wanted_signals->TrSts == 1 && fj_values_array_trunk_status != NULL)
@@ -405,12 +394,6 @@ static void can_body_frame_read_cb(struct can_frame *frame)
                     fjson_object_object_add(fj_values_array_lock_status, "value", fj_value);
                 }
                 break;
-            case 0x1B0:
-                if (bm.msg_0x1B0.VehSpdLgtSafeGroup_UB == 1)
-                {
-                    //emit_signal("VehSpdLgtSafe", bm.msg_0x1B0.VehSpdLgtSafe, -1);
-                }
-                break;
             case 0x270:
                 if (bm.msg_0x270.FuLvlIndcd_UB == 1 && wanted_signals->FuLvlIndcdVal == 1 && fj_values_array_fuel_tank_level != NULL)
                 {
@@ -420,18 +403,6 @@ static void can_body_frame_read_cb(struct can_frame *frame)
                     fjson_object_object_add(fj_value, "unit", fjson_object_new_string("l"));
                     fjson_object_object_add(fj_values_array_fuel_tank_level, "value", fj_value);
                 }
-            case 0x300:
-                if (bm.msg_0x300.EngNSafe_UB == 1)
-                {
-                    //emit_signal("EngN", bm.msg_0x300.EngN, -1);
-                }
-                break;
-            case 0x310:
-                if (bm.msg_0x310.BkpOfDstTrvld_UB == 1)
-                {
-                    //emit_signal("BkpOfDstTrvld", bm.msg_0x310.BkpOfDstTrvld, -1);
-                }
-                break;
             case 0x1D0:
                 if (bm.msg_0x1D0.AmbTIndcdWithUnit_UB == 1 && wanted_signals->AmbTIndcd == 1 && fj_values_array_ambient_air_temperature != NULL)
                 {
@@ -440,59 +411,11 @@ static void can_body_frame_read_cb(struct can_frame *frame)
                     fjson_object_object_add(fj_value, "unit", gen_interpreted_temperature_unit(bm.msg_0x1D0.AmbTIndcdUnit));
                     fjson_object_object_add(fj_values_array_ambient_air_temperature, "value", fj_value);
                 }
-                if (bm.msg_0x1D0.VehSpdIndcd_UB == 1)
-                {
-                    //emit_signal("VehSpdIndcdVal", bm.msg_0x1D0.VehSpdIndcdVal, bm.msg_0x1D0.VehSpdIndcdUnit);
-                }
-                break;
-            case 0x360:
-                //emit_signal("VinPosn7", bm.msg_0x360.VinPosn7, -1);
-                //emit_signal("VinPosn6", bm.msg_0x360.VinPosn6, -1);
-                //emit_signal("VinPosn5", bm.msg_0x360.VinPosn5, -1);
-                //emit_signal("VinPosn4", bm.msg_0x360.VinPosn4, -1);
-                //emit_signal("VinPosn3", bm.msg_0x360.VinPosn3, -1);
-                //emit_signal("VinPosn2", bm.msg_0x360.VinPosn2, -1);
-                //emit_signal("VinPosn1", bm.msg_0x360.VinPosn1, -1);
-                //emit_signal("VinBlk", bm.msg_0x360.VinBlk, -1);
-                break;
-            case 0x380:
-                if (bm.msg_0x380.TrLockSts_UB == 1)
-                {
-                    //emit_signal("TrLockSts", bm.msg_0x380.TrLockSts, -1);
-                }
-                break;
-            case 0x330:
-                if (bm.msg_0x330.VehBattUGroup_UB == 1)
-                {
-                    //emit_signal("VehBattUSysU", bm.msg_0x330.VehBattUSysU, -1);
-                }
-                break;
-            case 0x1E0:
-                if (bm.msg_0x1E0.AmbTRawAtDrvrSide_UB == 1)
-                {
-                    //emit_signal("AmbTValAtDrvrSide", bm.msg_0x1E0.AmbTValAtDrvrSide, -1);
-                }
-                break;
-            case 0x130:
-                if (bm.msg_0x130.AmbTURawAtLeSideForObd_UB == 1)
-                {
-                    //emit_signal("AmbTURawAtLeSideForObd", bm.msg_0x130.AmbTURawAtLeSideForObd, -1);
-                }
-                break;
-            case 0x160:
-                if (bm.msg_0x160.AmbTURawAtRiSideForObd_UB == 1)
-                {
-                    //emit_signal("AmbTURawAtRiSideForObd", bm.msg_0x160.AmbTURawAtRiSideForObd, -1);
-                }
-                if (bm.msg_0x160.AmbTRawAtPassSide_UB == 1)
-                {
-                    //emit_signal("AmbTValAtPassSide", bm.msg_0x160.AmbTValAtPassSide, -1);
-                }
                 break;
         }
         pthread_mutex_unlock(json_sync_lock);
     }
-    JSONInterface_dump_if_needed(6, 1);
+    JSONInterface_dump_if_needed(JSON_DUMP_PERIOD_6S);
 }
 
 static void can_chas_frame_read_cb(struct can_frame *frame)
@@ -500,7 +423,6 @@ static void can_chas_frame_read_cb(struct can_frame *frame)
     char can_frame_string[1024];
     be2le(frame->data, frame->data);
     sprint_canframe(&can_frame_string[0], frame, 1);
-    //fprintf(stdout, "read can frame: %s\n", can_frame_string);
     unsigned canid = frame->can_id&0x7ff;
     if (CanMsgs_chas_msg_supported(canid)) {
         CanMsgs_ChasMessage_t cm;
@@ -512,10 +434,6 @@ static void can_chas_frame_read_cb(struct can_frame *frame)
                 if (cm.msg_0xE0.DrvrBrkTqAtWhlsReqdGroup_UB == 1 && wanted_signals->DrvrBrkTqAtWhlsReqd == 1 && fj_values_array_requested_brake_torque_at_wheels != NULL)
                 {
                     fjson_object_object_add(fj_values_array_requested_brake_torque_at_wheels, "value", fjson_object_new_int(cm.msg_0xE0.DrvrBrkTqAtWhlsReqd));
-                }
-                if (cm.msg_0xE0.VehSpdLgtSafeGroup_UB == 1)
-                {
-                    //emit_signal("VehSpdLgtSafe", cm.msg_0xE0.VehSpdLgtSafe, -1);
                 }
                 break;
             case 0xF0:
@@ -554,14 +472,7 @@ static void can_chas_frame_read_cb(struct can_frame *frame)
             case 0x1C0:
                 if (cm.msg_0x1C0.BrkPedlPsdSafeGroup_UB == 1 && wanted_signals->BrkPedlPsd == 1 && fj_values_array_brake_pedal_pressed != NULL)
                 {
-                    //emit_signal("BrkPedlPsd", cm.msg_0x1C0.BrkPedlPsd, -1);
                     fjson_object_object_add(fj_values_array_brake_pedal_pressed, "value", fjson_object_new_int(cm.msg_0x1C0.BrkPedlPsd));
-                }
-                break;
-            case 0x1F0:
-                if (cm.msg_0x1F0.BkpOfDstTrvld_UB == 1)
-                {
-                    //emit_signal("BkpOfDstTrvld", cm.msg_0x1F0.BkpOfDstTrvld, -1);
                 }
                 break;
             case 0x240:
@@ -574,36 +485,10 @@ static void can_chas_frame_read_cb(struct can_frame *frame)
                     fjson_object_object_add(fj_values_array_fuel_tank_level, "value", fj_value);
                 }
                 break;
-            case 0x380:
-                if (cm.msg_0x380.VehBattUGroup_UB == 1)
-                {
-                    //emit_signal("VehBattUSysU", cm.msg_0x380.VehBattUSysU, -1);
-                }
-                if (cm.msg_0x380.EngCooltLvl_UB == 1)
-                {
-                    //emit_signal("EngCooltLvl", cm.msg_0x380.EngCooltLvl, -1);
-                }
-                break;
-            case 0x1A:
-                if (cm.msg_0x1A.BrkTq_UB == 1)
-                {
-                    //emit_signal("BrkTqTotReqForPt", cm.msg_0x1A.BrkTqTotReqForPt, -1);
-                }
-                break;
-            case 0x100:
-                if (cm.msg_0x100.GearIndcnRec_UB == 1)
-                {
-                    //emit_signal("GearIndcn", cm.msg_0x100.GearIndcn, -1);
-                }
-                break;
             case 0x130:
                 if (cm.msg_0x130.DrvrPrpsnTqReq_UB == 1 && wanted_signals->DrvrPrpsnTqReq == 1 && fj_values_array_requested_propulsion_torque != NULL)
                 {
                     fjson_object_object_add(fj_values_array_requested_propulsion_torque, "value", fjson_object_new_int(cm.msg_0x130.DrvrPrpsnTqReq));
-                }
-                if (cm.msg_0x130.EngNSafe_UB == 1)
-                {
-                    //emit_signal("EngN", cm.msg_0x130.EngN, -1);
                 }
                 break;
             case 0x210:
@@ -615,5 +500,5 @@ static void can_chas_frame_read_cb(struct can_frame *frame)
         }
         pthread_mutex_unlock(json_sync_lock);
     }
-    JSONInterface_dump_if_needed(JSON_DUMP_PERIOD_S, JSON_DUMP_TO_IPFS);
+    JSONInterface_dump_if_needed(JSON_DUMP_PERIOD_6S);
 }

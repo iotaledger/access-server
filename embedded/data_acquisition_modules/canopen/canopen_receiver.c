@@ -41,19 +41,33 @@
 #include <unistd.h>
 #include <string.h>
 
+
+typedef enum {
+	CANOPEN_SHD_INITIALIZING = 0x00,
+	CANOPEN_SHD_STOPPED = 0x04,
+	CANOPEN_SHD_OPERATIONAL = 0x05,
+	CANOPEN_SHD_PREOPERATIONAL = 0x7f
+} Canopen_service_heartbeat_data_e;
+
+typedef enum {
+	CANOPEN_STC_4BYTES = 0x43,
+	CANOPEN_STC_3BYTES = 0x47,
+	CANOPEN_STC_2BYTES = 0x4b,
+	CANOPEN_STC_1BYTE = 0x4f
+} Canopen_service_tsdo_command_e;
+
 #define CANOPEN_JSON_NAME "canopen_data"
 #define CANOPEN_SERVICE_TPDO1 0x180
 #define CANOPEN_SERVICE_TSDO 0x580
 #define CANOPEN_SERVICE_HEARTBEAT 0x700
 #define CANOPEN_NONODE_ARRAY_SIZE 8
-#define CANOPEN_NONODE_NUM 3
+#define CANOPEN_NONODE_STRING_SIZE 8
 #define CANOPEN_SERVICE_NUM 12
 #define CANOPEN_SHD_PREOP_CANID 0
 #define CANOPEN_SHD_PREOP_CANDLC 2
 #define CANOPEN_SHD_PREOP_CANDATA0 0x1
 #define CANOPEN_MAX_STR_SIZE 256
-#define CANOPEN_JSON_DUMP_PERIOD_S 6
-#define CANOPEN_JSON_DUMP_TO_IPFS 1
+#define CANOPEN_JSON_DUMP_PERIOD_6S 6
 #define CANOPEN_SYNC_COUNTER_PRESCALER 100000
 #define CANOPEN_SYNC_CANID 0x80
 #define CANOPEN_SYNC_CANDLC 0
@@ -335,19 +349,19 @@ static pthread_t canopen_bg_thread;
 static int node_id;
 static CanThread_instance_t can_instance;
 
-static const int services_nonodeid [] = {
+static const int services_nonodeid [CANOPEN_NONODE_ARRAY_SIZE] = {
     0,
     0x80,
     0x100
 };
 
-static const char services_nonodeid_names[][CANOPEN_NONODE_ARRAY_SIZE] = {
+static const char services_nonodeid_names[CANOPEN_NONODE_ARRAY_SIZE][CANOPEN_NONODE_STRING_SIZE] = {
     "NMT",
     "SYNC",
     "TIME"
 };
 
-static const int services[] = {
+static const int services[CANOPEN_SERVICE_NUM] = {
     0x080,
     0x180,
     0x200,
@@ -362,7 +376,7 @@ static const int services[] = {
     0x700
 };
 
-static const char services_names[][CANOPEN_NONODE_ARRAY_SIZE] = {
+static const char services_names[CANOPEN_SERVICE_NUM][CANOPEN_NONODE_STRING_SIZE] = {
     "EMCY",
     "TPDO1",
     "RPDO1",
@@ -380,7 +394,7 @@ static const char services_names[][CANOPEN_NONODE_ARRAY_SIZE] = {
 static void can_read_callback(struct can_frame *frame)
 {
     int found = -1;
-    for (int i=0; i<CANOPEN_NONODE_NUM; i++){
+    for (int i=0; i<CANOPEN_NONODE_ARRAY_SIZE; i++){
         if (frame->can_id == services_nonodeid[i]) {
             found = i;
         }
@@ -524,7 +538,7 @@ static void can_read_callback(struct can_frame *frame)
                     printf("\n");
                 break;
             }
-            JSONInterface_dump_if_needed(CANOPEN_JSON_DUMP_PERIOD_S, CANOPEN_JSON_DUMP_TO_IPFS);
+            JSONInterface_dump_if_needed(CANOPEN_JSON_DUMP_PERIOD_6S);
         }
     }
 }

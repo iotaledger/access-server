@@ -39,8 +39,6 @@
 
 #define CAN_DEVICE_NAME_LEN 5
 #define CAN_CTRLMSG_LEN 1024
-#define CAN_MSGIOV_LEN 1
-#define CAN_TIMEOUT_SEC 0
 #define CAN_TIMEOUT_uSEC 30000
 
 int CAN_open(CAN_t *can_connection, const char* can_device){
@@ -132,11 +130,11 @@ int CAN_read_loop(CAN_t *can_connection, void (*frame_read_cb)(struct can_frame 
     iov.iov_base = &frame;
     msg.msg_name = &can_connection->addr;
     msg.msg_iov = &iov;
-    msg.msg_iovlen = CAN_MSGIOV_LEN;
+    msg.msg_iovlen = 1;
     msg.msg_control = &ctrlmsg;
 
     struct timeval tv_timeout;
-    tv_timeout.tv_sec = CAN_TIMEOUT_SEC;
+    tv_timeout.tv_sec = 0;
     tv_timeout.tv_usec = CAN_TIMEOUT_uSEC;
 
     while(can_connection->end_loop != 1){
@@ -146,7 +144,7 @@ int CAN_read_loop(CAN_t *can_connection, void (*frame_read_cb)(struct can_frame 
         if ((ret = select(can_connection->sock+1, &rdfs, NULL, NULL, &tv_timeout)) < 0) {
             break;
         }
-        tv_timeout.tv_sec = CAN_TIMEOUT_SEC;
+        tv_timeout.tv_sec = 0;
         tv_timeout.tv_usec = CAN_TIMEOUT_uSEC;
 
         if (FD_ISSET(can_connection->sock, &rdfs)) {

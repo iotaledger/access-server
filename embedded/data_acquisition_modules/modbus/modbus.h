@@ -21,7 +21,7 @@
  * \project Decentralized Access Control
  * \file modbus.h
  * \brief
- * Modbus MODBUS interface header file
+ * Modbus RTU interface header file
  *
  * @Author Djordje Golubovic
  *
