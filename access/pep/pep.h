@@ -1,8 +1,8 @@
 /*
- * This file is part of the Frost distribution
- * (https://github.com/xainag/frost)
+ * This file is part of the IOTA Access Distribution
+ * (https://github.com/iotaledger/access)
  *
- * Copyright (c) 2019 XAIN AG.
+ * Copyright (c) 2020 IOTA Stiftung
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,42 +19,29 @@
 
 /****************************************************************************
  * \project Decentralized Access Control
- * \file pip.c
+ * \file pep.h
  * \brief
- * Implementation of Policy Information Point
+ * Implementation of Policy Enforcement Point
  *
- * @Author Milivoje Knezevic
+ * @Author Dejan Nedic
  *
  * \notes
  *
  * \history
- * 12.10.2018. Initial version.
+ * 25.09.2018. Initial version.
  ****************************************************************************/
-
-#ifndef _PIP_H_
-#define _PIP_H_
-
-#include "policystore.h"
-
-#define PIP_ERROR -1
-#define PIP_TRUE 4
-#define PIP_FALSE 5
-#define MAX_NUMBER_OF_DIGITS 		10
-
-typedef enum pip_data_id {
-	PIP_DOOR_ID = 0,
-	PIP_TRUNK_ID = 1,
-	PIP_TIME_ID = 2,
-	PIP_VEHICLE_ID_ID = 3,
-	PIP_EXECUTION_NUM_ID = 4,
-	PIP_LOCATION_ID = 5
-} pip_data_id_t;
+#ifndef PEP_H
+#define PEP_H
 
 /**
- * @fn		int pip_get_data(policy_t *pol, char *request, char *data, int length)
+ * @fn      int pep_request_access(JSON_Value *request)
  *
- * @brief
+ * @brief   Function that computes decision for PEP
+ *
+ * @param   request         request JSON containing request uri and request object
+ *
+ * @return  DENY (0), GRANT (1)
  */
-int pip_get_data(policy_t *pol, char *request, char *data, int length);
+int pep_request_access(char *request);
 
-#endif /* _PIP_H_ */
+#endif

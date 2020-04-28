@@ -1,8 +1,8 @@
 /*
- * This file is part of the Frost distribution
- * (https://github.com/xainag/frost)
+ * This file is part of the IOTA Access Distribution
+ * (https://github.com/iotaledger/access)
  *
- * Copyright (c) 2019 XAIN AG.
+ * Copyright (c) 2020 IOTA Stiftung
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,30 +18,21 @@
  */
 
 /****************************************************************************
- * \project Decentralized Access Control
- * \file pep.h
+ * \project Policy Store
+ * \file pep_internal.h
  * \brief
- * Implementation of Policy Enforcement Point
+ * Internal and test values for pep
  *
  * @Author Dejan Nedic
  *
  * \notes
  *
  * \history
- * 25.09.2018. Initial version.
+ * 24.08.2018. Initial version.
  ****************************************************************************/
-#ifndef PEP_H
-#define PEP_H
+#ifndef PEP_INTERNAL_H
+#define PEP_INTERNAL_H
 
-/**
- * @fn      int pep_request_access(JSON_Value *request)
- *
- * @brief   Function that computes decision for PEP
- *
- * @param   request         request JSON containing request uri and request object
- *
- * @return  DENY (0), GRANT (1)
- */
-int pep_request_access(char *request);
+char temp_policy_id[] = { 0xcf, 0x9d, 0x50, 0x93, 0x71, 0x6a, 0xb8, 0xd4, 0x29, 0x90, 0x51, 0x8a, 0xc5, 0xde, 0xc8, 0xce, 0x31, 0x5d, 0xd1, 0x5c, 0xf9, 0x10, 0x0f, 0xe6, 0x22, 0xaf, 0xfc, 0xe8, 0x38, 0x98, 0xd5, 0xd9};
 
 #endif
