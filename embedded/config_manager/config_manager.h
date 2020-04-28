@@ -91,27 +91,30 @@
 #define CONFIG_CLIENT_CAN01 "can01"
 #define CONFIG_CLIENT_CANOPEN01 "canopen01"
 #define CONFIG_CLIENT_OBDII "obdii"
+#define CONFIG_STR_LEN 128
+#define CONFIG_PORT_NAME_LEN 8
+#define CONFIG_DEVICE_ID_LEN 67
 
 typedef struct {
-    char relaybrd_ipaddress[128];
-    char mainrpi_ipaddress[128];
-    char gps_tty_device[128];
-    char client[128];
-    char token_address[128];
+    char relaybrd_ipaddress[CONFIG_STR_LEN];
+    char mainrpi_ipaddress[CONFIG_STR_LEN];
+    char gps_tty_device[CONFIG_STR_LEN];
+    char client[CONFIG_STR_LEN];
+    char token_address[CONFIG_STR_LEN];
     int token_send_interval;
     float token_amount;
-    char bc_hostname[128];
+    char bc_hostname[CONFIG_STR_LEN];
     int bc_hostname_port;
-    char symcan_ifname[128];
-    char modbus_tty_device[128];
-    char can0_port_name[8];
-    char can1_port_name[8];
-    char policy_store_service_ip[128];
+    char symcan_ifname[CONFIG_STR_LEN];
+    char modbus_tty_device[CONFIG_STR_LEN];
+    char can0_port_name[CONFIG_PORT_NAME_LEN];
+    char can1_port_name[CONFIG_PORT_NAME_LEN];
+    char policy_store_service_ip[CONFIG_STR_LEN];
     int policy_store_service_port;
-    char json_interface_ipaddr[128];
+    char json_interface_ipaddr[CONFIG_STR_LEN];
     int json_interface_ipport;
-    char device_id[67];
-    char canopen_port_name[8];
+    char device_id[CONFIG_DEVICE_ID_LEN];
+    char canopen_port_name[CONFIG_PORT_NAME_LEN];
     int canopen_node_id;
     float thread_sleep_period;
 } ConfigManager_config_t;

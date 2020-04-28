@@ -34,13 +34,11 @@
 
 #include "demo_02_plugin.h"
 
-#include <stdio.h>
 #include <string.h>
 
 #include "relay_interface.h"
 
 #include "canopen_receiver.h"
-#include "resolver.h"
 #include "json_interface.h"
 
 static int demo02_vehicle_lock(int should_log)
@@ -98,7 +96,11 @@ static void stop_cb() {}
 
 void Demo02Plugin_initializer(resolver_plugin_t* action_set)
 {
-    if (action_set == NULL && g_action_set == NULL) return;
+    if (action_set == NULL && g_action_set == NULL)
+    {
+        return;
+    }
+
     if (action_set != NULL)
     {
         g_action_set = action_set;

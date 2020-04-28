@@ -30,8 +30,8 @@
  * \history
  * 25.09.2018. Initial version.
  ****************************************************************************/
-
-#include "parson.h"
+#ifndef PEP_H
+#define PEP_H
 
 /**
  * @fn      int pep_request_access(JSON_Value *request)
@@ -43,3 +43,5 @@
  * @return  DENY (0), GRANT (1)
  */
 int pep_request_access(char *request);
+
+#endif

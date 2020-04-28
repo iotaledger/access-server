@@ -37,14 +37,19 @@
 
 #include <pigpio.h>
 
-#define	LOW	0
-#define	HIGH	1
+#define LOW	0
+#define HIGH 1
+#define MIN_IDX 0
+#define MAX_IDX 3
+#define SLEEP_TIME 0.5
 
 /* BCM Pinout: https://pinout.xyz/ */
 uint8_t idx2bcm[] = {4, 17, 27, 22};
 
-static int check_idx(int idx){
-    if (idx < 0 || idx > 3){
+static int check_idx(int idx)
+{
+    if (idx < MIN_IDX || idx > MAX_IDX)
+    {
         return -1;
     }
 }
@@ -113,9 +118,12 @@ int RelayInterface_toggle(int idx)
     gpioSetMode(bcm, PI_OUTPUT);
 
     int current_state = gpioRead(bcm);
-    if (current_state == LOW){
+    if (current_state == LOW)
+    {
         gpioWrite(bcm, HIGH); /* on */
-    } else if (current_state == HIGH){
+    }
+    else if (current_state == HIGH)
+    {
         gpioWrite(bcm, LOW); /* off */
     }
 
@@ -141,7 +149,7 @@ int RelayInterface_pulse(int idx)
     gpioSetMode(bcm, PI_OUTPUT);
 
     gpioWrite(bcm, HIGH); /* on */
-    time_sleep(0.5);
+    time_sleep(SLEEP_TIME);
     gpioWrite(bcm, LOW); /* off */
 
     /* Stop DMA, release resources */

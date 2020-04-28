@@ -17,13 +17,28 @@
  * limitations under the License.
  */
 
+/****************************************************************************
+ * \project Decentralized Access Control
+ * \file canopen_receiver.h
+ * \brief
+ * Implementation of interface for CANOPEN receiver
+ *
+ * @Author
+ *
+ * \notes
+ *
+ * \history
+ * XX.YY.ZZZZ. Initial version.
+ ****************************************************************************/
 #ifndef _CANOPEN_RECEIVER_H_
 #define _CANOPEN_RECEIVER_H_
 
 #include <pthread.h>
 #include "vehicle_dataset.h"
 
+#ifndef bool
 #define bool _Bool
+#endif
 
 #ifndef TINY_EMBEDDED
 void CanopenReceiver_preInitSetup(const char *can_interface_name, int _node_id);

@@ -17,6 +17,20 @@
  * limitations under the License.
  */
 
+/****************************************************************************
+ * \project Decentralized Access Control
+ * \file canopen_receiver.c
+ * \brief
+ * Implementation of interface for CANOPEN receiver
+ *
+ * @Author
+ *
+ * \notes
+ *
+ * \history
+ * XX.YY.ZZZZ. Initial version.
+ ****************************************************************************/
+
 #include "canopen_receiver.h"
 #include "can_thread.h"
 #include "canopen_sdo.h"
@@ -27,15 +41,47 @@
 #include <unistd.h>
 #include <string.h>
 
-#define MAX_STR_SIZE 256
 
-#define MAX_STR_SIZE 256
+typedef enum {
+	CANOPEN_SHD_INITIALIZING = 0x00,
+	CANOPEN_SHD_STOPPED = 0x04,
+	CANOPEN_SHD_OPERATIONAL = 0x05,
+	CANOPEN_SHD_PREOPERATIONAL = 0x7f
+} Canopen_service_heartbeat_data_e;
+
+typedef enum {
+	CANOPEN_STC_4BYTES = 0x43,
+	CANOPEN_STC_3BYTES = 0x47,
+	CANOPEN_STC_2BYTES = 0x4b,
+	CANOPEN_STC_1BYTE = 0x4f
+} Canopen_service_tsdo_command_e;
+
+#define CANOPEN_JSON_NAME "canopen_data"
+#define CANOPEN_SERVICE_TPDO1 0x180
+#define CANOPEN_SERVICE_TSDO 0x580
+#define CANOPEN_SERVICE_HEARTBEAT 0x700
+#define CANOPEN_NONODE_ARRAY_SIZE 8
+#define CANOPEN_NONODE_STRING_SIZE 8
+#define CANOPEN_SERVICE_NUM 12
+#define CANOPEN_SHD_PREOP_CANID 0
+#define CANOPEN_SHD_PREOP_CANDLC 2
+#define CANOPEN_SHD_PREOP_CANDATA0 0x1
+#define CANOPEN_MAX_STR_SIZE 256
+#define CANOPEN_JSON_DUMP_PERIOD_6S 6
+#define CANOPEN_SYNC_COUNTER_PRESCALER 100000
+#define CANOPEN_SYNC_CANID 0x80
+#define CANOPEN_SYNC_CANDLC 0
+#define CANOPEN_READ_COUNTER_PRESCALER 400000
+#define CANOPEN_READ_CANIDBASE 0x600
+#define CANOPEN_READ_CANDLC 8
+#define CANOPEN_READ_DATA_READ_COMMAND 0x40
+
+#define CANOPEN_FILL_FRAME_DATA(X) {frame.data[1] = ((X) & 0x00ff00) >> 8; frame.data[2] = ((X) & 0xff0000) >> 16; frame.data[3] = (X) & 0xff; CAN_send_frame(&can_instance.can_connection, &frame); usleep(g_task_sleep_time);}
 
 static canopen01_vehicle_dataset_t *wanted_signals;
-static int data_available = 0;
 static int end_loop = 0;
 static bool is_in_use = FALSE;
-static char port_name[MAX_STR_SIZE];
+static char port_name[CANOPEN_MAX_STR_SIZE];
 
 // CANopen data stuff
 
@@ -84,14 +130,11 @@ static fjson_object* can_json_filler()
 {
     fjson_object *fj_data_array = fjson_object_new_array();
 
-    data_available = 0;
-
     if (wanted_signals->bms_bat_voltage == 1) {
         fjson_object* fj_obj_tmp = fjson_object_new_object();
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(bms_bat_voltage_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
         fj_values_array_bms_bat_voltage = fj_obj_tmp;
-        data_available = 1;
     }
     else
     {
@@ -103,7 +146,6 @@ static fjson_object* can_json_filler()
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(analogue_brake_full_voltage_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
         fj_values_array_analogue_brake_full_voltage = fj_obj_tmp;
-        data_available = 1;
     }
     else
     {
@@ -115,7 +157,6 @@ static fjson_object* can_json_filler()
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(analogue_brake_off_voltage_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
         fj_values_array_analogue_brake_off_voltage = fj_obj_tmp;
-        data_available = 1;
     }
     else
     {
@@ -127,7 +168,6 @@ static fjson_object* can_json_filler()
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(controller_temperature_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
         fj_values_array_controller_temperature = fj_obj_tmp;
-        data_available = 1;
     }
     else
     {
@@ -139,7 +179,6 @@ static fjson_object* can_json_filler()
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(vehicle_speed_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
         fj_values_array_vehicle_speed = fj_obj_tmp;
-        data_available = 1;
     }
     else
     {
@@ -151,7 +190,6 @@ static fjson_object* can_json_filler()
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(motor_rpm_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
         fj_values_array_motor_rpm = fj_obj_tmp;
-        data_available = 1;
     }
     else
     {
@@ -163,7 +201,6 @@ static fjson_object* can_json_filler()
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(motor_speed_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
         fj_values_array_motor_speed = fj_obj_tmp;
-        data_available = 1;
     }
     else
     {
@@ -175,7 +212,6 @@ static fjson_object* can_json_filler()
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(battery_voltage_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
         fj_values_array_battery_voltage = fj_obj_tmp;
-        data_available = 1;
     }
     else
     {
@@ -187,7 +223,6 @@ static fjson_object* can_json_filler()
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(battery_current_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
         fj_values_array_battery_current = fj_obj_tmp;
-        data_available = 1;
     }
     else
     {
@@ -199,7 +234,6 @@ static fjson_object* can_json_filler()
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(battery_soc_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
         fj_values_array_battery_soc = fj_obj_tmp;
-        data_available = 1;
     }
     else
     {
@@ -211,7 +245,6 @@ static fjson_object* can_json_filler()
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(throttle_voltage_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
         fj_values_array_throttle_voltage = fj_obj_tmp;
-        data_available = 1;
     }
     else
     {
@@ -223,7 +256,6 @@ static fjson_object* can_json_filler()
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(brake_1_voltage_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
         fj_values_array_brake_1_voltage = fj_obj_tmp;
-        data_available = 1;
     }
     else
     {
@@ -235,7 +267,6 @@ static fjson_object* can_json_filler()
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(brake_2_voltage_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
         fj_values_array_brake_2_voltage = fj_obj_tmp;
-        data_available = 1;
     }
     else
     {
@@ -247,7 +278,6 @@ static fjson_object* can_json_filler()
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(battery_power_percent_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
         fj_values_array_battery_power_percent = fj_obj_tmp;
-        data_available = 1;
     }
     else
     {
@@ -259,7 +289,6 @@ static fjson_object* can_json_filler()
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(raw_battery_voltage_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
         fj_values_array_raw_battery_voltage = fj_obj_tmp;
-        data_available = 1;
     }
     else
     {
@@ -271,7 +300,6 @@ static fjson_object* can_json_filler()
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(wheel_rpm_speed_sensor_based_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
         fj_values_array_wheel_rpm_speed_sensor_based = fj_obj_tmp;
-        data_available = 1;
     }
     else
     {
@@ -283,7 +311,6 @@ static fjson_object* can_json_filler()
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(wheel_rpm_motor_based_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
         fj_values_array_wheel_rpm_motor_based = fj_obj_tmp;
-        data_available = 1;
     }
     else
     {
@@ -295,7 +322,6 @@ static fjson_object* can_json_filler()
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(trip_meter_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
         fj_values_array_trip_meter = fj_obj_tmp;
-        data_available = 1;
     }
     else
     {
@@ -307,7 +333,6 @@ static fjson_object* can_json_filler()
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(remote_throttle_voltage_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
         fj_values_array_remote_throttle_voltage = fj_obj_tmp;
-        data_available = 1;
     }
     else
     {
@@ -316,7 +341,7 @@ static fjson_object* can_json_filler()
 
     return fj_data_array;
 }
-#define CANOPEN_JSON_NAME "canopen_data"
+
 // !CANopen data stuff
 
 static pthread_mutex_t *json_sync_lock;
@@ -324,23 +349,19 @@ static pthread_t canopen_bg_thread;
 static int node_id;
 static CanThread_instance_t can_instance;
 
-static const int services_nonodeid [] = {
+static const int services_nonodeid [CANOPEN_NONODE_ARRAY_SIZE] = {
     0,
     0x80,
     0x100
 };
 
-static const char services_nonodeid_names[][8] = {
+static const char services_nonodeid_names[CANOPEN_NONODE_ARRAY_SIZE][CANOPEN_NONODE_STRING_SIZE] = {
     "NMT",
     "SYNC",
     "TIME"
 };
 
-#define CANOPEN_SERVICE_TPDO1 0x180
-#define CANOPEN_SERVICE_TSDO 0x580
-#define CANOPEN_SERVICE_HEARTBEAT 0x700
-
-static const int services[] = {
+static const int services[CANOPEN_SERVICE_NUM] = {
     0x080,
     0x180,
     0x200,
@@ -355,7 +376,7 @@ static const int services[] = {
     0x700
 };
 
-static const char services_names[][8] = {
+static const char services_names[CANOPEN_SERVICE_NUM][CANOPEN_NONODE_STRING_SIZE] = {
     "EMCY",
     "TPDO1",
     "RPDO1",
@@ -373,8 +394,7 @@ static const char services_names[][8] = {
 static void can_read_callback(struct can_frame *frame)
 {
     int found = -1;
-    int node_specific = 0;
-    for (int i=0; i<3; i++){
+    for (int i=0; i<CANOPEN_NONODE_ARRAY_SIZE; i++){
         if (frame->can_id == services_nonodeid[i]) {
             found = i;
         }
@@ -391,10 +411,9 @@ static void can_read_callback(struct can_frame *frame)
 
     if (found == -1){
         int service = frame->can_id - node_id;
-        for (int i=0; i<12; i++){
+        for (int i=0; i<CANOPEN_SERVICE_NUM; i++){
             if (service == services[i]) {
                 found = i;
-                node_specific = 1;
             }
         }
 
@@ -403,22 +422,22 @@ static void can_read_callback(struct can_frame *frame)
                 case CANOPEN_SERVICE_HEARTBEAT:
                     //printf("CANopen - heartbeat: node %02X -", node_id);
                     switch (frame->data[0]){
-                        case 0x00:
+                        case CANOPEN_SHD_INITIALIZING:
                             printf(" boot up (initializing)\n");
                         break;
-                        case 0x04:
+                        case CANOPEN_SHD_STOPPED:
                             printf(" stopped\n");
                         break;
-                        case 0x05:
+                        case CANOPEN_SHD_OPERATIONAL:
                             //printf(" operational\n");
                         break;
-                        case 0x7f:
+                        case CANOPEN_SHD_PREOPERATIONAL:
                             printf(" pre-operational\n");
                             // put into operational
                             struct can_frame _frame;
-                            _frame.can_id = 0;
-                            _frame.can_dlc = 2;
-                            _frame.data[0] = 0x1;
+                            _frame.can_id = CANOPEN_SHD_PREOP_CANID;
+                            _frame.can_dlc = CANOPEN_SHD_PREOP_CANDLC;
+                            _frame.data[0] = CANOPEN_SHD_PREOP_CANDATA0;
                             _frame.data[1] = node_id;
                             CAN_send_frame(&can_instance.can_connection, &_frame);
                         break;
@@ -433,16 +452,16 @@ static void can_read_callback(struct can_frame *frame)
                         int index = frame->data[3] + ((int)frame->data[1] << 8) + ((int)frame->data[2] << 16);
                         int data;
                         switch (command) {
-                            case 0x43: // 4 bytes
+                            case CANOPEN_STC_4BYTES:
                                 data = frame->data[4] + ((int)frame->data[5] << 8) + ((int)frame->data[6] << 16) + ((int)frame->data[7] << 24);
                             break;
-                            case 0x47: // 3 bytes
+                            case CANOPEN_STC_3BYTES:
                                 data = frame->data[4] + ((int)frame->data[5] << 8) + ((int)frame->data[6] << 16);
                             break;
-                            case 0x4b: // 2 bytes
+                            case CANOPEN_STC_2BYTES:
                                 data = frame->data[4] + ((int)frame->data[5] << 8);
                             break;
-                            case 0x4f: // 1 byte
+                            case CANOPEN_STC_1BYTE:
                                 data = frame->data[4];
                             break;
                         }
@@ -519,7 +538,7 @@ static void can_read_callback(struct can_frame *frame)
                     printf("\n");
                 break;
             }
-            JSONInterface_dump_if_needed(6, 1);
+            JSONInterface_dump_if_needed(CANOPEN_JSON_DUMP_PERIOD_6S);
         }
     }
 }
@@ -528,7 +547,7 @@ static void can_read_callback(struct can_frame *frame)
 void CanopenReceiver_preInitSetup(const char *can_interface_name, int _node_id)
 {
     is_in_use = TRUE;
-    memset(port_name, 0, MAX_STR_SIZE * sizeof(char));
+    memset(port_name, 0, CANOPEN_MAX_STR_SIZE * sizeof(char));
     memcpy(port_name, can_interface_name, strlen(can_interface_name));
     node_id = _node_id;
 }
@@ -543,7 +562,7 @@ void CanopenReceiver_init(canopen01_vehicle_dataset_t *dataset, pthread_mutex_t 
     CanThread_init(&can_instance, can_interface_name, can_read_callback);
 #ifdef TINY_EMBEDDED
     is_in_use = TRUE;
-    memset(port_name, 0, MAX_STR_SIZE * sizeof(char));
+    memset(port_name, 0, CANOPEN_MAX_STR_SIZE * sizeof(char));
     memcpy(port_name, can_interface_name, strlen(can_interface_name));
 #endif
 }
@@ -554,28 +573,25 @@ static void* canopen_bg_thread_func(void* _)
 
     int read_counter = 0;
     while (end_loop != 1) {
-        if (sync_counter++ > (100000 / g_task_sleep_time) || (100000 / g_task_sleep_time) == 0) {
+        if (sync_counter++ > (CANOPEN_SYNC_COUNTER_PRESCALER / g_task_sleep_time) || (CANOPEN_SYNC_COUNTER_PRESCALER / g_task_sleep_time) == 0) {
             sync_counter = 0;
             struct can_frame frame;
-            frame.can_id = 0x80;
-            frame.can_dlc = 0;
+            frame.can_id = CANOPEN_SYNC_CANID;
+            frame.can_dlc = CANOPEN_SYNC_CANDLC;
             CAN_send_frame(&can_instance.can_connection, &frame);
         }
 
-        if (read_counter++ > (400000 / g_task_sleep_time) || (400000 / g_task_sleep_time) == 0) {
+        if (read_counter++ > (CANOPEN_READ_COUNTER_PRESCALER / g_task_sleep_time) || (CANOPEN_READ_COUNTER_PRESCALER / g_task_sleep_time) == 0) {
             read_counter = 0;
             struct can_frame frame;
-            frame.can_id = 0x600 + node_id;
-            frame.can_dlc = 8;
-            frame.data[0] = 0x40; // read command
+            frame.can_id = CANOPEN_READ_CANIDBASE + node_id;
+            frame.can_dlc = CANOPEN_READ_CANDLC;
+            frame.data[0] = CANOPEN_READ_DATA_READ_COMMAND;
             frame.data[4] = 0;
             frame.data[5] = 0;
             frame.data[6] = 0;
             frame.data[7] = 0;
             uint8_t *wanted_signals_array = (uint8_t*)&wanted_signals;
-
-#define CANOPEN_FILL_FRAME_DATA(X) {frame.data[1] = ((X) & 0x00ff00) >> 8; frame.data[2] = ((X) & 0xff0000) >> 16; frame.data[3] = (X) & 0xff; CAN_send_frame(&can_instance.can_connection, &frame); usleep(g_task_sleep_time);}
-
 
             if (wanted_signals->bms_bat_voltage == 1) {
                 CANOPEN_FILL_FRAME_DATA(CANOPEN_SDO_BMS_BAT_VOLTAGE_IDX);
@@ -686,7 +702,7 @@ void CanopenReceiver_getPortName(char* p_name_buff, int p_name_buff_len)
 {
     if (p_name_buff != NULL && p_name_buff_len > 0)
     {
-        memcpy(p_name_buff, port_name, p_name_buff_len > MAX_STR_SIZE ? MAX_STR_SIZE : p_name_buff_len);
+        memcpy(p_name_buff, port_name, p_name_buff_len > CANOPEN_MAX_STR_SIZE ? CANOPEN_MAX_STR_SIZE : p_name_buff_len);
     }
 }
 

@@ -32,14 +32,14 @@
  ****************************************************************************/
 
 #include "can_thread.h"
-#include "can_linux.h"
 
 #include <string.h>
-#include <pthread.h>
+
+#define CAN_BUS_NAME_LEN 5
 
 void CanThread_init(CanThread_instance_t* inst, const char* can_bus_name, void (*can_cb)(struct can_frame *frame))
 {
-    strncpy(inst->can_bus_name, can_bus_name, 5);
+    strncpy(inst->can_bus_name, can_bus_name, CAN_BUS_NAME_LEN);
     inst->can_frame_read_cb = can_cb;
 }
 

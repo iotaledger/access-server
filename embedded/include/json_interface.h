@@ -40,7 +40,7 @@
 fjson_object* JSONInterface_init(const char* ipaddress, int port, const char* device_id);
 void JSONInterface_set_address(const char* new_addr);
 void JSONInterface_set_port(int new_port);
-int JSONInterface_dump_if_needed(int dump_period_s, int dump_to_ipfs);
+int JSONInterface_dump_if_needed(int dump_period_s);
 fjson_object* JSONInterface_get(const char* name);
 pthread_mutex_t* JSONInterface_get_mutex();
 void JSONInterface_deinit();

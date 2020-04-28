@@ -37,10 +37,35 @@
 #include <net/if.h>
 #include <sys/ioctl.h>
 
-#include <linux/can.h>
 #include <linux/can/raw.h>
 
 #include "lib.h"
+
+typedef enum {
+    CAN_OPEN_NO_ERROR = 0,
+    CAN_OPEN_CONNECTION_ERROR = -1,
+    CAN_OPEN_SOCKET_ERROR = -2,
+    CAN_OPEN_IOCTL_ERROR = -3,
+    CAN_OPEN_BIND_ERROR = -4
+} CAN_open_error_e;
+
+typedef enum {
+    CAN_SEND_NO_ERROR = 0,
+    CAN_SEND_FRAME_DATA_ERROR = -1,
+    CAN_SEND_WRITE_ERROR = -2
+} CAN_send_frame_error_e;
+
+typedef enum {
+    CAN_READ_NO_ERROR = 0,
+    CAN_READ_CONNECTION_ERROR = -1,
+    CAN_READ_RECEIVE_ERROR = -2,
+    CAN_READ_INCOMPLETE_ERROR = -3
+} CAN_read_error_e;
+
+typedef enum {
+    CAN_CLOSE_NO_ERROR = 0,
+    CAN_CLOSE_ERROR = -1
+} CAN_close_error_e;
 
 typedef struct {
     int sock;

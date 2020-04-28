@@ -81,7 +81,6 @@ SQLITE_LDFLAGS = -lsqlite3
 LDFLAGS = -Wl,-rpath-link,$(SYSROOT)/lib/arm-linux-gnueabihf,-rpath-link,$(SYSROOT)/usr/lib/arm-linux-gnueabihf --sysroot=$(SYSROOT) -L$(SYSROOT)/lib -L$(SYSROOT)/usr/lib -L$(SYSROOT)/usr/lib/arm-linux-gnueabihf -B$(SYSROOT)/usr/lib/arm-linux-gnueabihf -dynamic -lpthread -lpigpio
 
 SRCS = \
-    $(INCLUDE)Dlog.c \
     $(INCLUDE)tcp_client.c \
     bc/bc_daemon.c \
     $(INCLUDE)utils_string.c \

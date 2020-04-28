@@ -36,8 +36,10 @@
 #include <pthread.h>
 #include "can_linux.h"
 
+#define CAN_BUS_LEN 64
+
 typedef struct {
-    char can_bus_name[64];
+    char can_bus_name[CAN_BUS_LEN];
     CAN_t can_connection;
     pthread_t thread;
     void (*can_frame_read_cb)(struct can_frame *frame);

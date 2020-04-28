@@ -36,6 +36,12 @@
 
 #include <pthread.h>
 
+typedef enum {
+	GPS_NO_ERROR = 0,
+	GPS_ERROR = -1,
+	GPS_ERROR_START = -2
+} GPS_error_e;
+
 int GpsReceiver_init(const char* portname, pthread_mutex_t* json_mutex);
 int GpsReceiver_start();
 int GpsReceiver_end();

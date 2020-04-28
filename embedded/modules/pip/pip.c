@@ -33,7 +33,6 @@
  ****************************************************************************/
 
 #include <string.h>
-#include <stdio.h>
 
 #include "pip.h"
 #include "pip_internal.h"
@@ -56,12 +55,12 @@ static int fetch_data(policy_t *pol, pip_data_id_t data_id, char *data)
 		{
 			if(lockState == 0x00)
 			{
-				n = 4;
+				n = PIP_TRUE;
 				strcpy(data, "true");
 			}
 			else if(lockState == 0x01)
 			{
-				n = 5;
+				n = PIP_FALSE;
 				strcpy(data, "false");
 			}
 			else
@@ -74,12 +73,12 @@ static int fetch_data(policy_t *pol, pip_data_id_t data_id, char *data)
 		{
 			if(trunkState == 0x00)
 			{
-				n = 4;
+				n = PIP_TRUE;
 				strcpy(data, "true");
 			}
 			else if(trunkState == 0x01)
 			{
-				n = 5;
+				n = PIP_FALSE;
 				strcpy(data, "false");
 			}
 			else
@@ -126,50 +125,6 @@ static int fetch_data(policy_t *pol, pip_data_id_t data_id, char *data)
 	return  n;
 }
 
-
-
-void setLockState(unsigned char state)
-{
-	if(state == 0)
-	{
-		lockState = 0;
-	}
-	else if (state == 1)
-	{
-		lockState = 1;
-	}
-	else
-	{
-		lockState = INVALID_LOCK_STATE;
-	}
-}
-
-unsigned char getLockState()
-{
-	return lockState;
-}
-
-void setTrunkState(unsigned char state)
-{
-	if(state == 0)
-	{
-		trunkState = 0;
-	}
-	else if (state == 1)
-	{
-		trunkState = 1;
-	}
-	else
-	{
-		trunkState = INVALID_TRUNK_STATE;
-	}
-}
-
-unsigned char getTrunkState()
-{
-	return trunkState;
-}
-
 int pip_get_data(policy_t *pol, char *request, char *data, int length)
 {
 	char dot[] = ".";
@@ -181,7 +136,7 @@ int pip_get_data(policy_t *pol, char *request, char *data, int length)
 		return -1;
 	}
 
-	memcpy(temp,request, length);
+	memcpy(temp,request,length);
 	char * ptr  = strtok(temp,dot);
 
 	if(ptr == NULL)
@@ -192,12 +147,11 @@ int pip_get_data(policy_t *pol, char *request, char *data, int length)
 
 	int ret = -1;
 
-    if(memcmp(ptr,"request",strlen("request"))==0)
+    if(memcmp(ptr,"request",strlen("request")) == 0)
     {
     	ptr = strtok(NULL, dot);
-    	if(memcmp(ptr,"subject",strlen("subject"))==0)
+		if(memcmp(ptr,"subject",strlen("subject")) == 0)
     	{
-
 			ptr = strtok(NULL, dot);
 			//TODO: change this later
 			ret = -2;
@@ -216,12 +170,11 @@ int pip_get_data(policy_t *pol, char *request, char *data, int length)
 			}
 
     	}
-    	else if( memcmp(ptr,"object",strlen("object"))==0)
+		else if(memcmp(ptr,"object",strlen("object")) == 0)
     	{
-
     		ptr = strtok(NULL, dot);
 
-    		if (memcmp (ptr, "value", strlen("value")) == 0)
+			if (memcmp (ptr, "value", strlen("value")) == 0)
 			{
 				ret = fetch_data(pol, PIP_VEHICLE_ID_ID, data);
 			}
@@ -235,14 +188,14 @@ int pip_get_data(policy_t *pol, char *request, char *data, int length)
 				ret = -1;
 			}
     	}
-    	else if(memcmp(ptr, PIP_TIME_TYPE_STR, strlen(PIP_TIME_TYPE_STR))==0)
+		else if(memcmp(ptr, PIP_TIME_TYPE_STR, strlen(PIP_TIME_TYPE_STR)) == 0)
     	{
     		ptr = strtok(NULL, dot);
-    		if (memcmp ( ptr, "value", strlen("value")) == 0)
+			if (memcmp ( ptr, "value", strlen("value")) == 0)
 			{
 				ret = fetch_data(pol, PIP_TIME_ID, data);
 			}
-			else if (memcmp ( ptr, "type", strlen("type")) == 0)
+			else if (memcmp(ptr, "type", strlen("type")) == 0)
 			{
 				strcpy(data, PIP_TIME_TYPE_STR);
 				ret = strlen(data);
@@ -253,10 +206,10 @@ int pip_get_data(policy_t *pol, char *request, char *data, int length)
 				ret = -1;
 			}
     	}
-    	else if (memcmp(ptr, PIP_EXECUTION_NUM_STR, strlen(PIP_EXECUTION_NUM_STR)) == 0)
+		else if (memcmp(ptr, PIP_EXECUTION_NUM_STR, strlen(PIP_EXECUTION_NUM_STR)) == 0)
     	{
     		ptr = strtok(NULL, dot);
-    		if (memcmp(ptr, "value", strlen("value")) == 0)
+			if (memcmp(ptr, "value", strlen("value")) == 0)
 			{
 				ret = fetch_data(pol, PIP_EXECUTION_NUM_ID, data);
 			}
@@ -271,7 +224,7 @@ int pip_get_data(policy_t *pol, char *request, char *data, int length)
 				ret = -1;
 			}
     	}
-    	else if(strcmp(ptr,"action")==0)
+		else if(strcmp(ptr,"action") == 0)
     	{
     		Dlog_printf("It is: %s\n",ptr);
     		ptr = strtok(NULL, dot);

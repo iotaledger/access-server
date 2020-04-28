@@ -42,21 +42,17 @@
 #include "globals_declarations.h"
 
 #define BC_MAX_STR_LEN 128
-#define BC_TOKEN_ADDRESS "0x4025905055cdc2AddA98D6F198Ec0E06A8E08060"
-#define BC_TOKEN_SEND_INTERVAL_uS 10000000 //microseconds
-#define BC_TOKEN_AMOUNT_DEFAULT 0.001
-#define BC_HOSTNAME_ADDR "http://34.77.82.182"
-#define BC_HOSTNAME_PORT 8888
+#define BC_TOKEN_SEND_INTERVAL_10s 10000000 // in microseconds
 #define BC_TOK_ARRAY_SIZE 10
 #define BC_URL_LEN 1024
-#define BC_TEMP_STR_LEN 50
+#define BC_INFO_STRING_LEN 64
 
-static char token_address[BC_MAX_STR_LEN] = BC_TOKEN_ADDRESS;
-static int token_send_interval = BC_TOKEN_SEND_INTERVAL_uS;
-static float token_amount = BC_TOKEN_AMOUNT_DEFAULT;
+static char token_address[BC_MAX_STR_LEN] = "";
+static int token_send_interval = BC_TOKEN_SEND_INTERVAL_10s;
+static float token_amount = -1.;
 
-static char bc_hostname[BC_MAX_STR_LEN] = BC_HOSTNAME_ADDR;
-static int bc_hostname_port = BC_HOSTNAME_PORT;
+static char bc_hostname[BC_MAX_STR_LEN] = "";
+static int bc_hostname_port = -1;
 
 static int end_thread = 0;
 static pthread_t bc_daemon_thread;
@@ -160,7 +156,6 @@ static void fund_tokens()
         curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PUT");
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, parse_fund_tokens_response);
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post_body);
-        //curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 
         res = curl_easy_perform(curl);
         if (res != CURLE_OK)
@@ -180,7 +175,7 @@ static size_t parse_fund_tokens_response(void *buffer, size_t size, size_t nmemb
     int num_of_tokens = 0;
     char* response = (char*)buffer;
     size_t bufferlen = strlen(buffer);
-    char tmp_str[BC_TEMP_STR_LEN] = "";
+    char tmp_str[BC_INFO_STRING_LEN] = "";
 
     jsmn_init(&parser);
     num_of_tokens = jsmn_parse(&parser, response, bufferlen, tokens, BC_TOK_ARRAY_SIZE);
