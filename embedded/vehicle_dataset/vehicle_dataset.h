@@ -112,7 +112,6 @@ typedef struct {
 } canopen01_vehicle_dataset_t;
 
 void VehicleDataset_init(VehicleDataset_state_t *state);
-
 void VehicleDataset_deinit(VehicleDataset_state_t *state);
 void VehicleDataset_from_json(VehicleDataset_state_t *state, const char* json, size_t json_len);
 int VehicleDataset_to_json(VehicleDataset_state_t *state, char* json);

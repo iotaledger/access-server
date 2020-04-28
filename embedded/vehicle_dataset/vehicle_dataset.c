@@ -33,10 +33,12 @@
 
 #include "vehicle_dataset.h"
 
-#include <stdlib.h>
 #include <libfastjson/json.h>
 #include <string.h>
 #include "jsmn.h"
+
+#define TOK_NUM_MAX 256
+#define TOKNAME_LEN 128
 
 char VehicleDatasetDemo01_options[] =
     "DoorDrvrReSts"
@@ -99,7 +101,8 @@ static int set_token(VehicleDataset_state_t *state, const char* name, int val)
 {
     for (int i=0; i<state->options_count; i++)
     {
-        if (strncmp(state->tokens[i].name, name, strlen(name)) == 0) {
+        if (strncmp(state->tokens[i].name, name, strlen(name)) == 0)
+        {
             state->tokens[i].val = val;
             return 0;
         }
@@ -108,24 +111,34 @@ static int set_token(VehicleDataset_state_t *state, const char* name, int val)
     return -1;
 }
 
-void VehicleDataset_init(VehicleDataset_state_t *state) {
+void VehicleDataset_init(VehicleDataset_state_t *state)
+{
     unsigned char* dataset = (unsigned char*)state->dataset;
-    if (state->options_count != 0) {
-        for (int i=0; i<state->options_count; i++) {
+    if (state->options_count != 0)
+    {
+        for (int i=0; i<state->options_count; i++)
+        {
             dataset[i] = 0;
             state->tokens[i].val = 0;
         }
-    } else {
+    }
+    else
+    {
         // tokenize
         char* tok;
         // count tokens
         tok = &state->options[0];
         int vd_options_count_tmp = 1;
-        while (*tok != '\0'){
-            if (*tok == '|') vd_options_count_tmp++;
+        while (*tok != '\0')
+        {
+            if (*tok == '|')
+            {
+                vd_options_count_tmp++;
+            }
             tok++;
         }
-        if (vd_options_count_tmp != 1) {
+        if (vd_options_count_tmp != 1)
+        {
             state->options_count = vd_options_count_tmp;
             state->tokens = (vd_token_t*)malloc(state->options_count*sizeof(vd_token_t));
 
@@ -151,7 +164,7 @@ void VehicleDataset_from_json(VehicleDataset_state_t *state, const char* json, s
 {
     int num_of_tokens = -1;
     jsmn_parser parser;
-    jsmntok_t tokens[256];
+    jsmntok_t tokens[TOK_NUM_MAX];
     int arr_len = 0;
     int arr_index = -1;
 
@@ -159,7 +172,9 @@ void VehicleDataset_from_json(VehicleDataset_state_t *state, const char* json, s
     num_of_tokens = jsmn_parse(&parser, json, json_len, NULL, 0);
 
     if ((num_of_tokens == -1) || (num_of_tokens < 1))
+    {
         return;
+    }
 
     jsmn_init(&parser);
     num_of_tokens = jsmn_parse(&parser, json, json_len, (jsmntok_t *)&tokens, num_of_tokens);
@@ -174,18 +189,22 @@ void VehicleDataset_from_json(VehicleDataset_state_t *state, const char* json, s
     }
 
     if (arr_index == -1)
+    {
         return;
+    }
 
     arr_len = tokens[arr_index].size;
 
     VehicleDataset_init(state);
 
     if (arr_len == 0)
+    {
         return;
+    }
 
     for (int i = 0, arr_start = arr_index + 1; i < arr_len; i++)
     {
-        char tokname[128];
+        char tokname[TOKNAME_LEN];
         int toklen = tokens[arr_start + i].end - tokens[arr_start + i].start;
         strncpy(tokname, json + tokens[arr_start + i].start, toklen);
         tokname[toklen] = '\0';
@@ -205,8 +224,10 @@ int VehicleDataset_to_json(VehicleDataset_state_t *state, char* json)
     fjson_object* arr = fjson_object_new_array();
     unsigned char *dataset_uint8 = (unsigned char*)state->dataset;
 
-    for (int i=0; i<state->options_count; i++){
-        if (dataset_uint8[i] == 1) {
+    for (int i=0; i<state->options_count; i++)
+    {
+        if (dataset_uint8[i] == 1)
+        {
             fjson_object_array_add(arr, fjson_object_new_string(state->tokens[i].name));
         }
     }
