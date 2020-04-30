@@ -33,18 +33,39 @@
 /****************************************************************************
  * INCLUDES
  ****************************************************************************/
+#include <stddef.h>
 #include "pap.h"
+
+/****************************************************************************
+ * CALLBACK FUNCTIONS
+ ****************************************************************************/
+static put_fn callback_put = NULL;
+static get_fn callback_get = NULL;
+static has_fn callback_has = NULL;
+static del_fn callback_del = NULL;
 
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
 PAP_error_e PAP_register_callbacks(put_fn put, get_fn get, has_fn has, del_fn del)
 {
+	/*
+	Plugin doesn't need to use all callbacks, so any of parrameters can be NULL.
+	Therefore, we will not check input parameters at function entry.
+	*/
+	callback_put = put;
+	callback_get = get;
+	callback_has = has;
+	callback_del = del;
 	return PAP_NO_ERROR;
 }
 
 PAP_error_e PAP_unregister_callbacks(void)
 {
+	callback_put = NULL;
+	callback_get = NULL;
+	callback_has = NULL;
+	callback_del = NULL;
 	return PAP_NO_ERROR;
 }
 
