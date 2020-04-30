@@ -50,6 +50,10 @@
 #define FALSE 0
 #endif
 
+/* If any hash function, which provides hashes longer than 256 bits, is to be used,
+this will have to be adjusted accordingly. */
+#define PAP_USER_ID_MAX_LEN 32
+
 /****************************************************************************
  * ENUMERATIONS
  ****************************************************************************/
@@ -67,9 +71,7 @@ typedef enum
 
 typedef enum
 {
-	/* Only sha-256 is supported, for now. If any hash function, which provides
-	hashes longer than 512 bits, is to be used, uint64_t type will no longer
-	be valid for policy_id variable. */
+	/* Only sha-256 is supported, for now. */
 	PAP_SHA_256
 } PAP_hash_functions_e;
 
@@ -93,7 +95,7 @@ typedef struct PAP_policy_object
 
 typedef struct policy
 {
-	uint64_t policy_ID;
+	char policy_ID[PAP_USER_ID_MAX_LEN + 1]; //Consider null character
 	PAP_policy_object_t policy_object;
 	PAP_policy_id_signature_t policy_id_signature;
 	PAP_hash_functions_e hash_function;
@@ -102,10 +104,10 @@ typedef struct policy
 /****************************************************************************
  * CALLBACKS
  ****************************************************************************/
-typedef bool (*put_fn)(uint64_t policy_id, PAP_policy_object_t policy_object, PAP_policy_id_signature_t policy_id_signature, PAP_hash_functions_e hash_fn);
-typedef bool (*get_fn)(uint64_t policy_id, PAP_policy_object_t *policy_object, PAP_policy_id_signature_t *policy_id_signature, PAP_hash_functions_e *hash_fn);
-typedef bool (*has_fn)(uint64_t policy_id);
-typedef bool (*del_fn)(uint64_t policy_id);
+typedef bool (*put_fn)(char* policy_id, PAP_policy_object_t policy_object, PAP_policy_id_signature_t policy_id_signature, PAP_hash_functions_e hash_fn);
+typedef bool (*get_fn)(char* policy_id, PAP_policy_object_t *policy_object, PAP_policy_id_signature_t *policy_id_signature, PAP_hash_functions_e *hash_fn);
+typedef bool (*has_fn)(char* policy_id);
+typedef bool (*del_fn)(char* policy_id);
 
 /****************************************************************************
  * API FUNCTIONS
@@ -140,12 +142,12 @@ PAP_error_e PAP_unregister_callbacks(void);
  *
  * @brief   Add new policy from cloud to embedded storage
  *
- * @param   policy - Policy string buffer
- * @param   policy_size - Size of the policy string buffer
+ * @param   signed_policy - Signed policy string buffer
+ * @param   signed_policy_size - Size of the signed policy string buffer
  *
  * @return  PAP_error_e error status
  */
-PAP_error_e PAP_add_policy(char *policy, int policy_size);
+PAP_error_e PAP_add_policy(char *signed_policy, int signed_policy_size);
 
 /**
  * @fn      PAP_get_policy
