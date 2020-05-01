@@ -52,7 +52,7 @@
 
 /* If any hash function, which provides hashes longer than 256 bits, is to be used,
 this will have to be adjusted accordingly. */
-#define PAP_USER_ID_MAX_LEN 32
+#define PAP_POL_ID_MAX_LEN 32
 
 /****************************************************************************
  * ENUMERATIONS
@@ -95,7 +95,7 @@ typedef struct PAP_policy_object
 
 typedef struct policy
 {
-	char policy_ID[PAP_USER_ID_MAX_LEN + 1]; //Consider null character
+	char policy_ID[PAP_POL_ID_MAX_LEN + 1]; //Consider null character
 	PAP_policy_object_t policy_object;
 	PAP_policy_id_signature_t policy_id_signature;
 	PAP_hash_functions_e hash_function;

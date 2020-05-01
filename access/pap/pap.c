@@ -91,11 +91,11 @@ PAP_error_e PAP_unregister_callbacks(void)
 
 PAP_error_e PAP_add_policy(char *signed_policy, int signed_policy_size)
 {
-	char policy_id[PAP_USER_ID_MAX_LEN + 1] = {0};
+	char policy_id[PAP_POL_ID_MAX_LEN + 1] = {0};
 	char public_key[PAP_ECDSA_PK_SIZE] = {0};
 	char *policy = NULL;
-	unsigned long long policy_size = 0;
 	int tok_num = 0;
+	unsigned long long policy_size = 0;
 	PAP_policy_object_t policy_object;
 	PAP_policy_id_signature_t policy_id_signature;
 	PAP_hash_functions_e hash_fn;
@@ -138,7 +138,7 @@ PAP_error_e PAP_add_policy(char *signed_policy, int signed_policy_size)
 		//Get policy_id
 		if (strncmp(&policy[tokens[i].start], "policy_id", strlen("policy_id")) == 0)
 		{
-			if ((tokens[i + 1].end - tokens[i + 1].start) <= PAP_USER_ID_MAX_LEN * 2)
+			if ((tokens[i + 1].end - tokens[i + 1].start) <= PAP_POL_ID_MAX_LEN * 2)
 			{
 				if (str_to_hex(&policy[tokens[i + 1].start], policy_id, (tokens[i + 1].end - tokens[i + 1].start)) != UTILS_STRING_SUCCESS)
 				{
@@ -180,6 +180,7 @@ PAP_error_e PAP_add_policy(char *signed_policy, int signed_policy_size)
 
 	//@TODO: Check what policy_id_signature should contain
 
+	//Put policy in storage
 	if (callback_put != NULL)
 	{
 		callback_put(policy_id, policy_object, policy_id_signature, hash_fn);
@@ -197,15 +198,96 @@ PAP_error_e PAP_add_policy(char *signed_policy, int signed_policy_size)
 
 PAP_error_e PAP_get_policy(char *policy_id, int policy_id_len, PAP_policy_t *policy)
 {
+	char policy_id_hex[PAP_POL_ID_MAX_LEN + 1] = {0};
+
+	//Check input parameters
+	if (policy_id == NULL || policy_id_len == 0 || policy == NULL)
+	{
+		printf("\nERROR[%s]: Bad input parameters.\n", __FUNCTION__);
+		return PAP_ERROR;
+	}
+
+	//Get policy ID hex value
+	if (str_to_hex(policy_id, policy_id_hex, policy_id_len) != UTILS_STRING_SUCCESS)
+	{
+		printf("\nERROR[%s]: Could not convert string to hex value.\n", __FUNCTION__);
+		return PAP_ERROR;
+	}
+
+	memcpy(policy->policy_ID, policy_id_hex, PAP_POL_ID_MAX_LEN + 1);
+
+	//Get policy from storage
+	if (callback_get != NULL)
+	{
+		callback_get(policy_id_hex, &(policy->policy_object), &(policy->policy_id_signature), &(policy->hash_function));
+	}
+	else
+	{
+		printf("\nERROR[%s]: Callback is not registered.\n", __FUNCTION__);
+		return PAP_ERROR;
+	}
+
 	return PAP_NO_ERROR;
 }
 
 bool PAP_has_policy(char *policy_id, int policy_id_len)
 {
-	return FALSE;
+	char policy_id_hex[PAP_POL_ID_MAX_LEN + 1] = {0};
+
+	//Check input parameters
+	if (policy_id == NULL || policy_id_len == 0)
+	{
+		printf("\nERROR[%s]: Bad input parameters.\n", __FUNCTION__);
+		return FALSE;
+	}
+
+	//Get policy ID hex value
+	if (str_to_hex(policy_id, policy_id_hex, policy_id_len) != UTILS_STRING_SUCCESS)
+	{
+		printf("\nERROR[%s]: Could not convert string to hex value.\n", __FUNCTION__);
+		return FALSE;
+	}
+
+	//Check if policy is already in the storage
+	if (callback_has != NULL)
+	{
+		return callback_has(policy_id_hex);
+	}
+	else
+	{
+		printf("\nERROR[%s]: Callback is not registered.\n", __FUNCTION__);
+		return FALSE;
+	}
 }
 
 PAP_error_e PAP_remove_policy(char *policy_id, int policy_id_len)
 {
+	char policy_id_hex[PAP_POL_ID_MAX_LEN + 1] = {0};
+
+	//Check input parameters
+	if (policy_id == NULL || policy_id_len == 0)
+	{
+		printf("\nERROR[%s]: Bad input parameters.\n", __FUNCTION__);
+		return PAP_ERROR;
+	}
+
+	//Get policy ID hex value
+	if (str_to_hex(policy_id, policy_id_hex, policy_id_len) != UTILS_STRING_SUCCESS)
+	{
+		printf("\nERROR[%s]: Could not convert string to hex value.\n", __FUNCTION__);
+		return PAP_ERROR;
+	}
+
+	//Delete policy from storage
+	if (callback_del != NULL)
+	{
+		callback_del(policy_id_hex);
+	}
+	else
+	{
+		printf("\nERROR[%s]: Callback is not registered.\n", __FUNCTION__);
+		return PAP_ERROR;
+	}
+
 	return PAP_NO_ERROR;
 }
