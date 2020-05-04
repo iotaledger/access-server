@@ -54,6 +54,10 @@
 this will have to be adjusted accordingly. */
 #define PAP_POL_ID_MAX_LEN 32
 
+#define PAP_PUBLIC_KEY_LEN 32
+#define PAP_PRIVATE_KEY_LEN 64
+#define PAP_SIGNATURE_LEN 64
+
 /****************************************************************************
  * ENUMERATIONS
  ****************************************************************************/
@@ -81,10 +85,8 @@ typedef enum
 typedef struct policy_id_signature
 {
 	PAP_signature_algorithm_e signature_algorithm;
-	char *signature;
-	int signature_len;
-	char *public_key;
-	int public_key_len;
+	char signature[PAP_SIGNATURE_LEN];
+	char public_key[PAP_PUBLIC_KEY_LEN];
 } PAP_policy_id_signature_t;
 
 typedef struct PAP_policy_object
@@ -112,6 +114,28 @@ typedef bool (*del_fn)(char* policy_id);
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
+/**
+ * @fn      PAP_init
+ *
+ * @brief   Initialize module
+ *
+ * @param   void
+ *
+ * @return  PAP_error_e error status
+ */
+PAP_error_e PAP_init(void);
+
+/**
+ * @fn      PAP_term
+ *
+ * @brief   Terminate module
+ *
+ * @param   void
+ *
+ * @return  PAP_error_e error status
+ */
+PAP_error_e PAP_term(void);
+
 /**
  * @fn      PAP_register_callbacks
  *
