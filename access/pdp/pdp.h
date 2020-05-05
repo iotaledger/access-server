@@ -23,67 +23,101 @@
  * \brief
  * Implementation of Policy Decision Point
  *
- * @Author Dejan Nedic
+ * @Author Dejan Nedic, Strahinja Golic
  *
  * \notes
  *
  * \history
  * 04.09.2018. Initial version.
+ * 05.05.2020. Refactoring
  ****************************************************************************/
+#ifndef _PDP_H_
+#define _PDP_H_
 
-#include "utility.h"
-#include "policystore.h"
-
-#define GAP      (0)
-#define GRANT    (1)
-#define DENY     (2)
-#define CONFLICT (3)
+/****************************************************************************
+ * MACROS
+ ****************************************************************************/
+#define PDP_GAP      (0)
+#define PDP_GRANT    (1)
+#define PDP_DENY     (2)
+#define PDP_CONFLICT (3)
 #ifndef FALSE
 #define FALSE    (0)
 #endif
 #ifndef TRUE
 #define TRUE     (1)
 #endif
-#define ERROR    (666)
+#define PDP_ERROR_RET    (666)
 
-#define OBLIGATION_LEN (15)
+#define PDP_OBLIGATION_LEN (15)
 
-typedef enum operation {
-   AND, OR, NOT, EQ, LEQ, GEQ, UNDEFINED, LT, GT, IF
-} operation_t;
+/****************************************************************************
+ * ENUMERATIONS
+ ****************************************************************************/
+typedef enum
+{
+	AND,
+	OR,
+	NOT,
+	EQ,
+	LEQ,
+	GEQ,
+	UNDEFINED,
+	LT,
+	GT,
+	IF
+} PDP_operation_e;
 
-typedef enum type {
-    STRING, NUMBER, TIME, BOOLEAN, UNKNOWN
-} type_t;
+typedef enum
+{
+	STRING,
+	NUMBER,
+	TIME,
+	BOOLEAN,
+	UNKNOWN
+} PDP_type_e;
 
-typedef enum pdp_decision {
+typedef enum
+{
 	PDP_ERROR = -1,
 	PDP_GAP = 0,
 	PDP_GRANT = 1,
 	PDP_DENY = 2,
 	PDP_CONFLICT = 3
-} pdp_decision_t;
+} PDP_decision_e;
 
-typedef struct attribute_value {
-    type_t type;
+/****************************************************************************
+ * TYPES
+ ****************************************************************************/
+typedef struct attribute_value
+{
+    PDP_type_e type;
     void *value;
     int size;
-} attribute_value_t;
+} PDP_attribute_value_t;
 
-typedef struct action {
+typedef struct action
+{
 	unsigned long start_time;
 	unsigned long stop_time;
 	char* value;
-} action_t;
+} PDP_action_t;
 
+/****************************************************************************
+ * API FUNCTIONS
+ ****************************************************************************/
 /**
- * @fn      pdp_decision pdp_calculate_decision(policy_t *pol)
+ * @fn      PDP_calculate_decision
  *
  * @brief   Function that computes decision for PEP
  *
- * @param   pol	policy
+ * @param   request_norm - Normalized request from user
+ * @param   obligation - Obligation buffer
+ * @param   action - Action data
  *
  * @return  pdp_decision decision made
  */
 //TODO: obligations should be linked list of the elements of the 'obligation_s' structure type
-pdp_decision_t pdp_calculate_decision(policy_t *pol, char *obligation, action_t *action);
+PDP_decision_e PDP_calculate_decision(char *request_norm, char *obligation, PDP_action_t *action);
+
+#endif //_PDP_H_

@@ -23,7 +23,7 @@
  * \brief
  * Implementation of Policy Decision Point
  *
- * @Author Dejan Nedic, Milivoje Knezevic
+ * @Author Dejan Nedic, Milivoje Knezevic, Strahinja Golic
  *
  *
  * \notes
@@ -32,26 +32,44 @@
  * 04.09.2018. Initial version.
  * 09.11.2018 Modified to work together with PIP module
  * 21.02.2020. Added obligations functionality.
+ * 05.05.20200 Refactoring
  ****************************************************************************/
 
+/****************************************************************************
+ * INCLUDES
+ ****************************************************************************/
 #include "pdp.h"
 #include "json_parser.h"
 #include "Dlog.h"
 #include "pip.h"
+#include "pap.h"
 
-#define DATA_VAL_SIZE 131
-#define DATA_TYPE_SIZE 21
-#define STRTOUL_BASE 10
+/****************************************************************************
+ * MACROS
+ ****************************************************************************/
+#define PDP_DATA_VAL_SIZE 131
+#define PDP_DATA_TYPE_SIZE 21
+#define PDP_STRTOUL_BASE 10
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/* If any hash function, which provides hashes longer than 256 bits, is to be used,
+this will have to be adjusted accordingly. */
+#define PDP_POL_ID_MAX_LEN 32
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
-int resolve_attribute(policy_t *pol, int atribute_position);
+/****************************************************************************
+ * LOCAL FUNCTIONS DECLARATION
+ ****************************************************************************/
+static int resolve_attribute(policy_t *pol, int atribute_position);
 
-char data_value[DATA_VAL_SIZE];
-char data_type[DATA_TYPE_SIZE];
+/****************************************************************************
+ * GLOBAL VARIABLES
+ ****************************************************************************/
+static char data_value[PDP_DATA_VAL_SIZE];
+static char data_type[PDP_DATA_TYPE_SIZE];
 
-operation_t get_operation_new(const char *operation, int size)
+/****************************************************************************
+ * LOCAL FUNCTIONS DEFINITION
+ ****************************************************************************/
+static operation_t get_operation_new(const char *operation, int size)
 {
 	operation_t ret = UNDEFINED;
 
@@ -83,7 +101,7 @@ operation_t get_operation_new(const char *operation, int size)
 	return ret;
 }
 
-int and(policy_t *pol, int attribute_list)
+static int and(policy_t *pol, int attribute_list)
 {
 	int decision = TRUE;
 
@@ -114,7 +132,7 @@ int and(policy_t *pol, int attribute_list)
 	return decision;
 }
 
-int or(policy_t *pol, int attribute_list)
+static int or(policy_t *pol, int attribute_list)
 {
 	int decision = FALSE;
 
@@ -145,7 +163,7 @@ int or(policy_t *pol, int attribute_list)
 	return decision;
 }
 
-int eq(policy_t *pol, int attribute_list)
+static int eq(policy_t *pol, int attribute_list)
 {
 	int ret = FALSE;
 
@@ -169,7 +187,7 @@ int eq(policy_t *pol, int attribute_list)
 
 	int data_length = 0;
 
-	data_value[DATA_VAL_SIZE - 1] = '\0';
+	data_value[PDP_DATA_VAL_SIZE - 1] = '\0';
 	data_length = pip_get_data(pol, url_value, data_value, url_size);
 
 	if(data_length == -1)
@@ -180,7 +198,7 @@ int eq(policy_t *pol, int attribute_list)
 
 	int type_length = 0;
 
-	data_type[DATA_TYPE_SIZE - 1] = '\0';
+	data_type[PDP_DATA_TYPE_SIZE - 1] = '\0';
 	type_length = pip_get_data(pol, url_type, data_type, url_sizet);
 
 	if(type_length == -1)
@@ -223,7 +241,7 @@ int eq(policy_t *pol, int attribute_list)
 	return ret;
 }
 
-int leq(policy_t *pol, int attribute_list)
+static int leq(policy_t *pol, int attribute_list)
 {
 	int ret = FALSE;
 
@@ -247,7 +265,7 @@ int leq(policy_t *pol, int attribute_list)
 
 	int data_length = 0;
 
-	data_value[DATA_VAL_SIZE - 1] = '\0';
+	data_value[PDP_DATA_VAL_SIZE - 1] = '\0';
 	data_length = pip_get_data(pol, url_value, data_value, url_size);
 
 
@@ -261,7 +279,7 @@ int leq(policy_t *pol, int attribute_list)
 	int type_length = 0;
 
 
-	data_type[DATA_TYPE_SIZE - 1] = '\0';
+	data_type[PDP_DATA_TYPE_SIZE - 1] = '\0';
 	type_length = pip_get_data(pol, url_type,data_type,url_sizet);
 
 
@@ -306,7 +324,7 @@ int leq(policy_t *pol, int attribute_list)
 	return ret;
 }
 
-int lt(policy_t *pol, int attribute_list)
+static int lt(policy_t *pol, int attribute_list)
 {
 	int ret = FALSE;
 
@@ -330,7 +348,7 @@ int lt(policy_t *pol, int attribute_list)
 
 	int data_length = 0;
 
-	data_value[DATA_VAL_SIZE - 1] = '\0';
+	data_value[PDP_DATA_VAL_SIZE - 1] = '\0';
 	data_length = pip_get_data(pol, url_value, data_value, url_size);
 
 
@@ -344,7 +362,7 @@ int lt(policy_t *pol, int attribute_list)
 	int type_length = 0;
 
 
-	data_type[DATA_TYPE_SIZE - 1] = '\0';
+	data_type[PDP_DATA_TYPE_SIZE - 1] = '\0';
 	type_length = pip_get_data(pol, url_type,data_type,url_sizet);
 
 
@@ -389,7 +407,7 @@ int lt(policy_t *pol, int attribute_list)
 	return ret;
 }
 
-int geq(policy_t *pol, int attribute_list)
+static int geq(policy_t *pol, int attribute_list)
 {
 	int ret = FALSE;
 
@@ -413,7 +431,7 @@ int geq(policy_t *pol, int attribute_list)
 
 	int data_length = 0;
 
-	data_value[DATA_VAL_SIZE - 1] = '\0';
+	data_value[PDP_DATA_VAL_SIZE - 1] = '\0';
 	data_length = pip_get_data(pol, url_value, data_value, url_size);
 
 
@@ -427,7 +445,7 @@ int geq(policy_t *pol, int attribute_list)
 	int type_length = 0;
 
 
-	data_type[DATA_TYPE_SIZE - 1] = '\0';
+	data_type[PDP_DATA_TYPE_SIZE - 1] = '\0';
 	type_length = pip_get_data(pol, url_type,data_type,url_sizet);
 
 
@@ -472,7 +490,7 @@ int geq(policy_t *pol, int attribute_list)
 	return ret;
 }
 
-int gt(policy_t *pol, int attribute_list)
+static int gt(policy_t *pol, int attribute_list)
 {
 	int ret = FALSE;
 
@@ -496,7 +514,7 @@ int gt(policy_t *pol, int attribute_list)
 
 	int data_length = 0;
 
-	data_value[DATA_VAL_SIZE - 1] = '\0';
+	data_value[PDP_DATA_VAL_SIZE - 1] = '\0';
 	data_length = pip_get_data(pol, url_value,data_value, url_size);
 
 
@@ -510,7 +528,7 @@ int gt(policy_t *pol, int attribute_list)
 	int type_length = 0;
 
 
-	data_type[DATA_TYPE_SIZE - 1] = '\0';
+	data_type[PDP_DATA_TYPE_SIZE - 1] = '\0';
 	type_length = pip_get_data(pol, url_type,data_type,url_sizet);
 
 
@@ -555,7 +573,7 @@ int gt(policy_t *pol, int attribute_list)
 	return ret;
 }
 
-void get_time_from_attr(policy_t *pol, int atribute_position, operation_t attr_operation, unsigned long *start_time, unsigned long *end_time)
+static void get_time_from_attr(policy_t *pol, int atribute_position, operation_t attr_operation, unsigned long *start_time, unsigned long *end_time)
 {
 	if(pol == NULL)
 	{
@@ -628,28 +646,28 @@ void get_time_from_attr(policy_t *pol, int atribute_position, operation_t attr_o
 				{
 					case EQ:
 					{
-						*start_time = strtoul(val_str, NULL, STRTOUL_BASE);
+						*start_time = strtoul(val_str, NULL, PDP_STRTOUL_BASE);
 						*end_time = *start_time;
 						break;
 					}
 					case LEQ:
 					{
-						*end_time = strtoul(val_str, NULL, STRTOUL_BASE);
+						*end_time = strtoul(val_str, NULL, PDP_STRTOUL_BASE);
 						break;
 					}
 					case GEQ:
 					{
-						*start_time = strtoul(val_str, NULL, STRTOUL_BASE);
+						*start_time = strtoul(val_str, NULL, PDP_STRTOUL_BASE);
 						break;
 					}
 					case LT:
 					{
-						*end_time = strtoul(val_str, NULL, STRTOUL_BASE) - 1; // Must be less then value
+						*end_time = strtoul(val_str, NULL, PDP_STRTOUL_BASE) - 1; // Must be less then value
 						break;
 					}
 					case GT:
 					{
-						*start_time = strtoul(val_str, NULL, STRTOUL_BASE) + 1; // Must be greater then value
+						*start_time = strtoul(val_str, NULL, PDP_STRTOUL_BASE) + 1; // Must be greater then value
 						break;
 					}
 					default:
@@ -664,7 +682,7 @@ void get_time_from_attr(policy_t *pol, int atribute_position, operation_t attr_o
 	}
 }
 
-int resolve_attribute(policy_t *pol, int atribute_position)
+static int resolve_attribute(policy_t *pol, int atribute_position)
 {
 	int ret = -1;
 	operation_t opt;
@@ -770,9 +788,9 @@ int resolve_attribute(policy_t *pol, int atribute_position)
 	return ret;
 }
 
-int get_obligation(policy_t *pol, int obl_position, char *obligation)
+static int get_obligation(policy_t *pol, int obl_position, char *obligation)
 {
-	int ret = PDP_ERROR;
+	int ret = PDP_ERROR_RET;
 	
 	int type = json_get_token_index_from_pos(pol->policy_c, obl_position, "type");
 	if((type != -1) && (get_start_of_token(type) < get_end_of_token(obl_position)))// Check only type within this json object
@@ -804,9 +822,9 @@ int get_obligation(policy_t *pol, int obl_position, char *obligation)
 }
 
 //TODO: obligations should be linked list of the elements of the 'obligation_s' structure type
-int resolve_obligation(policy_t *pol, int obl_position, char *obligation)
+static int resolve_obligation(policy_t *pol, int obl_position, char *obligation)
 {
-	int ret = PDP_ERROR;
+	int ret = PDP_ERROR_RET;
 	int operation = -1;
 	int attribute_list = -1;
 	int operation_start = -1;
@@ -878,35 +896,46 @@ int resolve_obligation(policy_t *pol, int obl_position, char *obligation)
 	return ret;
 }
 
+/****************************************************************************
+ * API FUNCTIONS
+ ****************************************************************************/
 //TODO: obligations should be linked list of the elements of the 'obligation_s' structure type
-pdp_decision_t pdp_calculate_decision(policy_t *pol, char *obligation, action_t *action)
+PDP_decision_e PDP_calculate_decision(char *request_norm, char *obligation, PDP_action_t *action)
 {
-	int ret = PDP_ERROR;
+	int request_policy_id = -1;
+	int size = -1;
+	PDP_decision_e ret = PDP_ERROR;
+	PAP_policy_t policy;
+	policy_t pol;
 
-	if(pol == NULL)
+	//Check input parameters
+	if(request_norm == NULL || obligation == NULL || action == NULL || action->value == NULL)
 	{
-		Dlog_printf("\n\nERROR[%s]: Unknown policy\n\n",__FUNCTION__);
-		return ret;
-	}
-	
-	if(obligation == NULL)
-	{
-		Dlog_printf("\n\nERROR[%s]: Invalid obligation buffer\n\n",__FUNCTION__);
-		return ret;
-	}
-
-	if(action == NULL || action->value == NULL)
-	{
-		Dlog_printf("\n\nERROR[%s]: Invalid action buffer\n\n",__FUNCTION__);
+		Dlog_printf("\n\nERROR[%s]: Invalid input parameters\n\n",__FUNCTION__);
 		return ret;
 	}
 
-	json_parser_init(pol->policy_c);
+	//Get policy ID from request
+	json_parser_init(request_norm);
+	request_policy_id = json_get_value(request_norm, 0, "policy_id");
+	size = get_size_of_token(request_policy_id);
 
-	int policy_goc = json_get_token_index(pol->policy_c, "policy_goc");//json_get_value(pol->policy_c, 0, "policy_goc");
-	int policy_doc = json_get_token_index(pol->policy_c, "policy_doc");//json_get_value(pol->policy_c, 0, "policy_doc");
-	int policy_gobl = json_get_token_index(pol->policy_c, "obligation_grant");
-	int policy_dobl = json_get_token_index(pol->policy_c, "obligation_deny");
+	//Get policy from PAP
+	if (PAP_get_policy(request_norm + get_start_of_token(request_policy_id), size, &policy) == PAP_ERROR)
+	{
+		Dlog_printf("\nERROR[%s]: Could not get the policy.\n", __FUNCTION__);
+		return PDP_ERROR;
+	}
+
+	pol.policy_c = policy.policy_object.policy_object;
+
+	//Get circuits
+	json_parser_init(pol.policy_c);
+
+	int policy_goc = json_get_token_index(pol.policy_c, "policy_goc");
+	int policy_doc = json_get_token_index(pol.policy_c, "policy_doc");
+	int policy_gobl = json_get_token_index(pol.policy_c, "obligation_grant");
+	int policy_dobl = json_get_token_index(pol.policy_c, "obligation_deny");
 
 	if(policy_goc == -1)
 	{
@@ -928,31 +957,33 @@ pdp_decision_t pdp_calculate_decision(policy_t *pol, char *obligation, action_t 
 		Dlog_printf("\nOBLIGATION obligation_deny IS NULL\n");
 	}
 
-	int pol_goc = resolve_attribute(pol, policy_goc);
-	int pol_doc = resolve_attribute(pol, policy_doc);
+	//Resolve attributes
+	int pol_goc = resolve_attribute(&pol, policy_goc);
+	int pol_doc = resolve_attribute(&pol, policy_doc);
 
-
+	//Calculate decision
 	ret = pol_goc + 2 * pol_doc;  // => (0, 1, 2, 3) <=> (gap, grant, deny, conflict)
 	
-	if(ret == GRANT)
+	if(ret == PDP_GRANT)
 	{
+		//Get action
 		//FIXME: Should action be taken for deny case also?
 		int number_of_tokens = get_token_num();
-		get_action(action->value, pol->policy_c, number_of_tokens);
+		get_action(action->value, pol.policy_c, number_of_tokens);
 		action->start_time = 0;
 		action->stop_time = 0;
-		get_time_from_attr(pol, policy_goc, UNDEFINED, &(action->start_time), &(action->stop_time));
+		get_time_from_attr(&pol, policy_goc, UNDEFINED, &(action->start_time), &(action->stop_time));
 		
 		if(policy_gobl >= 0)
 		{
-			resolve_obligation(pol, policy_gobl, obligation);
+			resolve_obligation(&pol, policy_gobl, obligation);
 		}
 	}
-	else if(ret == DENY)
+	else if(ret == PDP_DENY)
 	{
 		if(policy_dobl >= 0)
 		{
-			resolve_obligation(pol, policy_dobl, obligation);
+			resolve_obligation(&pol, policy_dobl, obligation);
 		}
 	}
 
