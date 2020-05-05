@@ -38,6 +38,10 @@
 #include <string.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
 #include "pap.h"
 #include "jsmn.h"
 #include "utils_string.h"
@@ -53,6 +57,11 @@
 #define PAP_ASCII_TAB 9
 #define PAP_ASCII_CR 13
 #define PAP_ASCII_LF 10
+#define PAP_SERVER_IP "127.0.0.1" //TODO: Set server IP
+#define PAP_PORT 9998
+#define PAP_PK_REQUEST "get_private_key"
+#define PAP_PK_REQUEST_LEN strlen("get_private_key")
+#define PAP_WAIT_TIME_S 10
 
 #define PAP_CHECK_WHITESPACE(x) ((x == PAP_ASCII_SPACE) || (x == PAP_ASCII_TAB) || (x == PAP_ASCII_CR) || (x == PAP_ASCII_LF) ? TRUE : FALSE)
 
@@ -76,7 +85,62 @@ static del_fn callback_del = NULL;
  ****************************************************************************/
 static void get_public_key_from_user(char *pk)
 {
-	//@TODO: poll user to acquire public key directly from it's creator
+	int wait = PAP_WAIT_TIME_S;
+	int sockfd = 0;
+	struct sockaddr_in serv_addr;
+
+	//Check input parameter
+	if (pk == NULL)
+	{
+		printf("\nERROR[%s]: Bad input parameters.\n", __FUNCTION__);
+		return;
+	}
+
+	//Create socket
+	sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if (sockfd < 0)
+	{
+		printf("\nERROR[%s]: Socket creating failed.\n", __FUNCTION__);
+		return;
+	}
+
+	memset(&serv_addr, '0', sizeof(serv_addr));
+
+	serv_addr.sin_family = AF_INET;
+	serv_addr.sin_port = htons(PAP_PORT);
+
+	if (inet_pton(AF_INET, PAP_SERVER_IP, &serv_addr.sin_addr) <= 0)
+	{
+		printf("\nERROR[%s]: inet_pton failed.\n", __FUNCTION__);
+		return;
+	}
+
+	//Connect to socket
+	if (connect(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
+	{
+		printf("\nERROR[%s]: Connection failed.\n", __FUNCTION__);
+		return;
+	}
+
+	while (wait)
+	{
+		//Request public key
+		write(sockfd, PAP_PK_REQUEST, PAP_PK_REQUEST_LEN);
+
+		//Read the response
+		read(sockfd, pk, PAP_PUBLIC_KEY_LEN);
+
+		//If no response is received, wait for 1s, then, try another request
+		if (pk == NULL)
+		{
+			wait--;
+			sleep(1);
+		}
+		else
+		{
+			wait = 0;
+		}
+	}
 }
 
 static int normalize_JSON_object(char *json_object, int object_len, char **json_object_normalized)
