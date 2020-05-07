@@ -23,239 +23,189 @@
  * \brief
  * Implementation of Policy Information Point
  *
- * @Author Milivoje Knezevic
+ * @Author Milivoje Knezevic, Strahinja Golic
  *
  * \notes
  *
  * \history
  * 12.10.2018. Initial version.
- * 09.11.2018 Updated to parse request sent from PDP module
+ * 09.11.2018. Updated to parse request sent from PDP module
+ * 07.05.2020. Refactoring
  ****************************************************************************/
 
+/****************************************************************************
+ * INCLUDES
+ ****************************************************************************/
+#include <stdio.h>
+#include <stddef.h>
 #include <string.h>
-
+#include <pthread.h>
 #include "pip.h"
-#include "pip_internal.h"
-#include "time_manager.h"
 
-#include "Dlog.h"
+/****************************************************************************
+ * MACROS
+ ****************************************************************************/
+#define PIP_DELIMITER_LEN 2
 
-#define MAX_BUF_SIZE 131
+/****************************************************************************
+ * GLOBAL VARIABLES
+ ****************************************************************************/
+static pthread_mutex_t pip_mutex;
 
-unsigned char lockState = 0;
-unsigned char trunkState = 0;
+/****************************************************************************
+ * CALLBACK FUNCTIONS
+ ****************************************************************************/
+static fetch_fn callback_fetch[PIP_MAX_AUTH_CALLBACKS] = {0};
 
-
-static int fetch_data(policy_t *pol, pip_data_id_t data_id, char *data)
+/****************************************************************************
+ * API FUNCTIONS
+ ****************************************************************************/
+PIP_error_e PIP_init(void)
 {
-	int n = 0;
-	switch (data_id)
+	//Initalize mutex
+	if (pthread_mutex_init(&pip_mutex, NULL) != 0)
 	{
-		case PIP_DOOR_ID:
-		{
-			if(lockState == 0x00)
-			{
-				n = PIP_TRUE;
-				strcpy(data, "true");
-			}
-			else if(lockState == 0x01)
-			{
-				n = PIP_FALSE;
-				strcpy(data, "false");
-			}
-			else
-			{
-				n = PIP_ERROR;
-			}
-			break;
-		}
-		case PIP_TRUNK_ID:
-		{
-			if(trunkState == 0x00)
-			{
-				n = PIP_TRUE;
-				strcpy(data, "true");
-			}
-			else if(trunkState == 0x01)
-			{
-				n = PIP_FALSE;
-				strcpy(data, "false");
-			}
-			else
-			{
-				n = PIP_ERROR;
-			}
-			break;
-		}
-		case PIP_TIME_ID:
-		{
-			char buffer[MAX_NUMBER_OF_DIGITS + 1];
-			unsigned long time = getEpochTime();
-			n = sprintf(buffer, "%lu", time);
-			if(n < 0)
-			{
-				n = PIP_ERROR;
-			}
-			else
-			{
-				strcpy(data, buffer);
-			}
-			break;
-		}
-		case PIP_VEHICLE_ID_ID:
-		{
-			strcpy(data, (char *) (vehicleID ));
-			n = strlen(data);
-			break;
-
-		}
-		case PIP_EXECUTION_NUM_ID:
-		{
-			sprintf(data, "%d", pol->num_of_executions);
-			n = strlen(data);
-			break;
-		}
-		default:
-		{
-			n = PIP_ERROR;
-		}
-
+		printf("\nERROR[%s]: Mutex init failed.\n", __FUNCTION__);
+		return PIP_ERROR;
 	}
 
-	return  n;
+	return PIP_NO_ERROR;
 }
 
-int pip_get_data(policy_t *pol, char *request, char *data, int length)
+PIP_error_e PIP_term(void)
 {
-	char dot[] = ".";
-	char temp[MAX_BUF_SIZE];
+	//Destroy mutex
+	pthread_mutex_destroy(&pip_mutex);
 
-	if(pol == NULL || request == NULL || data == NULL)
-	{
-		Dlog_printf("\n\nERROR[%s] - Invalid input parameter\n\n",__FUNCTION__);
-		return -1;
-	}
-
-	memcpy(temp,request,length);
-	char * ptr  = strtok(temp,dot);
-
-	if(ptr == NULL)
-	{
-		Dlog_printf("\n\nERROR[%s] - Tokenisation failed\n\n",__FUNCTION__);
-		return -1;
-	}
-
-	int ret = -1;
-
-    if(memcmp(ptr,"request",strlen("request")) == 0)
-    {
-    	ptr = strtok(NULL, dot);
-		if(memcmp(ptr,"subject",strlen("subject")) == 0)
-    	{
-			ptr = strtok(NULL, dot);
-			//TODO: change this later
-			ret = -2;
-			//TODO: implement pip module with support for request for subject
-			if(memcmp(ptr, "value", strlen("value")) == 0)
-			{
-
-			}
-			else if(memcmp(ptr, "type", strlen("type")) == 0)
-			{
-
-			}
-			else
-			{
-
-			}
-
-    	}
-		else if(memcmp(ptr,"object",strlen("object")) == 0)
-    	{
-    		ptr = strtok(NULL, dot);
-
-			if (memcmp (ptr, "value", strlen("value")) == 0)
-			{
-				ret = fetch_data(pol, PIP_VEHICLE_ID_ID, data);
-			}
-			else if (memcmp (ptr, "type", strlen("type")) == 0)
-			{
-				strcpy(data, PIP_PUBLIC_ID_TYPE_STR);
-				ret = strlen(data);
-			}
-			else
-			{
-				ret = -1;
-			}
-    	}
-		else if(memcmp(ptr, PIP_TIME_TYPE_STR, strlen(PIP_TIME_TYPE_STR)) == 0)
-    	{
-    		ptr = strtok(NULL, dot);
-			if (memcmp ( ptr, "value", strlen("value")) == 0)
-			{
-				ret = fetch_data(pol, PIP_TIME_ID, data);
-			}
-			else if (memcmp(ptr, "type", strlen("type")) == 0)
-			{
-				strcpy(data, PIP_TIME_TYPE_STR);
-				ret = strlen(data);
-			}
-			else
-			{
-				Dlog_printf("Invalid request for time\n");
-				ret = -1;
-			}
-    	}
-		else if (memcmp(ptr, PIP_EXECUTION_NUM_STR, strlen(PIP_EXECUTION_NUM_STR)) == 0)
-    	{
-    		ptr = strtok(NULL, dot);
-			if (memcmp(ptr, "value", strlen("value")) == 0)
-			{
-				ret = fetch_data(pol, PIP_EXECUTION_NUM_ID, data);
-			}
-			else if (memcmp(ptr, "type", strlen("type")) == 0)
-			{
-				strcpy(data, PIP_EXECUTION_NUM_STR);
-				ret = strlen(data);
-			}
-			else
-			{
-				Dlog_printf("Invalid request for number of executions\n");
-				ret = -1;
-			}
-    	}
-		else if(strcmp(ptr,"action") == 0)
-    	{
-    		Dlog_printf("It is: %s\n",ptr);
-    		ptr = strtok(NULL, dot);
-    		//TODO: implement pip module with support for request for action
-			if(strcmp(ptr,"value")==0)
-			{
-
-			}
-			else if(strcmp(ptr,"type")==0)
-			{
-
-			}
-			else
-			{
-
-			}
-    	}
-    	else
-    	{
-    		Dlog_printf("invalid request type\n");
-    		ret = -1;
-    	}
-    }
-    else
-    {
-    	ret = -1;
-    }
-
-    return ret;
-
+	return PIP_NO_ERROR;
 }
 
+PIP_error_e PIP_register_callback(PIP_authorities_e authority, fetch_fn fetch)
+{
+	pthread_mutex_lock(&pip_mutex);
 
+	//Check input parameters
+	if (fetch == NULL)
+	{
+		printf("\nERROR[%s]: Bad input parameter.\n", __FUNCTION__);
+		pthread_mutex_unlock(&pip_mutex);
+		return PIP_ERROR;
+	}
 
+	if (authority > PIP_MAX_AUTH_CALLBACKS)
+	{
+		printf("\nERROR[%s]: Non existing authority.\n", __FUNCTION__);
+		pthread_mutex_unlock(&pip_mutex);
+		return PIP_ERROR;
+	}
+
+	//Register callback
+	if (callback_fetch[authority] == NULL)
+	{
+		callback_fetch[authority] = fetch;
+	}
+	else
+	{
+		printf("\nERROR[%s]: Callback is already registered.\n", __FUNCTION__);
+		pthread_mutex_unlock(&pip_mutex);
+		return PIP_ERROR;
+	}
+
+	pthread_mutex_unlock(&pip_mutex);
+	return PIP_NO_ERROR;
+}
+
+PIP_error_e PIP_unregister_callback(PIP_authorities_e authority)
+{
+	pthread_mutex_lock(&pip_mutex);
+
+	//Check input parameters
+	if (authority > PIP_MAX_AUTH_CALLBACKS)
+	{
+		printf("\nERROR[%s]: Non existing authority.\n", __FUNCTION__);
+		pthread_mutex_unlock(&pip_mutex);
+		return PIP_ERROR;
+	}
+
+	//Unregister callback
+	callback_fetch[authority] = NULL;
+
+	pthread_mutex_unlock(&pip_mutex);
+	return PIP_NO_ERROR;
+}
+
+PIP_error_e PIP_unregister_all_callbacks(void)
+{
+	pthread_mutex_lock(&pip_mutex);
+
+	for (int i = 0; i < PIP_MAX_AUTH_CALLBACKS; i++)
+	{
+		//Unregister callback
+		callback_fetch[i] = NULL;
+	}
+
+	pthread_mutex_unlock(&pip_mutex);
+
+	return PIP_NO_ERROR;
+}
+
+PIP_error_e PIP_get_data(char* uri, PIP_attribute_object_t* attribute)
+{
+	char delimiter[PIP_DELIMITER_LEN] = ":";
+	char temp[PIP_MAX_STR_LEN];
+	char *ptr = NULL;
+	PIP_authorities_e authority;
+
+	pthread_mutex_lock(&pip_mutex);
+
+	//Check input parameters
+	if (uri == NULL || attribute == NULL)
+	{
+		printf("\nERROR[%s]: Bad input parameter.\n", __FUNCTION__);
+		pthread_mutex_unlock(&pip_mutex);
+		return PIP_ERROR;
+	}
+
+	/* 
+	   URI format looks like: authority:policy_id/type?value
+	   By parssing URI, authority can be obtained	
+	 */
+	if (strlen(uri) > PIP_MAX_STR_LEN)
+	{
+		printf("\nERROR[%s]: URI too long.\n", __FUNCTION__);
+		pthread_mutex_unlock(&pip_mutex);
+		return PIP_ERROR;
+	}
+	else
+	{
+		memcpy(temp, uri, strlen(uri));
+	}
+
+	ptr  = strtok(temp, delimiter);
+
+	if (memcmp(ptr, "iota", strlen("iota")) == 0) //Only supported authority for now
+	{
+		authority = PIP_IOTA;
+	}
+	else
+	{
+		printf("\nERROR[%s]: Non existing authority.\n", __FUNCTION__);
+		pthread_mutex_unlock(&pip_mutex);
+		return PIP_ERROR;
+	}
+
+	//Fetch attribute from plugin
+	if (callback_fetch[authority] != NULL)
+	{
+		callback_fetch[authority](uri, attribute);
+	}
+	else
+	{
+		printf("\nERROR[%s]: Callback not registered.\n", __FUNCTION__);
+		pthread_mutex_unlock(&pip_mutex);
+		return PIP_ERROR;
+	}
+
+	pthread_mutex_unlock(&pip_mutex);
+	return PIP_NO_ERROR;
+}

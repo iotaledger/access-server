@@ -208,12 +208,16 @@ PAP_error_e PAP_init(void)
 		printf("\nERROR[%s]: Mutex init failed.\n", __FUNCTION__);
 		return PAP_ERROR;
 	}
+
+	return PAP_NO_ERROR;
 }
 
 PAP_error_e PAP_term(void)
 {
 	//Destroy mutex
 	pthread_mutex_destroy(&pap_mutex);
+
+	return PAP_NO_ERROR;
 }
 
 PAP_error_e PAP_register_callbacks(put_fn put, get_fn get, has_fn has, del_fn del)
