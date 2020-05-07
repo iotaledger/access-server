@@ -37,10 +37,6 @@
 /****************************************************************************
  * MACROS
  ****************************************************************************/
-#define PDP_GAP      (0)
-#define PDP_GRANT    (1)
-#define PDP_DENY     (2)
-#define PDP_CONFLICT (3)
 #ifndef FALSE
 #define FALSE    (0)
 #endif

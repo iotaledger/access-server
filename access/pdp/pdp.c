@@ -38,6 +38,8 @@
 /****************************************************************************
  * INCLUDES
  ****************************************************************************/
+#include <string.h>
+#include <stdlib.h>
 #include "pdp.h"
 #include "json_parser.h"
 #include "Dlog.h"
@@ -69,9 +71,9 @@ static char data_type[PDP_DATA_TYPE_SIZE];
 /****************************************************************************
  * LOCAL FUNCTIONS DEFINITION
  ****************************************************************************/
-static operation_t get_operation_new(const char *operation, int size)
+static PDP_operation_e get_operation_new(const char *operation, int size)
 {
-	operation_t ret = UNDEFINED;
+	PDP_operation_e ret = UNDEFINED;
 
 	if (size == 2)
 	{
@@ -573,7 +575,7 @@ static int gt(policy_t *pol, int attribute_list)
 	return ret;
 }
 
-static void get_time_from_attr(policy_t *pol, int atribute_position, operation_t attr_operation, unsigned long *start_time, unsigned long *end_time)
+static void get_time_from_attr(policy_t *pol, int atribute_position, PDP_operation_e attr_operation, unsigned long *start_time, unsigned long *end_time)
 {
 	if(pol == NULL)
 	{
@@ -592,7 +594,7 @@ static void get_time_from_attr(policy_t *pol, int atribute_position, operation_t
 	int operation_end = -1;
 	int attribute_list = -1;
 	int i = 0;
-	operation_t opt;
+	PDP_operation_e opt;
 
 	if((operation != -1) && (get_start_of_token(operation) < get_end_of_token(atribute_position)))// Check only operations within this json object
 	{
@@ -685,7 +687,7 @@ static void get_time_from_attr(policy_t *pol, int atribute_position, operation_t
 static int resolve_attribute(policy_t *pol, int atribute_position)
 {
 	int ret = -1;
-	operation_t opt;
+	PDP_operation_e opt;
 
 	int operation = json_get_token_index_from_pos(pol->policy_c, atribute_position, "operation");
 	int operation_start = -1;
@@ -805,9 +807,9 @@ static int get_obligation(policy_t *pol, int obl_position, char *obligation)
 			int start_of_value = get_start_of_token(value);
 			int size_of_value = get_size_of_token(value);
 
-			if(size_of_value > OBLIGATION_LEN)
+			if(size_of_value > PDP_OBLIGATION_LEN)
 			{
-				size_of_value = OBLIGATION_LEN;
+				size_of_value = PDP_OBLIGATION_LEN;
 			}
 			
 			if(value >= 0)
@@ -830,7 +832,7 @@ static int resolve_obligation(policy_t *pol, int obl_position, char *obligation)
 	int operation_start = -1;
 	int operation_end = -1;
 	int obl_value = -1;
-	operation_t opt;
+	PDP_operation_e opt;
 	
 	if(pol == NULL || obligation == NULL)
 	{
@@ -839,7 +841,7 @@ static int resolve_obligation(policy_t *pol, int obl_position, char *obligation)
 	}
 	
 	// Size of obligation buff is 15
-	memset(obligation, 0, sizeof(char) * OBLIGATION_LEN);
+	memset(obligation, 0, sizeof(char) * PDP_OBLIGATION_LEN);
 
 	operation = json_get_token_index_from_pos(pol->policy_c, obl_position, "operation");
 	attribute_list = json_get_token_index_from_pos(pol->policy_c, obl_position, "attribute_list");
@@ -993,4 +995,3 @@ PDP_decision_e PDP_calculate_decision(char *request_norm, char *obligation, PDP_
 
 	return ret;
 }
-
