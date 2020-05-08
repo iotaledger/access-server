@@ -40,7 +40,9 @@
  ****************************************************************************/
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "pdp.h"
+#define JSMN_HEADER //jsmn library bug workaround
 #include "json_parser.h"
 #include "Dlog.h"
 #include "pip.h"
@@ -52,6 +54,7 @@
 #define PDP_DATA_VAL_SIZE 131
 #define PDP_DATA_TYPE_SIZE 21
 #define PDP_STRTOUL_BASE 10
+#define PDP_MAX_STR_LEN 256
 
 /* If any hash function, which provides hashes longer than 256 bits, is to be used,
 this will have to be adjusted accordingly. */
@@ -60,13 +63,7 @@ this will have to be adjusted accordingly. */
 /****************************************************************************
  * LOCAL FUNCTIONS DECLARATION
  ****************************************************************************/
-static int resolve_attribute(policy_t *pol, int atribute_position);
-
-/****************************************************************************
- * GLOBAL VARIABLES
- ****************************************************************************/
-static char data_value[PDP_DATA_VAL_SIZE];
-static char data_type[PDP_DATA_TYPE_SIZE];
+static int resolve_attribute(char *pol, char *policy_id, int atribute_position);
 
 /****************************************************************************
  * LOCAL FUNCTIONS DEFINITION
@@ -103,7 +100,7 @@ static PDP_operation_e get_operation_new(const char *operation, int size)
 	return ret;
 }
 
-static int and(policy_t *pol, int attribute_list)
+static int and(char *policy_object, char *policy_id, int attribute_list)
 {
 	int decision = TRUE;
 
@@ -118,9 +115,9 @@ static int and(policy_t *pol, int attribute_list)
 	{
 		attribute = get_attribute_from_array(attribute_list, i);
 
-		res = resolve_attribute(pol, attribute_list + attribute);
+		res = resolve_attribute(policy_object, policy_id, attribute_list + attribute);
 
-		if(res != ERROR)
+		if(res != FALSE)
 		{
 			decision = decision && res;
 		}
@@ -134,7 +131,7 @@ static int and(policy_t *pol, int attribute_list)
 	return decision;
 }
 
-static int or(policy_t *pol, int attribute_list)
+static int or(char *policy_object, char *policy_id, int attribute_list)
 {
 	int decision = FALSE;
 
@@ -149,9 +146,9 @@ static int or(policy_t *pol, int attribute_list)
 	{
 		attribute = get_attribute_from_array(attribute_list, i);
 
-		res = resolve_attribute(pol, attribute_list + attribute);
+		res = resolve_attribute(policy_object, policy_id, attribute_list + attribute);
 
-		if(res != ERROR)
+		if(res != FALSE)
 		{
 			decision = decision || res;
 		}
@@ -165,419 +162,134 @@ static int or(policy_t *pol, int attribute_list)
 	return decision;
 }
 
-static int eq(policy_t *pol, int attribute_list)
+static int resolve_condition(char *policy_object, char* policy_id, int attribute_list, PDP_operation_e condition)
 {
+	char uri[PDP_MAX_STR_LEN] = {0};
+	char data_value[PDP_DATA_VAL_SIZE] = {0};
+	char data_type[PDP_DATA_TYPE_SIZE] = {0};
 	int ret = FALSE;
-
 	int attr1 = -1;
 	int attr2 = -1;
+	int type1 = -1;
+	int value1 = -1;
+	int size_of_type1 = -1;
+	int size_of_value1 = -1;
+	int type2 = -1;
+	int value2 = -1;
+	int size_of_type2 = -1;
+	int size_of_value2 = -1;
+	PIP_attribute_object_t attribute;
+
+	memset(attribute.type, 0, sizeof(char) * PIP_MAX_STR_LEN);
+	memset(attribute.value, 0, sizeof(char) * PIP_MAX_STR_LEN);
 
 	attr1 = get_attribute_from_array(attribute_list, 0);
 	attr2 = get_attribute_from_array(attribute_list, 1);
 
-	int type1 = json_get_value(pol->policy_c, attribute_list + attr1, "type");
-	int type2 = json_get_value(pol->policy_c, attribute_list + attr2, "type");
-	int value1 = json_get_value(pol->policy_c, attribute_list + attr1, "value");
-	int value2 = json_get_value(pol->policy_c, attribute_list + attr2, "value");
+	type1 = json_get_value(policy_object, attribute_list + attr1, "type");
+	type2 = json_get_value(policy_object, attribute_list + attr2, "type");
+	value1 = json_get_value(policy_object, attribute_list + attr1, "value");
+	value2 = json_get_value(policy_object, attribute_list + attr2, "value");
 
-	char *url_type = pol->policy_c + get_start_of_token(type2);
-	char *url_value = pol->policy_c + get_start_of_token(value2);
+	memcpy(data_type, policy_object + get_start_of_token(type2), get_size_of_token(type2));
+	memcpy(data_value, policy_object + get_start_of_token(value2), get_size_of_token(value2));
 
-	int url_size = get_size_of_token(value2);
-	int url_sizet = get_size_of_token(type2);
+	//If any authority other than iota is to be supported, this needs to be modified
+	sprintf(uri, "iota:%s/%s?%s", policy_id, data_type, data_value);
 
-
-	int data_length = 0;
-
-	data_value[PDP_DATA_VAL_SIZE - 1] = '\0';
-	data_length = pip_get_data(pol, url_value, data_value, url_size);
-
-	if(data_length == -1)
+	if (PIP_get_data(uri, &attribute) == PIP_NO_ERROR)
 	{
-		memcpy(data_value, url_value, get_size_of_token(value2) );
-		data_value[get_size_of_token(value2)] = '\0';
-	}
+		size_of_type1 = get_size_of_token(type1);
+		size_of_type2 = strlen(attribute.type);
+		size_of_value1 = get_size_of_token(value1);
+		size_of_value2 = strlen(attribute.value);
 
-	int type_length = 0;
-
-	data_type[PDP_DATA_TYPE_SIZE - 1] = '\0';
-	type_length = pip_get_data(pol, url_type, data_type, url_sizet);
-
-	if(type_length == -1)
-	{
-		memcpy(data_type, url_type, get_size_of_token(type2));
-		data_type[get_size_of_token(type2)] = '\0';
-	}
-
-	//*******************************************************************
-	//PIP FOR SUBJECT REQUEST (this should be modified after PIP module is changed so it can return subject value and type
-	if(data_length == -2)
-	{
-		memcpy(data_value, pol->policy_c + get_start_of_token(value1), get_size_of_token(value1) );
-		data_value[get_size_of_token(value1)] = '\0';
-	}
-
-	if(type_length == -2)
-	{
-		memcpy(data_type, pol->policy_c + get_start_of_token(type1),get_size_of_token(type1));
-		data_type[get_size_of_token(type1)] = '\0';
-	}
-	//*********************************************************************
-
-	int size_of_type1 = get_size_of_token(type1);
-	int size_of_type2 = strlen(data_type);
-	int size_of_value1 = get_size_of_token(value1);
-	int size_of_value2 = strlen(data_value);
-
-
-	if(((size_of_type1 == size_of_type2) && (strncasecmp(pol->policy_c + get_start_of_token(type1), data_type, size_of_type1) == 0 )) &&
-			((size_of_value1 == size_of_value2) && (strncasecmp(pol->policy_c + get_start_of_token(value1), data_value, size_of_value1) == 0 )))
-	{
-		ret = TRUE;
-	}
-	else
-	{
-		Dlog_printf("\n FALSE \n");
-	}
-
-	return ret;
-}
-
-static int leq(policy_t *pol, int attribute_list)
-{
-	int ret = FALSE;
-
-	int attr1 = -1;
-	int attr2 = -1;
-
-	attr1 = get_attribute_from_array(attribute_list, 0);
-	attr2 = get_attribute_from_array(attribute_list, 1);
-
-	int type1 = json_get_value(pol->policy_c, attribute_list + attr1, "type");
-	int type2 = json_get_value(pol->policy_c, attribute_list + attr2, "type");
-	int value1 = json_get_value(pol->policy_c, attribute_list + attr1, "value");
-	int value2 = json_get_value(pol->policy_c, attribute_list + attr2, "value");
-
-	char *url_type = pol->policy_c + get_start_of_token(type2);
-	char *url_value = pol->policy_c + get_start_of_token(value2);
-
-	int url_size = get_size_of_token(value2);
-	int url_sizet = get_size_of_token(type2);
-
-
-	int data_length = 0;
-
-	data_value[PDP_DATA_VAL_SIZE - 1] = '\0';
-	data_length = pip_get_data(pol, url_value, data_value, url_size);
-
-
-
-	if(data_length == -1)
-	{
-		memcpy(data_value, url_value, get_size_of_token(value2) );
-		data_value[get_size_of_token(value2)] = '\0';
-	}
-
-	int type_length = 0;
-
-
-	data_type[PDP_DATA_TYPE_SIZE - 1] = '\0';
-	type_length = pip_get_data(pol, url_type,data_type,url_sizet);
-
-
-	if(type_length == -1)
-	{
-		memcpy(data_type,url_type,get_size_of_token(type2));
-		data_type[get_size_of_token(type2)] = '\0';
-	}
-
-	//*******************************************************************
-	//PIP FOR SUBJECT REQUEST (this should be modified after PIP module is changed so it can return subject value and type
-	if(data_length == -2)
-	{
-		memcpy(data_value, pol->policy_c + get_start_of_token(value1), get_size_of_token(value1) );
-		data_value[get_size_of_token(value1)] = '\0';
-	}
-
-	if(type_length == -2)
-	{
-		memcpy(data_type, pol->policy_c + get_start_of_token(type1),get_size_of_token(type1));
-		data_type[get_size_of_token(type1)] = '\0';
-	}
-	//*********************************************************************
-
-	int size_of_type1 = get_size_of_token(type1);
-	int size_of_type2 = strlen(data_type);
-	int size_of_value1 = get_size_of_token(value1);
-	int size_of_value2 = strlen(data_value);
-
-	if(((size_of_type1 == size_of_type2) && (strncasecmp(pol->policy_c + get_start_of_token(type1), data_type, size_of_type1) == 0 )))
-	{
-		if(size_of_value1 < size_of_value2)
+		switch (condition)
 		{
-			ret = TRUE;
-		}
-		else if((size_of_value1 == size_of_value2) && strncasecmp(pol->policy_c + get_start_of_token(value1), data_value, size_of_value1) <= 0 )
-		{
-			ret = TRUE;
+			case EQ:
+			{
+				if(((size_of_type1 == size_of_type2) && (strncasecmp(policy_object + get_start_of_token(type1), attribute.type, size_of_type1) == 0 )) &&
+						((size_of_value1 == size_of_value2) && (strncasecmp(policy_object + get_start_of_token(value1), attribute.value, size_of_value1) == 0 )))
+				{
+					ret = TRUE;
+				}
+				else
+				{
+					Dlog_printf("\n FALSE \n");
+				}
+				break;
+			}
+			case LEQ:
+			{
+				if(((size_of_type1 == size_of_type2) && (strncasecmp(policy_object + get_start_of_token(type1), attribute.type, size_of_type1) == 0 )))
+				{
+					if(size_of_value1 < size_of_value2)
+					{
+						ret = TRUE;
+					}
+					else if((size_of_value1 == size_of_value2) && strncasecmp(policy_object + get_start_of_token(value1), attribute.value, size_of_value1) <= 0 )
+					{
+						ret = TRUE;
+					}
+				}
+				break;
+			}
+			case LT:
+			{
+				if(((size_of_type1 == size_of_type2) && (strncasecmp(policy_object + get_start_of_token(type1), attribute.type, size_of_type1) == 0 )))
+				{
+					if(size_of_value1 < size_of_value2)
+					{
+						ret = TRUE;
+					}
+					else if((size_of_value1 == size_of_value2) && strncasecmp(policy_object + get_start_of_token(value1), attribute.value, size_of_value1) < 0 )
+					{
+						ret = TRUE;
+					}
+				}
+				break;
+			}
+			case GEQ:
+			{
+				if(((size_of_type1 == size_of_type2) && (strncasecmp(policy_object + get_start_of_token(type1), attribute.type, size_of_type1) == 0 )))
+				{
+					if(size_of_value1 > size_of_value2)
+					{
+						ret = TRUE;
+					}
+					else if((size_of_value1 == size_of_value2) && strncasecmp(policy_object + get_start_of_token(value1), attribute.value, size_of_value1) >= 0 )
+					{
+						ret = TRUE;
+					}
+				}
+				break;
+			}
+			case GT:
+			{
+				if(((size_of_type1 == size_of_type2) && (strncasecmp(policy_object + get_start_of_token(type1), attribute.type, size_of_type1) == 0 )))
+				{
+					if(size_of_value1 > size_of_value2)
+					{
+						ret = TRUE;
+					}
+					else if((size_of_value1 == size_of_value2) && strncasecmp(policy_object + get_start_of_token(value1), attribute.value, size_of_value1) > 0 )
+					{
+						ret = TRUE;
+					}
+				}
+				break;
+			}
+			default:
+				break;
 		}
 	}
 
 	return ret;
 }
 
-static int lt(policy_t *pol, int attribute_list)
+static void get_time_from_attr(char *policy_object, int atribute_position, PDP_operation_e attr_operation, unsigned long *start_time, unsigned long *end_time)
 {
-	int ret = FALSE;
-
-	int attr1 = -1;
-	int attr2 = -1;
-
-	attr1 = get_attribute_from_array(attribute_list, 0);
-	attr2 = get_attribute_from_array(attribute_list, 1);
-
-	int type1 = json_get_value(pol->policy_c, attribute_list + attr1, "type");
-	int type2 = json_get_value(pol->policy_c, attribute_list + attr2, "type");
-	int value1 = json_get_value(pol->policy_c, attribute_list + attr1, "value");
-	int value2 = json_get_value(pol->policy_c, attribute_list + attr2, "value");
-
-	char *url_type = pol->policy_c + get_start_of_token(type2);
-	char *url_value = pol->policy_c + get_start_of_token(value2);
-
-	int url_size = get_size_of_token(value2);
-	int url_sizet = get_size_of_token(type2);
-
-
-	int data_length = 0;
-
-	data_value[PDP_DATA_VAL_SIZE - 1] = '\0';
-	data_length = pip_get_data(pol, url_value, data_value, url_size);
-
-
-
-	if(data_length == -1)
-	{
-		memcpy(data_value, url_value, get_size_of_token(value2) );
-		data_value[get_size_of_token(value2)] = '\0';
-	}
-
-	int type_length = 0;
-
-
-	data_type[PDP_DATA_TYPE_SIZE - 1] = '\0';
-	type_length = pip_get_data(pol, url_type,data_type,url_sizet);
-
-
-	if(type_length == -1)
-	{
-		memcpy(data_type,url_type,get_size_of_token(type2));
-		data_type[get_size_of_token(type2)] = '\0';
-	}
-
-	//*******************************************************************
-	//PIP FOR SUBJECT REQUEST (this should be modified after PIP module is changed so it can return subject value and type
-	if(data_length == -2)
-	{
-		memcpy(data_value, pol->policy_c + get_start_of_token(value1), get_size_of_token(value1) );
-		data_value[get_size_of_token(value1)] = '\0';
-	}
-
-	if(type_length == -2)
-	{
-		memcpy(data_type, pol->policy_c + get_start_of_token(type1),get_size_of_token(type1));
-		data_type[get_size_of_token(type1)] = '\0';
-	}
-	//*********************************************************************
-
-	int size_of_type1 = get_size_of_token(type1);
-	int size_of_type2 = strlen(data_type);
-	int size_of_value1 = get_size_of_token(value1);
-	int size_of_value2 = strlen(data_value);
-
-	if(((size_of_type1 == size_of_type2) && (strncasecmp(pol->policy_c + get_start_of_token(type1), data_type, size_of_type1) == 0 )))
-	{
-		if(size_of_value1 < size_of_value2)
-		{
-			ret = TRUE;
-		}
-		else if((size_of_value1 == size_of_value2) && strncasecmp(pol->policy_c + get_start_of_token(value1), data_value, size_of_value1) < 0 )
-		{
-			ret = TRUE;
-		}
-	}
-
-	return ret;
-}
-
-static int geq(policy_t *pol, int attribute_list)
-{
-	int ret = FALSE;
-
-	int attr1 = -1;
-	int attr2 = -1;
-
-	attr1 = get_attribute_from_array(attribute_list, 0);
-	attr2 = get_attribute_from_array(attribute_list, 1);
-
-	int type1 = json_get_value(pol->policy_c, attribute_list + attr1, "type");
-	int type2 = json_get_value(pol->policy_c, attribute_list + attr2, "type");
-	int value1 = json_get_value(pol->policy_c, attribute_list + attr1, "value");
-	int value2 = json_get_value(pol->policy_c, attribute_list + attr2, "value");
-
-	char *url_type = pol->policy_c + get_start_of_token(type2);
-	char *url_value = pol->policy_c + get_start_of_token(value2);
-
-	int url_size = get_size_of_token(value2);
-	int url_sizet = get_size_of_token(type2);
-
-
-	int data_length = 0;
-
-	data_value[PDP_DATA_VAL_SIZE - 1] = '\0';
-	data_length = pip_get_data(pol, url_value, data_value, url_size);
-
-
-
-	if(data_length == -1)
-	{
-		memcpy(data_value, url_value, get_size_of_token(value2) );
-		data_value[get_size_of_token(value2)] = '\0';
-	}
-
-	int type_length = 0;
-
-
-	data_type[PDP_DATA_TYPE_SIZE - 1] = '\0';
-	type_length = pip_get_data(pol, url_type,data_type,url_sizet);
-
-
-	if(type_length == -1)
-	{
-		memcpy(data_type,url_type,get_size_of_token(type2));
-		data_type[get_size_of_token(type2)] = '\0';
-	}
-
-	//*******************************************************************
-	//PIP FOR SUBJECT REQUEST (this should be modified after PIP module is changed so it can return subject value and type
-	if(data_length == -2)
-	{
-		memcpy(data_value, pol->policy_c + get_start_of_token(value1), get_size_of_token(value1) );
-		data_value[get_size_of_token(value1)] = '\0';
-	}
-
-	if(type_length == -2)
-	{
-		memcpy(data_type, pol->policy_c + get_start_of_token(type1),get_size_of_token(type1));
-		data_type[get_size_of_token(type1)] = '\0';
-	}
-	//*********************************************************************
-
-	int size_of_type1 = get_size_of_token(type1);
-	int size_of_type2 = strlen(data_type);
-	int size_of_value1 = get_size_of_token(value1);
-	int size_of_value2 = strlen(data_value);
-
-	if(((size_of_type1 == size_of_type2) && (strncasecmp(pol->policy_c + get_start_of_token(type1), data_type, size_of_type1) == 0 )))
-	{
-		if(size_of_value1 > size_of_value2)
-		{
-			ret = TRUE;
-		}
-		else if((size_of_value1 == size_of_value2) && strncasecmp(pol->policy_c + get_start_of_token(value1), data_value, size_of_value1) >= 0 )
-		{
-			ret = TRUE;
-		}
-	}
-
-	return ret;
-}
-
-static int gt(policy_t *pol, int attribute_list)
-{
-	int ret = FALSE;
-
-	int attr1 = -1;
-	int attr2 = -1;
-
-	attr1 = get_attribute_from_array(attribute_list, 0);
-	attr2 = get_attribute_from_array(attribute_list, 1);
-
-	int type1 = json_get_value(pol->policy_c, attribute_list + attr1, "type");
-	int type2 = json_get_value(pol->policy_c, attribute_list + attr2, "type");
-	int value1 = json_get_value(pol->policy_c, attribute_list + attr1, "value");
-	int value2 = json_get_value(pol->policy_c, attribute_list + attr2, "value");
-
-	char *url_type = pol->policy_c + get_start_of_token(type2);
-	char *url_value = pol->policy_c + get_start_of_token(value2);
-
-	int url_size = get_size_of_token(value2);
-	int url_sizet = get_size_of_token(type2);
-
-
-	int data_length = 0;
-
-	data_value[PDP_DATA_VAL_SIZE - 1] = '\0';
-	data_length = pip_get_data(pol, url_value,data_value, url_size);
-
-
-
-	if(data_length == -1)
-	{
-		memcpy(data_value, url_value, get_size_of_token(value2) );
-		data_value[get_size_of_token(value2)] = '\0';
-	}
-
-	int type_length = 0;
-
-
-	data_type[PDP_DATA_TYPE_SIZE - 1] = '\0';
-	type_length = pip_get_data(pol, url_type,data_type,url_sizet);
-
-
-	if(type_length == -1)
-	{
-		memcpy(data_type,url_type,get_size_of_token(type2));
-		data_type[get_size_of_token(type2)] = '\0';
-	}
-
-	//*******************************************************************
-	//PIP FOR SUBJECT REQUEST (this should be modified after PIP module is changed so it can return subject value and type
-	if(data_length == -2)
-	{
-		memcpy(data_value, pol->policy_c + get_start_of_token(value1), get_size_of_token(value1) );
-		data_value[get_size_of_token(value1)] = '\0';
-	}
-
-	if(type_length == -2)
-	{
-		memcpy(data_type, pol->policy_c + get_start_of_token(type1),get_size_of_token(type1));
-		data_type[get_size_of_token(type1)] = '\0';
-	}
-	//*********************************************************************
-
-	int size_of_type1 = get_size_of_token(type1);
-	int size_of_type2 = strlen(data_type);
-	int size_of_value1 = get_size_of_token(value1);
-	int size_of_value2 = strlen(data_value);
-
-	if(((size_of_type1 == size_of_type2) && (strncasecmp(pol->policy_c + get_start_of_token(type1), data_type, size_of_type1) == 0 )))
-	{
-		if(size_of_value1 > size_of_value2)
-		{
-			ret = TRUE;
-		}
-		else if((size_of_value1 == size_of_value2) && strncasecmp(pol->policy_c + get_start_of_token(value1), data_value, size_of_value1) > 0 )
-		{
-			ret = TRUE;
-		}
-	}
-
-	return ret;
-}
-
-static void get_time_from_attr(policy_t *pol, int atribute_position, PDP_operation_e attr_operation, unsigned long *start_time, unsigned long *end_time)
-{
-	if(pol == NULL)
+	if(policy_object == NULL)
 	{
 		Dlog_printf("\n\nERROR[%s]: Wrong input parameters\n\n", __FUNCTION__);
 		return;
@@ -589,7 +301,7 @@ static void get_time_from_attr(policy_t *pol, int atribute_position, PDP_operati
 		return;
 	}
 
-	int operation = json_get_token_index_from_pos(pol->policy_c, atribute_position, "operation");
+	int operation = json_get_token_index_from_pos(policy_object, atribute_position, "operation");
 	int operation_start = -1;
 	int operation_end = -1;
 	int attribute_list = -1;
@@ -598,7 +310,7 @@ static void get_time_from_attr(policy_t *pol, int atribute_position, PDP_operati
 
 	if((operation != -1) && (get_start_of_token(operation) < get_end_of_token(atribute_position)))// Check only operations within this json object
 	{
-		attribute_list = json_get_token_index_from_pos(pol->policy_c, atribute_position, "attribute_list");
+		attribute_list = json_get_token_index_from_pos(policy_object, atribute_position, "attribute_list");
 
 		// Check if operation is listed before or after attribure list
 		if(attribute_list >= 0 && operation > attribute_list)
@@ -610,7 +322,7 @@ static void get_time_from_attr(policy_t *pol, int atribute_position, PDP_operati
 
 			while((get_end_of_token(attribute_list) > get_start_of_token(operation)) && (tok_cnt <= number_of_tokens) && (tok_cnt >= 0))
 			{
-				operation = json_get_token_index_from_pos(pol->policy_c, tok_cnt, "operation");
+				operation = json_get_token_index_from_pos(policy_object, tok_cnt, "operation");
 				tok_cnt = operation;
 			}
 		}
@@ -618,30 +330,30 @@ static void get_time_from_attr(policy_t *pol, int atribute_position, PDP_operati
 		operation_start = get_start_of_token(operation);
 		operation_end = get_end_of_token(operation);
 
-		opt = get_operation_new(pol->policy_c + operation_start, operation_end - operation_start);
+		opt = get_operation_new(policy_object + operation_start, operation_end - operation_start);
 
 		i = 0;
 		while(i < get_array_size(attribute_list))
 		{
-			get_time_from_attr(pol, get_array_member(attribute_list, i), opt, start_time, end_time);
+			get_time_from_attr(policy_object, get_array_member(attribute_list, i), opt, start_time, end_time);
 			i++;
 		}
 	}
 	else
 	{
-		int type = json_get_token_index_from_pos(pol->policy_c, atribute_position, "type");
+		int type = json_get_token_index_from_pos(policy_object, atribute_position, "type");
 		if((type != -1) && (get_start_of_token(type) < get_end_of_token(atribute_position)))// Check only type within this json object
 		{
 			int start = get_start_of_token(type);
 			int size_of_type = get_size_of_token(type);
 
-			if((size_of_type == strlen("time")) && (strncasecmp(pol->policy_c + start, "time", strlen("time")) == 0))
+			if((size_of_type == strlen("time")) && (strncasecmp(policy_object + start, "time", strlen("time")) == 0))
 			{
-				int value = json_get_token_index_from_pos(pol->policy_c, atribute_position, "value");
+				int value = json_get_token_index_from_pos(policy_object, atribute_position, "value");
 				int start_of_value = get_start_of_token(value);
 				int size_of_value = get_size_of_token(value);
 				char *val_str = malloc(sizeof(char) * size_of_value + 1);
-				memcpy(val_str, pol->policy_c + start_of_value, size_of_value);
+				memcpy(val_str, policy_object + start_of_value, size_of_value);
 				val_str[size_of_value] = '\0';
 
 				switch(attr_operation)
@@ -684,12 +396,12 @@ static void get_time_from_attr(policy_t *pol, int atribute_position, PDP_operati
 	}
 }
 
-static int resolve_attribute(policy_t *pol, int atribute_position)
+static int resolve_attribute(char *policy_object, char *policy_id, int atribute_position)
 {
 	int ret = -1;
 	PDP_operation_e opt;
 
-	int operation = json_get_token_index_from_pos(pol->policy_c, atribute_position, "operation");
+	int operation = json_get_token_index_from_pos(policy_object, atribute_position, "operation");
 	int operation_start = -1;
 	int operation_end = -1;
 
@@ -697,7 +409,7 @@ static int resolve_attribute(policy_t *pol, int atribute_position)
 
 	if((operation != -1) && (get_start_of_token(operation) < get_end_of_token(atribute_position)))// Check only operations within this json object
 	{
-		attribute_list = json_get_token_index_from_pos(pol->policy_c, atribute_position, "attribute_list");
+		attribute_list = json_get_token_index_from_pos(policy_object, atribute_position, "attribute_list");
 
 		// Check if operation is listed before or after attribure list
 		if(attribute_list >= 0 && operation > attribute_list)
@@ -709,7 +421,7 @@ static int resolve_attribute(policy_t *pol, int atribute_position)
 
 			while((get_end_of_token(attribute_list) > get_start_of_token(operation)) && (tok_cnt <= number_of_tokens) && (tok_cnt >= 0))
 			{
-				operation = json_get_token_index_from_pos(pol->policy_c, tok_cnt, "operation");
+				operation = json_get_token_index_from_pos(policy_object, tok_cnt, "operation");
 				tok_cnt = operation;
 			}
 		}
@@ -717,42 +429,43 @@ static int resolve_attribute(policy_t *pol, int atribute_position)
 		operation_start = get_start_of_token(operation);
 		operation_end = get_end_of_token(operation);
 
-		opt = get_operation_new(pol->policy_c + operation_start, operation_end - operation_start);
+		opt = get_operation_new(policy_object + operation_start, operation_end - operation_start);
 
 		switch(opt)
 		{
 			case OR:
 			{
-				ret = or(pol, attribute_list);
+				ret = or(policy_object, policy_id, attribute_list);
 				break;
 			}
 			case AND:
 			{
-				ret = and(pol, attribute_list);
+				ret = and(policy_object, policy_id, attribute_list);
 				break;
 			}
 			case EQ:
 			{
-				ret = eq(pol, attribute_list);
+				ret = resolve_condition(policy_object, policy_id, attribute_list, EQ);
 				break;
 			}
 			case LEQ:
 			{
-				ret = leq(pol, attribute_list);
+				ret = resolve_condition(policy_object, policy_id, attribute_list, LEQ);
 				break;
 			}
-			case GEQ:{
-				ret = geq(pol, attribute_list);
+			case GEQ:
+			{
+				ret = resolve_condition(policy_object, policy_id, attribute_list, GEQ);
 				break;
 			}
 			case LT:
 			{
-				ret = lt(pol, attribute_list);
+				ret = resolve_condition(policy_object, policy_id, attribute_list, LT);
 				break;
 			}
 			case GT:
 			{
-				ret = gt(pol, attribute_list);
+				ret = resolve_condition(policy_object, policy_id, attribute_list, GT);
 				break;
 			}
 			default:
@@ -764,18 +477,18 @@ static int resolve_attribute(policy_t *pol, int atribute_position)
 	}
 	else
 	{
-		int type = json_get_token_index_from_pos(pol->policy_c, atribute_position, "type");
+		int type = json_get_token_index_from_pos(policy_object, atribute_position, "type");
 		if((type != -1) && (get_start_of_token(type) < get_end_of_token(atribute_position)))// Check only type within this json object
 		{
 			int start = get_start_of_token(type);
 			int size_of_type = get_size_of_token(type);
 
-			if((size_of_type == strlen("boolean")) && (strncasecmp(pol->policy_c + start, "boolean", strlen("boolean")) == 0))
+			if((size_of_type == strlen("boolean")) && (strncasecmp(policy_object + start, "boolean", strlen("boolean")) == 0))
 			{
-				int value = json_get_token_index_from_pos(pol->policy_c, atribute_position, "value");
+				int value = json_get_token_index_from_pos(policy_object, atribute_position, "value");
 				int start_of_value = get_start_of_token(value);
 				int size_of_value = get_size_of_token(value);
-				if((size_of_value >= strlen("true")) && (memcmp(pol->policy_c + start_of_value, "true", strlen("true")) == 0))
+				if((size_of_value >= strlen("true")) && (memcmp(policy_object + start_of_value, "true", strlen("true")) == 0))
 				{
 					ret = TRUE;
 				}
@@ -790,20 +503,20 @@ static int resolve_attribute(policy_t *pol, int atribute_position)
 	return ret;
 }
 
-static int get_obligation(policy_t *pol, int obl_position, char *obligation)
+static int get_obligation(char *policy_object, int obl_position, char *obligation)
 {
 	int ret = PDP_ERROR_RET;
 	
-	int type = json_get_token_index_from_pos(pol->policy_c, obl_position, "type");
+	int type = json_get_token_index_from_pos(policy_object, obl_position, "type");
 	if((type != -1) && (get_start_of_token(type) < get_end_of_token(obl_position)))// Check only type within this json object
 	{
 		int start = get_start_of_token(type);
 		int size_of_type = get_size_of_token(type);
 
 		if((size_of_type == strlen("obligation")) &&
-		(!strncasecmp(pol->policy_c + start, "obligation", strlen("obligation"))))
+		(!strncasecmp(policy_object + start, "obligation", strlen("obligation"))))
 		{
-			int value = json_get_token_index_from_pos(pol->policy_c, obl_position, "value");
+			int value = json_get_token_index_from_pos(policy_object, obl_position, "value");
 			int start_of_value = get_start_of_token(value);
 			int size_of_value = get_size_of_token(value);
 
@@ -814,7 +527,7 @@ static int get_obligation(policy_t *pol, int obl_position, char *obligation)
 			
 			if(value >= 0)
 			{
-				memcpy(obligation, pol->policy_c + start_of_value, size_of_value);
+				memcpy(obligation, policy_object + start_of_value, size_of_value);
 				ret = value;
 			}
 		}
@@ -824,7 +537,7 @@ static int get_obligation(policy_t *pol, int obl_position, char *obligation)
 }
 
 //TODO: obligations should be linked list of the elements of the 'obligation_s' structure type
-static int resolve_obligation(policy_t *pol, int obl_position, char *obligation)
+static int resolve_obligation(char *policy_object, char *policy_id, int obl_position, char *obligation)
 {
 	int ret = PDP_ERROR_RET;
 	int operation = -1;
@@ -834,7 +547,7 @@ static int resolve_obligation(policy_t *pol, int obl_position, char *obligation)
 	int obl_value = -1;
 	PDP_operation_e opt;
 	
-	if(pol == NULL || obligation == NULL)
+	if(policy_object == NULL || obligation == NULL)
 	{
 		Dlog_printf("\n\nERROR[%s]: Wrong input parameters\n\n",__FUNCTION__);
 		return ret;
@@ -843,9 +556,9 @@ static int resolve_obligation(policy_t *pol, int obl_position, char *obligation)
 	// Size of obligation buff is 15
 	memset(obligation, 0, sizeof(char) * PDP_OBLIGATION_LEN);
 
-	operation = json_get_token_index_from_pos(pol->policy_c, obl_position, "operation");
-	attribute_list = json_get_token_index_from_pos(pol->policy_c, obl_position, "attribute_list");
-	obl_value = json_get_token_index_from_pos(pol->policy_c, obl_position, "obligations");
+	operation = json_get_token_index_from_pos(policy_object, obl_position, "operation");
+	attribute_list = json_get_token_index_from_pos(policy_object, obl_position, "attribute_list");
+	obl_value = json_get_token_index_from_pos(policy_object, obl_position, "obligations");
 	
 	// In case of IF operation, multiple obligations are available
 	if((attribute_list >= 0) &&
@@ -863,7 +576,7 @@ static int resolve_obligation(policy_t *pol, int obl_position, char *obligation)
 			
 			while((get_end_of_token(attribute_list) > get_start_of_token(operation)) && (tok_cnt <= number_of_tokens) && (tok_cnt >= 0))
 			{
-				operation = json_get_token_index_from_pos(pol->policy_c, tok_cnt, "operation");
+				operation = json_get_token_index_from_pos(policy_object, tok_cnt, "operation");
 				tok_cnt = operation;
 			}
 		}
@@ -871,16 +584,16 @@ static int resolve_obligation(policy_t *pol, int obl_position, char *obligation)
 		operation_start = get_start_of_token(operation);
 		operation_end = get_end_of_token(operation);
 
-		opt = get_operation_new(pol->policy_c + operation_start, operation_end - operation_start);
+		opt = get_operation_new(policy_object + operation_start, operation_end - operation_start);
 
 		//TODO: For now, only IF operation is supported
 		switch(opt)
 		{
 			case IF:
-				if(!resolve_attribute(pol, attribute_list))
+				if(!resolve_attribute(policy_object, policy_id, attribute_list))
 				{
 					// Take second obligation if condition is false (else branch)
-					obl_value = json_get_token_index_from_pos(pol->policy_c, obl_value + 1, "obligations");
+					obl_value = json_get_token_index_from_pos(policy_object, obl_value + 1, "obligations");
 				}
 
 				break;
@@ -892,7 +605,7 @@ static int resolve_obligation(policy_t *pol, int obl_position, char *obligation)
 	
 	if(obl_value >= 0)
 	{
-		ret = get_obligation(pol, obl_value, obligation);
+		ret = get_obligation(policy_object, obl_value, obligation);
 	}
 	
 	return ret;
@@ -901,14 +614,52 @@ static int resolve_obligation(policy_t *pol, int obl_position, char *obligation)
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
+bool PDP_init(void)
+{
+	//Initialize PAP
+	if (PAP_init() == PAP_ERROR)
+	{
+		printf("\nERROR[%s]: PAP initialization failed.\n", __FUNCTION__);
+		return FALSE;
+	}
+
+	//Initialize PIP
+	if (PIP_init() == PIP_ERROR)
+	{
+		printf("\nERROR[%s]: PIP initialization failed.\n", __FUNCTION__);
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+bool PDP_term(void)
+{
+	//Terminate PAP
+	if (PAP_term() == PAP_ERROR)
+	{
+		printf("\nERROR[%s]: PAP termination failed.\n", __FUNCTION__);
+		return FALSE;
+	}
+
+	//Terminate PIP
+	if (PIP_term() == PIP_ERROR)
+	{
+		printf("\nERROR[%s]: PIP termination failed.\n", __FUNCTION__);
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
 //TODO: obligations should be linked list of the elements of the 'obligation_s' structure type
 PDP_decision_e PDP_calculate_decision(char *request_norm, char *obligation, PDP_action_t *action)
 {
+	char *policy_id = NULL;
 	int request_policy_id = -1;
 	int size = -1;
 	PDP_decision_e ret = PDP_ERROR;
 	PAP_policy_t policy;
-	policy_t pol;
 
 	//Check input parameters
 	if(request_norm == NULL || obligation == NULL || action == NULL || action->value == NULL)
@@ -922,22 +673,25 @@ PDP_decision_e PDP_calculate_decision(char *request_norm, char *obligation, PDP_
 	request_policy_id = json_get_value(request_norm, 0, "policy_id");
 	size = get_size_of_token(request_policy_id);
 
+	policy_id = malloc(size * sizeof(char));
+	memcpy(policy_id, request_norm + get_start_of_token(request_policy_id), size * sizeof(char));
+
+
 	//Get policy from PAP
-	if (PAP_get_policy(request_norm + get_start_of_token(request_policy_id), size, &policy) == PAP_ERROR)
+	if (PAP_get_policy(policy_id, size, &policy) == PAP_ERROR)
 	{
 		Dlog_printf("\nERROR[%s]: Could not get the policy.\n", __FUNCTION__);
+		free(policy_id);
 		return PDP_ERROR;
 	}
 
-	pol.policy_c = policy.policy_object.policy_object;
-
 	//Get circuits
-	json_parser_init(pol.policy_c);
+	json_parser_init(policy.policy_object.policy_object);
 
-	int policy_goc = json_get_token_index(pol.policy_c, "policy_goc");
-	int policy_doc = json_get_token_index(pol.policy_c, "policy_doc");
-	int policy_gobl = json_get_token_index(pol.policy_c, "obligation_grant");
-	int policy_dobl = json_get_token_index(pol.policy_c, "obligation_deny");
+	int policy_goc = json_get_token_index(policy.policy_object.policy_object, "policy_goc");
+	int policy_doc = json_get_token_index(policy.policy_object.policy_object, "policy_doc");
+	int policy_gobl = json_get_token_index(policy.policy_object.policy_object, "obligation_grant");
+	int policy_dobl = json_get_token_index(policy.policy_object.policy_object, "obligation_deny");
 
 	if(policy_goc == -1)
 	{
@@ -960,8 +714,8 @@ PDP_decision_e PDP_calculate_decision(char *request_norm, char *obligation, PDP_
 	}
 
 	//Resolve attributes
-	int pol_goc = resolve_attribute(&pol, policy_goc);
-	int pol_doc = resolve_attribute(&pol, policy_doc);
+	int pol_goc = resolve_attribute(policy.policy_object.policy_object, policy_id, policy_goc);
+	int pol_doc = resolve_attribute(policy.policy_object.policy_object, policy_id, policy_doc);
 
 	//Calculate decision
 	ret = pol_goc + 2 * pol_doc;  // => (0, 1, 2, 3) <=> (gap, grant, deny, conflict)
@@ -971,21 +725,21 @@ PDP_decision_e PDP_calculate_decision(char *request_norm, char *obligation, PDP_
 		//Get action
 		//FIXME: Should action be taken for deny case also?
 		int number_of_tokens = get_token_num();
-		get_action(action->value, pol.policy_c, number_of_tokens);
+		get_action(action->value, policy.policy_object.policy_object, number_of_tokens);
 		action->start_time = 0;
 		action->stop_time = 0;
-		get_time_from_attr(&pol, policy_goc, UNDEFINED, &(action->start_time), &(action->stop_time));
+		get_time_from_attr(policy.policy_object.policy_object, policy_goc, UNDEFINED, &(action->start_time), &(action->stop_time));
 		
 		if(policy_gobl >= 0)
 		{
-			resolve_obligation(&pol, policy_gobl, obligation);
+			resolve_obligation(policy.policy_object.policy_object, policy_id, policy_gobl, obligation);
 		}
 	}
 	else if(ret == PDP_DENY)
 	{
 		if(policy_dobl >= 0)
 		{
-			resolve_obligation(&pol, policy_dobl, obligation);
+			resolve_obligation(policy.policy_object.policy_object, policy_id, policy_dobl, obligation);
 		}
 	}
 
@@ -993,5 +747,6 @@ PDP_decision_e PDP_calculate_decision(char *request_norm, char *obligation, PDP_
 	Dlog_printf("\nPOLICY DOC RESOLVED: %d", pol_doc);
 	Dlog_printf("\nPOLICY RESOLVED: %d\n", ret);
 
+	free(policy_id);
 	return ret;
 }
