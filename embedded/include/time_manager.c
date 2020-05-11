@@ -31,15 +31,15 @@
  * 09.10.2018. Initial version.
  ****************************************************************************/
 
-#include <stdio.h>
 #include <time.h>
 
-#include "Dlog.h"
 #include "time_manager.h"
+
+#define TIME_ZONE_SHIFT_S 7200 //UTC + 2h
 
 void getStringTime(char *buf, int size)
 {
-	time_t l_time = (time_t) (time(NULL) + 7200);
+	time_t l_time = (time_t) (time(NULL) + TIME_ZONE_SHIFT_S);
 	struct tm tm;
 
 	tm = *localtime(&l_time);

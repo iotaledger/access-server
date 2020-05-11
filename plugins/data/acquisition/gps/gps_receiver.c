@@ -30,28 +30,27 @@
  * \history
  * 04.15.2019. Initial version.
  ****************************************************************************/
-#include <errno.h>
 #include <fcntl.h>
-#include <string.h>
 #include <termios.h>
 #include <unistd.h>
-#include <stdio.h>
 #include <string.h>
-#include <sys/stat.h>
-#include <signal.h>
-#include <pthread.h>
-#include <stdlib.h>
+
+#include "gps_receiver.h"
 
 #include "minmea.h"
-#include <libfastjson/json.h>
 
 #include "json_interface.h"
 #include "globals_declarations.h"
 
+#define GPS_JSON_NAME "gps_data"
+#define GPS_PORTNAME_LEN 64
+#define GPS_READ_TIMEOUT 5
+#define GPS_SENTENCE_BUFF_LEN 83
+#define GPS_STR_LEN 64
+#define GPS_READ_BUFF_LEN 100
+#define GPS_JSON_DUMP_PERIOD_S 6
+
 // GPS data stuff
-static double latitude = -1.;
-static double longitude = -1.;
-static double speed = -1.;
 static fjson_object* fj_obj_gps;
 static fjson_object* fj_obj_location;
 static fjson_object* gps_json_filler()
@@ -62,11 +61,11 @@ static fjson_object* gps_json_filler()
     fjson_object_array_add(fj_obj_gps, fj_obj_location);
     return fj_obj_gps;
 }
-#define GPS_JSON_NAME "gps_data"
+
 // !GPS data stuff
 
 typedef struct {
-    char portname[64];
+    char portname[GPS_PORTNAME_LEN];
     fjson_object* fj_root;
     pthread_mutex_t *json_mutex;
 } GpsReceiver_thread_args_t;
@@ -80,7 +79,7 @@ static int set_interface_attribs (int fd, int speed, int parity)
         if (tcgetattr (fd, &tty) != 0)
         {
                 fprintf(stderr, "error %d from tcgetattr", errno);
-                return -1;
+                return GPS_ERROR;
         }
 
         cfsetospeed (&tty, speed);
@@ -94,7 +93,7 @@ static int set_interface_attribs (int fd, int speed, int parity)
                                         // no canonical processing
         tty.c_oflag = 0;                // no remapping, no delays
         tty.c_cc[VMIN]  = 0;            // read doesn't block
-        tty.c_cc[VTIME] = 5;            // 0.5 seconds read timeout
+        tty.c_cc[VTIME] = GPS_READ_TIMEOUT; // 0.5 seconds read timeout
 
         tty.c_iflag &= ~(IXON | IXOFF | IXANY); // shut off xon/xoff ctrl
 
@@ -108,9 +107,9 @@ static int set_interface_attribs (int fd, int speed, int parity)
         if (tcsetattr (fd, TCSANOW, &tty) != 0)
         {
                 fprintf(stderr, "error %d from tcsetattr", errno);
-                return -1;
+                return GPS_ERROR;
         }
-        return 0;
+        return GPS_NO_ERROR;
 }
 
 static void set_blocking (int fd, int should_block)
@@ -124,19 +123,20 @@ static void set_blocking (int fd, int should_block)
     }
 
     tty.c_cc[VMIN]  = should_block ? 1 : 0;
-    tty.c_cc[VTIME] = 5;            // 0.5 seconds read timeout
+    tty.c_cc[VTIME] = GPS_READ_TIMEOUT;      // 0.5 seconds read timeout
 
-    if (tcsetattr (fd, TCSANOW, &tty) != 0){
+    if (tcsetattr (fd, TCSANOW, &tty) != 0)
+    {
         fprintf(stderr, "error %d setting term attributes", errno);
     }
 }
 
-static char nmea_sentence_buffer[83];
+static char nmea_sentence_buffer[GPS_SENTENCE_BUFF_LEN];
 static int nmea_sentence_next_idx = 0;
 
 fjson_object *create_rmc_json_record(struct minmea_sentence_rmc *frame)
 {
-    char str[64] = "\0";
+    char str[GPS_STR_LEN] = "\0";
     fjson_object *fj_root = fjson_object_new_object();
     fjson_object *fj_sentence_id = fjson_object_new_string("rmc");
     fjson_object *fj_latitude = fjson_object_new_double(minmea_tocoord(&frame->latitude));
@@ -150,41 +150,9 @@ fjson_object *create_rmc_json_record(struct minmea_sentence_rmc *frame)
     return fj_root;
 }
 
-fjson_object *create_gsv_json_record(struct minmea_sentence_gsv *frame)
-{
-    fjson_object *fj_root = fjson_object_new_object();
-    //fjson_object_object_add(fj_root, "sentence_id", fjson_object_new_string("gsv"));
-    //fjson_object_object_add(fj_root, "msg_nr", fjson_object_new_int(frame->msg_nr));
-    //fjson_object_object_add(fj_root, "total_msgs", fjson_object_new_int(frame->total_msgs));
-    //fjson_object_object_add(fj_root, "total_sats", fjson_object_new_int(frame->total_sats));
-    //fjson_object *fj_sat_array = fjson_object_new_array();
-    //fjson_object_object_add(fj_root, "sats", fj_sat_array);
-    //for (int i=0; i<frame->total_sats; i++)
-    //{
-    //    fjson_object *fj_sat_root = fjson_object_new_object();
-    //    fjson_object_object_add(fj_sat_root, "nr", fjson_object_new_int(frame->sats[i].nr));
-    //    fjson_object_object_add(fj_sat_root, "elevation", fjson_object_new_int(frame->sats[i].elevation));
-    //    fjson_object_object_add(fj_sat_root, "azimuth", fjson_object_new_int(frame->sats[i].azimuth));
-    //    fjson_object_object_add(fj_sat_root, "snr", fjson_object_new_int(frame->sats[i].snr));
-    //    fjson_object_array_add(fj_sat_array, fj_sat_root);
-    //}
-    return fj_root;
-}
-
-fjson_object *create_gsa_json_record(struct minmea_sentence_gsa *frame)
-{
-    fjson_object *fj_root = fjson_object_new_object();
-    fjson_object_object_add(fj_root, "sentence_id", fjson_object_new_string("gsa"));
-    //fjson_object_object_add(fj_root, "pdop", fjson_object_new_double(minmea_tofloat(&frame->pdop)));
-    //fjson_object_object_add(fj_root, "hdop", fjson_object_new_double(minmea_tofloat(&frame->hdop)));
-    //fjson_object_object_add(fj_root, "vdop", fjson_object_new_double(minmea_tofloat(&frame->vdop)));
-
-    return fj_root;
-}
-
 fjson_object *create_gga_json_record(struct minmea_sentence_gga *frame)
 {
-    char unit[64] = "\0\0";
+    char unit[GPS_STR_LEN] = "\0\0";
     fjson_object *fj_root = fjson_object_new_object();
     fjson_object_object_add(fj_root, "latitude", fjson_object_new_double(minmea_tocoord(&frame->latitude)));
     fjson_object_object_add(fj_root, "longitude", fjson_object_new_double(minmea_tocoord(&frame->longitude)));
@@ -223,8 +191,9 @@ static void *gps_thread_loop(void *ptr)
     set_interface_attribs (fd, B4800, 0);   // set speed to 4800 bps, 8n1 (no parity)
     set_blocking (fd, 1);                   // set blocking
 
-    while (end_thread == 0) {
-        char buffer[100];
+    while (end_thread == 0)
+    {
+        char buffer[GPS_READ_BUFF_LEN];
         ssize_t length = read(fd, &buffer, sizeof(buffer));
         if (length == -1)
         {
@@ -241,82 +210,78 @@ static void *gps_thread_loop(void *ptr)
             buffer[length] = '\0';
             char *token = strtok(buffer, "\n\r");
             int loc_idx = 0;
-            while(token) {
-                if (token[0] == '$' || token[0] == '!'){
+            while(token)
+            {
+                if (token[0] == '$' || token[0] == '!')
+                {
                     // process previous sentence
                     int sentence_id = minmea_sentence_id(nmea_sentence_buffer, false);
                     switch (sentence_id)
                     {
-                        case MINMEA_SENTENCE_GGA: {
+                        case MINMEA_SENTENCE_GGA:
+                        {
                             struct minmea_sentence_gga frame;
-                            if (minmea_parse_gga(&frame, nmea_sentence_buffer)) {
+                            if (minmea_parse_gga(&frame, nmea_sentence_buffer))
+                            {
                                 pthread_mutex_lock(targs->json_mutex);
-                                if (frame.latitude.scale != 0 && frame.longitude.scale != 0) {
+                                if (frame.latitude.scale != 0 && frame.longitude.scale != 0)
+                                {
                                     fjson_object *fj_obj_tmp = fjson_object_new_object();
                                     fjson_object_object_add(fj_obj_tmp, "latitude", fjson_object_new_double(minmea_tocoord(&frame.latitude)));
                                     fjson_object_object_add(fj_obj_tmp, "longitude", fjson_object_new_double(minmea_tocoord(&frame.longitude)));
                                     fjson_object_object_add(fj_obj_location, "value", fj_obj_tmp);
-                                    //fjson_object_object_add(fj_obj_gps, "speed", fjson_object_new_double(-1.));
-                                } else {
+                                }
+                                else
+                                {
                                     fjson_object *fj_obj_tmp = fjson_object_new_object();
                                     fjson_object_object_add(fj_obj_tmp, "latitude", fjson_object_new_double(0.0));
                                     fjson_object_object_add(fj_obj_tmp, "longitude", fjson_object_new_double(0.0));
                                     fjson_object_object_add(fj_obj_location, "value", fj_obj_tmp);
-                                    //fjson_object_object_add(fj_obj_gps, "speed", fjson_object_new_double(-1.));
                                 }
                                 pthread_mutex_unlock(targs->json_mutex);
                             }
-                        } break;
-                        // case MINMEA_SENTENCE_GSA: {
-                        //     struct minmea_sentence_gsa frame;
-                        //     if (minmea_parse_gsa(&frame, nmea_sentence_buffer)) {
-                        //         pthread_mutex_lock(targs->json_mutex);
-                        //         fjson_object_array_add(fj_obj_gps, create_gsa_json_record(&frame));
-                        //         pthread_mutex_unlock(targs->json_mutex);
-                        //     }
-                        // } break;
-                        case MINMEA_SENTENCE_RMC: {
+                        }
+                        break;
+                        case MINMEA_SENTENCE_RMC:
+                        {
                             struct minmea_sentence_rmc frame;
-                            if (minmea_parse_rmc(&frame, nmea_sentence_buffer)) {
+                            if (minmea_parse_rmc(&frame, nmea_sentence_buffer))
+                            {
                                 pthread_mutex_lock(targs->json_mutex);
-                                if (frame.latitude.scale != 0 && frame.longitude.scale != 0 && frame.speed.scale != 0) {
+                                if (frame.latitude.scale != 0 && frame.longitude.scale != 0 && frame.speed.scale != 0)
+                                {
                                     fjson_object *fj_obj_tmp = fjson_object_new_object();
                                     fjson_object_object_add(fj_obj_tmp, "latitude", fjson_object_new_double(minmea_tocoord(&frame.latitude)));
                                     fjson_object_object_add(fj_obj_tmp, "longitude", fjson_object_new_double(minmea_tocoord(&frame.longitude)));
                                     fjson_object_object_add(fj_obj_location, "value", fj_obj_tmp);
-                                    //fjson_object_object_add(fj_obj_gps, "speed", fjson_object_new_double(minmea_tofloat(&frame.speed)));
-                                } else {
+                                }
+                                else
+                                {
                                     fjson_object *fj_obj_tmp = fjson_object_new_object();
                                     fjson_object_object_add(fj_obj_tmp, "latitude", fjson_object_new_double(0.0));
                                     fjson_object_object_add(fj_obj_tmp, "longitude", fjson_object_new_double(0.0));
                                     fjson_object_object_add(fj_obj_location, "value", fj_obj_tmp);
-                                    //fjson_object_object_add(fj_obj_gps, "speed", fjson_object_new_double(-1.));
                                 }
                                 pthread_mutex_unlock(targs->json_mutex);
                             }
-                        } break;
-                        // case MINMEA_SENTENCE_GSV: {
-                        //     struct minmea_sentence_gsv frame;
-                        //     if (minmea_parse_gsv(&frame, nmea_sentence_buffer)) {
-                        //         pthread_mutex_lock(targs->json_mutex);
-                        //         fjson_object_array_add(fj_obj_gps, create_gsv_json_record(&frame));
-                        //         pthread_mutex_unlock(targs->json_mutex);
-                        //     }
-                        // } break;
+                        }
+                        break;
                         default:
-                            break;
+                        break;
                     }
                     // start collecting next sentence
                     nmea_sentence_next_idx = 0;
-                    memset(nmea_sentence_buffer, 0, 83);
+                    memset(nmea_sentence_buffer, 0, GPS_SENTENCE_BUFF_LEN);
                     strncpy(nmea_sentence_buffer+nmea_sentence_next_idx, token, strlen(token));
                     nmea_sentence_next_idx += strlen(token);
-                } else {
+                }
+                else
+                {
                     strncpy(nmea_sentence_buffer+nmea_sentence_next_idx , token, strlen(token));
                     nmea_sentence_next_idx += strlen(token);
                 }
                 token = strtok(NULL, "\n\r");
-                JSONInterface_dump_if_needed(6, 1);
+                JSONInterface_dump_if_needed(GPS_JSON_DUMP_PERIOD_S);
             }
         }
         usleep(g_task_sleep_time);
@@ -325,26 +290,30 @@ static void *gps_thread_loop(void *ptr)
 
 int GpsReceiver_init(const char* portname, pthread_mutex_t *json_mutex)
 {
-    char buff[128] = {0};
-    strncpy(targs.portname, portname, 64);
+    strncpy(targs.portname, portname, GPS_PORTNAME_LEN);
 
     JSONInterface_add_module_init_cb(gps_json_filler, &fj_obj_gps, GPS_JSON_NAME);
 
     targs.json_mutex = json_mutex;
+
+    return GPS_NO_ERROR;
 }
 
 int GpsReceiver_start()
 {
-    if (pthread_create(&gps_thread, NULL, gps_thread_loop, (void*)&targs)){
+    if (pthread_create(&gps_thread, NULL, gps_thread_loop, (void*)&targs))
+    {
         fprintf(stderr, "Error creating GPS thread\n");
-        return -2;
+        return GPS_ERROR_START;
     }
 
-    return 0;
+    return GPS_NO_ERROR;
 }
 
 int GpsReceiver_end()
 {
     end_thread = 1;
     pthread_join(gps_thread, NULL);
+
+    return GPS_NO_ERROR;
 }

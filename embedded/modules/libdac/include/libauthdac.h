@@ -38,11 +38,7 @@
 // Include files
 //////////////////////////////////////////
 
-#include <sys/types.h>
-
-#include "stdio.h"
-
-//#include "lwip/arch.h"
+#include <stdio.h>
 
 //////////////////////////////////////////
 // Macros and defines
@@ -83,18 +79,18 @@ typedef struct dacSession {
 // Function declarations and definitions
 //////////////////////////////////////////
 
-/* DAC_ERRORS */int dacInitClient(dacSession_t *, void *);
-/* DAC_ERRORS */int dacInitServer(dacSession_t *, void *);
+int dacInitClient(dacSession_t *, void *);
+int dacInitServer(dacSession_t *, void *);
 
-/* DAC_ERRORS */int dacSetOption(dacSession_t *, const  char *, unsigned char *);
+int dacSetOption(dacSession_t *, const  char *, unsigned char *);
 
-/* DAC_ERRORS */int dacAuthenticate(dacSession_t *);
+int dacAuthenticate(dacSession_t *);
 
-/* DAC_ERRORS */int dacSend(dacSession_t *, const unsigned char *, unsigned short);
+int dacSend(dacSession_t *, const unsigned char *, unsigned short);
 
-/* DAC_ERRORS */int dacReceive(dacSession_t *, unsigned char **, unsigned short *);
+int dacReceive(dacSession_t *, unsigned char **, unsigned short *);
 
-/* DAC_ERRORS */int dacRelease(dacSession_t *);
+int dacRelease(dacSession_t *);
 #ifdef __cplusplus
 };
 #endif

@@ -35,8 +35,6 @@
 #define _POLICYSOTRE_H_
 
 #include <stdio.h>
-#include <stdlib.h>
-#include "parson.h"
 
 #define HASH_L (32)
 
@@ -48,32 +46,40 @@ typedef struct policy {
     int is_paid;
     int num_of_executions;
 
-	char *policy_cost;
+    char *policy_cost;
     char *policy_id;
     char *policy_c;
 } policy_t;
 
 typedef enum {
-        OK,
-        ERROR,
-        } error_t;
+    OK,
+    ERROR,
+} error_t;
 
 typedef struct node {
     policy_t *pol;
-
     struct node * next;
 } node_t;
 
 typedef struct list {
-	char *policyID;
-	char *action;
-	int action_length;
+    char *policyID;
+    char *action;
+    int action_length;
 
-	char *policy_cost;
-	int policy_cost_size;
+    char *policy_cost;
+    int policy_cost_size;
 
-	struct list *next;
+    struct list *next;
 } list_t;
+
+typedef struct policy_id_signature {
+    int signature_algorithm_size;
+    char *signature_algorithm;
+    int signature_size;
+    char *signature;
+    int public_key_size;
+    char *public_key;
+} policy_id_signature_t;
 
 /**
  * @fn 		void PolicyStore_free_policy(policy_t *pol)
@@ -98,15 +104,6 @@ void PolicyStore_free_policy(policy_t *pol);
 void PolicyStore_free_action_list_item(list_t *item);
 
 /**
- * @fn      int PolicyStore_normalizeJSON()
- *
- * @brief   Function that takes policy and normalizes it
- *
- * @return  0.
- */
-int PolicyStore_normalizeJSON();
-
-/**
  * @fn      int PolicyStore_init( )
  *
  * @brief   Function that initiates policy store, puts three policies in the policy store
@@ -116,20 +113,24 @@ int PolicyStore_normalizeJSON();
 int PolicyStore_init( );
 
 /**
- * @fn      int PolicyStore_put_policy_from_aws(char *policy_id, int policy_id_size, char *policy, int policy_size)
+ * @fn      int PolicyStore_put_policy(char *policy_id, int policy_id_size, char *policy, int policy_size,
+ *                                     char *policy_id_signature, int policy_id_signature_size, char *policy_cost, short policy_cost_sizechar *policy_id, int policy_id_size, char *policy, int policy_size)
  *
- * @brief   Function that receives policy from AWS and puts new policy to the policy store
+ * @brief   Function that receives policy from cloud and puts new policy to the policy store
  *
- * @param   policy_id       	policy ID
- * @param	policy_id_size		policy id size
- * @param	policy				policy
- * @param   policy_size     	policy size
- * @param	policy_cost			policy cost
- * @param	policy_cost_size	policy cost size
+ * @param   policy_id                policy ID
+ * @param   policy_id_size           policy id size
+ * @param   signed_policy            signed policy
+ * @param   signed_policy_size       signed policy size
+ * @param   policy_id_signature      policy id signature
+ * @param   policy_id_signature_size policy id signature size
+ * @param   policy_cost              policy cost
+ * @param   policy_cost_size         policy cost size
  *
- * @return  0 if it succeeds, 1 if the policy is already located in the policy store.
+ * @return  0 if it succeeds, 1 if the policy is already located in the policy store, -1 for error.
  */
-int PolicyStore_put_policy_from_aws(char *policy_id, int policy_id_size, char *policy, int policy_size, char *policy_cost, short policy_cost_size);
+int PolicyStore_put_policy(char *policy_id, int policy_id_size, char *signed_policy, int signed_policy_size,
+                           char *policy_id_signature, int policy_id_signature_size, char *policy_cost, short policy_cost_size);
 
 /**
  * @fn      int PolicyStore_put_string(char *pol_val, char *sig_val)
@@ -251,6 +252,16 @@ int PolicyStore_is_policy_paid(char *policy_id, int policy_id_size);
  */
 int PolicyStore_enable_policy(char *policy_id, int policy_id_size);
 
+/**
+ * @fn		policy_t *PolicyStore_get_policy(char *policy_id, int policy_id_size)
+ *
+ * @brief	Function that gets policy.
+ *
+ * @param	policy_id	policy ID
+ * @param 	policy_id_size	policy ID size
+ *
+ * @return 	Required policy
+ */
 policy_t *PolicyStore_get_policy(char *policy_id, int policy_id_size);
 
 #endif // _POLICYSOTRE_H_

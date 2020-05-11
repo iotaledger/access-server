@@ -33,7 +33,6 @@
 #include <sys/timerfd.h>
 #include <pthread.h>
 #include <poll.h>
-#include <stdio.h>
 #include <unistd.h>
 
 #include "timer.h"
@@ -41,6 +40,8 @@
 
 #define MAX_TIMER_COUNT 1000
 #define POLL_TIMEOUT 100
+#define SEC_PRESCALER 1000
+#define NSEC_PRESCALER 1000000
 
 typedef struct timer_node
 {
@@ -69,6 +70,7 @@ int Timer_init(void)
 	if(pthread_create(&thread_id, NULL, timer_thread, NULL))
 	{
 		Dlog_printf("\n\nERROR[%s]: Thread creation failed\n\n", __FUNCTION__);
+		thread_is_running = FALSE;
 		return -1;
 	}
 
@@ -117,13 +119,13 @@ int Timer_start(unsigned int interval, time_handler handler, timer_mode_t type, 
 		return -1;
 	}
 
-	new_value.it_value.tv_sec = interval / 1000;
-	new_value.it_value.tv_nsec = (interval % 1000)* 1000000;
+	new_value.it_value.tv_sec = interval / SEC_PRESCALER;
+	new_value.it_value.tv_nsec = (interval % SEC_PRESCALER) * NSEC_PRESCALER;
 
 	if (type == TIMER_PERIODIC)
 	{
-		new_value.it_interval.tv_sec= interval / 1000;
-		new_value.it_interval.tv_nsec = (interval %1000) * 1000000;
+		new_value.it_interval.tv_sec= interval / SEC_PRESCALER;
+		new_value.it_interval.tv_nsec = (interval %SEC_PRESCALER) * NSEC_PRESCALER;
 	}
 	else
 	{
@@ -133,6 +135,7 @@ int Timer_start(unsigned int interval, time_handler handler, timer_mode_t type, 
 
 	timerfd_settime(new_node->fd, 0, &new_value, NULL);
 
+	//find first available ID
 	for(i = 0; i <= timer_list_size; i++)
 	{
 		bool found = FALSE;

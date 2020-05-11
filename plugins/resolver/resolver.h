@@ -43,14 +43,12 @@
 
 #define MAX_LED_NUMBER 10
 #define MAX_STR_SIZE 256
-#define CAR_STATE_LOCK 1
-#define CAR_STATE_UNLOCK 2
-#define CAR_STATE_OPEN_TRUNK 3
-#define CAR_STATE_CLOSE_TRUNK 4
 
 #define MAX_RESOLVER_ACTIONS 10
 #define RESOLVER_ACTION_NAME_SIZE 16
+
 typedef int (*resolver_action_t)(int should_log);
+
 typedef struct {
 	char action_names[MAX_RESOLVER_ACTIONS][RESOLVER_ACTION_NAME_SIZE];
     resolver_action_t actions[MAX_RESOLVER_ACTIONS];
@@ -123,8 +121,20 @@ int Resolver_stop_data_sharing();
  */
 int policy_update_indication();
 
+/**
+ * @fn  int get_time(char *buf)
+ *
+ * @brief   Get current time as string
+ *
+ */
 int get_time(char *buf);
 
+/**
+ * @fn  void Resolver_init(resolver_plugin_initializer_t initializer, VehicleDataset_state_t *vdstate)
+ *
+ * @brief   Initialize Resolver module
+ *
+ */
 void Resolver_init(resolver_plugin_initializer_t initializer, VehicleDataset_state_t *vdstate);
 
 

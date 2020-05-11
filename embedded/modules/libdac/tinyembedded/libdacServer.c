@@ -35,13 +35,7 @@
 /////////////////
 /// Includes
 /////////////////
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-
 #include "dacdbg.h"
-
-#include "libauthdac.h"
 
 #include "libdac_internal.h"
 #include "libdacUtils.h"
@@ -65,7 +59,7 @@
 
 
 
-/* AUTH_STAGES */int authServerInit(dacSession_t *session)
+int authServerInit(dacSession_t *session)
 {
 	int next_stage = AUTH_ERROR;
 
@@ -76,7 +70,6 @@
 	memcpy(getInternalPrivate_key(session), private, PRIVATE_KEY_L);
 	memcpy(getInternalID_V(session) , "server", IDENTIFICATION_STRING_L);
 
-//dn//     getInternalSeq_num(session) = 1;
     getInternalSeq_num_encrypt(session) = 1;
     getInternalSeq_num_decrypt(session) = 1;
 
@@ -101,7 +94,7 @@
  *
  * */
 
-/* AUTH_STAGES */int authServerCompute(dacSession_t *session)
+int authServerCompute(dacSession_t *session)
 {
 	int next_stage = AUTH_ERROR;
 	unsigned char Vc[] = {"client"};
@@ -139,7 +132,7 @@
 	// Server sends ( Ks || f || s )
 	concatinate_strings(writeBuffer, getInternalPublic_key(session), PUBLIC_KEY_L, getInternalDH_public(session), DH_PUBLIC_L);
 	concatinate_strings(writeBuffer + PUBLIC_KEY_L + DH_PUBLIC_L, NULL, 0, s_signed, SIGNED_MESSAGE_L);
-//	Dlog_printf("\nServer sends Ks || f || s to client\n");
+
 	int write_message = session->f_write(session->ext, writeBuffer, SIZE_OF_WRITE_BUFFER);
 
 	// Server receives ( Kc || sc )
@@ -184,10 +177,9 @@
  *
  * */
 
-/* AUTH_STAGES */int authServerFinish(dacSession_t *session)
+int authServerFinish(dacSession_t *session)
 {
 	int next_stage = AUTH_ERROR;
-	//debug("\nGenrating encryption and authorisation keys\n");
 
 	int generated = 0;
 
@@ -199,24 +191,15 @@
 	generated += generate_enc_auth_keys(getInternalIntegrity_key_decryption(session), getInternalSecret_K(session), getInternalExchange_hash(session), 'E');
 	generated += generate_enc_auth_keys(getInternalIntegrity_key_encryption(session), getInternalSecret_K(session), getInternalExchange_hash(session), 'F');
 
-	//AES_init_ctx_iv(&getInternalCtx_encrypt(session), getInternalEncryption_key(session), getInternalIV_encryption(session));
-	   //AES_init_ctx_iv(&getInternalCtx_decrypt(session), getInternalDecryption_key(session), getInternalIV_decryption(session));
-
 	if(generated == 0)
 	{
 		next_stage = AUTH_DONE;
-		//debug("\nGenrating encryption and authorisation keys finished");
-	}
-	else
-	{
-		//debug("\nERROR genrating encryption and authorisation keys");
 	}
 
 	return next_stage;
 }
 
-
-/* DAC_ERRORS */int dacServerAuthenticate(dacSession_t *session)
+int dacServerAuthenticate(dacSession_t *session)
 {
 	int ret = DAC_ERROR;
 
@@ -224,7 +207,8 @@
 
 	while ((AUTH_DONE != authStage) && (AUTH_ERROR != authStage))
 	{
-		switch (authStage) {
+		switch (authStage)
+		{
 			case AUTH_INIT:
 				authStage = authServerInit(session);
 				break;
@@ -243,12 +227,12 @@
 	return ret;
 }
 
-/* DAC_ERRORS */int dacSendServer(dacSession_t *session, const unsigned char *data, unsigned short  data_len)
+int dacSendServer(dacSession_t *session, const unsigned char *data, unsigned short  data_len)
 {
    return dacUtilsWrite(session, data, data_len);
 }
 
-/* DAC_ERRORS */int dacReceiveServer(dacSession_t *session, unsigned char **data, unsigned short  *data_len)
+int dacReceiveServer(dacSession_t *session, unsigned char **data, unsigned short  *data_len)
 {
    return dacUtilsRead(session, data, data_len);
 }

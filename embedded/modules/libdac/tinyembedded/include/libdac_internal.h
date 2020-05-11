@@ -25,13 +25,8 @@
 #ifndef LIBDAC_INTERNAL_H_
 #define LIBDAC_INTERNAL_H_
 
-#include <sys/types.h>
-#include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <unistd.h>
-#include <errno.h>
+
 #include "aes.h"
 #include "curve25519-donna.h"
 
@@ -141,7 +136,7 @@ struct dacStruct {
  *
  * @return  0 if it succeeds, 1 if it fails.
  */
-/* DAC_ERRORS */int dacServerAuthenticate(dacSession_t *session);
+int dacServerAuthenticate(dacSession_t *session);
 /**
  * @fn      int dacClientAuthenticate(dacSession_t *session)
  *
@@ -151,7 +146,7 @@ struct dacStruct {
  *
  * @return  0 if it succeeds, 1 if it fails.
  */
-/* DAC_ERRORS */int dacClientAuthenticate(dacSession_t *session);
+int dacClientAuthenticate(dacSession_t *session);
 /**
  * @fn      int dacSendServer(dacSession_t *session, const unsigned char *msg, unsigned short msg_length)
  *
@@ -163,7 +158,7 @@ struct dacStruct {
  *
  * @return  0 if it succeeds, 1 if it fails.
  */
-/* DAC_ERRORS */int dacSendServer(dacSession_t *session, const unsigned char *msg, unsigned short msg_length);
+int dacSendServer(dacSession_t *session, const unsigned char *msg, unsigned short msg_length);
 /**
  * @fn      int dacSendClient(dacSession_t *session, const unsigned char *data, unsigned short  data_len)
  *
@@ -175,7 +170,7 @@ struct dacStruct {
  *
  * @return  0 if it succeeds, 1 if it fails.
  */
-/* DAC_ERRORS */int dacSendClient(dacSession_t *session, const unsigned char *data, unsigned short  data_len);
+int dacSendClient(dacSession_t *session, const unsigned char *data, unsigned short  data_len);
 /**
  * @fn      int dacReceiveServer(dacSession_t *session, unsigned char **msg, unsigned short  *msg_length)
  *
@@ -187,7 +182,7 @@ struct dacStruct {
  *
  * @return  0 if it succeeds, 1 if it fails.
  */
-/* DAC_ERRORS */int dacReceiveServer(dacSession_t *session, unsigned char **msg, unsigned short  *msg_length);
+int dacReceiveServer(dacSession_t *session, unsigned char **msg, unsigned short  *msg_length);
 /**
  * @fn      int dacReceiveClient(dacSession_t *session, unsigned char **msg, unsigned short  *msg_length)
  *
@@ -199,7 +194,8 @@ struct dacStruct {
  *
  * @return  0 if it succeeds, 1 if it fails.
  */
-/* DAC_ERRORS */int dacReceiveClient(dacSession_t *session, unsigned char **msg, unsigned short  *msg_length);
+int dacReceiveClient(dacSession_t *session, unsigned char **msg, unsigned short  *msg_length);
+
 /**
  * @fn      void dacReleaseServer(dacSession_t *session)
  *
@@ -207,7 +203,7 @@ struct dacStruct {
  *
  * @param   session     Server session
  */
-/* DAC_ERRORS */void dacReleaseServer(dacSession_t *session);
+void dacReleaseServer(dacSession_t *session);
 /**
  * @fn      void dacReleaseClient(dacSession_t *session)
  *
@@ -215,7 +211,7 @@ struct dacStruct {
  *
  * @param   session     Client session
  */
-/* DAC_ERRORS */void dacReleaseClient(dacSession_t *session);
+void dacReleaseClient(dacSession_t *session);
 
 /**
  * @fn      /int dacServerSetOption(dacSession_t *, const char *, unsigned char *)
@@ -226,7 +222,7 @@ struct dacStruct {
  *
  * @return  0 if it succeeds, 1 if it fails.
  */
-/* DAC_ERRORS */int dacServerSetOption(dacSession_t *, const char *, unsigned char *);
+int dacServerSetOption(dacSession_t *, const char *, unsigned char *);
 
 /**
  * @fn      int dacClientSetOption(dacSession_t *, const char *, unsigned char *)
@@ -237,6 +233,6 @@ struct dacStruct {
  *
  * @return  0 if it succeeds, 1 if it fails.
  */
-/* DAC_ERRORS */int dacClientSetOption(dacSession_t *, const char *, unsigned char *);
+int dacClientSetOption(dacSession_t *, const char *, unsigned char *);
 
 #endif /* LIBDAC_INTERNAL_H_ */

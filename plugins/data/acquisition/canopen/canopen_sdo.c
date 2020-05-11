@@ -17,9 +17,21 @@
  * limitations under the License.
  */
 
+/****************************************************************************
+ * \project Decentralized Access Control
+ * \file canopen_sdo.c
+ * \brief
+ * Implementation of interface for CANOPEN
+ *
+ * @Author
+ *
+ * \notes
+ *
+ * \history
+ * XX.YY.ZZZZ. Initial version.
+ ****************************************************************************/
+
 #include "canopen_sdo.h"
-#include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 
 

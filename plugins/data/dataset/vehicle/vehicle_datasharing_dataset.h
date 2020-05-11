@@ -31,10 +31,6 @@
 #ifndef _VEHICLE_DATASHARING_DATASET_H_
 #define _VEHICLE_DATASHARING_DATASET_H_
 
-#include <stddef.h>
-#include <stdint.h>
-
-
 extern char VehicleDataset01_options[];
 
 extern char VehicleDataset02_options[];

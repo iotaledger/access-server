@@ -33,19 +33,13 @@
 
 #include "tcp_server.h"
 
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <arpa/inet.h>
 #include <string.h>
-#include <errno.h>
-#include <time.h>
-#include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <pthread.h>
 
 #include "json_parser.h"
-#include "libauthdac.h"
 #include "authDacHelper.h"
 #include "pep.h"
 #include "policystore.h"
@@ -55,11 +49,38 @@
 
 #define Dlog_printf printf
 
+#define SEND_BUFF_LEN 4096
+#define READ_BUFF_LEN 1025
+#define BUF_LEN 80
+#define CONNECTION_BACKLOG_LEN 10
+#define POL_ID_HEX_LEN 32
+#define POL_ID_STR_LEN 64
+#define USERNAME_LEN 128
+#define USER_DATA_LEN 4096
+#define TIME_50MS 50000
+#define MAX_TRY_NUM 350
+
+#define NO_ERROR 0
+#define ERROR_BIND_FAILED 1
+#define ERROR_LISTEN_FAILED 2
+#define ERROR_CREATE_THREAD_FAILED 3
+
+#define COMMAND_RESOLVE 0
+#define COMMAND_GET_POL_LIST 1
+#define COMMAND_ENABLE_POLICY 2
+#define COMMAND_SET_DATASET 3
+#define COMMAND_GET_DATASET 4
+#define COMMAND_GET_USERNAME 5
+#define COMMAND_GET_USERID 6
+#define COMMAND_REDISTER_USER 7
+#define COMMAND_GET_ALL_USER 8
+#define COMMAND_CLEAR_ALL_USER 9
+
 static pthread_t thread;
 static dacSession_t session;
 static int state = 0;
 static int DAC_AUTH = 1;
-static char send_buffer[4096];
+static char send_buffer[SEND_BUFF_LEN];
 
 static unsigned short port = 9998;
 static int end = 0;
@@ -77,9 +98,7 @@ int TCPServer_start(int portname, VehicleDataset_state_t *_vdstate)
     vdstate = _vdstate;
 
     struct sockaddr_in serv_addr;
-
-    char read_buffer[1025];
-    time_t ticks;
+    char read_buffer[READ_BUFF_LEN];
 
     listenfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     memset(&serv_addr, '0', sizeof(serv_addr));
@@ -90,27 +109,31 @@ int TCPServer_start(int portname, VehicleDataset_state_t *_vdstate)
     serv_addr.sin_port = htons(port);
 
     int retstat = bind(listenfd, (struct sockaddr*) &serv_addr, sizeof(serv_addr));
-    if (retstat != 0) {
+    if (retstat != 0)
+    {
         perror("bind failed");
         end = 1;
-        return 1;
+        return ERROR_BIND_FAILED;
     }
 
-    if (end != 1) {
-        retstat = listen(listenfd, 10);
-        if (retstat != 0) {
+    if (end != 1)
+    {
+        retstat = listen(listenfd, CONNECTION_BACKLOG_LEN);
+        if (retstat != 0)
+        {
             perror("listen failed");
             end = 1;
-            return 2;
+            return ERROR_LISTEN_FAILED;
         }
     }
 
     if (pthread_create(&thread, NULL, server_thread, NULL))
     {
         fprintf(stderr, "Error creating thread\n");
-        return 3;
+        return ERROR_CREATE_THREAD_FAILED;
     }
-    return 0;
+
+    return NO_ERROR;
 }
 
 void TCPServer_stop()
@@ -143,43 +166,49 @@ static int get_server_state()
 static int append_action_item_to_str(char *str, int pos, list_t *action_item)
 {
     if(action_item == NULL)
+    {
         return 0;
+    }
     else if(action_item->policyID == NULL)
+    {
         return 0;
+    }
 
     int buffer_position = pos;
 
     if(buffer_position != 1)
+    {
         str[buffer_position++] = ',';
+    }
 
     str[buffer_position++] = '{';
 
     // add "policy_id"
-    memcpy(str + buffer_position, "\"policy_id\":\"", 13);
-    buffer_position += 13;
+    memcpy(str + buffer_position, "\"policy_id\":\"", strlen("\"policy_id\":\""));
+    buffer_position += strlen("\"policy_id\":\"");
 
     // add "policy_id" value
-    hex_to_str(action_item->policyID, str + buffer_position, 32);
-    buffer_position += 64;
+    hex_to_str(action_item->policyID, str + buffer_position, POL_ID_HEX_LEN);
+    buffer_position += POL_ID_STR_LEN;
     str[buffer_position++] = '\"';
 
     // add "action"
-    memcpy(str + buffer_position, ",\"action\":\"", 11);
-    buffer_position += 11;
+    memcpy(str + buffer_position, ",\"action\":\"", strlen(",\"action\":\""));
+    buffer_position += strlen(",\"action\":\"");
 
     // add "action" value
     memcpy(str + buffer_position, action_item->action, action_item->action_length);
     buffer_position += action_item->action_length;
     str[buffer_position++] = '\"';
 
-    int is_paid = PolicyStore_is_policy_paid(action_item->policyID, 32);
+    int is_paid = PolicyStore_is_policy_paid(action_item->policyID, POL_ID_HEX_LEN);
 
     // check if "cost" field should be added (add it if policy is not paid)
     if (is_paid == 0)
     {
         // add "cost"
-        memcpy(str + buffer_position, ",\"cost\":\"", 9);
-        buffer_position += 9;
+        memcpy(str + buffer_position, ",\"cost\":\"", strlen(",\"cost\":\""));
+        buffer_position += strlen(",\"cost\":\"");
 
         // add "cost" value
         memcpy(str + buffer_position, action_item->policy_cost, action_item->policy_cost_size);
@@ -224,10 +253,8 @@ static unsigned int doAuthWorkTiny(char **recvData)
 
     request_code = checkMsgFormat_new(*recvData);
 
-    if(request_code == 0)
+    if(request_code == COMMAND_RESOLVE)
     {
-        /** "resolve" command */
-
         decision = pep_request_access(*recvData);
 
         if(decision == 1)
@@ -248,10 +275,8 @@ static unsigned int doAuthWorkTiny(char **recvData)
         *recvData = send_buffer;
         buffer_position = sizeof(grant);
     }
-    else if (request_code == 1)
+    else if (request_code == COMMAND_GET_POL_LIST)
     {
-        /** "get_policy_list" command */
-
         list_t *action_list = NULL;
 
         // index of "user_id" token
@@ -259,7 +284,7 @@ static unsigned int doAuthWorkTiny(char **recvData)
 
         for (int i = 0; i < num_of_tokens; i++)
         {
-            if (memcmp(*recvData + get_start_of_token(i), "user_id", 7) == 0)
+            if (memcmp(*recvData + get_start_of_token(i), "user_id", strlen("user_id")) == 0)
             {
                 user_id_index = i + 1;
                 break;
@@ -280,15 +305,13 @@ static unsigned int doAuthWorkTiny(char **recvData)
 
         PolicyStore_clear_list_of_actions(action_list);
     }
-    else if (request_code == 2)
+    else if (request_code == COMMAND_ENABLE_POLICY)
     {
-        /** "PolicyStore_enable_policy" command */
-
         int policy_id_index = -1;
 
         for (int i = 0; i < num_of_tokens; i++)
         {
-            if (memcmp(*recvData + get_start_of_token(i), "policy_id", 9) == 0)
+            if (memcmp(*recvData + get_start_of_token(i), "policy_id", strlen("policy_id")) == 0)
             {
                 policy_id_index = i + 1;
                 break;
@@ -296,7 +319,9 @@ static unsigned int doAuthWorkTiny(char **recvData)
         }
 
         if (policy_id_index == -1)
+        {
             return buffer_position;
+        }
 
         char* pol_id_hex = calloc(get_size_of_token(policy_id_index) / 2, 1);
         str_to_hex(*recvData + get_start_of_token(policy_id_index), pol_id_hex, get_size_of_token(policy_id_index));
@@ -322,15 +347,13 @@ static unsigned int doAuthWorkTiny(char **recvData)
             buffer_position = sizeof(deny);
         }
     }
-    else if (request_code == 3)
+    else if (request_code == COMMAND_SET_DATASET)
     {
-        /** "set_dataset" command */
-
         int dataset_list_index = -1;
 
         for (int i = 0; i < num_of_tokens; i++)
         {
-            if (memcmp(*recvData + get_start_of_token(i), "dataset_list", 12) == 0)
+            if (memcmp(*recvData + get_start_of_token(i), "dataset_list", strlen("dataset_list")) == 0)
             {
                 dataset_list_index = i;
                 break;
@@ -352,19 +375,18 @@ static unsigned int doAuthWorkTiny(char **recvData)
         }
         *recvData = send_buffer;
     }
-    else if (request_code == 4)
+    else if (request_code == COMMAND_GET_DATASET)
     {
-        /** "get_dataset" command */
         buffer_position = VehicleDataset_to_json(vdstate, (char *)send_buffer);
         *recvData = send_buffer;
     }
-    else if (request_code == 5)
+    else if (request_code == COMMAND_GET_USERNAME)
     {
-        char username[128] = "";
+        char username[USERNAME_LEN] = "";
 
         for (int i = 0; i < num_of_tokens; i++)
         {
-        if (memcmp(*recvData + get_start_of_token(i), "username", 8) == 0)
+        if (memcmp(*recvData + get_start_of_token(i), "username", strlen("username")) == 0)
         {
             strncpy(username, *recvData + get_start_of_token(i+1), get_size_of_token(i+1));
             username[get_size_of_token(i+1)] = '\0';
@@ -377,13 +399,13 @@ static unsigned int doAuthWorkTiny(char **recvData)
         *recvData = send_buffer;
         buffer_position = strlen(send_buffer);
     }
-    else if (request_code == 6) // get_auth_user_id
+    else if (request_code == COMMAND_GET_USERID)
     {
-        char username[128] = "";
+        char username[USERNAME_LEN] = "";
 
         for (int i = 0; i < num_of_tokens; i++)
         {
-        if (memcmp(*recvData + get_start_of_token(i), "username", 8) == 0)
+        if (memcmp(*recvData + get_start_of_token(i), "username", strlen("username")) == 0)
         {
             strncpy(username, *recvData + get_start_of_token(i+1), get_size_of_token(i+1));
             username[get_size_of_token(i+1)] = '\0';
@@ -396,12 +418,12 @@ static unsigned int doAuthWorkTiny(char **recvData)
         *recvData = send_buffer;
         buffer_position = strlen(send_buffer);
     }
-    else if (request_code == 7) // register_user
+    else if (request_code == COMMAND_REDISTER_USER)
     {
-        char user_data[4096];
+        char user_data[USER_DATA_LEN];
         for (int i = 0; i < num_of_tokens; i++)
         {
-        if (memcmp(*recvData + get_start_of_token(i), "user", 4) == 0)
+        if (memcmp(*recvData + get_start_of_token(i), "user", strlen("user")) == 0)
         {
             strncpy(user_data, *recvData + get_start_of_token(i+1), get_size_of_token(i+1));
             user_data[get_size_of_token(i+1)] = '\0';
@@ -414,14 +436,14 @@ static unsigned int doAuthWorkTiny(char **recvData)
         *recvData = send_buffer;
         buffer_position = strlen(send_buffer);
     }
-    else if (request_code == 8) // get_all_users
+    else if (request_code == COMMAND_GET_ALL_USER)
     {
         printf("get all users\n");
         UserManagement_get_all_users(send_buffer);
         *recvData = send_buffer;
         buffer_position = strlen(send_buffer);
     }
-    else if (request_code == 9) // clear_all_users
+    else if (request_code == COMMAND_CLEAR_ALL_USER)
     {
         printf("clear all users\n");
         UserManagement_clear_all_users(send_buffer);
@@ -444,7 +466,7 @@ static void *server_thread(void *ptr)
 {
     while (!end)
     {
-        struct timeval tv = { 0, 50000 };  // 50 ms
+        struct timeval tv = { 0, TIME_50MS };
         int result;
         fd_set rfds;
 
@@ -461,7 +483,7 @@ static void *server_thread(void *ptr)
 
             time_t     now;
             struct tm  ts;
-            char       buf[80];
+            char       buf[BUF_LEN];
 
             // Get current time
             time(&now);
@@ -476,7 +498,6 @@ static void *server_thread(void *ptr)
 
             if((state == 0))
             {
-                // Dlog_printf("\n2: Success");
                 state = 1;
                 char *recvData = NULL;
                 unsigned short recv_len = 0;
@@ -490,8 +511,6 @@ static void *server_thread(void *ptr)
                 session.f_verify = verify;
 
                 auth = dacAuthenticate(&session);
-
-                // pthread_mutex_lock(&lock);
 
                 if(auth == 0)
                 {
@@ -519,10 +538,9 @@ static void *server_thread(void *ptr)
                 dacRelease(&session);
 
                 unsigned char try = 0;
-                while((get_server_state() != 0) && ( try++ < 350));
+                while((get_server_state() != 0) && ( try++ < MAX_TRY_NUM));
             }
 
-            // pthread_mutex_unlock(&lock);
             // END
 
             close(connfd);

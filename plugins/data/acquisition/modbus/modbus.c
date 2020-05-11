@@ -40,13 +40,24 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+#define MODBUS_DEVICE_NAME_LEN 127
+#define MODBUS_SLAVE_DEVICE_BUFF_LEN 8
+#define MODBUS_READ_REG_FN 0x03
+#define MODBUS_READ_BUFF_LEN 100
+#define MODBUS_DATA_LEN 256
+#define MODBUS_0_5S_TIMEOUT 5
+#define MODBUS_CRC_SHIFT 8
+#define MODBUS_CRC_AND_MASK 0x0001
+#define MODBUS_CRC_XOR_MASK 0xA001
+
 static int set_interface_attribs (int fd, int speed, int parity);
 static void set_blocking (int fd, int should_block);
 static uint16_t calculate_crc(uint8_t* buf, int len);
 
-int Modbus_init(Modbus_t* modbus, const char* serial_device) {
+int Modbus_init(Modbus_t* modbus, const char* serial_device)
+{
     modbus->fd = -1;
-    strncpy(modbus->device_name, serial_device, 127);
+    strncpy(modbus->device_name, serial_device, MODBUS_DEVICE_NAME_LEN);
     modbus->fd = open(serial_device, O_RDWR | O_NOCTTY | O_SYNC);
 
     if (modbus->fd < 0)
@@ -61,9 +72,9 @@ int Modbus_init(Modbus_t* modbus, const char* serial_device) {
 
 int Modbus_read_registers(Modbus_t* modbus, int slave_device_address, uint16_t register_address, uint16_t quantity_to_read, int16_t *data)
 {
-    uint8_t buff[8] = {0};
+    uint8_t buff[MODBUS_SLAVE_DEVICE_BUFF_LEN] = {0};
     buff[0] = slave_device_address;
-    buff[1] = 0x03; // read register function
+    buff[1] = MODBUS_READ_REG_FN;
     buff[2] = ((uint8_t*)(&register_address))[1];
     buff[3] = ((uint8_t*)(&register_address))[0];
     buff[4] = ((uint8_t*)(&quantity_to_read))[1];
@@ -74,9 +85,9 @@ int Modbus_read_registers(Modbus_t* modbus, int slave_device_address, uint16_t r
     buff[6] = ((uint8_t*)(&crc))[0];
     buff[7] = ((uint8_t*)(&crc))[1];
 
-    ssize_t wsize = write(modbus->fd, buff, 8);
-    uint8_t buffer[100] = {0};
-    ssize_t length = read(modbus->fd, &buffer, sizeof(buffer));
+    ssize_t wsize = write(modbus->fd, buff, MODBUS_SLAVE_DEVICE_BUFF_LEN);
+    uint8_t buffer[MODBUS_READ_BUFF_LEN] = {0};
+    ssize_t length = read(modbus->fd, &buffer, MODBUS_READ_BUFF_LEN);
 
     int bytes_read = buffer[2];
     int response_len = 3 + bytes_read; // length, not including 2 bytes of CRC
@@ -84,20 +95,18 @@ int Modbus_read_registers(Modbus_t* modbus, int slave_device_address, uint16_t r
     crc = calculate_crc(&buffer[0], response_len);
     uint16_t response_crc = *((uint16_t*)(&buffer[response_len]));
 
-    if (response_crc != crc) {
-        //printf("CRC check failed! %X - %X\n", crc, response_crc);
-    }
-
     uint8_t *start_of_registers = &buffer[3];
 
-    for (int i=0; i<bytes_read/2; i++){
-        data[i] = start_of_registers[i*2+1] + start_of_registers[i*2]*256;
+    for (int i=0; i<bytes_read/2; i++)
+    {
+        data[i] = start_of_registers[i*2+1] + start_of_registers[i*2]*MODBUS_DATA_LEN;
     }
 
     return response_crc != crc;
 }
 
-void Modbus_deinit(Modbus_t* modbus) {
+void Modbus_deinit(Modbus_t* modbus)
+{
     close(modbus->fd);
 }
 
@@ -122,7 +131,7 @@ static int set_interface_attribs (int fd, int speed, int parity)
                                     // no canonical processing
     tty.c_oflag = 0;                // no remapping, no delays
     tty.c_cc[VMIN]  = 0;            // read doesn't block
-    tty.c_cc[VTIME] = 5;            // 0.5 seconds read timeout
+    tty.c_cc[VTIME] = MODBUS_0_5S_TIMEOUT; // 0.5 seconds read timeout
 
     tty.c_iflag &= ~(IXON | IXOFF | IXANY); // shut off xon/xoff ctrl
 
@@ -152,9 +161,10 @@ static void set_blocking (int fd, int should_block)
     }
 
     tty.c_cc[VMIN]  = should_block ? 1 : 0;
-    tty.c_cc[VTIME] = 5;            // 0.5 seconds read timeout
+    tty.c_cc[VTIME] = MODBUS_0_5S_TIMEOUT; // 0.5 seconds read timeout
 
-    if (tcsetattr (fd, TCSANOW, &tty) != 0){
+    if (tcsetattr (fd, TCSANOW, &tty) != 0)
+    {
         fprintf(stderr, "error %d setting term attributes", errno);
     }
 }
@@ -162,14 +172,19 @@ static void set_blocking (int fd, int should_block)
 static uint16_t calculate_crc(uint8_t* buf, int len)
 {
     uint16_t crc = 0xffff;
-    for (int pos = 0; pos < len; pos++) {
+    for (int pos = 0; pos < len; pos++)
+    {
         crc ^= (uint16_t)buf[pos];
 
-        for (int i = 8; i != 0; i--) {
-            if ((crc & 0x0001) != 0) {
+        for (int i = 8; i != 0; i--)
+        {
+            if ((crc & 0x0001) != 0)
+            {
                 crc >>= 1;
                 crc ^= 0xA001;
-            } else {
+            }
+            else
+            {
                 crc >>= 1;
             }
         }

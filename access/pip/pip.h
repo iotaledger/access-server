@@ -36,13 +36,10 @@
 
 #include "policystore.h"
 
-#define VEHICLE_ID_LENGTH 			64
 #define PIP_ERROR -1
-#define INVALID_LOCK_STATE 			(unsigned char)0xFF
-#define INVALID_TRUNK_STATE 		(unsigned char)0xFF
+#define PIP_TRUE 4
+#define PIP_FALSE 5
 #define MAX_NUMBER_OF_DIGITS 		10
-
-
 
 typedef enum pip_data_id {
 	PIP_DOOR_ID = 0,

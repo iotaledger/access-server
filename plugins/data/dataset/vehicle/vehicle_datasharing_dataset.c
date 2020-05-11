@@ -34,7 +34,7 @@
 
 char VehicleDataset01_options[] =
     "DoorDrvrSts"
-	"|DoorDrvrReSts";
+    "|DoorDrvrReSts";
 
 char VehicleDataset02_options[] = "";
 

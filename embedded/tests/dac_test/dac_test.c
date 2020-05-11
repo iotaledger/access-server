@@ -31,6 +31,7 @@
 #include "libauthdac.h"
 #include "authDacHelper.h"
 
+#define RECV_BUFF_LEN 1024
 
 static int state = 0;
 int get_server_state()
@@ -68,7 +69,7 @@ int main()
     int sockfd = 0;
     int port = 9998;
 
-    unsigned char recvBuff[1024];
+    unsigned char recvBuff[RECV_BUFF_LEN];
     struct sockaddr_in serv_addr;
     char* servip = "127.0.0.1";
 
@@ -96,9 +97,6 @@ int main()
         return 1;
     }
 
-//    write_socket(&sockfd, "Hello World!", 13);
-
-
     dacInitClient(&session, &sockfd);
 
     session.f_read = read_socket;
@@ -107,7 +105,7 @@ int main()
 
     int auth = dacAuthenticate(&session);
 
-    sendDecision_new(1, &session, "Hello World!", 13);
+    sendDecision_new(1, &session, "Hello World!", strlen("Hello World!") + 1);
 
     unsigned short length;
     dacReceive(&session, (unsigned char**)&recvBuff, &length);

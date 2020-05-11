@@ -33,17 +33,13 @@
  * 21.02.2020. Added obligations functionality.
  ****************************************************************************/
 
-#include <stdio.h>
-#include "parson.h"
 #include "pep.h"
 #include "pdp.h"
 #include "pep_internal.h"
-#include "Dlog.h"
 #include "authDacHelper.h"
 #include "json_parser.h"
-#include "policystore.h"
 
-#include "resolver.h"
+#define POL_ID_SIZE 32
 
 static char* datahex(char* string, int slength) 
 {
@@ -57,10 +53,8 @@ static char* datahex(char* string, int slength)
 		return NULL;
 	}
 
-	int dlength = 32;
-
 	char* data = temp_policy_id;
-	memset(data, 0, dlength);
+	memset(data, 0, POL_ID_SIZE);
 
 	size_t index = 0;
 	while (index < slength) 
@@ -110,7 +104,7 @@ int pep_request_access(char *request)
     size = get_size_of_token(request_policy_id);
     request_policy_id_hex = datahex(request + get_start_of_token(request_policy_id), size);
 
-	pol = PolicyStore_get_policy(request_policy_id_hex, 32);
+	pol = PolicyStore_get_policy(request_policy_id_hex, POL_ID_SIZE);
 
 	action.value = action_value;
 	

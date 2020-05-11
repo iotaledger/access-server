@@ -32,26 +32,18 @@
  * 28.02.2020. Added data sharing through action functionality
  ****************************************************************************/
 
-#include <unistd.h>
-#include <strings.h>
 #include <string.h>
 
 #include "resolver.h"
 #include "Dlog.h"
 
-#include <time.h>
-#include <sys/time.h>
-
-#include "can_receiver.h"
-#include "canopen_receiver.h"
 #include "json_interface.h"
 #include "timer.h"
 #include "time_manager.h"
 
-#define BOARD_INDICATION
-#define CAR_RELAY
 #define DATASET_NUM_SIZE 2
 #define DATASET_NUM_POSITION 9
+#define BUFF_LEN 80
 
 unsigned int flashing_counter[MAX_LED_NUMBER]={0};
 unsigned int on_counter[MAX_LED_NUMBER]={0};
@@ -60,7 +52,6 @@ static int timerId = -1;
 
 static VehicleDataset_state_t *g_vdstate = NULL;
 
-int car_status=0;
 void set_led_flashing(unsigned char led, unsigned int duration)
 {
     flashing_counter[led]=duration;
@@ -75,14 +66,13 @@ int get_time(char *buf)
 {
     time_t     now;
     struct tm  ts;
-    //char       buf[80];
 
     // Get current time
     time(&now);
 
     // Format time, "ddd yyyy-mm-dd hh:mm:ss zzz"
     ts = *localtime(&now);
-    strftime(buf, 80, "%H:%M:%S", &ts);
+    strftime(buf, BUFF_LEN, "%H:%M:%S", &ts);
 }
 
 
@@ -99,7 +89,7 @@ void Resolver_init(resolver_plugin_initializer_t initializer, VehicleDataset_sta
 
 int run_led()
 {
-    char       buf[80];
+    char buf[BUFF_LEN];
 
     get_time(buf);
 
@@ -108,14 +98,14 @@ int run_led()
     return 0;
 }
 
-void timer_handler(size_t timer_id, void * user_data)
+static void timer_handler(size_t timer_id, void * user_data)
 {
     Resolver_stop_data_sharing();
 }
 
 int Resolver_action(const char* action, int should_log, void* arg)
 {
-    char buf[80];
+    char buf[BUFF_LEN];
     int retval = -1;
 
     if (0 == memcmp(action, "start_ds_", strlen("start_ds_") - 1))
@@ -256,7 +246,7 @@ int Resolver_stop_data_sharing()
 
 int policy_update_indication()
 {
-    //Dlog_printf("policy_update_indication\n");
+    Dlog_printf("policy_update_indication\n");
 
     return 0;
 }
