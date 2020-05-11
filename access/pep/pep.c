@@ -23,7 +23,7 @@
  * \brief
  * Implementation of Policy Enforcement Point
  *
- * @Author Dejan Nedic
+ * @Author Dejan Nedic, Strahinja Golic
  *
  * \notes
  *
@@ -31,91 +31,208 @@
  * 25.09.2018. Initial version.
  * 18.02.2019. Added enforce_request_action from resolver module.
  * 21.02.2020. Added obligations functionality.
+ * 11.05.2020. Refactoring
  ****************************************************************************/
 
+/****************************************************************************
+ * INCLUDES
+ ****************************************************************************/
+#include <stdio.h>
+#include <string.h>
+#include <pthread.h>
+#include <stdlib.h>
 #include "pep.h"
 #include "pdp.h"
-#include "pep_internal.h"
-#include "authDacHelper.h"
-#include "json_parser.h"
 
-#define POL_ID_SIZE 32
+/****************************************************************************
+ * MACROS
+ ****************************************************************************/
+#define PEP_POL_ID_SIZE 32
+#define PEP_ACTION_LEN 15
 
-static char* datahex(char* string, int slength) 
+#define PEP_ASCII_SPACE 32
+#define PEP_ASCII_TAB 9
+#define PEP_ASCII_CR 13
+#define PEP_ASCII_LF 10
+
+#define PEP_CHECK_WHITESPACE(x) ((x == PEP_ASCII_SPACE) || (x == PEP_ASCII_TAB) || (x == PEP_ASCII_CR) || (x == PEP_ASCII_LF) ? TRUE : FALSE)
+
+/****************************************************************************
+ * GLOBAL VARIABLES
+ ****************************************************************************/
+static pthread_mutex_t pep_mutex;
+
+/****************************************************************************
+ * LOCAL FUNCTIONS
+ ****************************************************************************/
+static int normalize_request(char *request, int request_len, char **request_normalized)
 {
+	char temp[request_len];
+	int charCnt = 0;
 
-	if(string == NULL)
+	//Check input parameters
+	if (request == NULL || request_len == 0)
 	{
-		return NULL;
-	}
-	if((slength % 2) != 0) // must be even
-	{
-		return NULL;
-	}
-
-	char* data = temp_policy_id;
-	memset(data, 0, POL_ID_SIZE);
-
-	size_t index = 0;
-	while (index < slength) 
-	{
-		char c = string[index];
-		int value = 0;
-		if(c >= '0' && c <= '9')
-		{
-			value = (c - '0');
-		}
-		else if (c >= 'A' && c <= 'F')
-		{
-			value = (10 + (c - 'A'));
-		}
-		else if (c >= 'a' && c <= 'f')
-		{
-			value = (10 + (c - 'a'));
-		}
-		else 
-		{
-			return NULL;
-		}
-
-		data[(index/2)] += value << (((index + 1) % 2) * 4);
-
-		index++;
+		printf("\nERROR[%s]: Bad input parameters.\n", __FUNCTION__);
+		return 0;
 	}
 
-	return data;
+	//Normalize request object and save it to temp
+	memset(temp, 0, request_len);
+
+	for (int i = 0; i < request_len; i++)
+	{
+		if (!PEP_CHECK_WHITESPACE(request[i]))
+		{
+			temp[charCnt] = request[i];
+			charCnt++;
+		}
+	}
+
+	//Allocate memory for request_normalized
+	if (*request_normalized)
+	{
+		free(*request_normalized);
+		*request_normalized = NULL;
+	}
+
+	*request_normalized = malloc(charCnt * sizeof(char));
+	if (*request_normalized == NULL)
+	{
+		return 0;
+	}
+
+	//Copy temp to request_normalized
+	memcpy(*request_normalized, temp, charCnt * sizeof(char));
+
+	return charCnt;
 }
 
-int pep_request_access(char *request)
+/****************************************************************************
+ * CALLBACK FUNCTIONS
+ ****************************************************************************/
+static resolver_fn callback_resolver = NULL;
+
+/****************************************************************************
+ * API FUNCTIONS
+ ****************************************************************************/
+bool PEP_init(void)
 {
-	pdp_decision_t ret = PDP_ERROR;
-	policy_t *pol = NULL;
-    int size = -1;
-    char *request_policy_id_hex;
-    int request_policy_id = -1;
-    int action_l = 15;
-	action_t action;
-    char action_value[action_l];
-    //TODO: obligations should be linked list of the elements of the 'obligation_s' structure type
-    char obligation[OBLIGATION_LEN];
-    memset(obligation, 0, OBLIGATION_LEN * sizeof(char));
-
-	request_policy_id = json_get_value(request, 0, "policy_id");
-    size = get_size_of_token(request_policy_id);
-    request_policy_id_hex = datahex(request + get_start_of_token(request_policy_id), size);
-
-	pol = PolicyStore_get_policy(request_policy_id_hex, POL_ID_SIZE);
-
-	action.value = action_value;
-	
-	ret = pdp_calculate_decision(pol, obligation, &action);
-
-	if (ret == PDP_GRANT)
+	//Initialize mutex
+	if (pthread_mutex_init(&pep_mutex, NULL) != 0)
 	{
-		pol->num_of_executions++;
+		printf("\nERROR[%s]: Mutex init failed.\n", __FUNCTION__);
+		return FALSE;
 	}
 
-	ledControl(ret, obligation, action.value, action.start_time, action.stop_time);
+	//Initialize PDP module
+	if (PDP_init() == FALSE)
+	{
+		printf("\nERROR[%s]: PDP init failed.\n", __FUNCTION__);
+		return FALSE;
+	}
 
-	return ret;
+	return TRUE;
+}
+
+bool PEP_term(void)
+{
+	//Destroy mutex
+	pthread_mutex_destroy(&pep_mutex);
+
+	//Terminate PDP module
+	if (PDP_term() == FALSE)
+	{
+		printf("\nERROR[%s]: PDP term failed.\n", __FUNCTION__);
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+bool PEP_register_callback(resolver_fn resolver)
+{
+	//Check input parameter
+	if (resolver == NULL)
+	{
+		printf("\n\nERROR[%s]: Invalid input parameters.\n\n",__FUNCTION__);
+		return FALSE;
+	}
+
+	//Check if it's already registered
+	if (callback_resolver != NULL)
+	{
+		printf("\n\nERROR[%s]: Callback already registered.\n\n",__FUNCTION__);
+		return FALSE;
+	}
+
+	pthread_mutex_lock(&pep_mutex);
+
+	//Register callback
+	callback_resolver = resolver;
+
+	pthread_mutex_unlock(&pep_mutex);
+
+	return TRUE;
+}
+
+bool PEP_unregister_callback(void)
+{
+	pthread_mutex_lock(&pep_mutex);
+
+	//Unregister callback
+	callback_resolver = NULL;
+
+	pthread_mutex_unlock(&pep_mutex);
+
+	return TRUE;
+}
+
+bool PEP_request_access(char *request)
+{
+	char action_value[PEP_ACTION_LEN];
+	//TODO: obligations should be linked list of the elements of the 'obligation_s' structure type
+	char obligation[PDP_OBLIGATION_LEN];
+	char *norm_request = NULL;
+	PDP_action_t action;
+	PDP_decision_e ret = PDP_ERROR;
+
+	//Check input parameter
+	if (request == NULL)
+	{
+		printf("\n\nERROR[%s]: Invalid input parameter.\n\n",__FUNCTION__);
+		return FALSE;
+	}
+
+	pthread_mutex_lock(&pep_mutex);
+
+	memset(obligation, 0, PEP_ACTION_LEN * sizeof(char));
+
+	action.value = action_value;
+
+	//Get normalized request
+	if (normalize_request(request, strlen(request), &norm_request) == 0)
+	{
+		printf("\n\nERROR[%s]: Error normalizing request.\n\n",__FUNCTION__);
+		pthread_mutex_unlock(&pep_mutex);
+		return FALSE;
+	}
+
+	//Calculate decision and get action + obligation
+	ret = PDP_calculate_decision(norm_request, obligation, &action);
+
+	//Resolver callback
+	if (callback_resolver != NULL)
+	{
+		callback_resolver(obligation, action.value, action.start_time, action.stop_time);
+	}
+	else
+	{
+		printf("\n\nERROR[%s]: Callback is not regostered.\n\n",__FUNCTION__);
+		ret = PDP_ERROR;
+	}
+
+	free(norm_request);
+	pthread_mutex_unlock(&pep_mutex);
+	return ret == PDP_GRANT ? TRUE : FALSE;
 }
