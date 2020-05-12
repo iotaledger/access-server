@@ -35,7 +35,7 @@
 #include <string.h>
 #include <pthread.h>
 
-#include "policystore.h"
+#include "storage.h"
 #include "json_parser.h"
 
 #include "test_internal.h"

@@ -53,6 +53,9 @@ BINARY_MAIN = main
 OBJS_MAIN = main.o
 
 INCLUDE = include/
+ACCESS = ../access/
+NETWORK = ../network/
+PLUGINS = ../plugins/
 MODULE = ./modules/
 EXTERN = ./CpuGeneric/
 LIBDAC = $(MODULE)libdac/
@@ -68,16 +71,17 @@ endif
 ZLIB = $(EXTERN)zlib-1.2.11/
 JSMN = $(EXTERN)jsmn/
 CRYPTO = $(EXTERN)crypto/
-PIP = $(MODULE)pip/
-PEP = $(MODULE)pep/
-PDP = $(MODULE)pdp/
-POLICYSTORE = $(INCLUDE)policyStore/
-RESOLVER = $(MODULE)resolver/
+PIP = $(ACCESS)pip/
+PEP = $(ACCESS)pep/
+PDP = $(ACCESS)pdp/
+PAP = $(ACCESS)pap/
+STORAGE = $(PLUGINS)storage/
+RESOLVER = $(PLUGINS)resolver/
 AWS_DAEMON = $(MODULE)AWS_daemon/
 TCP_SERVER = $(MODULE)tcp_server/
-DATA_ACQUISITION = data_acquisition_modules/
-VEHICLE_DATASET = vehicle_dataset/
-USER_MANAGEMENT = user_management/
+DATA_ACQUISITION = $(PLUGINS)data/acquisition/
+VEHICLE_DATASET = $(PLUGINS)data/dataset/vehicle/
+USER_MANAGEMENT = $(PAP)user/
 GPS = $(DATA_ACQUISITION)gps/
 CAN = $(DATA_ACQUISITION)can/
 OBDII = $(DATA_ACQUISITION)obdii/
@@ -114,16 +118,17 @@ SRCS = \
     $(PIP)pip.c \
     $(PDP)pdp.c \
     $(PEP)pep.c \
+    $(PAP)pap.c \
     $(JSMN)jsmn.c \
     $(JSMN)json_parser.c \
     $(INCLUDE)authDacHelper.c \
     $(LIBDAC)libauthdac.c \
-    $(POLICYSTORE)policystore.c \
+    $(STORAGE)storage.c \
     $(AWS_DAEMON)psDaemon.c \
     $(RESOLVER)resolver.c \
     $(RESOLVER)relay_interface.c \
-    $(RESOLVER)plugins/demo_01_plugin.c \
-    $(RESOLVER)plugins/demo_02_plugin.c \
+    $(RESOLVER)demos/demo_resolver_01.c \
+    $(RESOLVER)demos/demo_resolver_02.c \
     include/json_interface.c \
     include/timer.c \
     config_manager/config_manager.c \
@@ -142,8 +147,8 @@ SRCS = \
     $(CANOPEN)canopen_sdo.c \
     $(VEHICLE_DATASET)vehicle_dataset.c \
     $(VEHICLE_DATASET)vehicle_datasharing_dataset.c \
-    $(TCP_SERVER)tcp_server.c \
-    user_management/user_management.c \
+    $(NETWORK)network.c \
+    $(USER_MANAGEMENT)user.c \
     $(MODBUS)modbus.c \
     $(MODBUS)modbus_receiver.c \
     $(FASTJSON)arraylist.c \
@@ -169,14 +174,15 @@ CFLAGS = \
     -I$(ZLIB) \
     -I$(JSMN) \
     -I$(AWS_DAEMON) \
-    -I$(POLICYSTORE) \
+    -I$(STORAGE) \
     -I$(CRYPTO) \
     -I$(LIBDAC_IMPL)include/ \
     -I$(PIP) \
     -I$(PDP) \
+    -I$(PAP) \
     -I$(CRYPTO)ref/ \
     -I$(RESOLVER) \
-    -I$(RESOLVER)plugins \
+    -I$(RESOLVER)demos \
     -I$(CAN) \
     -I$(OBDII) \
     -I$(OBDII)ejv_obdii \
@@ -194,7 +200,8 @@ CFLAGS = \
     -I$(TCP_SERVER) \
     -I$(USER_MANAGEMENT) \
     -I$(MODBUS) \
-    -I$(FASTJSON)
+    -I$(FASTJSON) \
+    -I$(NETWORK)
 
 all: $(BINARY_MAIN) can_simulator
 

@@ -26,7 +26,7 @@
 #include <pthread.h>
 #include <signal.h>
 
-#include "policystore.h"
+#include "storage.h"
 #include "libauthdac.h"
 #include "vehicle_dataset.h"
 #include "bc_daemon.h"
@@ -35,13 +35,13 @@
 #include "json_interface.h"
 #include "config_manager.h"
 #include "resolver.h"
-#include "demo_01_plugin.h"
-#include "demo_02_plugin.h"
+#include "demo_resolver_01.h"
+#include "demo_resolver_02.h"
 #include "can_receiver.h"
 #include "gps_receiver.h"
 #include "canopen_receiver.h"
-#include "user_management.h"
-#include "tcp_server.h"
+#include "user.h"
+#include "network.h"
 #include "modbus_receiver.h"
 
 #include "psDaemon.h"

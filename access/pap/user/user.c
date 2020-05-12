@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-#include "user_management.h"
+#include "user.h"
 
 #include <string.h>
 

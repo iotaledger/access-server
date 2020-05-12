@@ -39,7 +39,7 @@
 #include "psDaemon.h"
 
 #include "Dlog.h"
-#include "policystore.h"
+#include "storage.h"
 #include "json_parser.h"
 #include "tcp_client.h"
 #include "resolver.h"

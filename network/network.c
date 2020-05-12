@@ -31,7 +31,7 @@
  * 07.11.2019. Initial version.
  ****************************************************************************/
 
-#include "tcp_server.h"
+#include "network.h"
 
 #include <arpa/inet.h>
 #include <string.h>
@@ -42,9 +42,9 @@
 #include "json_parser.h"
 #include "authDacHelper.h"
 #include "pep.h"
-#include "policystore.h"
+#include "storage.h"
 #include "utils_string.h"
-#include "user_management.h"
+#include "user.h"
 #include "globals_declarations.h"
 
 #define Dlog_printf printf
@@ -255,7 +255,7 @@ static unsigned int doAuthWorkTiny(char **recvData)
 
     if(request_code == COMMAND_RESOLVE)
     {
-        decision = pep_request_access(*recvData);
+        decision = PEP_request_access(*recvData);
 
         if(decision == 1)
         {

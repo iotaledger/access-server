@@ -33,7 +33,7 @@
  * 04.03.2020. Initial version.
  ****************************************************************************/
 
-#include "demo_01_plugin.h"
+#include "demo_resolver_01.h"
 
 #include <string.h>
 #include <arpa/inet.h>

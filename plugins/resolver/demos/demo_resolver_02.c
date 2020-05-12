@@ -32,7 +32,7 @@
  * 04.03.2020. Initial version.
  ****************************************************************************/
 
-#include "demo_02_plugin.h"
+#include "demo_resolver_02.h"
 
 #include <string.h>
 
