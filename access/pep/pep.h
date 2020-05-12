@@ -23,15 +23,82 @@
  * \brief
  * Implementation of Policy Enforcement Point
  *
- * @Author Dejan Nedic
+ * @Author Dejan Nedic, Strahinja Golic
  *
  * \notes
  *
  * \history
  * 25.09.2018. Initial version.
+ * 11.05.2020. Refactoring
  ****************************************************************************/
 #ifndef PEP_H
 #define PEP_H
+
+/****************************************************************************
+ * MACROS
+ ****************************************************************************/
+#ifndef bool
+#define bool _Bool
+#endif
+#ifndef FALSE
+#define FALSE 0
+#endif
+#ifndef TRUE
+#define TRUE 1
+#endif
+
+/****************************************************************************
+ * CALLBACKS
+ ****************************************************************************/
+typedef bool (*resolver_fn)(char* obligation, char* action, unsigned long start_time, unsigned long end_time);
+
+/****************************************************************************
+ * API FUNCTIONS
+ ****************************************************************************/
+
+/**
+ * @fn      PEP_init
+ *
+ * @brief   Initialize module
+ *
+ * @param   void
+ *
+ * @return  TRUE on success, FALSE on failure
+ */
+bool PEP_init(void);
+
+/**
+ * @fn      PEP_term
+ *
+ * @brief   Terminate module
+ *
+ * @param   void
+ *
+ * @return  TRUE on success, FALSE on failure
+ */
+bool PEP_term(void);
+
+/**
+ * @fn      PEP_register_callback
+ *
+ * @brief   Register resolver callback
+ *
+ * @param   resolver - Resolver callback
+ *
+ * @return  TRUE on success, FALSE on failure
+ */
+bool PEP_register_callback(resolver_fn resolver);
+
+/**
+ * @fn      PEP_unregister_callback
+ *
+ * @brief   Unregister resolver callback
+ *
+ * @param   void
+ *
+ * @return  TRUE on success, FALSE on failure
+ */
+bool PEP_unregister_callback(void);
 
 /**
  * @fn      int pep_request_access(JSON_Value *request)
@@ -42,6 +109,6 @@
  *
  * @return  DENY (0), GRANT (1)
  */
-int pep_request_access(char *request);
+bool PEP_request_access(char *request);
 
 #endif
