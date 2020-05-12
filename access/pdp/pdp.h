@@ -37,6 +37,9 @@
 /****************************************************************************
  * MACROS
  ****************************************************************************/
+#ifndef bool
+#define bool _Bool
+#endif
 #ifndef FALSE
 #define FALSE    (0)
 #endif
@@ -102,6 +105,28 @@ typedef struct action
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
+/**
+ * @fn      PDP_init
+ *
+ * @brief   Initialize module
+ *
+ * @param   void
+ *
+ * @return  TRUE on success, FALSE on failure
+ */
+bool PDP_init(void);
+
+/**
+ * @fn      PDP_term
+ *
+ * @brief   Terminate module
+ *
+ * @param   void
+ *
+ * @return  TRUE on success, FALSE on failure
+ */
+bool PDP_term(void);
+
 /**
  * @fn      PDP_calculate_decision
  *
