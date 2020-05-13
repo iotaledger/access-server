@@ -28,10 +28,12 @@
 #include <errno.h>
 #include <arpa/inet.h>
 
-#include "libauthdac.h"
-#include "authDacHelper.h"
+#include "asn_auth.h"
+#include "asn_auth_helper.h"
 
 #define RECV_BUFF_LEN 1024
+
+int g_task_sleep_time = 1000000;
 
 static int state = 0;
 int get_server_state()
@@ -59,7 +61,7 @@ int verify(unsigned char *key, int len)
 }
 
 
-static dacSession_t session;
+static asnSession_t session;
 
 int main()
 {
@@ -97,18 +99,18 @@ int main()
         return 1;
     }
 
-    dacInitClient(&session, &sockfd);
+    asnAuth_init_client(&session, &sockfd);
 
     session.f_read = read_socket;
     session.f_write = write_socket;
     session.f_verify = verify;
 
-    int auth = dacAuthenticate(&session);
+    int auth = asnAuth_authenticate(&session);
 
-    sendDecision_new(1, &session, "Hello World!", strlen("Hello World!") + 1);
+    asnAuthHelper_send_decision(1, &session, "{\"cmd\": \"get_all_users\"}", strlen("{\"cmd\": \"get_all_users\"}") + 1);
 
     unsigned short length;
-    dacReceive(&session, (unsigned char**)&recvBuff, &length);
+    asnAuth_receive(&session, (unsigned char**)&recvBuff, &length);
 
     int temp = (int)length;
 

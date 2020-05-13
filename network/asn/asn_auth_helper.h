@@ -19,7 +19,7 @@
 
 /****************************************************************************
  * \project Decentralized Access Control
- * \file authDacHelper.c
+ * \file asn_auth_helper.c
  * \brief
  * Implementation of helper functions for pep module
  *
@@ -30,8 +30,10 @@
  * \history
  * 02.10.2018. Initial version.
  ****************************************************************************/
+#ifndef ASN_AUTH_HELPER_H
+#define ASN_AUTH_HELPER_H
 
-#include "libauthdac.h"
+#include "asn_auth.h"
 
 #ifndef TRUE
 #define TRUE 1
@@ -65,19 +67,7 @@ typedef enum
 } ADH_error_e;
 
 /**
- * @fn      int sendDecision(int decision, dacSession_t *session)
- *
- * @brief   Function that send decision to the client that requested action
- *
- * @param   decision      Decision received form pdp
- * @param   session       TCP session handle
- *
- * @return  0 if it succeeds.
- */
-int sendDecision(int decision, dacSession_t *session);
-
-/**
- * @fn      int sendDecision_new(int decision, dacSession_t *session, char* response, int size)
+ * @fn      int asnAuth_send_decision(int decision, asnSession_t *session, char* response, int size)
  *
  * @brief   Function that send decision to the client that requested action
  *
@@ -88,25 +78,10 @@ int sendDecision(int decision, dacSession_t *session);
  *
  * @return  0 if it succeeds.
  */
-int sendDecision_new(int decision, dacSession_t *session, char* response, int size);
+int asnAuthHelper_send_decision(int decision, asnSession_t *session, char* response, int size);
 
 /**
- * @fn      int ledControl(int decision, unsigned char* polID)
- *
- * @brief   Function that controls led lights based on decision received from pdp
- *
- * @param   decision        Decision from pdp
- * @param   obligation      Obligation from policy
- * @param   action          Action from policy
- * @param   start_time      Time when action starts
- * @param   end_time        Time when action ends
- *
- * @return  0 if it succeeds.
- */
-int ledControl(int decision, char *obligation, char *action, unsigned long start_time, unsigned long end_time);
-
-/**
- * @fn      int checkMsgFormat_new(const char *request)
+ * @fn      int asnAuthHelper_check_msg_format(const char *request)
  *
  * @brief   Function that checks that format of received request is in right format and form
  *
@@ -133,4 +108,6 @@ int ledControl(int decision, char *obligation, char *action, unsigned long start
  *			-9  if "get_auth_user_id" string is not found
  *			-10 if "register_user" string is not found
  */
-int checkMsgFormat_new(const char *request);
+int asnAuthHelper_check_msg_format(const char *request);
+
+#endif

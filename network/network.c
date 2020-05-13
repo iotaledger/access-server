@@ -40,7 +40,7 @@
 #include <pthread.h>
 
 #include "json_parser.h"
-#include "authDacHelper.h"
+#include "asn_auth_helper.h"
 #include "pep.h"
 #include "storage.h"
 #include "utils_string.h"
@@ -77,7 +77,7 @@
 #define COMMAND_CLEAR_ALL_USER 9
 
 static pthread_t thread;
-static dacSession_t session;
+static asnSession_t session;
 static int state = 0;
 static int DAC_AUTH = 1;
 static char send_buffer[SEND_BUFF_LEN];
@@ -251,7 +251,7 @@ static unsigned int doAuthWorkTiny(char **recvData)
 
     int num_of_tokens = json_parser_init(*recvData);
 
-    request_code = checkMsgFormat_new(*recvData);
+    request_code = asnAuthHelper_check_msg_format(*recvData);
 
     if(request_code == COMMAND_RESOLVE)
     {
@@ -504,19 +504,19 @@ static void *server_thread(void *ptr)
                 int auth = -1;
                 int decision = -1;
 
-                dacInitServer(&session, &connfd);
+                asnAuth_init_server(&session, &connfd);
 
                 session.f_read = read_socket;
                 session.f_write = write_socket;
                 session.f_verify = verify;
 
-                auth = dacAuthenticate(&session);
+                auth = asnAuth_authenticate(&session);
 
                 if(auth == 0)
                 {
-                    dacReceive(&session, (unsigned char**)&recvData, &recv_len);
+                    asnAuth_receive(&session, (unsigned char**)&recvData, &recv_len);
                     decision = doAuthWorkTiny(&recvData);
-                    sendDecision_new(decision, &session, recvData, decision);
+                    asnAuthHelper_send_decision(decision, &session, recvData, decision);
                 }
                 else
                 {
@@ -535,7 +535,7 @@ static void *server_thread(void *ptr)
 
                 state = 0;
 
-                dacRelease(&session);
+                asnAuth_release(&session);
 
                 unsigned char try = 0;
                 while((get_server_state() != 0) && ( try++ < MAX_TRY_NUM));

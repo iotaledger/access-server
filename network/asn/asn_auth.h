@@ -19,7 +19,7 @@
 
 /****************************************************************************
  * \project Decentralized Access Control
- * \file libdacauth.h
+ * \file asn_auth.h
  * \brief
  *    Authentication module API
  *
@@ -31,8 +31,8 @@
  * 31.07.2018. Initial version.
  ****************************************************************************/
 
-#ifndef LIBAUTHDAC_H
-#define LIBAUTHDAC_H
+#ifndef ASN_AUTH_H
+#define ASN_AUTH_H
 
 //////////////////////////////////////////
 // Include files
@@ -44,9 +44,9 @@
 // Macros and defines
 //////////////////////////////////////////
 
-/* DAC_ERRORS */
-#define DAC_OK    0
-#define DAC_ERROR 1
+/* ASN_ERRORS */
+#define ASN_OK    0
+#define ASN_ERROR 1
 
 #define AUTH_SERVER_PORT 9998
 
@@ -56,42 +56,42 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-typedef ssize_t f_dac_ext_t(void *, void *, unsigned short);
+typedef ssize_t f_asn_ext_t(void *, void *, unsigned short);
 
-typedef int f_dac_key_verify(unsigned char *, int);
+typedef int f_asn_key_verify(unsigned char *, int);
 
-typedef struct dacStruct dacStruct_t;
+typedef struct asnStruct asnStruct_t;
 
-typedef struct dacSession {
-   dacStruct_t *internal;
+typedef struct {
+   asnStruct_t *internal;
 
    void *ext; /* External data structure */
 
-   f_dac_ext_t *f_write;
-   f_dac_ext_t *f_read;
+   f_asn_ext_t *f_write;
+   f_asn_ext_t *f_read;
 
-   f_dac_key_verify *f_verify;
+   f_asn_key_verify *f_verify;
 
    int status;
-} dacSession_t;
+} asnSession_t;
 
 //////////////////////////////////////////
 // Function declarations and definitions
 //////////////////////////////////////////
 
-int dacInitClient(dacSession_t *, void *);
-int dacInitServer(dacSession_t *, void *);
+int asnAuth_init_client(asnSession_t *, void *);
+int asnAuth_init_server(asnSession_t *, void *);
 
-int dacSetOption(dacSession_t *, const  char *, unsigned char *);
+int asnAuth_set_option(asnSession_t *, const  char *, unsigned char *);
 
-int dacAuthenticate(dacSession_t *);
+int asnAuth_authenticate(asnSession_t *);
 
-int dacSend(dacSession_t *, const unsigned char *, unsigned short);
+int asnAuth_send(asnSession_t *, const unsigned char *, unsigned short);
 
-int dacReceive(dacSession_t *, unsigned char **, unsigned short *);
+int asnAuth_receive(asnSession_t *, unsigned char **, unsigned short *);
 
-int dacRelease(dacSession_t *);
+int asnAuth_release(asnSession_t *);
 #ifdef __cplusplus
 };
 #endif
-#endif /* LIBAUTHDAC_H */
+#endif /* ASN_AUTH_H */

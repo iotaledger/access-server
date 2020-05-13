@@ -10,9 +10,9 @@
  *  -----------------------------------------------------
  *
  * \project Decentralized Access Control
- * \file libdacUtils.h
+ * \file asn_utils.h
  * \brief
- * Header file with function definitions for dac authentication.
+ * Header file with function definitions for ASN authentication.
  *
  * @Author Nikola Kuzmanovic
  *
@@ -21,28 +21,28 @@
  * \history
  * 14.08.2018. Initial version.
  ****************************************************************************/
-#ifndef LIBDACUTILS_H_
-#define LIBDACUTILS_H_
+#ifndef ASN_UTILS_H_
+#define ASN_UTILS_H_
 
 #include <stdlib.h>
 
-#include "libdac_internal.h"
+#include "asn_internal.h"
 
 /**
- * @fn  int compute_signature_s(unsigned char *sig, dacSession_t *dacSession, unsigned char *hash);
+ * @fn  int asnUtils_compute_signature_s(unsigned char *sig, asnSession_t *session, unsigned char *hash);
  *
  * @brief   Function that signes data with private key
  *
  * @param   sig           Result of signing function
- * @param   dacSession    Data structure that contains session related information
+ * @param   session    Data structure that contains session related information
  * @param   hash          Computed hash H for signing
  *
  * @return  0 if it succeeds, 1 if it fails.
  */
-int compute_signature_s(unsigned char *sig, dacSession_t *dacSession, unsigned char *hash);
+int asnUtils_compute_signature_s(unsigned char *sig, asnSession_t *session, unsigned char *hash);
 
 /**
- * @fn  int verify_signature(unsigned char *sig, unsigned char *public_key, unsigned char *hash);
+ * @fn  int asnUtils_verify_signature(unsigned char *sig, unsigned char *public_key, unsigned char *hash);
  *
  * @brief   Function that verifies signed date with public key
  *
@@ -52,33 +52,33 @@ int compute_signature_s(unsigned char *sig, dacSession_t *dacSession, unsigned c
  *
  * @return  0 if it succeeds, 1 if it fails.
  */
-int verify_signature(unsigned char *sig, unsigned char *public_key, unsigned char *hash);
+int asnUtils_verify_signature(unsigned char *sig, unsigned char *public_key, unsigned char *hash);
 
 /**
- * @fn  int dh_generate_keys(dacSession_t *dacSession);
+ * @fn  int asnUtils_dh_generate_keys(asnSession_t *session);
  *
  * @brief   Function that generates Diffie-Hellman private and public keys
  *
- * @param   dacSession    Data structure that contain private and public Diffie-Hellman keys
+ * @param   session    Data structure that contain private and public Diffie-Hellman keys
  *
  * @return  0 if it succeeds, 1 if it fails.
  */
-int dh_generate_keys(dacSession_t *dacSession);
+int asnUtils_dh_generate_keys(asnSession_t *session);
 
 /**
- * @fn  int dh_compute_secret_K(dacSession_t *dacSession,  const unsigned char *public_key);
+ * @fn  int asnUtils_dh_compute_secret_K(asnSession_t *session,  const unsigned char *public_key);
  *
  * @brief   Function that computes shared secret from Diffie-Hellman key exchange
  *
- * @param   dacSession    Data structure that contain session related data
+ * @param   session    Data structure that contain session related data
  * @param   public_key    Received public key
  *
  * @return  0 if it succeeds, 1 if it fails.
  */
-int dh_compute_secret_K(dacSession_t *dacSession,  const unsigned char *public_key);
+int asnUtils_dh_compute_secret_K(asnSession_t *session,  const unsigned char *public_key);
 
 /**
- * @fn  int compute_session_identifier_H(unsigned char *exchange_hash, char *Vc, char *Vs, char *Ks, unsigned char *c_public, unsigned char *s_public, unsigned char *secretK);
+ * @fn  int asnUtils_compute_session_identifier_H(unsigned char *exchange_hash, char *Vc, char *Vs, char *Ks, unsigned char *c_public, unsigned char *s_public, unsigned char *secretK);
  *
  * @brief   Function that computes hash H from Diffie-Hellman key exchange
  *
@@ -92,10 +92,10 @@ int dh_compute_secret_K(dacSession_t *dacSession,  const unsigned char *public_k
  *
  * @return  0 if it succeeds, 1 if it fails.
  */
-int compute_session_identifier_H(unsigned char *exchange_hash, unsigned char *Vc, unsigned char *Vs, unsigned char *K, unsigned char *c_public, unsigned char *s_public, unsigned char *secretK);
+int asnUtils_compute_session_identifier_H(unsigned char *exchange_hash, unsigned char *Vc, unsigned char *Vs, unsigned char *K, unsigned char *c_public, unsigned char *s_public, unsigned char *secretK);
 
 /**
- * @fn  int generate_enc_auth_keys(unsigned char *hash, char *shared_secret_K, char *shared_H, char magic_letter);
+ * @fn  int asnUtils_generate_enc_auth_keys(unsigned char *hash, char *shared_secret_K, char *shared_H, char magic_letter);
  *
  * @brief   Function that computes AES keys
  *
@@ -106,25 +106,25 @@ int compute_session_identifier_H(unsigned char *exchange_hash, unsigned char *Vc
  *
  * @return  0 if it succeeds, 1 if it fails.
  */
-int generate_enc_auth_keys(unsigned char *hash, unsigned char *shared_secret_K, unsigned char *shared_H, char magic_letter);
+int asnUtils_generate_enc_auth_keys(unsigned char *hash, unsigned char *shared_secret_K, unsigned char *shared_H, char magic_letter);
 
 /**
- * @fn  int concatinate_strings(unsigned char *concatinatedString, unsigned char *str1, int str1_l, unsigned char * str2, int str2_l);
+ * @fn  int asnUtils_concatenate_strings(unsigned char *concatenatedString, unsigned char *str1, int str1_l, unsigned char * str2, int str2_l);
  *
- * @brief   Function that takes two strings and concatinates them
+ * @brief   Function that takes two strings and concatenates them
  *
- * @param   concatinatedString    Concatinated string
- * @param   str1                  First string to be concatinated
+ * @param   concatenatedString    Concatinated string
+ * @param   str1                  First string to be concatenated
  * @param   str1_l                First string length
- * @param   str2                  Second string to be concatinated
+ * @param   str2                  Second string to be concatenated
  * @param   str2_l                Second string length
  *
  * @return  0 if it succeeds, 1 if it fails.
  */
-int concatinate_strings(unsigned char *concatinatedString, unsigned char *str1, int str1_l, unsigned char * str2, int str2_l);
+int asnUtils_concatenate_strings(unsigned char *concatenatedString, unsigned char *str1, int str1_l, unsigned char * str2, int str2_l);
 
 /**
- * @fn  int dacUtilsRead(dacSession_t *session, unsigned char **msg, int length);
+ * @fn  int asnUtils_read(asnSession_t *session, unsigned char **msg, int length);
  *
  * @brief   Function that reads messages
  *
@@ -134,10 +134,10 @@ int concatinate_strings(unsigned char *concatinatedString, unsigned char *str1, 
  *
  * @return  0 if it succeeds, 1 if it fails.
  */
-int dacUtilsRead(dacSession_t *session, unsigned char **msg, unsigned short *messageLength);
+int asnUtils_read(asnSession_t *session, unsigned char **msg, unsigned short *messageLength);
 
 /**
- * @fn  int dacUtilsWrite(dacSession_t *session, unsigned char *msg, int length);
+ * @fn  int asnUtils_write(asnSession_t *session, unsigned char *msg, int length);
  *
  * @brief   Function that writes messages
  *
@@ -147,10 +147,10 @@ int dacUtilsRead(dacSession_t *session, unsigned char **msg, unsigned short *mes
  *
  * @return  0 if it succeeds, 1 if it fails.
  */
-int dacUtilsWrite(dacSession_t *session, const unsigned char *msg, unsigned short messageLength);
+int asnUtils_write(asnSession_t *session, const unsigned char *msg, unsigned short messageLength);
 
 /**
- * @fn  int dacUtilSetOption(dacSession_t *session, const char *key, unsigned char *value)
+ * @fn  int asnUtils_set_option(asnSession_t *session, const char *key, unsigned char *value)
  *
  * @brief   Function that writes messages
  *
@@ -160,6 +160,6 @@ int dacUtilsWrite(dacSession_t *session, const unsigned char *msg, unsigned shor
  *
  * @return  0 if it succeeds, 1 if it fails.
  */
-int dacUtilSetOption(dacSession_t *session, const char *key, unsigned char *value);
+int asnUtils_set_option(asnSession_t *session, const char *key, unsigned char *value);
 
-#endif /* LIBDACUTILS_H_ */
+#endif /* ASN_UTILS_H_ */

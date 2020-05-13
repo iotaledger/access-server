@@ -19,9 +19,9 @@
 
 /****************************************************************************
  * \project Decentralized Access Control
- * \file libdacServer.c
+ * \file asn_server.c
  * \brief
- * Implementation of server side dac authentication
+ * Implementation of server side ASN authentication
  *
  * @Author Dejan Nedic, Milivoje Knezevic
  *
@@ -35,10 +35,9 @@
 /////////////////
 /// Includes
 /////////////////
-#include "dacdbg.h"
-
-#include "libdac_internal.h"
-#include "libdacUtils.h"
+#include "asn_debug.h"
+#include "asn_internal.h"
+#include "asn_utils.h"
 
 
 /////////////////////////////////////
@@ -59,7 +58,7 @@
 
 
 
-int authServerInit(dacSession_t *session)
+int authServerInit(asnSession_t *session)
 {
 	int next_stage = AUTH_ERROR;
 
@@ -94,7 +93,7 @@ int authServerInit(dacSession_t *session)
  *
  * */
 
-int authServerCompute(dacSession_t *session)
+int authServerCompute(asnSession_t *session)
 {
 	int next_stage = AUTH_ERROR;
 	unsigned char Vc[] = {"client"};
@@ -112,16 +111,16 @@ int authServerCompute(dacSession_t *session)
 	int read_message = session->f_read(session->ext, received_dh_public, DH_PUBLIC_L);
 
 	// Server generates y and computes f
-	int keys_generated = dh_generate_keys(session);
+	int keys_generated = asnUtils_dh_generate_keys(session);
 
 	// Server computes K = ey mod p
-	int secret_computed = dh_compute_secret_K(session, received_dh_public);
+	int secret_computed = asnUtils_dh_compute_secret_K(session, received_dh_public);
 
 	// Server computes H  = hash( Vc || Vs || Ks || e || f || K )
-	int h_computed = compute_session_identifier_H(getInternalExchange_hash(session), Vc, getInternalID_V(session), getInternalPublic_key(session), received_dh_public, getInternalDH_public(session), getInternalSecret_K(session));
+	int h_computed = asnUtils_compute_session_identifier_H(getInternalExchange_hash(session), Vc, getInternalID_V(session), getInternalPublic_key(session), received_dh_public, getInternalDH_public(session), getInternalSecret_K(session));
 
 	// Server computes signature s = sign( sks, H )
-	int signature_computed = compute_signature_s(s_signed, session, getInternalExchange_hash(session));
+	int signature_computed = asnUtils_compute_signature_s(s_signed, session, getInternalExchange_hash(session));
 	if(signature_computed == 1)
 	{
 		Dlog_printf("\nERROR signing failed\n");
@@ -130,8 +129,8 @@ int authServerCompute(dacSession_t *session)
 	}
 
 	// Server sends ( Ks || f || s )
-	concatinate_strings(writeBuffer, getInternalPublic_key(session), PUBLIC_KEY_L, getInternalDH_public(session), DH_PUBLIC_L);
-	concatinate_strings(writeBuffer + PUBLIC_KEY_L + DH_PUBLIC_L, NULL, 0, s_signed, SIGNED_MESSAGE_L);
+	asnUtils_concatenate_strings(writeBuffer, getInternalPublic_key(session), PUBLIC_KEY_L, getInternalDH_public(session), DH_PUBLIC_L);
+	asnUtils_concatenate_strings(writeBuffer + PUBLIC_KEY_L + DH_PUBLIC_L, NULL, 0, s_signed, SIGNED_MESSAGE_L);
 
 	int write_message = session->f_write(session->ext, writeBuffer, SIZE_OF_WRITE_BUFFER);
 
@@ -144,10 +143,10 @@ int authServerCompute(dacSession_t *session)
 	int key_verified = session->f_verify(client_public_key, PUBLIC_KEY_L);
 
 	// Server computes Hc = hash( Vc || Vs || Kc || e || f || K )
-	int hc_computed = compute_session_identifier_H(getInternalExchange_hash2(session), Vc, getInternalID_V(session), client_public_key, received_dh_public, getInternalDH_public(session), getInternalSecret_K(session));
+	int hc_computed = asnUtils_compute_session_identifier_H(getInternalExchange_hash2(session), Vc, getInternalID_V(session), client_public_key, received_dh_public, getInternalDH_public(session), getInternalSecret_K(session));
 
 	// Server verifies the signature sc on Hc
-	int signature_verified = verify_signature(signature, client_public_key, getInternalExchange_hash2(session));
+	int signature_verified = asnUtils_verify_signature(signature, client_public_key, getInternalExchange_hash2(session));
 
 	if( (read_message == DH_PUBLIC_L) &&
 		(keys_generated == 0) &&
@@ -177,19 +176,19 @@ int authServerCompute(dacSession_t *session)
  *
  * */
 
-int authServerFinish(dacSession_t *session)
+int authServerFinish(asnSession_t *session)
 {
 	int next_stage = AUTH_ERROR;
 
 	int generated = 0;
 
 	// Server generates AES keys.
-	generated += generate_enc_auth_keys(getInternalIV_encryption(session), getInternalSecret_K(session), getInternalExchange_hash(session), 'B');
-	generated += generate_enc_auth_keys(getInternalIV_decryption(session), getInternalSecret_K(session), getInternalExchange_hash(session), 'A');
-	generated += generate_enc_auth_keys(getInternalDecryption_key(session), getInternalSecret_K(session), getInternalExchange_hash(session), 'C');
-	generated += generate_enc_auth_keys(getInternalEncryption_key(session), getInternalSecret_K(session), getInternalExchange_hash(session), 'D');
-	generated += generate_enc_auth_keys(getInternalIntegrity_key_decryption(session), getInternalSecret_K(session), getInternalExchange_hash(session), 'E');
-	generated += generate_enc_auth_keys(getInternalIntegrity_key_encryption(session), getInternalSecret_K(session), getInternalExchange_hash(session), 'F');
+	generated += asnUtils_generate_enc_auth_keys(getInternalIV_encryption(session), getInternalSecret_K(session), getInternalExchange_hash(session), 'B');
+	generated += asnUtils_generate_enc_auth_keys(getInternalIV_decryption(session), getInternalSecret_K(session), getInternalExchange_hash(session), 'A');
+	generated += asnUtils_generate_enc_auth_keys(getInternalDecryption_key(session), getInternalSecret_K(session), getInternalExchange_hash(session), 'C');
+	generated += asnUtils_generate_enc_auth_keys(getInternalEncryption_key(session), getInternalSecret_K(session), getInternalExchange_hash(session), 'D');
+	generated += asnUtils_generate_enc_auth_keys(getInternalIntegrity_key_decryption(session), getInternalSecret_K(session), getInternalExchange_hash(session), 'E');
+	generated += asnUtils_generate_enc_auth_keys(getInternalIntegrity_key_encryption(session), getInternalSecret_K(session), getInternalExchange_hash(session), 'F');
 
 	if(generated == 0)
 	{
@@ -199,9 +198,9 @@ int authServerFinish(dacSession_t *session)
 	return next_stage;
 }
 
-int dacServerAuthenticate(dacSession_t *session)
+int asnInternal_server_authenticate(asnSession_t *session)
 {
-	int ret = DAC_ERROR;
+	int ret = ASN_ERROR;
 
 	int authStage = AUTH_INIT;
 
@@ -227,22 +226,22 @@ int dacServerAuthenticate(dacSession_t *session)
 	return ret;
 }
 
-int dacSendServer(dacSession_t *session, const unsigned char *data, unsigned short  data_len)
+int asnInternal_server_send(asnSession_t *session, const unsigned char *data, unsigned short  data_len)
 {
-   return dacUtilsWrite(session, data, data_len);
+   return asnUtils_write(session, data, data_len);
 }
 
-int dacReceiveServer(dacSession_t *session, unsigned char **data, unsigned short  *data_len)
+int asnInternal_server_receive(asnSession_t *session, unsigned char **data, unsigned short  *data_len)
 {
-   return dacUtilsRead(session, data, data_len);
+   return asnUtils_read(session, data, data_len);
 }
 
-void dacReleaseServer(dacSession_t *session)
+void asnInternal_release_server(asnSession_t *session)
 {
 
 }
 
-int dacServerSetOption(dacSession_t *session, const char *key, unsigned char *value)
+int asnInternal_server_set_option(asnSession_t *session, const char *key, unsigned char *value)
 {
-	return dacUtilSetOption(session, key, value);
+	return asnUtils_set_option(session, key, value);
 }
