@@ -1,18 +1,20 @@
 /*
- * This file is part of the DAC distribution (https://github.com/xainag/frost)
+ * This file is part of the Frost distribution
+ * (https://github.com/xainag/frost)
+ *
  * Copyright (c) 2019 XAIN AG.
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, version 3.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 /****************************************************************************
@@ -33,14 +35,6 @@
 /////////////////
 /// Includes
 /////////////////
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-
-#include "dacdbg.h"
-
-#include "libauthdac.h"
-
 #include "libdac_internal.h"
 #include "libdacUtils.h"
 
@@ -60,7 +54,7 @@
 /// Client authantication function declarations and definitions
 //////////////////////////////////////////////////////////////////
 
-/* AUTH_STAGES */int authClientInit(dacSession_t *session)
+int authClientInit(dacSession_t *session)
 {
 	int next_stage = AUTH_ERROR;
 
@@ -87,7 +81,7 @@
  *
  * */
 
-/* AUTH_STAGES */int authClientGenerate(dacSession_t *session)
+int authClientGenerate(dacSession_t *session)
 {
 	int next_stage = AUTH_ERROR;
 
@@ -95,19 +89,14 @@
 	int keys_generated = dh_generate_keys(session);
 
 	// Client sends e to Server.
-//	printf("\nClient sends dh public key to server\n");
 	int write_message = session->f_write(session->ext, getInternalDH_public(session), DH_PUBLIC_L);
 
-//dn//	getInternalSeq_num(session) = 1;
     getInternalSeq_num_encrypt(session) = 1;
     getInternalSeq_num_decrypt(session) = 1;
 
 	if((keys_generated == 0) && (write_message == DH_PUBLIC_L))
-		next_stage = AUTH_VERIFY;
-	else
 	{
-//		printf("\nERROR in authClientGenerate");
-//		session->f_throw_exception(320);
+		next_stage = AUTH_VERIFY;
 	}
 
 	return next_stage;
@@ -126,7 +115,7 @@
  *
  * */
 
-/* AUTH_STAGES */int authClientVerify(dacSession_t *session)
+int authClientVerify(dacSession_t *session)
 {
 	int next_stage = AUTH_ERROR;
 
@@ -142,11 +131,9 @@
 	unsigned char message[PUBLIC_KEY_L + SIGNED_MESSAGE_L];
 
 	// Client receives ( Ks || f || s )
-//	printf("\nClient receives Ks || f || s from server\n");
 	ssize_t read_message = session->f_read(session->ext, readBuffer, SIZE_OF_READ_BUFFER);
     if(read_message != SIZE_OF_READ_BUFFER)
     {
-//        debug("\nERROR\n");
         return AUTH_ERROR;
     }
 
@@ -209,13 +196,11 @@
  *
  * */
 
-/* AUTH_STAGES */int authClientFinish(dacSession_t *session)
+int authClientFinish(dacSession_t *session)
 {
 	int next_stage = AUTH_ERROR;
 
 	int generated = 0;
-
-//	printf("\nGenrating encryption and authorisation keys");
 
 	// Client generates AES keys.
 	generated += generate_enc_auth_keys(getInternalIV_encryption(session), getInternalSecret_K(session), getInternalExchange_hash(session), 'A');
@@ -225,25 +210,15 @@
 	generated += generate_enc_auth_keys(getInternalIntegrity_key_encryption(session), getInternalSecret_K(session), getInternalExchange_hash(session), 'E');
 	generated += generate_enc_auth_keys(getInternalIntegrity_key_decryption(session), getInternalSecret_K(session), getInternalExchange_hash(session), 'F');
 
-
-	//AES_init_ctx_iv(&getInternalCtx_encrypt(session), getInternalEncryption_key(session), getInternalIV_encryption(session));
-	//AES_init_ctx_iv(&getInternalCtx_decrypt(session), getInternalDecryption_key(session), getInternalIV_decryption(session));
-
 	if(generated == 0)
 	{
 		next_stage = AUTH_DONE;
-//		printf("\nGenrating encryption and authorisation keys finished");
-	}
-	else
-	{
-//		debug("\nERROR genrating encryption and authorisation keys");
-//		session->f_throw_exception(321);
 	}
 
 	return next_stage;
 }
 
-/* DAC_ERRORS */int dacClientAuthenticate(dacSession_t *session)
+int dacClientAuthenticate(dacSession_t *session)
 {
 	int ret = DAC_ERROR;
 
@@ -272,12 +247,12 @@
 	return ret;
 }
 
-/* DAC_ERRORS */int dacSendClient(dacSession_t *session, const unsigned char *data, unsigned short  data_len)
+int dacSendClient(dacSession_t *session, const unsigned char *data, unsigned short  data_len)
 {
    return dacUtilsWrite(session, data, data_len);
 }
 
-/* DAC_ERRORS */int dacReceiveClient(dacSession_t *session, unsigned char **data, unsigned short  *data_len)
+int dacReceiveClient(dacSession_t *session, unsigned char **data, unsigned short  *data_len)
 {
    return dacUtilsRead(session, data, data_len);
 }

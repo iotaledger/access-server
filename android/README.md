@@ -1,2 +1,0 @@
-# dac-mobile-application
-

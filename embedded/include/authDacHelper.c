@@ -1,18 +1,20 @@
 /*
- * This file is part of the DAC distribution (https://github.com/xainag/frost)
+ * This file is part of the Frost distribution
+ * (https://github.com/xainag/frost)
+ *
  * Copyright (c) 2019 XAIN AG.
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, version 3.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 /****************************************************************************
@@ -27,70 +29,34 @@
  *
  * \history
  * 02.10.2018. Initial version.
+ * 21.02.2020. Added obligations handling
+ * 28.02.2020. Added data sharing through action functionality
  ****************************************************************************/
 
 #include "authDacHelper.h"
-//#include "IfxPort_PinMap.h"
 #include "resolver.h"
 #include "json_parser.h"
-//#include "compstatus.h"
-#include "Dlog.h"
 #include <string.h>
-
-//#define OPEN_TRUNCK &IfxPort_P20_13
-//#define LOCK_DOOR &IfxPort_P20_14
 
 #define Dlog_printf printf
 
-void boradcast_status(char *a, char* c)
+int ledControl(int decision, char *obligation, char *action, unsigned long start_time, unsigned long end_time)
 {
-
-}
-
-int ledControl(int decision, char *action, int *obl)
-{
-    if(decision == 1)
+    bool should_log = FALSE;
+    
+    //TODO: only "log_event" obligation is supported currently
+    if(0 == memcmp(obligation, "log_event", strlen("log_event")))
     {
-        if((0 == memcmp(action,"open_trunk", 10)))
-        {
-            Resolver_action03();
-            boradcast_status("trunk", "unlock");
-        }
-        else if ((0 == memcmp(action,"open_door", 9)))
-        {
-            *obl = 1;//lpu
-            Resolver_action01();
-            boradcast_status("door", "unlock");
-        }
-        else if ((0 == memcmp(action,"close_door", 10)))
-        {
-            *obl = 2;//lpl
-            Resolver_action02();
-            boradcast_status("door", "lock");
-        }
-        else if ((0 == memcmp(action,"start_engine", 12)))
-        {
-            Resolver_action04();
-        }
-        else if ((0 == memcmp(action, "honk", 4)))
-        {
-            Resolver_action03();
-        }
-        else if ((0 == memcmp(action, "alarm_on", 8)))
-        {
-            Resolver_action04();
-        }
-        else if ((0 == memcmp(action, "alarm_off", 9)))
-        {
-            Resolver_action05();
-        }
+        should_log = TRUE;
     }
-    else
+    
+    if (decision == 1)
     {
-
+        // TODO: better handling of end_time parameter
+        Resolver_action(action, should_log, &end_time);
     }
 
-    return 0;
+    return ADH_NO_ERROR;
 }
 
 int sendDecision(int decision, dacSession_t *session)
@@ -120,110 +86,110 @@ int checkMsgFormat_new(const char *request)
 {
     if (request == NULL)
     {
-        return -2;
+        return ADH_ERROR_JSON_NULL;
     }
 
     if (json_get_value(request, 0, "cmd") == -1)
     {
-        return -3;
+        return ADH_ERROR_CMD_NOT_FND;
     }
 
     int cmd = json_get_value(request, 0, "cmd");
 
-    if(memcmp(request + get_start_of_token(cmd) , "resolve", 7) == 0)
+    if(memcmp(request + get_start_of_token(cmd) , "resolve", strlen("resolve")) == 0)
     {
         if(json_get_value(request, 0, "policy_id") == -1)
         {
             //error invalid request
-            return -4;
+            return ADH_ERROR_POLID_NOT_FND;
         }
         else
         {
-            return 0;
+            return ADH_NO_ERROR;
         }
     }
-    else if(memcmp(request + get_start_of_token(cmd) , "get_policy_list", 15) == 0)
+    else if(memcmp(request + get_start_of_token(cmd) , "get_policy_list", strlen("get_policy_list")) == 0)
     {
         if(json_get_value(request, 0, "user_id") == -1)
         {
             //error invalid request
-            return -6;
+            return ADH_ERROR_USRID_NOT_FND;
         }
         else
         {
-            return 1;
+            return ADH_NO_ERROR_GET_POL_LIST;
         }
     }
-    else if(memcmp(request + get_start_of_token(cmd) , "enable_policy", 13) == 0)
+    else if(memcmp(request + get_start_of_token(cmd) , "enable_policy", strlen("enable_policy")) == 0)
     {
         if(json_get_value(request, 0, "policy_id") == -1)
         {
             //error invalid request
-            return -4;
+            return ADH_ERROR_POLID_NOT_FND;
         }
         else
         {
-            return 2;
+            return ADH_NO_ERROR_EN_POL;
         }
     }
-    else if (memcmp(request + get_start_of_token(cmd), "set_dataset", 11) == 0)
+    else if (memcmp(request + get_start_of_token(cmd), "set_dataset", strlen("set_dataset")) == 0)
     {
         if (json_get_value(request, 0, "dataset_list") == -1)
         {
-            return -7;
+            return ADH_ERROR_DATASET_LIST_NOT_FND;
         }
         else
         {
-            return 3;
+            return ADH_NO_ERROR_SET_DATASET;
         }
     }
-    else if (memcmp(request + get_start_of_token(cmd), "get_dataset", 11) == 0)
+    else if (memcmp(request + get_start_of_token(cmd), "get_dataset", strlen("get_dataset")) == 0)
     {
-        return 4;
+        return ADH_NO_ERROR_GET_DATASET;
     }
-    else if (memcmp(request + get_start_of_token(cmd), "get_user", 8) == 0)
-    {
-        if (json_get_value(request, 0, "username") == -1)
-        {
-            return -8;
-        }
-        else
-        {
-            return 5;
-        }
-    }
-    else if (memcmp(request + get_start_of_token(cmd), "get_auth_user_id", 16) == 0)
+    else if (memcmp(request + get_start_of_token(cmd), "get_user", strlen("get_user")) == 0)
     {
         if (json_get_value(request, 0, "username") == -1)
         {
-            return -9;
+            return ADH_ERROR_GETUSR_NOT_FND;
         }
         else
         {
-            return 6;
+            return ADH_NO_ERROR_GETUSR;
         }
     }
-    else if (memcmp(request + get_start_of_token(cmd), "register_user", 13) == 0)
+    else if (memcmp(request + get_start_of_token(cmd), "get_auth_user_id", strlen("get_auth_user_id")) == 0)
+    {
+        if (json_get_value(request, 0, "username") == -1)
+        {
+            return ADH_ERROR_GETUSRID_NOT_FND;
+        }
+        else
+        {
+            return ADH_NO_ERROR_GETUSRID;
+        }
+    }
+    else if (memcmp(request + get_start_of_token(cmd), "register_user", strlen("register_user")) == 0)
     {
         if (json_get_value(request, 0, "user") == -1)
         {
-            return -10;
+            return ADH_ERROR_REGUSR_NOT_FND;
         }
         else
         {
-            return 7;
+            return ADH_NO_ERROR_REGUSR;
         }
     }
-    else if (memcmp(request + get_start_of_token(cmd), "get_all_users", 13) == 0)
+    else if (memcmp(request + get_start_of_token(cmd), "get_all_users", strlen("get_all_users")) == 0)
     {
-        return 8;
+        return ADH_NO_ERROR_GETALLUSR;
     }
-    else if (memcmp(request + get_start_of_token(cmd), "clear_all_users", 15) == 0)
+    else if (memcmp(request + get_start_of_token(cmd), "clear_all_users", strlen("clear_all_users")) == 0)
     {
-        return 9;
+        return ADH_NO_ERROR_CLRALLUSR;
     }
     else
     {
-        return -5;
+        return ADH_ERROR_NEQ_RESOLVE;
     }
 }

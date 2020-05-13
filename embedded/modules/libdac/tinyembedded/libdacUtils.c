@@ -1,18 +1,20 @@
 /*
- * This file is part of the DAC distribution (https://github.com/xainag/frost)
+ * This file is part of the Frost distribution
+ * (https://github.com/xainag/frost)
+ *
  * Copyright (c) 2019 XAIN AG.
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, version 3.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 /****************************************************************************
@@ -29,15 +31,14 @@
  * 31.07.2018. Initial version.
  * 06.12.2018. Implemented ed25519 signature algorithm
  ****************************************************************************/
-#include <stdio.h>
-#include <string.h>
-#include <stdint.h>
-#include <sys/types.h>
-
-#include "libdac_internal.h"
 #include "libdacUtils.h"
 
 #include "Dlog.h"
+
+#define ENC_DATA_LEN 2
+#define SEC_NUM_LEN 1
+#define READ_BUF_LEN 5
+#define CHARS_TO_READ 3
 
 //////////////////////////////////////
 ///
@@ -48,6 +49,7 @@ int dh_generate_keys(dacSession_t *session)
 	static const unsigned char basepoint[DH_PRIVATE_L] = {9};
 	int r = rand();
 
+	//TODO: From where this magic numbers came from?
 	memset(getInternalDH_private(session), r, DH_PRIVATE_L);
 	getInternalDH_private(session)[0] &= 248;
 	getInternalDH_private(session)[31] &= 127;
@@ -82,27 +84,39 @@ int compute_session_identifier_H(unsigned char *exchange_hash, unsigned char *Vc
 	unsigned char concatinated_string[CONCATINATED_STRING_L];
 
 	for(int i = 0; i < IDENTIFICATION_STRING_L; i++)
+	{
 		concatinated_string[i] = Vc[i];
+	}
 
 	CURENT_LENGTH += IDENTIFICATION_STRING_L;
 	for(int i = 0; i < IDENTIFICATION_STRING_L; i++)
+	{
 		concatinated_string[CURENT_LENGTH + i] = Vs[i];
+	}
 
 	CURENT_LENGTH += IDENTIFICATION_STRING_L;
 	for(int i = 0; i < PUBLIC_KEY_L; i++)
+	{
 		concatinated_string[CURENT_LENGTH + i] = K[i];
+	}
 
 	CURENT_LENGTH += PUBLIC_KEY_L;
 	for(int i = 0; i < DH_PUBLIC_L; i++)
+	{
 		concatinated_string[CURENT_LENGTH + i] = c_public[i];
+	}
 
 	CURENT_LENGTH += DH_PUBLIC_L;
 	for(int i = 0; i < DH_PUBLIC_L; i++)
+	{
 		concatinated_string[CURENT_LENGTH + i] = s_public[i];
+	}
 
 	CURENT_LENGTH += DH_PUBLIC_L;
 	for(int i = 0; i < DH_SHARED_SECRET_L; i++)
+	{
 		concatinated_string[CURENT_LENGTH + i] = secretK[i];
+	}
 
 	hash(exchange_hash, concatinated_string, CONCATINATED_STRING_L);
 
@@ -115,10 +129,14 @@ int generate_enc_auth_keys(unsigned char *hash, unsigned char *shared_secret_K, 
 	unsigned char contatinated_string[DH_SHARED_SECRET_L + EXCHANGE_HASH_L + 1];
 
 	for(int i = 0; i < DH_SHARED_SECRET_L; i++)
+	{
 		contatinated_string[i] = shared_secret_K[i];
+	}
 
 	for(int i = 0; i < EXCHANGE_HASH_L; i++)
+	{
 		contatinated_string[DH_SHARED_SECRET_L + i] = shared_H[i];
+	}
 
 	contatinated_string[DH_SHARED_SECRET_L + EXCHANGE_HASH_L] = magic_letter;
 
@@ -131,7 +149,6 @@ int generate_enc_auth_keys(unsigned char *hash, unsigned char *shared_secret_K, 
 
 int compute_signature_s(unsigned char *sig, dacSession_t *session, unsigned char *hash)
 {
-
 	unsigned long long smlen;
 
 	crypto_sign(sig,&smlen,hash,DH_SHARED_SECRET_L,getInternalPrivate_key(session));
@@ -143,8 +160,6 @@ int compute_signature_s(unsigned char *sig, dacSession_t *session, unsigned char
 
 int verify_signature(unsigned char *sig, unsigned char *public_key, unsigned char *hash)
 {
-
-
 	unsigned long long mlen;
 	int ret = crypto_sign_open(hash,&mlen,sig,SIGNED_MESSAGE_L,public_key);
 
@@ -173,20 +188,14 @@ int concatinate_strings(unsigned char *concatinatedString, unsigned char *str1, 
 
 int aes_encrypt(AES_ctx_t *ctx, unsigned char *message, int length)
 {
-	//debug("Encrypting message");
 	AES_CBC_encrypt_buffer(ctx, message, length);
-	//debug("Message encrypted");
-//	print_key(message, length);
 
 	return 0;
 }
 
 int aes_decrypt(AES_ctx_t *ctx, unsigned char *message, int length)
 {
-	//debug("Decrypting message");
 	AES_CBC_decrypt_buffer(ctx, message, length);
-	//debug("Message decrypted");
-//	print_key(message, length);
 
 	return 0;
 }
@@ -201,7 +210,8 @@ void hmac_sha256(unsigned char *mac, unsigned char *integrityKey, uint16_t keyLe
 
 	memcpy(key, integrityKey, keyLength);
 
-	if (keyLength > SHA256_BLOCK_BYTES) {
+	if (keyLength > SHA256_BLOCK_BYTES)
+	{
 		sha256_init (&ss);
 		sha256_update (&ss, key, keyLength);
 		sha256_final (&ss, kh);
@@ -216,16 +226,28 @@ void hmac_sha256(unsigned char *mac, unsigned char *integrityKey, uint16_t keyLe
 	}
 
 	unsigned char kx[SHA256_BLOCK_BYTES];
-	for (size_t i = 0; i < internal_key_l; i++) kx[i] = I_PAD ^ internal_key[i];
-	for (size_t i = internal_key_l; i < SHA256_BLOCK_BYTES; i++) kx[i] = I_PAD ^ 0;
+	for (size_t i = 0; i < internal_key_l; i++)
+	{
+		kx[i] = I_PAD ^ internal_key[i];
+	}
+	for (size_t i = internal_key_l; i < SHA256_BLOCK_BYTES; i++)
+	{
+		kx[i] = I_PAD ^ 0;
+	}
 
 	sha256_init (&ss);
 	sha256_update (&ss, kx, SHA256_BLOCK_BYTES);
 	sha256_update (&ss, message, messageLength);
 	sha256_final (&ss, mac);
 
-	for (size_t i = 0; i < internal_key_l; i++) kx[i] = O_PAD ^ internal_key[i];
-	for (size_t i = internal_key_l; i < SHA256_BLOCK_BYTES; i++) kx[i] = O_PAD ^ 0;
+	for (size_t i = 0; i < internal_key_l; i++)
+	{
+		kx[i] = O_PAD ^ internal_key[i];
+	}
+	for (size_t i = internal_key_l; i < SHA256_BLOCK_BYTES; i++)
+	{
+		kx[i] = O_PAD ^ 0;
+	}
 
 	sha256_init (&ss);
 	sha256_update (&ss, kx, SHA256_BLOCK_BYTES);
@@ -235,34 +257,24 @@ void hmac_sha256(unsigned char *mac, unsigned char *integrityKey, uint16_t keyLe
 
 int dacUtilsWrite(dacSession_t *session, const unsigned char *msg, unsigned short messageLength)
 {
+	//TODO: From where this magic numbers came from?
     unsigned short encrypted_data_length = ((messageLength + 2 + 15) / 16 ) * 16; // determine size of encrypted data with padding
-    unsigned short buffer_length = encrypted_data_length + MAC_HASH_L + 2 + 1; //2 bytes for encrypted data length 1 byte for sequence_number
+    unsigned short buffer_length = encrypted_data_length + MAC_HASH_L + ENC_DATA_LEN + SEC_NUM_LEN;
     unsigned char mac[MAC_HASH_L];
 
     unsigned char buffer[buffer_length];
 
     buffer[0] = getInternalSeq_num_encrypt(session);
-//    debug("\nSequence number: %d \n", buffer[0]);
-
     buffer[1] = ((encrypted_data_length >> 8));
-//    printf("\nEncrypted data length f.b.: %d\n", buffer[1]);
     buffer[2] = (encrypted_data_length);
-//    printf("\nEncrypted data length s.b.: %d\n", buffer[2]);
     buffer[3] = ((messageLength >> 8));
-//    printf("\nData length f.b.: %d\n", buffer[3]);
     buffer[4] = messageLength;
-//    printf("\nData length s.b.: %d\n", buffer[4]);
 
     for(int i = 0; i < messageLength; i++)
 	{
 		buffer[i + 5] = msg[i];
 	}
-    /*
-    if((messageLength + 2) % 8 != 0)
-    {
-        addPadding(encrypted_data_length - messageLength - 2, buffer);
-    }
-    */
+
     for(int i = messageLength + 2; i < encrypted_data_length; i++)
     {
         buffer[i + 3] = 0;
@@ -279,8 +291,6 @@ int dacUtilsWrite(dacSession_t *session, const unsigned char *msg, unsigned shor
 
 	int n = session->f_write(session->ext, buffer, buffer_length);
 
-    //debug("Data sent");
-
     getInternalSeq_num_encrypt(session)++;
 
 
@@ -294,33 +304,27 @@ int dacUtilsWrite(dacSession_t *session, const unsigned char *msg, unsigned shor
 
 int dacUtilsRead(dacSession_t *session, unsigned char **msg, unsigned short *messageLength)
 {
-
 	unsigned short encrypted_data_length = 0;
-
-	//    unsigned short msg_buffer_length = 0;// encrypted_data_length + MAC_HASH_L + 2 + 1;
 
 	unsigned char sequence_number = 0;
 
 	unsigned char received_mac[MAC_HASH_L];
 	unsigned char mac[MAC_HASH_L];
 
-	unsigned char buffer[5];
+	unsigned char buffer[READ_BUF_LEN];
 	unsigned char *encrypted_msg_buffer;
 
-	session->f_read(session->ext, buffer, 3);
+	session->f_read(session->ext, buffer, CHARS_TO_READ);
 
 	sequence_number = buffer[0];
 
 	if(sequence_number != getInternalSeq_num_decrypt(session))
 	{
-//		Dlog_printf("Received sequence number %d doesn't match expected: %d", sequence_number, getInternalSeq_num_decrypt(session));
 		return 1;
 	}
 	encrypted_data_length = buffer[1];
 	encrypted_data_length *= 256;
 	encrypted_data_length += buffer[2];
-
-	//Dlog_printf("\nEncrypted data length: %d\n", encrypted_data_length);
 
 	encrypted_msg_buffer = malloc(encrypted_data_length + 3);
 
@@ -339,18 +343,9 @@ int dacUtilsRead(dacSession_t *session, unsigned char **msg, unsigned short *mes
 	session->f_read(session->ext, received_mac, MAC_HASH_L);
 
 	hmac_sha256(mac, getInternalIntegrity_key_decryption(session), INTEGRITY_KEY_L, encrypted_msg_buffer, encrypted_data_length + 3);
-/*
-	Dlog_printf("\n\nMAC: (%d)\n", MAC_HASH_L);
-	for(int z = 0; z < MAC_HASH_L; z++)
-	{
-		Dlog_printf("0x%.02x, ",mac[z]);
-	}
-	Dlog_printf("\n");
-*/
+
 	if(memcmp(mac, received_mac, MAC_HASH_L) == 0)
 	{
-//		Dlog_printf("Data integrity confirmed");
-
 		aes_decrypt(&getInternalCtx_decrypt(session), encrypted_msg_buffer + 3, encrypted_data_length);
 
 
@@ -358,21 +353,16 @@ int dacUtilsRead(dacSession_t *session, unsigned char **msg, unsigned short *mes
 		*messageLength *= 256;
 		*messageLength += encrypted_msg_buffer[4];
 
-//		Dlog_printf("\nmessageLength %d\n", *messageLength);
-
 		int i = 0;
 		unsigned char *ss = malloc(*messageLength);
-
-
-		//     print_key(encrypted_msg_buffer + 5, *messageLength);
 
 		if(NULL != ss)
 		{
 			for(i = 0; i < *messageLength; i++)
 			{
 				ss[i] = encrypted_msg_buffer[i + 5];
-				//          debug("%02x", ss[i]);
 			}
+
 			free(encrypted_msg_buffer);
 			*msg = ss;
 			getInternalSeq_num_decrypt(session)++;
@@ -398,12 +388,12 @@ int dacUtilSetOption(dacSession_t *session, const char *key, unsigned char *valu
 {
 	int ret = DAC_ERROR;
 
-	if((strlen(key) == 7) && (0 == memcmp(key, "private", 7)))
+	if((strlen(key) == strlen("private")) && (0 == memcmp(key, "private", strlen("private"))))
 	{
 		memcpy(getInternalPrivate_key(session), value, PRIVATE_KEY_L);
 		ret = DAC_OK;
 	}
-	else if((strlen(key) == 6) && (0 == memcmp(key, "public", 6)))
+	else if((strlen(key) == strlen("public")) && (0 == memcmp(key, "public", strlen("public"))))
 	{
 		memcpy(getInternalPublic_key(session), value, PUBLIC_KEY_L);
 		ret = DAC_OK;

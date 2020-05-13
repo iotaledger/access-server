@@ -1,18 +1,20 @@
 /*
- * This file is part of the DAC distribution (https://github.com/xainag/frost)
+ * This file is part of the Frost distribution
+ * (https://github.com/xainag/frost)
+ *
  * Copyright (c) 2019 XAIN AG.
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, version 3.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 /****************************************************************************
@@ -34,20 +36,60 @@
  ****************************************************************************/
 #include "config_manager.h"
 
-#include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
 
 #include "ketopt.h"
 #include "ini.h"
 
+#define CONFIG_LONGOPT_VAL_1 301
+#define CONFIG_LONGOPT_VAL_2 302
+#define CONFIG_LONGOPT_VAL_3 304
+#define CONFIG_LONGOPT_VAL_4 305
+#define CONFIG_LONGOPT_VAL_5 306
+#define CONFIG_LONGOPT_VAL_6 307
+#define CONFIG_LONGOPT_VAL_7 308
+#define CONFIG_LONGOPT_VAL_8 309
+#define CONFIG_LONGOPT_VAL_9 310
+#define CONFIG_LONGOPT_VAL_10 311
+#define CONFIG_LONGOPT_VAL_11 312
+#define CONFIG_LONGOPT_VAL_12 313
+#define CONFIG_LONGOPT_VAL_13 314
+#define CONFIG_LONGOPT_VAL_14 315
+#define CONFIG_LONGOPT_VAL_15 316
+#define CONFIG_LONGOPT_VAL_16 317
+#define CONFIG_LONGOPT_VAL_17 318
+#define CONFIG_LONGOPT_VAL_18 319
+#define CONFIG_LONGOPT_VAL_19 320
+#define CONFIG_LONGOPT_VAL_20 321
+#define CONFIG_LONGOPT_VAL_21 322
+
+#define CONFIG_DEFAULT_IP "127.0.0.1"
+#define CONFIG_DEFAULT_GPS_DEVICE "/dev/ttyUSB0"
+#define CONFIG_DEFAULT_MODBUS_DEVICE "/dev/ttyUSB1"
+#define CONFIG_DEFAULT_TOKEN_ADDRESS "0x000000000000000000000000000000000000000"
+#define CONFIG_DEFAULT_TOKEN_SEND_INTERVAL 10
+#define CONFIG_DEFAULT_TOKEN_SEND_AMOUNT 0.001
+#define CONFIG_DEFAULT_BC_HOSTNAME "http://34.77.82.182"
+#define CONFIG_DEFAULT_BC_PORT 8888
+#define CONFIG_DEFAULT_SYMCAN "vcan0"
+#define CONFIG_DEFAULT_CAN0 "can0"
+#define CONFIG_DEFAULT_CAN1 "can1"
+#define CONFIG_DEFAULT_POL_STORE_IP "193.239.219.4"
+#define CONFIG_DEFAULT_POL_STORE_PORT 6007
+#define CONFIG_DEFAULT_JSON_IP_PORT 12345
+#define CONFIG_DEFAULT_DEVICE_ID "123"
+#define CONFIG_DEFAULT_CANOPEN_NODE 42
+#define CONFIG_DEFAULT_THREAD_SLEEP_PERIOD 1.0
+
+#define CONFIG_ADDR_LEN 128
+
+#define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
 
 static int handler(void* user, const char* section, const char* name,
                    const char* value)
 {
     ConfigManager_config_t* pconfig = (ConfigManager_config_t*)user;
 
-    #define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
     if (MATCH("config", "relaybrd_ipaddress")) {
         strncpy(pconfig->relaybrd_ipaddress, value, sizeof(pconfig->relaybrd_ipaddress));
     } else if (MATCH("config", "mainrpi_ipaddress")) {
@@ -98,27 +140,27 @@ static int handler(void* user, const char* section, const char* name,
 }
 
 static ko_longopt_t longopts[] = {
-    { "relaybrd_ipaddress", ko_required_argument, 301 },
-    { "mainrpi_ipaddress", ko_required_argument, 302 },
-    { "client", ko_required_argument, 304 },
-    { "modbus_tty_device", ko_required_argument, 305 },
-    { "symcan_ifname", ko_required_argument, 306 },
-    { "gps_tty_device", ko_required_argument, 307 },
-    { "token_address", ko_required_argument, 308 },
-    { "token_send_interval", ko_required_argument, 309 },
-    { "token_amount", ko_required_argument, 310 },
-    { "bc_hostname", ko_required_argument, 311 },
-    { "bc_hostname_port", ko_required_argument, 312 },
-    { "canopen_port_name", ko_required_argument, 313 },
-    { "canopen_node_id", ko_required_argument, 314 },
-    { "can0_port_name", ko_required_argument, 315 },
-    { "can1_port_name", ko_required_argument, 316 },
-    { "policy_store_service_ip", ko_required_argument, 317 },
-    { "json_interface_ipaddr", ko_required_argument, 318 },
-    { "json_interface_ipport", ko_required_argument, 319 },
-    { "device_id", ko_required_argument, 320 },
-    { "thread_sleep_period", ko_required_argument, 321 },
-    { "policy_store_service_port", ko_required_argument, 322 },
+    { "relaybrd_ipaddress", ko_required_argument, CONFIG_LONGOPT_VAL_1 },
+    { "mainrpi_ipaddress", ko_required_argument, CONFIG_LONGOPT_VAL_2 },
+    { "client", ko_required_argument, CONFIG_LONGOPT_VAL_3 },
+    { "modbus_tty_device", ko_required_argument, CONFIG_LONGOPT_VAL_4 },
+    { "symcan_ifname", ko_required_argument, CONFIG_LONGOPT_VAL_5 },
+    { "gps_tty_device", ko_required_argument, CONFIG_LONGOPT_VAL_6 },
+    { "token_address", ko_required_argument, CONFIG_LONGOPT_VAL_7 },
+    { "token_send_interval", ko_required_argument, CONFIG_LONGOPT_VAL_8 },
+    { "token_amount", ko_required_argument, CONFIG_LONGOPT_VAL_9 },
+    { "bc_hostname", ko_required_argument, CONFIG_LONGOPT_VAL_10 },
+    { "bc_hostname_port", ko_required_argument, CONFIG_LONGOPT_VAL_11 },
+    { "canopen_port_name", ko_required_argument, CONFIG_LONGOPT_VAL_12 },
+    { "canopen_node_id", ko_required_argument, CONFIG_LONGOPT_VAL_13 },
+    { "can0_port_name", ko_required_argument, CONFIG_LONGOPT_VAL_14 },
+    { "can1_port_name", ko_required_argument, CONFIG_LONGOPT_VAL_15 },
+    { "policy_store_service_ip", ko_required_argument, CONFIG_LONGOPT_VAL_16 },
+    { "json_interface_ipaddr", ko_required_argument, CONFIG_LONGOPT_VAL_17 },
+    { "json_interface_ipport", ko_required_argument, CONFIG_LONGOPT_VAL_18 },
+    { "device_id", ko_required_argument, CONFIG_LONGOPT_VAL_19 },
+    { "thread_sleep_period", ko_required_argument, CONFIG_LONGOPT_VAL_20 },
+    { "policy_store_service_port", ko_required_argument, CONFIG_LONGOPT_VAL_21 },
 
     { NULL, 0, 0 }
 };
@@ -174,28 +216,28 @@ int ConfigManager_load(ConfigManager_config_t* config,
 
     // Initial safe options, if there is no .ini file or command line
     // arguments.
-    strncpy(config->relaybrd_ipaddress, "127.0.0.1", sizeof(config->relaybrd_ipaddress));
-    strncpy(config->mainrpi_ipaddress, "127.0.0.1", sizeof(config->mainrpi_ipaddress));
-    strncpy(config->gps_tty_device, "/dev/ttyUSB0", sizeof(config->gps_tty_device));
-    strncpy(config->modbus_tty_device, "/dev/ttyUSB1", sizeof(config->modbus_tty_device));
-    strncpy(config->token_address, "0x9A61Ad437E90022946A72abBa55fea3FE7a42dd", 128);
-    config->token_send_interval = 10;
-    config->token_amount = 0.001;
-    strncpy(config->bc_hostname, "http://34.77.82.182", 128);
-    config->bc_hostname_port = 8888;
+    strncpy(config->relaybrd_ipaddress, CONFIG_DEFAULT_IP, sizeof(config->relaybrd_ipaddress));
+    strncpy(config->mainrpi_ipaddress, CONFIG_DEFAULT_IP, sizeof(config->mainrpi_ipaddress));
+    strncpy(config->gps_tty_device, CONFIG_DEFAULT_GPS_DEVICE, sizeof(config->gps_tty_device));
+    strncpy(config->modbus_tty_device, CONFIG_DEFAULT_MODBUS_DEVICE, sizeof(config->modbus_tty_device));
+    strncpy(config->token_address, CONFIG_DEFAULT_TOKEN_ADDRESS, CONFIG_ADDR_LEN);
+    config->token_send_interval = CONFIG_DEFAULT_TOKEN_SEND_INTERVAL;
+    config->token_amount = CONFIG_DEFAULT_TOKEN_SEND_AMOUNT;
+    strncpy(config->bc_hostname, CONFIG_DEFAULT_BC_HOSTNAME, CONFIG_ADDR_LEN);
+    config->bc_hostname_port = CONFIG_DEFAULT_BC_PORT;
     strncpy(config->client, CONFIG_CLIENT_CAN01, sizeof(config->client));
     strncpy(config->client, CONFIG_CLIENT_CAN01, sizeof(config->client));
-    strncpy(config->symcan_ifname, "vcan0", sizeof(config->symcan_ifname));
-    strncpy(config->can0_port_name, "can0", sizeof(config->can0_port_name));
-    strncpy(config->can1_port_name, "can1", sizeof(config->can1_port_name));
-    strncpy(config->policy_store_service_ip, "193.239.219.4", sizeof(config->policy_store_service_ip));
-    config->policy_store_service_port = 6007;
-    strncpy(config->json_interface_ipaddr, "127.0.0.1", sizeof(config->json_interface_ipaddr));
-    config->json_interface_ipport = 12345;
-    strncpy(config->device_id, "123", sizeof(config->device_id));
-    strncpy(config->canopen_port_name, "can1", sizeof(config->canopen_port_name));
-    config->canopen_node_id = 42;
-    config->thread_sleep_period = 1.0;
+    strncpy(config->symcan_ifname, CONFIG_DEFAULT_SYMCAN, sizeof(config->symcan_ifname));
+    strncpy(config->can0_port_name, CONFIG_DEFAULT_CAN0, sizeof(config->can0_port_name));
+    strncpy(config->can1_port_name, CONFIG_DEFAULT_CAN1, sizeof(config->can1_port_name));
+    strncpy(config->policy_store_service_ip, CONFIG_DEFAULT_POL_STORE_IP, sizeof(config->policy_store_service_ip));
+    config->policy_store_service_port = CONFIG_DEFAULT_POL_STORE_PORT;
+    strncpy(config->json_interface_ipaddr, CONFIG_DEFAULT_IP, sizeof(config->json_interface_ipaddr));
+    config->json_interface_ipport = CONFIG_DEFAULT_JSON_IP_PORT;
+    strncpy(config->device_id, CONFIG_DEFAULT_DEVICE_ID, sizeof(config->device_id));
+    strncpy(config->canopen_port_name, CONFIG_DEFAULT_CAN1, sizeof(config->canopen_port_name));
+    config->canopen_node_id = CONFIG_DEFAULT_CANOPEN_NODE;
+    config->thread_sleep_period = CONFIG_DEFAULT_THREAD_SLEEP_PERIOD;
 
     if (ini_parse(filename, handler, config) < 0) {
         printf("Can't load '%s'\n", filename);
@@ -205,67 +247,67 @@ int ConfigManager_load(ConfigManager_config_t* config,
     int i, c;
     while ((c = ketopt(&opt, argc, argv, 1, "", longopts)) >= 0) {
         switch (c) {
-            case 301:
+            case CONFIG_LONGOPT_VAL_1:
                 strncpy(config->relaybrd_ipaddress, opt.arg, sizeof(config->relaybrd_ipaddress));
             break;
-            case 302:
+            case CONFIG_LONGOPT_VAL_2:
                 strncpy(config->mainrpi_ipaddress, opt.arg, sizeof(config->mainrpi_ipaddress));
             break;
-            case 304:
+            case CONFIG_LONGOPT_VAL_3:
                 strncpy(config->client, opt.arg, sizeof(config->client));
             break;
-            case 305:
+            case CONFIG_LONGOPT_VAL_4:
                 strncpy(config->modbus_tty_device, opt.arg, sizeof(config->modbus_tty_device));
             break;
-            case 306:
+            case CONFIG_LONGOPT_VAL_5:
                 strncpy(config->symcan_ifname, opt.arg, sizeof(config->symcan_ifname));
             break;
-            case 307:
+            case CONFIG_LONGOPT_VAL_6:
                 strncpy(config->gps_tty_device, opt.arg, sizeof(config->gps_tty_device));
             break;
-            case 308:
+            case CONFIG_LONGOPT_VAL_7:
                 strncpy(config->token_address, opt.arg, sizeof(config->token_address));
             break;
-            case 309:
+            case CONFIG_LONGOPT_VAL_8:
                 config->token_send_interval = atoi(opt.arg);
             break;
-            case 310:
+            case CONFIG_LONGOPT_VAL_9:
                 config->token_amount = atof(opt.arg);
             break;
-            case 311:
+            case CONFIG_LONGOPT_VAL_10:
                 strncpy(config->bc_hostname, opt.arg, sizeof(config->bc_hostname));
             break;
-            case 312:
+            case CONFIG_LONGOPT_VAL_11:
                 config->bc_hostname_port = atoi(opt.arg);
             break;
-            case 313:
+            case CONFIG_LONGOPT_VAL_12:
                 strncpy(config->canopen_port_name, opt.arg, sizeof(config->canopen_port_name));
             break;
-            case 314:
+            case CONFIG_LONGOPT_VAL_13:
                 config->canopen_node_id = atoi(opt.arg);
             break;
-            case 315:
+            case CONFIG_LONGOPT_VAL_14:
                 strncpy(config->can0_port_name, opt.arg, sizeof(config->can0_port_name));
             break;
-            case 316:
+            case CONFIG_LONGOPT_VAL_15:
                 strncpy(config->can1_port_name, opt.arg, sizeof(config->can1_port_name));
             break;
-            case 317:
+            case CONFIG_LONGOPT_VAL_16:
                 strncpy(config->policy_store_service_ip, opt.arg, sizeof(config->policy_store_service_ip));
             break;
-            case 322:
+            case CONFIG_LONGOPT_VAL_17:
                 config->policy_store_service_port = atoi(opt.arg);
             break;
-            case 318:
+            case CONFIG_LONGOPT_VAL_18:
                 strncpy(config->json_interface_ipaddr, opt.arg, sizeof(config->json_interface_ipaddr));
             break;
-            case 319:
+            case CONFIG_LONGOPT_VAL_19:
                 config->json_interface_ipport = atoi(opt.arg);
             break;
-            case 320:
+            case CONFIG_LONGOPT_VAL_20:
                 strncpy(config->device_id, opt.arg, sizeof(config->device_id));
             break;
-            case 321:
+            case CONFIG_LONGOPT_VAL_21:
                 config->thread_sleep_period = atof(opt.arg);
             break;
         }

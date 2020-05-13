@@ -1,19 +1,21 @@
-##############################################################################
-# This file is part of the DAC distribution (https://github.com/xainag/frost)
+############################################################################
+# This file is part of the Frost distribution
+# (https://github.com/xainag/frost)
+#
 # Copyright (c) 2019 XAIN AG.
 #
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, version 3.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
-# This program is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-# General Public License for more details.
+#     http://www.apache.org/licenses/LICENSE-2.0
 #
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <http://www.gnu.org/licenses/>.
-##############################################################################
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+############################################################################
 
 #/****************************************************************************
 # * \project Decentralized Access Control
@@ -37,6 +39,8 @@ else
 AT = @
 endif
 
+use_tinyembedded = false
+
 # Set for cross compile
 SYSROOT ?= /
 TOOL_PREFIX ?= /usr/bin/
@@ -44,30 +48,40 @@ TOOL_PREFIX ?= /usr/bin/
 CC = $(TOOL_PREFIX)gcc
 LD = $(TOOL_PREFIX)ld
 
-BINARY_SERVER = serverTest
-BINARY_CLIENT = clientTest
+BINARY_MAIN = main
 
-OBJS_SERVER = test-server.o
-OBJS_CLIENT = test-client.o
+OBJS_MAIN = main.o
 
 INCLUDE = include/
+ACCESS = ../access/
+NETWORK = ../network/
+PLUGINS = ../plugins/
 MODULE = ./modules/
 EXTERN = ./CpuGeneric/
 LIBDAC = $(MODULE)libdac/
-TINYE = $(LIBDAC)tinyembedded/
+
+ifeq ($(use_tinyembedded),true)
+LIBDAC_IMPL = $(LIBDAC)tinyembedded/
+LIBDAC_IMPL_LDFLAGS =
+else
+LIBDAC_IMPL = $(LIBDAC)libCrypto/
+LIBDAC_IMPL_LDFLAGS = -lcrypto
+endif
+
 ZLIB = $(EXTERN)zlib-1.2.11/
 JSMN = $(EXTERN)jsmn/
 CRYPTO = $(EXTERN)crypto/
-PIP = $(MODULE)pip/
-PEP = $(MODULE)pep/
-PDP = $(MODULE)pdp/
-POLICYSTORE = $(INCLUDE)policyStore/
-RESOLVER = $(MODULE)resolver/
+PIP = $(ACCESS)pip/
+PEP = $(ACCESS)pep/
+PDP = $(ACCESS)pdp/
+PAP = $(ACCESS)pap/
+STORAGE = $(PLUGINS)storage/
+RESOLVER = $(PLUGINS)resolver/
 AWS_DAEMON = $(MODULE)AWS_daemon/
 TCP_SERVER = $(MODULE)tcp_server/
-DATA_ACQUISITION = data_acquisition_modules/
-VEHICLE_DATASET = vehicle_dataset/
-USER_MANAGEMENT = user_management/
+DATA_ACQUISITION = $(PLUGINS)data/acquisition/
+VEHICLE_DATASET = $(PLUGINS)data/dataset/vehicle/
+USER_MANAGEMENT = $(PAP)user/
 GPS = $(DATA_ACQUISITION)gps/
 CAN = $(DATA_ACQUISITION)can/
 OBDII = $(DATA_ACQUISITION)obdii/
@@ -78,10 +92,9 @@ FASTJSON = $(EXTERN)libfastjson/
 CURL_LDFLAGS = -lcurl
 SQLITE_LDFLAGS = -lsqlite3
 
-LDFLAGS = -Wl,-rpath-link,$(SYSROOT)/lib/arm-linux-gnueabihf,-rpath-link,$(SYSROOT)/usr/lib/arm-linux-gnueabihf --sysroot=$(SYSROOT) -L$(SYSROOT)/lib -L$(SYSROOT)/usr/lib -L$(SYSROOT)/usr/lib/arm-linux-gnueabihf -B$(SYSROOT)/usr/lib/arm-linux-gnueabihf -dynamic -lpthread -lwiringPi -lwiringPiDev
+LDFLAGS = -Wl,-rpath-link,$(SYSROOT)/lib/arm-linux-gnueabihf,-rpath-link,$(SYSROOT)/usr/lib/arm-linux-gnueabihf --sysroot=$(SYSROOT) -L$(SYSROOT)/lib -L$(SYSROOT)/usr/lib -L$(SYSROOT)/usr/lib/arm-linux-gnueabihf -B$(SYSROOT)/usr/lib/arm-linux-gnueabihf -dynamic -lpthread -lpigpio
 
 SRCS = \
-    $(INCLUDE)Dlog.c \
     $(INCLUDE)tcp_client.c \
     bc/bc_daemon.c \
     $(INCLUDE)utils_string.c \
@@ -97,21 +110,27 @@ SRCS = \
     $(CRYPTO)ref/open.c \
     $(CRYPTO)ref/sign.c \
     $(CRYPTO)ref/verify.c \
-    $(TINYE)libdacUtils.c \
-    $(TINYE)libdacServer.c \
-    $(TINYE)libdacClient.c \
+    $(CRYPTO)ref/utils.c \
+    $(LIBDAC_IMPL)libdacUtils.c \
+    $(LIBDAC_IMPL)libdacServer.c \
+    $(LIBDAC_IMPL)libdacClient.c \
     $(INCLUDE)time_manager.c \
     $(PIP)pip.c \
     $(PDP)pdp.c \
     $(PEP)pep.c \
+    $(PAP)pap.c \
     $(JSMN)jsmn.c \
     $(JSMN)json_parser.c \
     $(INCLUDE)authDacHelper.c \
     $(LIBDAC)libauthdac.c \
-    $(POLICYSTORE)policystore.c \
+    $(STORAGE)storage.c \
     $(AWS_DAEMON)psDaemon.c \
     $(RESOLVER)resolver.c \
+    $(RESOLVER)relay_interface.c \
+    $(RESOLVER)demos/demo_resolver_01.c \
+    $(RESOLVER)demos/demo_resolver_02.c \
     include/json_interface.c \
+    include/timer.c \
     config_manager/config_manager.c \
     config_manager/ini/ini.c \
     $(GPS)minmea/minmea.c \
@@ -127,8 +146,9 @@ SRCS = \
     $(CANOPEN)canopen_receiver.c \
     $(CANOPEN)canopen_sdo.c \
     $(VEHICLE_DATASET)vehicle_dataset.c \
-    $(TCP_SERVER)tcp_server.c \
-    user_management/user_management.c \
+    $(VEHICLE_DATASET)vehicle_datasharing_dataset.c \
+    $(NETWORK)network.c \
+    $(USER_MANAGEMENT)user.c \
     $(MODBUS)modbus.c \
     $(MODBUS)modbus_receiver.c \
     $(FASTJSON)arraylist.c \
@@ -154,13 +174,15 @@ CFLAGS = \
     -I$(ZLIB) \
     -I$(JSMN) \
     -I$(AWS_DAEMON) \
-    -I$(POLICYSTORE) \
+    -I$(STORAGE) \
     -I$(CRYPTO) \
-    -I$(TINYE)include/ \
+    -I$(LIBDAC_IMPL)include/ \
     -I$(PIP) \
     -I$(PDP) \
+    -I$(PAP) \
     -I$(CRYPTO)ref/ \
     -I$(RESOLVER) \
+    -I$(RESOLVER)demos \
     -I$(CAN) \
     -I$(OBDII) \
     -I$(OBDII)ejv_obdii \
@@ -178,36 +200,36 @@ CFLAGS = \
     -I$(TCP_SERVER) \
     -I$(USER_MANAGEMENT) \
     -I$(MODBUS) \
-    -I$(FASTJSON)
+    -I$(FASTJSON) \
+    -I$(NETWORK)
 
-all: $(BINARY_SERVER) docker_preparation can_simulator
+all: $(BINARY_MAIN) can_simulator
 
 clean:
 	@echo "Deleting all binaries..."
-	@rm serverTest clientTest can_simulator $(OBJS) $(OBJS_CLIENT) $(OBJS_SERVER) -f
+	@rm main can_simulator tests/*/*_test tests/*/*.o $(OBJS) $(OBJS_MAIN) -f
 
 %.o: %.c
 	@echo CC $@
 	$(AT)$(CC) -c $(CFLAGS) $< -o $@
 
-user_mgmt_test: user_mgmt_test.o user_management/user_management.o $(JSMN)jsmn.o
-	@echo LINK $(BINARY_CLIENT)
-	$(AT)$(CC) -o user_mgmt_test user_mgmt_test.o user_management/user_management.o $(JSMN)jsmn.o $(SQLITE_LDFLAGS) $(LDFLAGS) $(CURL_LDFLAGS)
-
 can_simulator: can_simulator.o $(CAN)can_linux.o $(CAN)lib.o config_manager/config_manager.o config_manager/ini/ini.o
 	@echo LINK can_simulator
 	$(AT)$(CC) -o can_simulator $^
 
-$(BINARY_CLIENT): $(OBJS_CLIENT) $(OBJS)
-	@echo LINK $(BINARY_CLIENT)
-	$(AT)$(CC) -o $(BINARY_CLIENT) $(OBJS_CLIENT) $(OBJS) $(LDFLAGS) $(CURL_LDFLAGS) $(SQLITE_LDFLAGS)
+$(BINARY_MAIN): $(OBJS_MAIN) $(OBJS)
+	@echo LINK $(BINARY_MAIN)
+	$(AT)$(CC) -o $(BINARY_MAIN) -g -O0 $(OBJS_MAIN) $(OBJS) $(LDFLAGS) $(CURL_LDFLAGS) $(SQLITE_LDFLAGS) $(LIBDAC_IMPL_LDFLAGS)
 
-$(BINARY_SERVER): $(OBJS_SERVER) $(OBJS)
-	@echo LINK $(BINARY_SERVER)
-	$(AT)$(CC) -o $(BINARY_SERVER) -g -O0 $(OBJS_SERVER) $(OBJS) $(LDFLAGS) $(CURL_LDFLAGS) $(SQLITE_LDFLAGS)
+relay_interface_test: tests/relay_interface/relay_interface_test.o $(RESOLVER)relay_interface.o
+	@echo  LINK relay_interface_test
+	$(AT)$(CC) -o tests/relay_interface/relay_interface_test -g -O0 $^ $(LDFLAGS)
 
-docker_preparation: $(BINARY_SERVER)
-	cp $(BINARY_SERVER) docker/delegation_server/delegation_srvr
-	cp bc_webui/*.py docker/ipfs_bc_if/
-	cp config.ini docker/delegation_server/config.ini
-	cp config.ini docker/ipfs_bc_if/config.ini
+user_management_test: tests/user_management/user_management_test tests/user_management/user_management_test.o $(JSMN)jsmn.o
+	@echo LINK $(DAC_test)
+	$(AT)$(CC) -o tests/user_management_test user_management/user_management_test.o $(JSMN)jsmn.o $(SQLITE_LDFLAGS) $(LDFLAGS) $(CURL_LDFLAGS)
+
+dac_test: tests/dac_test/dac_test.o $(OBJS)
+	@echo LINK tests/dac_test/dac_test
+	$(AT)$(CC) -o tests/dac_test/dac_test tests/dac_test/dac_test.o $(OBJS) $(LDFLAGS) $(CURL_LDFLAGS) $(SQLITE_LDFLAGS) $(LIBDAC_IMPL_LDFLAGS)
+

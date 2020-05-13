@@ -1,18 +1,20 @@
 /*
- * This file is part of the DAC distribution (https://github.com/xainag/frost)
+ * This file is part of the Frost distribution
+ * (https://github.com/xainag/frost)
+ *
  * Copyright (c) 2019 XAIN AG.
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, version 3.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 /****************************************************************************
@@ -29,23 +31,29 @@
  * 19.04.2019. Initial version.
  ****************************************************************************/
 
-#include "stdlib.h"
+#include <stdlib.h>
 #include "utils_string.h"
 
+#define SHIFT_POS 4
+#define AND_MASK 0x0f
 
 int hex_to_str(char *hex, char *str, int hex_len)
 {
 	if (hex == NULL)
+	{
 		return UTILS_STRING_ERR_HEX;
+	}
 
 	if (str == NULL)
+	{
 		return UTILS_STRING_ERR_STR;
+	}
 
 	unsigned char temp;
 
 	for(int i = 0 ; i < hex_len; i++)
 	{
-		temp = (hex[i] >> 4) & 0x0f;
+		temp = (hex[i] >> SHIFT_POS) & AND_MASK;
 
 		if((temp >= 0) && (temp <= 9))
 		{
@@ -60,7 +68,7 @@ int hex_to_str(char *hex, char *str, int hex_len)
 			return UTILS_STRING_ERR;
 		}
 
-		temp = hex[i] & 0x0f;
+		temp = hex[i] & AND_MASK;
 
 		if(temp >= 0 && temp <= 9)
 		{
@@ -81,27 +89,42 @@ int hex_to_str(char *hex, char *str, int hex_len)
 int str_to_hex(char *str, char *hex, int str_len)
 {
 	if (str == NULL)
+	{
 		return UTILS_STRING_ERR_STR;
+	}
 
 	if (hex == NULL)
+	{
 		return UTILS_STRING_ERR_HEX;
+	}
 
 	if ((str_len % 2) != 0) // str_len must be even
+	{
 		return UTILS_STRING_ERR_STR_LEN;
+	}
 
 	int index = 0;
-	while (index < str_len) {
+	while (index < str_len)
+	{
 		char c = str[index];
 		int value = 0;
 
 		if(c >= '0' && c <= '9')
+		{
 			value = (c - '0');
+		}
 		else if (c >= 'A' && c <= 'F')
+		{
 			value = (10 + (c - 'A'));
+		}
 		else if (c >= 'a' && c <= 'f')
+		{
 			value = (10 + (c - 'a'));
+		}
 		else
+		{
 			return UTILS_STRING_ERR;
+		}
 
 		hex[(index / 2)] += value << (((index + 1) % 2) * 4);
 		index++;
