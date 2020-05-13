@@ -14,21 +14,6 @@
 
 #include "crypto_verify_32.h"
 
-
-#include "Dlog.h"
-
-
-
-size_t
-crypto_verify_32_bytes(void)
-{
-    return crypto_verify_32_BYTES;
-}
-
-
-
-
-
 static inline int
 crypto_verify_n(const unsigned char *x_, const unsigned char *y_,
                 const int n)

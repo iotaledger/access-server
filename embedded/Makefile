@@ -110,7 +110,6 @@ SRCS = \
     $(CRYPTO)ref/open.c \
     $(CRYPTO)ref/sign.c \
     $(CRYPTO)ref/verify.c \
-    $(CRYPTO)ref/utils.c \
     $(LIBDAC_IMPL)libdacUtils.c \
     $(LIBDAC_IMPL)libdacServer.c \
     $(LIBDAC_IMPL)libdacClient.c \
