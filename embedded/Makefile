@@ -110,7 +110,6 @@ SRCS = \
     $(CRYPTO)ref/open.c \
     $(CRYPTO)ref/sign.c \
     $(CRYPTO)ref/verify.c \
-    $(CRYPTO)ref/utils.c \
     $(ASN_IMPL)asn_utils.c \
     $(ASN_IMPL)asn_server.c \
     $(ASN_IMPL)asn_client.c \
