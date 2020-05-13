@@ -1,6 +1,6 @@
-# DAC Embedded
+# ASN
 
-DAC authentication protocol implementation
+ASN authentication protocol implementation
 
 ## OpenSSL
 
