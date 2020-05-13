@@ -75,6 +75,7 @@ PIP = $(ACCESS)pip/
 PEP = $(ACCESS)pep/
 PDP = $(ACCESS)pdp/
 PAP = $(ACCESS)pap/
+VALIDATOR = $(PAP)validator/
 STORAGE = $(PLUGINS)storage/
 RESOLVER = $(PLUGINS)resolver/
 AWS_DAEMON = $(MODULE)AWS_daemon/
@@ -159,7 +160,9 @@ SRCS = \
     $(FASTJSON)json_tokener.c \
     $(FASTJSON)json_util.c \
     $(FASTJSON)json_version.c \
-    $(FASTJSON)printbuf.c
+    $(FASTJSON)printbuf.c \
+    $(VALIDATOR)validator.c \
+    $(VALIDATOR)parser.c
 
 OBJS =	$(SRCS:.c=.o)
 
@@ -201,7 +204,8 @@ CFLAGS = \
     -I$(USER_MANAGEMENT) \
     -I$(MODBUS) \
     -I$(FASTJSON) \
-    -I$(NETWORK)
+    -I$(NETWORK) \
+    -I$(VALIDATOR)
 
 all: $(BINARY_MAIN) can_simulator
 
