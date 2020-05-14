@@ -19,7 +19,7 @@
 
 /****************************************************************************
  * \project Decentralized Access Control
- * \file authDacHelper.c
+ * \file asn_auth_helper.c
  * \brief
  * Implementation of helper functions for pep module
  *
@@ -33,56 +33,18 @@
  * 28.02.2020. Added data sharing through action functionality
  ****************************************************************************/
 
-#include "authDacHelper.h"
-#include "resolver.h"
+#include "asn_auth_helper.h"
 #include "json_parser.h"
 #include <string.h>
 
 #define Dlog_printf printf
 
-int ledControl(int decision, char *obligation, char *action, unsigned long start_time, unsigned long end_time)
+int asnAuthHelper_send_decision(int decision, asnSession_t *session, char* response, int size)
 {
-    bool should_log = FALSE;
-    
-    //TODO: only "log_event" obligation is supported currently
-    if(0 == memcmp(obligation, "log_event", strlen("log_event")))
-    {
-        should_log = TRUE;
-    }
-    
-    if (decision == 1)
-    {
-        // TODO: better handling of end_time parameter
-        Resolver_action(action, should_log, &end_time);
-    }
-
-    return ADH_NO_ERROR;
+    return asnAuth_send(session, response, size);
 }
 
-int sendDecision(int decision, dacSession_t *session)
-{
-    char grant[] = {"{\"response\":\"access granted\"}"};
-    char deny[] = {"{\"response\":\"access denied\"}"};
-    char *msg;
-
-    if(decision == 1)
-    {
-        msg = grant;
-    }
-    else
-    {
-        msg = deny;
-    }
-
-    return dacSend(session, msg, strlen(msg));
-}
-
-int sendDecision_new(int decision, dacSession_t *session, char* response, int size)
-{
-    return dacSend(session, response, size);
-}
-
-int checkMsgFormat_new(const char *request)
+int asnAuthHelper_check_msg_format(const char *request)
 {
     if (request == NULL)
     {

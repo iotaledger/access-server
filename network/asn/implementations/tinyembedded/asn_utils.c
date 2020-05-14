@@ -19,7 +19,7 @@
 
 /****************************************************************************
  * \project Decentralized Access Control
- * \file libdacUtils.c
+ * \file asn_utils.c
  * \brief
  * Implementation of key exchange and encryption key computation
  *
@@ -31,7 +31,7 @@
  * 31.07.2018. Initial version.
  * 06.12.2018. Implemented ed25519 signature algorithm
  ****************************************************************************/
-#include "libdacUtils.h"
+#include "asn_utils.h"
 
 #include "Dlog.h"
 
@@ -44,7 +44,7 @@
 ///
 //////////////////////////////////////
 
-int dh_generate_keys(dacSession_t *session)
+int asnUtils_dh_generate_keys(asnSession_t *session)
 {
 	static const unsigned char basepoint[DH_PRIVATE_L] = {9};
 	int r = rand();
@@ -60,14 +60,14 @@ int dh_generate_keys(dacSession_t *session)
 	return 0;
 }
 
-int dh_compute_secret_K(dacSession_t *session,  const unsigned char *public_key)
+int asnUtils_dh_compute_secret_K(asnSession_t *session,  const unsigned char *public_key)
 {
 	curve25519_donna(getInternalSecret_K(session), getInternalDH_private(session), public_key);
 
 	return 0;
 }
 
-int hash(unsigned char *exchange_hash, unsigned char *message, int message_length)
+static int hash(unsigned char *exchange_hash, unsigned char *message, int message_length)
 {
 	SHA256_CTX ctx;
 	sha256_init(&ctx);
@@ -77,53 +77,53 @@ int hash(unsigned char *exchange_hash, unsigned char *message, int message_lengt
 	return 0;
 }
 
-int compute_session_identifier_H(unsigned char *exchange_hash, unsigned char *Vc, unsigned char *Vs, unsigned char *K, unsigned char *c_public, unsigned char *s_public, unsigned char *secretK)
+int asnUtils_compute_session_identifier_H(unsigned char *exchange_hash, unsigned char *Vc, unsigned char *Vs, unsigned char *K, unsigned char *c_public, unsigned char *s_public, unsigned char *secretK)
 {
 	int CONCATINATED_STRING_L = 2 * IDENTIFICATION_STRING_L + PUBLIC_KEY_L + 2 * DH_PUBLIC_L + DH_SHARED_SECRET_L;
 	int CURENT_LENGTH = 0;
-	unsigned char concatinated_string[CONCATINATED_STRING_L];
+	unsigned char concatenated_string[CONCATINATED_STRING_L];
 
 	for(int i = 0; i < IDENTIFICATION_STRING_L; i++)
 	{
-		concatinated_string[i] = Vc[i];
+		concatenated_string[i] = Vc[i];
 	}
 
 	CURENT_LENGTH += IDENTIFICATION_STRING_L;
 	for(int i = 0; i < IDENTIFICATION_STRING_L; i++)
 	{
-		concatinated_string[CURENT_LENGTH + i] = Vs[i];
+		concatenated_string[CURENT_LENGTH + i] = Vs[i];
 	}
 
 	CURENT_LENGTH += IDENTIFICATION_STRING_L;
 	for(int i = 0; i < PUBLIC_KEY_L; i++)
 	{
-		concatinated_string[CURENT_LENGTH + i] = K[i];
+		concatenated_string[CURENT_LENGTH + i] = K[i];
 	}
 
 	CURENT_LENGTH += PUBLIC_KEY_L;
 	for(int i = 0; i < DH_PUBLIC_L; i++)
 	{
-		concatinated_string[CURENT_LENGTH + i] = c_public[i];
+		concatenated_string[CURENT_LENGTH + i] = c_public[i];
 	}
 
 	CURENT_LENGTH += DH_PUBLIC_L;
 	for(int i = 0; i < DH_PUBLIC_L; i++)
 	{
-		concatinated_string[CURENT_LENGTH + i] = s_public[i];
+		concatenated_string[CURENT_LENGTH + i] = s_public[i];
 	}
 
 	CURENT_LENGTH += DH_PUBLIC_L;
 	for(int i = 0; i < DH_SHARED_SECRET_L; i++)
 	{
-		concatinated_string[CURENT_LENGTH + i] = secretK[i];
+		concatenated_string[CURENT_LENGTH + i] = secretK[i];
 	}
 
-	hash(exchange_hash, concatinated_string, CONCATINATED_STRING_L);
+	hash(exchange_hash, concatenated_string, CONCATINATED_STRING_L);
 
 	return 0;
 }
 
-int generate_enc_auth_keys(unsigned char *hash, unsigned char *shared_secret_K, unsigned char *shared_H, char magic_letter)
+int asnUtils_generate_enc_auth_keys(unsigned char *hash, unsigned char *shared_secret_K, unsigned char *shared_H, char magic_letter)
 {
 	SHA256_CTX ctx;
 	unsigned char contatinated_string[DH_SHARED_SECRET_L + EXCHANGE_HASH_L + 1];
@@ -147,7 +147,7 @@ int generate_enc_auth_keys(unsigned char *hash, unsigned char *shared_secret_K, 
 	return 0;
 }
 
-int compute_signature_s(unsigned char *sig, dacSession_t *session, unsigned char *hash)
+int asnUtils_compute_signature_s(unsigned char *sig, asnSession_t *session, unsigned char *hash)
 {
 	unsigned long long smlen;
 
@@ -158,7 +158,7 @@ int compute_signature_s(unsigned char *sig, dacSession_t *session, unsigned char
 	return 0;
 }
 
-int verify_signature(unsigned char *sig, unsigned char *public_key, unsigned char *hash)
+int asnUtils_verify_signature(unsigned char *sig, unsigned char *public_key, unsigned char *hash)
 {
 	unsigned long long mlen;
 	int ret = crypto_sign_open(hash,&mlen,sig,SIGNED_MESSAGE_L,public_key);
@@ -171,36 +171,36 @@ int verify_signature(unsigned char *sig, unsigned char *public_key, unsigned cha
 	return -ret;
 }
 
-int concatinate_strings(unsigned char *concatinatedString, unsigned char *str1, int str1_l, unsigned char * str2, int str2_l)
+int asnUtils_concatenate_strings(unsigned char *concatenatedString, unsigned char *str1, int str1_l, unsigned char * str2, int str2_l)
 {
 	for(int i = 0; i < str1_l; i++)
 	{
-		concatinatedString[i] = str1[i];
+		concatenatedString[i] = str1[i];
 	}
 
 	for(int i = 0; i < str2_l; i++)
 	{
-		concatinatedString[str1_l + i] = str2[i];
+		concatenatedString[str1_l + i] = str2[i];
 	}
 
 	return 0;
 }
 
-int aes_encrypt(AES_ctx_t *ctx, unsigned char *message, int length)
+static int aes_encrypt(AES_ctx_t *ctx, unsigned char *message, int length)
 {
 	AES_CBC_encrypt_buffer(ctx, message, length);
 
 	return 0;
 }
 
-int aes_decrypt(AES_ctx_t *ctx, unsigned char *message, int length)
+static int aes_decrypt(AES_ctx_t *ctx, unsigned char *message, int length)
 {
 	AES_CBC_decrypt_buffer(ctx, message, length);
 
 	return 0;
 }
 
-void hmac_sha256(unsigned char *mac, unsigned char *integrityKey, uint16_t keyLength, unsigned char *message, uint32_t messageLength)
+static void hmac_sha256(unsigned char *mac, unsigned char *integrityKey, uint16_t keyLength, unsigned char *message, uint32_t messageLength)
 {
 	SHA256_CTX ss;
 	unsigned char kh[HASH_OUTPUT_L];
@@ -255,7 +255,7 @@ void hmac_sha256(unsigned char *mac, unsigned char *integrityKey, uint16_t keyLe
 	sha256_final (&ss, mac);
 }
 
-int dacUtilsWrite(dacSession_t *session, const unsigned char *msg, unsigned short messageLength)
+int asnUtils_write(asnSession_t *session, const unsigned char *msg, unsigned short messageLength)
 {
 	//TODO: From where this magic numbers came from?
     unsigned short encrypted_data_length = ((messageLength + 2 + 15) / 16 ) * 16; // determine size of encrypted data with padding
@@ -302,7 +302,7 @@ int dacUtilsWrite(dacSession_t *session, const unsigned char *msg, unsigned shor
     return 0;
 }
 
-int dacUtilsRead(dacSession_t *session, unsigned char **msg, unsigned short *messageLength)
+int asnUtils_read(asnSession_t *session, unsigned char **msg, unsigned short *messageLength)
 {
 	unsigned short encrypted_data_length = 0;
 
@@ -384,29 +384,20 @@ int dacUtilsRead(dacSession_t *session, unsigned char **msg, unsigned short *mes
 	return 0;
 }
 
-int dacUtilSetOption(dacSession_t *session, const char *key, unsigned char *value)
+int asnUtils_set_option(asnSession_t *session, const char *key, unsigned char *value)
 {
-	int ret = DAC_ERROR;
+	int ret = ASN_ERROR;
 
 	if((strlen(key) == strlen("private")) && (0 == memcmp(key, "private", strlen("private"))))
 	{
 		memcpy(getInternalPrivate_key(session), value, PRIVATE_KEY_L);
-		ret = DAC_OK;
+		ret = ASN_OK;
 	}
 	else if((strlen(key) == strlen("public")) && (0 == memcmp(key, "public", strlen("public"))))
 	{
 		memcpy(getInternalPublic_key(session), value, PUBLIC_KEY_L);
-		ret = DAC_OK;
+		ret = ASN_OK;
 	}
 
 	return ret;
 }
-
-
-
-
-
-
-
-
-

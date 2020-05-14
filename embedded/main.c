@@ -27,7 +27,7 @@
 #include <signal.h>
 
 #include "storage.h"
-#include "libauthdac.h"
+#include "asn_auth.h"
 #include "vehicle_dataset.h"
 #include "bc_daemon.h"
 

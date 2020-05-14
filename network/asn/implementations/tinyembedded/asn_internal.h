@@ -10,9 +10,9 @@
  *  -----------------------------------------------------
  *
  * \project Decentralized Access Control
- * \file libdac_internal.h
+ * \file asn_internal.h
  * \brief
- * Header file with internal function definitions for dac authentication.
+ * Header file with internal function definitions for ASN authentication.
  *
  * @Author Nikola Kuzmanovic
  *
@@ -22,8 +22,8 @@
  * 14.08.2018. Initial version.
  * 06.12.2018. Implemented ed25519 signature algorithm
  ****************************************************************************/
-#ifndef LIBDAC_INTERNAL_H_
-#define LIBDAC_INTERNAL_H_
+#ifndef ASN_INTERNAL_H_
+#define ASN_INTERNAL_H_
 
 #include <string.h>
 
@@ -32,7 +32,7 @@
 
 #include "sha256.h"
 
-#include "libauthdac.h"
+#include "asn_auth.h"
 
 #include "apiorig.h"
 
@@ -42,9 +42,9 @@
 // Macros and defines
 //////////////////////////////////////////
 
-/* DAC_ERRORS */
-#define DAC_TYPE_CLIENT          (0)
-#define DAC_TYPE_SERVER          (1)
+/* ASN_ERRORS */
+#define ASN_TYPE_CLIENT          (0)
+#define ASN_TYPE_SERVER          (1)
 
 #define DH_PUBLIC_L 32
 #define DH_PRIVATE_L 32
@@ -99,8 +99,8 @@ typedef struct ea_keys {
 	unsigned char integrity_key_decryption[INTEGRITY_KEY_L];
 } ea_keys_t;
 
-struct dacStruct {
-	int type; /*DAC_TYPE_X*/
+struct asnStruct {
+	int type; /*ASN_TYPE_X*/
 
 	unsigned char dh_public[DH_PUBLIC_L];
 	unsigned char dh_private[DH_PRIVATE_L];
@@ -128,27 +128,27 @@ struct dacStruct {
 // Function declarations and definitions
 //////////////////////////////////////////
 /**
- * @fn      int dacServerAuthenticate(dacSession_t *session)
+ * @fn      int asnInternal_server_authenticate(asnSession_t *session)
  *
- * @brief   Function that executes steps of server side dac authentication.
+ * @brief   Function that executes steps of server side ASN authentication.
  *
  * @param   session    Server session.
  *
  * @return  0 if it succeeds, 1 if it fails.
  */
-int dacServerAuthenticate(dacSession_t *session);
+int asnInternal_server_authenticate(asnSession_t *session);
 /**
- * @fn      int dacClientAuthenticate(dacSession_t *session)
+ * @fn      int asnInternal_client_authenticate(asnSession_t *session)
  *
- * @brief   Function that executes steps of client side dac authentication.
+ * @brief   Function that executes steps of client side ASN authentication.
  *
  * @param   session    Client session.
  *
  * @return  0 if it succeeds, 1 if it fails.
  */
-int dacClientAuthenticate(dacSession_t *session);
+int asnInternal_client_authenticate(asnSession_t *session);
 /**
- * @fn      int dacSendServer(dacSession_t *session, const unsigned char *msg, unsigned short msg_length)
+ * @fn      int asnInternal_server_send(asnSession_t *session, const unsigned char *msg, unsigned short msg_length)
  *
  * @brief   Function that is used to send message from server to client.
  *
@@ -158,9 +158,9 @@ int dacClientAuthenticate(dacSession_t *session);
  *
  * @return  0 if it succeeds, 1 if it fails.
  */
-int dacSendServer(dacSession_t *session, const unsigned char *msg, unsigned short msg_length);
+int asnInternal_server_send(asnSession_t *session, const unsigned char *msg, unsigned short msg_length);
 /**
- * @fn      int dacSendClient(dacSession_t *session, const unsigned char *data, unsigned short  data_len)
+ * @fn      int asnInternal_client_send(asnSession_t *session, const unsigned char *data, unsigned short  data_len)
  *
  * @brief   Function that is used to send message from client to server.
  *
@@ -170,9 +170,9 @@ int dacSendServer(dacSession_t *session, const unsigned char *msg, unsigned shor
  *
  * @return  0 if it succeeds, 1 if it fails.
  */
-int dacSendClient(dacSession_t *session, const unsigned char *data, unsigned short  data_len);
+int asnInternal_client_send(asnSession_t *session, const unsigned char *data, unsigned short  data_len);
 /**
- * @fn      int dacReceiveServer(dacSession_t *session, unsigned char **msg, unsigned short  *msg_length)
+ * @fn      int asnInternal_server_receive(asnSession_t *session, unsigned char **msg, unsigned short  *msg_length)
  *
  * @brief   Function that is used to receive and read message from client.
  *
@@ -182,9 +182,9 @@ int dacSendClient(dacSession_t *session, const unsigned char *data, unsigned sho
  *
  * @return  0 if it succeeds, 1 if it fails.
  */
-int dacReceiveServer(dacSession_t *session, unsigned char **msg, unsigned short  *msg_length);
+int asnInternal_server_receive(asnSession_t *session, unsigned char **msg, unsigned short  *msg_length);
 /**
- * @fn      int dacReceiveClient(dacSession_t *session, unsigned char **msg, unsigned short  *msg_length)
+ * @fn      int asnInternal_client_receive(asnSession_t *session, unsigned char **msg, unsigned short  *msg_length)
  *
  * @brief   Function that is used to receive and read message from server.
  *
@@ -194,27 +194,27 @@ int dacReceiveServer(dacSession_t *session, unsigned char **msg, unsigned short 
  *
  * @return  0 if it succeeds, 1 if it fails.
  */
-int dacReceiveClient(dacSession_t *session, unsigned char **msg, unsigned short  *msg_length);
+int asnInternal_client_receive(asnSession_t *session, unsigned char **msg, unsigned short  *msg_length);
 
 /**
- * @fn      void dacReleaseServer(dacSession_t *session)
+ * @fn      void asnInternal_release_server(asnSession_t *session)
  *
  * @brief   Function that releases memory alocated for server session.
  *
  * @param   session     Server session
  */
-void dacReleaseServer(dacSession_t *session);
+void asnInternal_release_server(asnSession_t *session);
 /**
- * @fn      void dacReleaseClient(dacSession_t *session)
+ * @fn      void asnInternal_release_client(asnSession_t *session)
  *
  * @brief   Function that releases memory alocated for client session.
  *
  * @param   session     Client session
  */
-void dacReleaseClient(dacSession_t *session);
+void asnInternal_release_client(asnSession_t *session);
 
 /**
- * @fn      /int dacServerSetOption(dacSession_t *, const char *, unsigned char *)
+ * @fn      /int asnInternal_server_set_option(asnSession_t *, const char *, unsigned char *)
  *
  * @brief   Function that releases memory alocated for server session.
  *
@@ -222,10 +222,10 @@ void dacReleaseClient(dacSession_t *session);
  *
  * @return  0 if it succeeds, 1 if it fails.
  */
-int dacServerSetOption(dacSession_t *, const char *, unsigned char *);
+int asnInternal_server_set_option(asnSession_t *, const char *, unsigned char *);
 
 /**
- * @fn      int dacClientSetOption(dacSession_t *, const char *, unsigned char *)
+ * @fn      int asnInternal_client_set_option(asnSession_t *, const char *, unsigned char *)
  *
  * @brief   Function that releases memory alocated for client session.
  *
@@ -233,6 +233,6 @@ int dacServerSetOption(dacSession_t *, const char *, unsigned char *);
  *
  * @return  0 if it succeeds, 1 if it fails.
  */
-int dacClientSetOption(dacSession_t *, const char *, unsigned char *);
+int asnInternal_client_set_option(asnSession_t *, const char *, unsigned char *);
 
-#endif /* LIBDAC_INTERNAL_H_ */
+#endif /* ASN_INTERNAL_H_ */
