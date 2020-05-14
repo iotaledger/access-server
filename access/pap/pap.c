@@ -48,6 +48,7 @@
 #include "utils_string.h"
 #include "apiorig.h"
 #include "sha256.h"
+#include "validator.h"
 
 /****************************************************************************
  * MACROS
@@ -271,6 +272,7 @@ PAP_error_e PAP_add_policy(char *signed_policy, int signed_policy_size)
 	PAP_hash_functions_e hash_fn;
 	jsmn_parser parser;
 	jsmntok_t tokens[PAP_MAX_TOKENS];
+	Validator_report_t report;
 
 	//Check input parameters
 	if (signed_policy == NULL || signed_policy_size == 0)
@@ -293,6 +295,17 @@ PAP_error_e PAP_add_policy(char *signed_policy, int signed_policy_size)
 		pthread_mutex_unlock(&pap_mutex);
 		return PAP_ERROR;
 
+	}
+
+	//Check policy validity
+	memset(&report, 0, sizeof(Validator_report_t));
+	Validator_check(policy, &report);
+	if ((report.valid_json == 0) || (report.proper_format == 0))
+	{
+		printf("\nERROR[%s]: Invalid policy.\n", __FUNCTION__);
+		free(policy);
+		pthread_mutex_unlock(&pap_mutex);
+		return PAP_ERROR;
 	}
 
 	//Parse policy
