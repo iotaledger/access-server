@@ -80,11 +80,11 @@ wallet_err_t wallet_check_balance(wallet_ctx_t const *const ctx, char const *con
   flex_trit_t tmp_address[FLEX_TRIT_SIZE_243];
   if (ctx == NULL) {
     printf("Err: wallet has not been initiated.\n");
-    return WALLET_ERR_INVALID_PRARMS;
+    return WALLET_ERR_PRARMS;
   }
   if (!is_address((tryte_t *)address)) {
     printf("Err: Invalided address\n");
-    return WALLET_ERR_INVALID_PRARMS;
+    return WALLET_ERR_PRARMS;
   }
 
   get_balances_req_t *balance_req = get_balances_req_new();
@@ -137,4 +137,69 @@ wallet_err_t wallet_get_address(wallet_ctx_t *const ctx, char *addr_buf, uint64_
   }
   hash243_queue_free(&addresses);
   return WALLET_OK;
+}
+
+wallet_err_t wallet_send(wallet_ctx_t const *const ctx, char const *const receiver, uint64_t balance,
+                         char const *const policy, char *const bundle_hash) {
+  retcode_t client_ret = RC_ERROR;
+  wallet_err_t ret = WALLET_ERR_UNKNOW;
+  // check parameters
+  if (!is_address((tryte_t *)receiver)) {
+    printf("Err: Invalid receiver address! \n");
+    return WALLET_ERR_PRARMS;
+  }
+
+  bundle_transactions_t *bundle = NULL;
+  bundle_transactions_new(&bundle);
+  transfer_array_t *transfers = transfer_array_new();
+
+  /* transfer setup */
+  transfer_t tf = {};
+
+  // receiver
+  if (flex_trits_from_trytes(tf.address, NUM_TRITS_ADDRESS, (tryte_t const *)receiver, NUM_TRYTES_ADDRESS,
+                             NUM_TRYTES_ADDRESS) == 0) {
+    printf("Err: address flex_trits convertion failed\n");
+    ret = WALLET_ERR_FLEX_TRITS;
+    goto done;
+  }
+
+  // tag
+  if (flex_trits_from_trytes(tf.tag, NUM_TRITS_TAG, (tryte_t const *)DEFAULT_TAG, NUM_TRYTES_TAG, NUM_TRYTES_TAG) ==
+      0) {
+    printf("Err: tag flex_trits convertion failed\n");
+    ret = WALLET_ERR_FLEX_TRITS;
+    goto done;
+  }
+
+  // value
+  tf.value = balance;
+
+  // message (optional)
+  transfer_message_set_string(&tf, policy);
+
+  transfer_array_add(transfers, &tf);
+
+  client_ret = iota_client_send_transfer(ctx->iota_client, ctx->seed, ctx->security, ctx->depth, ctx->mwm, false,
+                                         transfers, NULL, NULL, NULL, bundle);
+
+  printf("send transaction: %s\n", error_2_string(client_ret));
+  if (client_ret == RC_OK) {
+    flex_trit_t const *hash = bundle_transactions_bundle_hash(bundle);
+    flex_trits_to_trytes((tryte_t *)bundle_hash, NUM_TRYTES_BUNDLE, hash, NUM_TRITS_BUNDLE, NUM_TRITS_BUNDLE);
+
+    // printf("bundle hash: ");
+    // flex_trit_print(hash, NUM_TRITS_BUNDLE);
+    // printf("\n");
+    ret = WALLET_OK;
+  } else {
+    printf("Err: Send transaction failed\n");
+    ret = WALLET_ERR_CLIENT_ERR;
+  }
+
+done:
+  bundle_transactions_free(&bundle);
+  transfer_message_free(&tf);
+  transfer_array_free(transfers);
+  return ret;
 }

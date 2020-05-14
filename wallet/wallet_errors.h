@@ -25,7 +25,7 @@ typedef int32_t wallet_err_t;
 
 #define WALLET_OK 0
 #define WALLET_ERR_UNKNOW -1
-#define WALLET_ERR_INVALID_PRARMS 1   // invalid paramiters
+#define WALLET_ERR_PRARMS 1           // invalid paramiters
 #define WALLET_ERR_OOM 1 << 1         // out of memory
 #define WALLET_ERR_CLIENT_ERR 1 << 2  // cclient error
 #define WALLET_ERR_FLEX_TRITS 1 << 3  // flex trits error
