@@ -1,0 +1,40 @@
+/*
+ * This file is part of the IOTA Access distribution
+ * (https://github.com/iotaledger/access)
+ *
+ * Copyright (c) 2020 IOTA Foundation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "cfg_mgr.h"
+
+int CfgMgr_init(void* in_parameter, CfgMgr_t* configuration)
+{
+    return CfgMgrImpl_init_cb(in_parameter, configuration);
+}
+
+int CfgMgr_get_option_string(CfgMgr_t* configuration, const char* module_name, const char* option_name, char* option_value)
+{
+    return CfgMgrImpl_get_string_cb(configuration, module_name, option_name, option_value);
+}
+
+int CfgMgr_get_option_int(CfgMgr_t* configuration, const char* module_name, const char* option_name, int* option_value)
+{
+    return CfgMgrImpl_get_int_cb(configuration, module_name, option_name, option_value);
+}
+
+int CfgMgr_get_option_float(CfgMgr_t* configuration, const char* module_name, const char* option_name, float* option_value)
+{
+    return CfgMgrImpl_get_float_cb(configuration, module_name, option_name, option_value);
+}
