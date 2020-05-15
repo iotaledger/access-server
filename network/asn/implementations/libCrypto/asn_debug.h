@@ -19,7 +19,7 @@
 
 /****************************************************************************
  * \project IOTA Access
- * \file dacdbg.h
+ * \file asn_debug.h
  * \brief
  * Debug macros for this module
  *
@@ -31,8 +31,8 @@
  * 05.05.2020. Initial version.
  ****************************************************************************/
 
-#ifndef DACDBG_H_
-#define DACDBG_H_
+#ifndef ASN_DEBUG_H_
+#define ASN_DEBUG_H_
 
 #include <stdio.h>
 #include <errno.h>
@@ -71,4 +71,4 @@
 
 #define check_debug(A, M, ...) if(!(A)) { debug(M, ##__VA_ARGS__); errno=0; goto error; }
 
-#endif /* DACDBG_H_ */
+#endif /* ASN_DEBUG_H_ */

@@ -19,7 +19,7 @@
 
 /****************************************************************************
  * \project IOTA Access
- * \file libdac_internal.h
+ * \file asn_internal.h
  * \brief
  * Header file for ssl based authentication module, internal functions
  *
@@ -31,8 +31,8 @@
  * 05.05.2020. Initial version.
  ****************************************************************************/
 
-#ifndef LIBDAC_INTERNAL_H_
-#define LIBDAC_INTERNAL_H_
+#ifndef ASN_INTERNAL_H_
+#define ASN_INTERNAL_H_
 
 #include <openssl/bn.h>
 #include <openssl/sha.h>
@@ -42,29 +42,29 @@
 #include <openssl/modes.h>
 #include <openssl/dh.h>
 
-#include "libauthdac.h"
+#include "asn_auth.h"
 
 //////////////////////////////////////////
 // Macros and defines
 //////////////////////////////////////////
 
-/* DAC_ERRORS */
-#define DAC_TYPE_CLIENT          (0)
-#define DAC_TYPE_SERVER          (1)
+/* ASN_ERRORS */
+#define ASN_TYPE_CLIENT          (0)
+#define ASN_TYPE_SERVER          (1)
 
-#define DAC_MESSAGE_NUMBER_LEN   (sizeof(unsigned short))
-#define DAC_MESSAGE_BASE_10      (10)
+#define ASN_MESSAGE_NUMBER_LEN   (sizeof(unsigned short))
+#define ASN_MESSAGE_BASE_10      (10)
 
-#define DAC_HASH_A               ("A")
-#define DAC_HASH_B               ("B")
-#define DAC_HASH_C               ("C")
-#define DAC_HASH_D               ("D")
-#define DAC_HASH_E               ("E")
-#define DAC_HASH_F               ("F")
+#define ASN_HASH_A               ("A")
+#define ASN_HASH_B               ("B")
+#define ASN_HASH_C               ("C")
+#define ASN_HASH_D               ("D")
+#define ASN_HASH_E               ("E")
+#define ASN_HASH_F               ("F")
 
 #define getInternal(s)         ((s)->internal)
 #define getInternalType(s)     (getInternal(s)->type)
-#define getInternalDH(s)       (getInternal(s)->dac_dh)
+#define getInternalDH(s)       (getInternal(s)->asn_dh)
 #define getInternalPubK(s)     (getInternal(s)->pub_key)
 #define getInternalVc(s)       (getInternal(s)->Vc)
 #define getInternalVs(s)       (getInternal(s)->Vs)
@@ -85,12 +85,12 @@
 #define getInternalInP_Count(s)    (getInternal(s)->out_packet_count)
 #define getInternalOutP_Count(s)   (getInternal(s)->in_packet_count)
 
-#define DAC_V_STRING_LEN       (16)
-#define DAC_AES_DIGEST_LEN     (16)
-#define DAC_AES_KEY_LEN        (256)
+#define ASN_V_STRING_LEN       (16)
+#define ASN_AES_DIGEST_LEN     (16)
+#define ASN_AES_KEY_LEN        (256)
 
-#define DAC_RSA_KEY_LEN        (1024*2)
-#define DAC_RSA_SIGN_LEN       (DAC_RSA_KEY_LEN/8)
+#define ASN_RSA_KEY_LEN        (1024*2)
+#define ASN_RSA_SIGN_LEN       (ASN_RSA_KEY_LEN/8)
 
 #define HMAC_DIGEST_LENGTH     (SHA256_DIGEST_LENGTH)
 
@@ -100,14 +100,14 @@
 // Structure definitions
 //////////////////////////////////////////
 
-struct dacStruct {
-   int type; /*DAC_TYPE_X*/
+struct asnStruct {
+   int type; /*ASN_TYPE_X*/
 
-   unsigned char Vc[DAC_V_STRING_LEN];
-   unsigned char Vs[DAC_V_STRING_LEN];
+   unsigned char Vc[ASN_V_STRING_LEN];
+   unsigned char Vs[ASN_V_STRING_LEN];
 
    /* DH parameters */
-   DH            *dac_dh;
+   DH            *asn_dh;
    BIGNUM        *pub_key;
    int            K_len;
    unsigned char *K;
@@ -142,24 +142,24 @@ struct dacStruct {
 // Function declarations and definitions
 //////////////////////////////////////////
 
-/* DAC_ERRORS */int dacServerAuthenticate(dacSession_t *);
+/* ASN_ERRORS */int asnInternal_server_authenticate(asnSession_t *);
 
-/* DAC_ERRORS */int dacClientAuthenticate(dacSession_t *);
+/* ASN_ERRORS */int asnInternal_client_authenticate(asnSession_t *);
 
-/* DAC_ERRORS */int dacSendServer(dacSession_t *, const unsigned char *, unsigned short );
+/* ASN_ERRORS */int asnInternal_server_send(asnSession_t *, const unsigned char *, unsigned short );
 
-/* DAC_ERRORS */int dacSendClient(dacSession_t *, const unsigned char *, unsigned short );
+/* ASN_ERRORS */int asnInternal_client_send(asnSession_t *, const unsigned char *, unsigned short );
 
-/* DAC_ERRORS */int dacReceiveServer(dacSession_t *, unsigned char **, unsigned short  *);
+/* ASN_ERRORS */int asnInternal_server_receive(asnSession_t *, unsigned char **, unsigned short  *);
 
-/* DAC_ERRORS */int dacReceiveClient(dacSession_t *, unsigned char **, unsigned short  *);
+/* ASN_ERRORS */int asnInternal_client_receive(asnSession_t *, unsigned char **, unsigned short  *);
 
-/* DAC_ERRORS */void dacReleaseServer(dacSession_t *);
+/* ASN_ERRORS */void asnInternal_release_server(asnSession_t *);
 
-/* DAC_ERRORS */void dacReleaseClient(dacSession_t *);
+/* ASN_ERRORS */void asnInternal_release_client(asnSession_t *);
 
-int dacServerSetOption(dacSession_t *, const char *, unsigned char *);
+int asnInternal_server_set_option(asnSession_t *, const char *, unsigned char *);
 
-int dacClientSetOption(dacSession_t *, const char *, unsigned char *);
+int asnInternal_client_set_option(asnSession_t *, const char *, unsigned char *);
 
-#endif /* LIBDAC_INTERNAL_H_ */
+#endif /* ASN_INTERNAL_H_ */

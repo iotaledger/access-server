@@ -19,7 +19,7 @@
 
 /****************************************************************************
  * \project Decentralized Access Control
- * \file authDacHelper.c
+ * \file asn_auth_helper.c
  * \brief
  * Implementation of helper functions for pep module
  *
@@ -33,37 +33,18 @@
  * 28.02.2020. Added data sharing through action functionality
  ****************************************************************************/
 
-#include "authDacHelper.h"
-#include "resolver.h"
+#include "asn_auth_helper.h"
 #include "json_parser.h"
 #include <string.h>
 
 #define Dlog_printf printf
 
-int sendDecision(int decision, dacSession_t *session)
+int asnAuthHelper_send_decision(int decision, asnSession_t *session, char* response, int size)
 {
-    char grant[] = {"{\"response\":\"access granted\"}"};
-    char deny[] = {"{\"response\":\"access denied\"}"};
-    char *msg;
-
-    if(decision == 1)
-    {
-        msg = grant;
-    }
-    else
-    {
-        msg = deny;
-    }
-
-    return dacSend(session, msg, strlen(msg));
+    return asnAuth_send(session, response, size);
 }
 
-int sendDecision_new(int decision, dacSession_t *session, char* response, int size)
-{
-    return dacSend(session, response, size);
-}
-
-int checkMsgFormat_new(const char *request)
+int asnAuthHelper_check_msg_format(const char *request)
 {
     if (request == NULL)
     {

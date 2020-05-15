@@ -19,7 +19,7 @@
 
 /****************************************************************************
  * \project IOTA Access
- * \file libdacUtils.h
+ * \file asn_utils.h
  * \brief
  * Header file for ssl based authentication module
  *
@@ -31,39 +31,35 @@
  * 05.05.2020. Initial version.
  ****************************************************************************/
 
-#ifndef LIBDACUTILS_H_
-#define LIBDACUTILS_H_
+#ifndef ASN_UTILS_H_
+#define ASN_UTILS_H_
 
 #include <stdlib.h>
 #include <string.h>
 
 //#define NDEBUG
 
-#include "dacdbg.h"
+#include "asn_debug.h"
 
-#include "libdac_internal.h"
+#include "asn_internal.h"
 
-unsigned char countOne(unsigned char number);
+void asnUtils_randmem(unsigned char *randomString, int length);
 
-void randmem(unsigned char *randomString, int length);
+int asnUtils_send_message_part(asnSession_t *session, void *data, unsigned short dataLen);
 
-int SendMessagePart(dacSession_t *session, void *data, unsigned short dataLen);
+int asnUtils_send_message_part_bignum(asnSession_t *session, const BIGNUM *bn);
 
-int SendMessagePartBN(dacSession_t *session, const BIGNUM *bn);
+int asnUtils_receive_message_part(asnSession_t *session, unsigned char **data, unsigned short *dataLen);
 
-int ReceiveMessagePart(dacSession_t *session, unsigned char **data, unsigned short *dataLen);
-
-int ComputeHash(dacSession_t *session, unsigned char *md,
+int asnUtils_compute_hash(asnSession_t *session, unsigned char *md,
       unsigned char *pKey, int pKey_len, const BIGNUM *e, const BIGNUM *pub_key);
 
-void ComputeHashKey(dacSession_t *session, unsigned char *md, char *end);
+void asnUtils_debug_binary(char *name, unsigned char* data, int len);
 
-void dacDebugBinary(char *name, unsigned char* data, int len);
+void asnUtils_generate_keys(asnSession_t *session);
 
-void dacGenerateKeys(dacSession_t *session);
+/* ASN_ERRORS */int asnUtils_send(asnSession_t *session, const void *hmacKey, AES_KEY *aesKey, unsigned char *iv, const unsigned char *data, unsigned short  data_len);
 
-/* DAC_ERRORS */int dacInternalSend(dacSession_t *session, const void *hmacKey, AES_KEY *aesKey, unsigned char *iv, const unsigned char *data, unsigned short  data_len);
+/* ASN_ERRORS */int asnUtils_receive(asnSession_t *session, const void *hmacKey, AES_KEY *aesKey, unsigned char *iv, unsigned char **data, unsigned short  *data_len);
 
-/* DAC_ERRORS */int dacInternalReceive(dacSession_t *session, const void *hmacKey, AES_KEY *aesKey, unsigned char *iv, unsigned char **data, unsigned short  *data_len);
-
-#endif /* LIBDACUTILS_H_ */
+#endif /* ASN_UTILS_H_ */

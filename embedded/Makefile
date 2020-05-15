@@ -21,7 +21,7 @@
 # * \project Decentralized Access Control
 # * \file Makefile
 # * \brief
-# * Makefile for dac authentication tests
+# * Makefile for ASN authentication tests
 # *
 # * @Author Dejan Nedic
 # *
@@ -58,14 +58,14 @@ NETWORK = ../network/
 PLUGINS = ../plugins/
 MODULE = ./modules/
 EXTERN = ./CpuGeneric/
-LIBDAC = $(MODULE)libdac/
+ASN = $(NETWORK)asn/
 
 ifeq ($(use_tinyembedded),true)
-LIBDAC_IMPL = $(LIBDAC)tinyembedded/
-LIBDAC_IMPL_LDFLAGS =
+ASN_IMPL = $(ASN)implementations/tinyembedded/
+ASN_IMPL_LDFLAGS =
 else
-LIBDAC_IMPL = $(LIBDAC)libCrypto/
-LIBDAC_IMPL_LDFLAGS = -lcrypto
+ASN_IMPL = $(ASN)implementations/libCrypto/
+ASN_IMPL_LDFLAGS = -lcrypto
 endif
 
 ZLIB = $(EXTERN)zlib-1.2.11/
@@ -113,9 +113,9 @@ SRCS = \
     $(CRYPTO)ref/open.c \
     $(CRYPTO)ref/sign.c \
     $(CRYPTO)ref/verify.c \
-    $(LIBDAC_IMPL)libdacUtils.c \
-    $(LIBDAC_IMPL)libdacServer.c \
-    $(LIBDAC_IMPL)libdacClient.c \
+    $(ASN_IMPL)asn_utils.c \
+    $(ASN_IMPL)asn_server.c \
+    $(ASN_IMPL)asn_client.c \
     $(INCLUDE)time_manager.c \
     $(PIP)pip.c \
     $(PDP)pdp.c \
@@ -123,8 +123,8 @@ SRCS = \
     $(PAP)pap.c \
     $(JSMN)jsmn.c \
     $(JSMN)json_parser.c \
-    $(INCLUDE)authDacHelper.c \
-    $(LIBDAC)libauthdac.c \
+    $(ASN)asn_auth_helper.c \
+    $(ASN)asn_auth.c \
     $(STORAGE)storage.c \
     $(AWS_DAEMON)psDaemon.c \
     $(RESOLVER)resolver.c \
@@ -173,14 +173,14 @@ CFLAGS = \
     -I. \
     -I$(SYSROOT)/usr/include/arm-linux-gnueabihf/ \
     -I$(INCLUDE) \
-    -I$(LIBDAC)include \
+    -I$(ASN) \
     -I$(PEP) \
     -I$(ZLIB) \
     -I$(JSMN) \
     -I$(AWS_DAEMON) \
     -I$(STORAGE) \
     -I$(CRYPTO) \
-    -I$(LIBDAC_IMPL)include/ \
+    -I$(ASN_IMPL) \
     -I$(PIP) \
     -I$(PDP) \
     -I$(PAP) \
@@ -225,7 +225,7 @@ can_simulator: can_simulator.o $(CAN)can_linux.o $(CAN)lib.o config_manager/conf
 
 $(BINARY_MAIN): $(OBJS_MAIN) $(OBJS)
 	@echo LINK $(BINARY_MAIN)
-	$(AT)$(CC) -o $(BINARY_MAIN) -g -O0 $(OBJS_MAIN) $(OBJS) $(LDFLAGS) $(CURL_LDFLAGS) $(SQLITE_LDFLAGS) $(LIBDAC_IMPL_LDFLAGS)
+	$(AT)$(CC) -o $(BINARY_MAIN) -g -O0 $(OBJS_MAIN) $(OBJS) $(LDFLAGS) $(CURL_LDFLAGS) $(SQLITE_LDFLAGS) $(ASN_IMPL_LDFLAGS)
 
 relay_interface_test: tests/relay_interface/relay_interface_test.o $(RESOLVER)relay_interface.o
 	@echo  LINK relay_interface_test
@@ -235,7 +235,7 @@ user_management_test: tests/user_management/user_management_test tests/user_mana
 	@echo LINK $(DAC_test)
 	$(AT)$(CC) -o tests/user_management_test user_management/user_management_test.o $(JSMN)jsmn.o $(SQLITE_LDFLAGS) $(LDFLAGS) $(CURL_LDFLAGS)
 
-dac_test: tests/dac_test/dac_test.o $(OBJS)
-	@echo LINK tests/dac_test/dac_test
-	$(AT)$(CC) -o tests/dac_test/dac_test tests/dac_test/dac_test.o $(OBJS) $(LDFLAGS) $(CURL_LDFLAGS) $(SQLITE_LDFLAGS) $(LIBDAC_IMPL_LDFLAGS)
+asn_test: tests/asn_test/asn_test.o $(OBJS)
+	@echo LINK tests/asn_test/asn_test
+	$(AT)$(CC) -o tests/asn_test/asn_test tests/asn_test/asn_test.o $(OBJS) $(LDFLAGS) $(CURL_LDFLAGS) $(SQLITE_LDFLAGS) $(ASN_IMPL_LDFLAGS)
 

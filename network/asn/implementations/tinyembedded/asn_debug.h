@@ -10,7 +10,7 @@
  *  -----------------------------------------------------
  *
  * \project Decentralized Access Control
- * \file dacdbg.h
+ * \file asn_debug.h
  * \brief
  * Definition of macros used for debugging.
  *
@@ -22,8 +22,8 @@
  * 14.08.2018. Initial version.
  ****************************************************************************/
 
-#ifndef DACDBG_H_
-#define DACDBG_H_
+#ifndef ASN_DEBUG_H_
+#define ASN_DEBUG_H_
 
 #include "Dlog.h"
 
@@ -60,4 +60,4 @@
 
 #define check_debug(A, M, ...) if(!(A)) { debug(M, ##__VA_ARGS__); errno=0; goto error; }
 
-#endif /* DACDBG_H_ */
+#endif /* ASN_DEBUG_H_ */

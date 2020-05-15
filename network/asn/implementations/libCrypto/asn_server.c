@@ -19,7 +19,7 @@
 
 /****************************************************************************
  * \project IOTA Access
- * \file libdacClient.c
+ * \file asn_client.c
  * \brief
  * Server side implemntation for ssl based authentication module
  *
@@ -36,12 +36,10 @@
 
 //#define NDEBUG
 
-#include "dacdbg.h"
-
-#include "libauthdac.h"
-
-#include "libdac_internal.h"
-#include "libdacUtils.h"
+#include "asn_debug.h"
+#include "asn_auth.h"
+#include "asn_internal.h"
+#include "asn_utils.h"
 
 //////////////////////////////////////////
 // Macros and defines
@@ -63,7 +61,7 @@
  *
  */
 
-/* AUTH_STAGES */int authServerInit(dacSession_t *session)
+/* AUTH_STAGES */int authServerInit(asnSession_t *session)
 {
    int next_stage = AUTH_ERROR;
    BIGNUM *e = BN_new();
@@ -72,12 +70,12 @@
    /* Generate RSA key */
    getInternalRSA_S(session) = RSA_new();
    BN_set_word(e, RSA_F4);
-   RSA_generate_key_ex(getInternalRSA_S(session), DAC_RSA_KEY_LEN, e, NULL);
+   RSA_generate_key_ex(getInternalRSA_S(session), ASN_RSA_KEY_LEN, e, NULL);
 
    getInternalDH(session) = DH_new();
 
    /* Server generates Vs, and y. */
-   randmem(getInternalVs(session), DAC_V_STRING_LEN);
+   asnUtils_randmem(getInternalVs(session), ASN_V_STRING_LEN);
 
    getInternalOutP_Count(session) = 1;
    getInternalInP_Count(session) = 1;
@@ -104,57 +102,57 @@
  *
  */
 
-static inline int authServerComputeReceive(dacSession_t *session,
+static inline int authServerComputeReceive(asnSession_t *session,
       unsigned char **p, unsigned short *p_len,
       unsigned char **g, unsigned short *g_len,
       unsigned char **e, unsigned short *e_len,
       unsigned char **Vc, unsigned short *Vc_len)
 {
-   int ret = DAC_ERROR;
+   int ret = ASN_ERROR;
 
-   ret = ReceiveMessagePart(session, p, p_len);
+   ret = asnUtils_receive_message_part(session, p, p_len);
    //TODO: Check return
 
-   ret = ReceiveMessagePart(session, g, g_len);
+   ret = asnUtils_receive_message_part(session, g, g_len);
    //TODO: Check return
 
-   ret = ReceiveMessagePart(session, e, e_len);
+   ret = asnUtils_receive_message_part(session, e, e_len);
    //TODO: Check return
 
-   ret = ReceiveMessagePart(session, Vc, Vc_len);
+   ret = asnUtils_receive_message_part(session, Vc, Vc_len);
    //TODO: Check return
 
    return ret;
 }
 
-static inline int authServerComputeSend(dacSession_t *session, const BIGNUM *f,
+static inline int authServerComputeSend(asnSession_t *session, const BIGNUM *f,
       unsigned char *s, unsigned short s_len,
       unsigned char *Ks, unsigned short Ks_len)
 {
-   int ret = DAC_ERROR;
+   int ret = ASN_ERROR;
 
    debug("send f");
-   ret = SendMessagePartBN(session, f);
+   ret = asnUtils_send_message_part_bignum(session, f);
    //TODO: Check return
 
    debug("send s");
-   ret = SendMessagePart(session, s, s_len);
+   ret = asnUtils_send_message_part(session, s, s_len);
    //TODO: Check return
 
    debug("send Ks");
-   ret = SendMessagePart(session, Ks, Ks_len);
+   ret = asnUtils_send_message_part(session, Ks, Ks_len);
    //TODO: Check return
 
    debug("send Vs");
-   ret = SendMessagePart(session, getInternalVs(session), DAC_V_STRING_LEN);
+   ret = asnUtils_send_message_part(session, getInternalVs(session), ASN_V_STRING_LEN);
    //TODO: Check return
 
    return ret;
 }
 
-static inline int authServerComputePopulateServerKeys(dacSession_t *session, BIGNUM *p, BIGNUM *g, BIGNUM *pub_key)
+static inline int authServerComputePopulateServerKeys(asnSession_t *session, BIGNUM *p, BIGNUM *g, BIGNUM *pub_key)
 {
-   int ret = DAC_ERROR;
+   int ret = ASN_ERROR;
    int ret_ossl;
 
    if (NULL != getInternalDH(session)) /* DH parameters generated */
@@ -178,7 +176,7 @@ static inline int authServerComputePopulateServerKeys(dacSession_t *session, BIG
                getInternalK_len(session) = DH_compute_key(getInternalK(session),
                      pub_key, getInternalDH(session));
 
-               ret = DAC_OK;
+               ret = ASN_OK;
             }
          }
       }
@@ -187,17 +185,17 @@ static inline int authServerComputePopulateServerKeys(dacSession_t *session, BIG
    return ret;
 }
 
-/* AUTH_STAGES */int authServerCompute(dacSession_t *session)
+/* AUTH_STAGES */int authServerCompute(asnSession_t *session)
 {
    int next_stage = AUTH_ERROR;
-   int ret = DAC_ERROR;
+   int ret = ASN_ERROR;
 
    unsigned char *sp = NULL, *sg = NULL, *se = NULL, *Vc = NULL, *Ks = NULL;
    unsigned short sp_len = 0, sg_len = 0, se_len = 0, Vc_len = 0, Ks_len = 0;
    BIGNUM *p = NULL, *g = NULL;
    const BIGNUM *spub_key = NULL;
    unsigned int s_len = 0;
-   unsigned char s[DAC_RSA_SIGN_LEN] = { 0, };
+   unsigned char s[ASN_RSA_SIGN_LEN] = { 0, };
 
    debug("authServerCompute START");
 
@@ -207,15 +205,15 @@ static inline int authServerComputePopulateServerKeys(dacSession_t *session, BIG
 
    memcpy(getInternalVc(session), Vc, Vc_len);
 
-   dacDebugBinary("p", sp, sp_len);
+   asnUtils_debug_binary("p", sp, sp_len);
 
    p = BN_bin2bn(sp, sp_len, NULL);
 
-   dacDebugBinary("g", sg, sg_len);
+   asnUtils_debug_binary("g", sg, sg_len);
 
    g = BN_bin2bn(sg, sg_len, NULL);
 
-   dacDebugBinary("e", se, se_len);
+   asnUtils_debug_binary("e", se, se_len);
 
    getInternalPubK(session) = BN_bin2bn(se, se_len, NULL);
 
@@ -226,13 +224,13 @@ static inline int authServerComputePopulateServerKeys(dacSession_t *session, BIG
 
    /* Server computes H  = hash( Vc || Vs || Ks || e || f || K ) */
    Ks_len = i2d_RSAPublicKey(getInternalRSA_S(session), &Ks);
-   ret = ComputeHash(session, getInternalH(session), Ks, Ks_len,
+   ret = asnUtils_compute_hash(session, getInternalH(session), Ks, Ks_len,
          getInternalPubK(session), spub_key);
 
    /* Server computes signature s = sign( sks, H ) */
    /*NID_sha256*/
    RSA_sign(/*NID_sha256*/ 0, getInternalH(session), RSA_DIGEST_LENGTH, s, &s_len, getInternalRSA_S(session));
-   dacDebugBinary("RSA_Server_sign", s, s_len);
+   asnUtils_debug_binary("RSA_Server_sign", s, s_len);
 
    /* Server sends ( f || s || Ks || Vs ) */
    ret = authServerComputeSend(session, spub_key, s, s_len, Ks, Ks_len);
@@ -259,25 +257,25 @@ static inline int authServerComputePopulateServerKeys(dacSession_t *session, BIG
  *
  */
 
-static inline int authServerVerifyReceive(dacSession_t *session,
+static inline int authServerVerifyReceive(asnSession_t *session,
       unsigned char **Kc, unsigned short *Kc_len,
       unsigned char **sc, unsigned short *sc_len)
 {
-   int ret = DAC_ERROR;
+   int ret = ASN_ERROR;
 
-   ret = ReceiveMessagePart(session, Kc, Kc_len);
+   ret = asnUtils_receive_message_part(session, Kc, Kc_len);
    //TODO: Check return
 
-   ret = ReceiveMessagePart(session, sc, sc_len);
+   ret = asnUtils_receive_message_part(session, sc, sc_len);
    //TODO: Check return
 
    return ret;
 }
 
-/* AUTH_STAGES */int authServerVerify(dacSession_t *session)
+/* AUTH_STAGES */int authServerVerify(asnSession_t *session)
 {
    int next_stage = AUTH_ERROR;
-   int ret = DAC_ERROR;
+   int ret = ASN_ERROR;
 
    unsigned char *Kc = NULL, *s = NULL;
    unsigned short Kc_len = 0, s_len = 0;
@@ -295,14 +293,14 @@ static inline int authServerVerifyReceive(dacSession_t *session,
 
    DH_get0_key(getInternalDH(session), &spub_key, NULL);
    /* Server computes Hc = hash( Vc || Vs || Kc || e || f || K ) */
-   ret = ComputeHash(session, getInternalHc(session), Kc, Kc_len,
+   ret = asnUtils_compute_hash(session, getInternalHc(session), Kc, Kc_len,
          getInternalPubK(session), spub_key);
 
    /* Server verifies the signature sc on Hc */
    getInternalRSA_C(session) = d2i_RSAPublicKey(NULL, (const unsigned char **) &Kc, Kc_len);
    ret = RSA_verify(/*NID_sha256*/ 0, getInternalHc(session), RSA_DIGEST_LENGTH, s, s_len, getInternalRSA_C(session));
    debug("!!!!!!!!!!!!!!!!!!!!!!!!!!!RSA_verify (%d)", ret);
-   dacDebugBinary("RSA_Client_sign", s, s_len);
+   asnUtils_debug_binary("RSA_Client_sign", s, s_len);
 
    free(s);
 
@@ -320,18 +318,18 @@ static inline int authServerVerifyReceive(dacSession_t *session,
  *
  */
 
-/* AUTH_STAGES */int authServerFinish(dacSession_t *session)
+/* AUTH_STAGES */int authServerFinish(asnSession_t *session)
 {
    int next_stage = AUTH_ERROR;
 
    debug("authServerFinish START");
 
-   dacDebugBinary("K", getInternalK(session), getInternalK_len(session));
-   dacDebugBinary("H", getInternalH(session), RSA_DIGEST_LENGTH);
-   dacDebugBinary("Hc", getInternalHc(session), RSA_DIGEST_LENGTH);
+   asnUtils_debug_binary("K", getInternalK(session), getInternalK_len(session));
+   asnUtils_debug_binary("H", getInternalH(session), RSA_DIGEST_LENGTH);
+   asnUtils_debug_binary("Hc", getInternalHc(session), RSA_DIGEST_LENGTH);
 
    // Generate AES, HMAC keys
-   dacGenerateKeys(session);
+   asnUtils_generate_keys(session);
 
    getInternalKey_CS(session) = malloc(sizeof(AES_KEY));
    getInternalKey_SC(session) = malloc(sizeof(AES_KEY));
@@ -340,10 +338,10 @@ static inline int authServerVerifyReceive(dacSession_t *session,
    memset(getInternalKey_SC(session), 0, sizeof(AES_KEY));
 
    // Initialize Server -> Client Encrypt Key
-   AES_set_encrypt_key(getInternalEKey_S(session), DAC_AES_KEY_LEN, getInternalKey_SC(session));
+   AES_set_encrypt_key(getInternalEKey_S(session), ASN_AES_KEY_LEN, getInternalKey_SC(session));
 
    // Initialize Client -> Server Decrypt Key
-   AES_set_decrypt_key(getInternalEKey_C(session), DAC_AES_KEY_LEN, getInternalKey_CS(session));
+   AES_set_decrypt_key(getInternalEKey_C(session), ASN_AES_KEY_LEN, getInternalKey_CS(session));
 
    {
       const BIGNUM *priv_key = NULL;
@@ -359,11 +357,11 @@ static inline int authServerVerifyReceive(dacSession_t *session,
 
       len = BN_bn2bin(priv_key, data);
 
-      dacDebugBinary("y", data, len);
+      asnUtils_debug_binary("y", data, len);
 
       Ks_len = i2d_RSAPrivateKey(getInternalRSA_S(session), &Ks);
 
-      dacDebugBinary("Ks", Ks, Ks_len);
+      asnUtils_debug_binary("Ks", Ks, Ks_len);
    }
 
    next_stage = AUTH_DONE;
@@ -377,13 +375,13 @@ static inline int authServerVerifyReceive(dacSession_t *session,
  *
  */
 
-/* DAC_ERRORS */int dacServerAuthenticate(dacSession_t *session)
+/* ASN_ERRORS */int asnInternal_server_authenticate(asnSession_t *session)
 {
-   int ret = DAC_ERROR;
+   int ret = ASN_ERROR;
 
    int authStage = AUTH_INIT;
 
-   debug("dacServerAuthenticate START");
+   debug("asnInternal_server_authenticate START");
 
    while ((AUTH_DONE != authStage) && (AUTH_ERROR != authStage))
    {
@@ -407,32 +405,32 @@ static inline int authServerVerifyReceive(dacSession_t *session,
 
    if(AUTH_DONE == authStage)
    {
-      ret = DAC_OK;
+      ret = ASN_OK;
    }
 
-   debug("dacServerAuthenticate END");
+   debug("asnInternal_server_authenticate END");
 
    return ret;
 }
 
-/* DAC_ERRORS */int dacSendServer(dacSession_t *session, const unsigned char *data, unsigned short  data_len)
+/* ASN_ERRORS */int asnInternal_server_send(asnSession_t *session, const unsigned char *data, unsigned short  data_len)
 {
-   return dacInternalSend(session, getInternalIKey_S(session), getInternalKey_SC(session),
+   return asnUtils_send(session, getInternalIKey_S(session), getInternalKey_SC(session),
          getInternalIV_S(session), data, data_len);
 }
 
-/* DAC_ERRORS */int dacReceiveServer(dacSession_t *session, unsigned char **data, unsigned short  *data_len)
+/* ASN_ERRORS */int asnInternal_server_receive(asnSession_t *session, unsigned char **data, unsigned short  *data_len)
 {
-   return dacInternalReceive(session, getInternalIKey_C(session), getInternalKey_CS(session),
+   return asnUtils_receive(session, getInternalIKey_C(session), getInternalKey_CS(session),
          getInternalIV_C(session), data, data_len);
 }
 
-void dacReleaseServer(dacSession_t *session)
+void asnInternal_release_server(asnSession_t *session)
 {
 
 }
 
-int dacServerSetOption(dacSession_t *session, const char *key, unsigned char *value)
+int asnInternal_server_set_option(asnSession_t *session, const char *key, unsigned char *value)
 {
 	return 0;
 }
