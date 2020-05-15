@@ -78,6 +78,8 @@ PAP = $(ACCESS)pap/
 VALIDATOR = $(PAP)validator/
 STORAGE = $(PLUGINS)storage/
 RESOLVER = $(PLUGINS)resolver/
+RESOLVER_PLATFORMS = $(RESOLVER)platform_interface/
+RESOLVER_RPI = $(RESOLVER_PLATFORMS)r_pi/
 AWS_DAEMON = $(MODULE)AWS_daemon/
 TCP_SERVER = $(MODULE)tcp_server/
 DATA_ACQUISITION = $(PLUGINS)data/acquisition/
@@ -111,7 +113,6 @@ SRCS = \
     $(CRYPTO)ref/open.c \
     $(CRYPTO)ref/sign.c \
     $(CRYPTO)ref/verify.c \
-    $(CRYPTO)ref/utils.c \
     $(LIBDAC_IMPL)libdacUtils.c \
     $(LIBDAC_IMPL)libdacServer.c \
     $(LIBDAC_IMPL)libdacClient.c \
@@ -127,7 +128,7 @@ SRCS = \
     $(STORAGE)storage.c \
     $(AWS_DAEMON)psDaemon.c \
     $(RESOLVER)resolver.c \
-    $(RESOLVER)relay_interface.c \
+    $(RESOLVER_RPI)relay_interface.c \
     $(RESOLVER)demos/demo_resolver_01.c \
     $(RESOLVER)demos/demo_resolver_02.c \
     include/json_interface.c \
@@ -205,7 +206,8 @@ CFLAGS = \
     -I$(MODBUS) \
     -I$(FASTJSON) \
     -I$(NETWORK) \
-    -I$(VALIDATOR)
+    -I$(VALIDATOR) \
+    -I$(RESOLVER_RPI)
 
 all: $(BINARY_MAIN) can_simulator
 

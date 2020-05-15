@@ -43,4 +43,10 @@
  */
 void Demo02Plugin_initializer(resolver_plugin_t* action_set);
 
+/**
+ * @fn void Demo02Plugin_terminizer()
+ * @brief resolver plugin terminizer callback
+ */
+void Demo02Plugin_terminizer();
+
 #endif

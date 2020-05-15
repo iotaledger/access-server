@@ -10,7 +10,6 @@
 #define fe25519_freeze       crypto_sign_ed25519_ref_fe25519_freeze
 #define fe25519_unpack       crypto_sign_ed25519_ref_fe25519_unpack
 #define fe25519_pack         crypto_sign_ed25519_ref_fe25519_pack
-#define fe25519_iszero       crypto_sign_ed25519_ref_fe25519_iszero
 #define fe25519_iseq_vartime crypto_sign_ed25519_ref_fe25519_iseq_vartime
 #define fe25519_cmov         crypto_sign_ed25519_ref_fe25519_cmov
 #define fe25519_setone       crypto_sign_ed25519_ref_fe25519_setone
@@ -24,8 +23,6 @@
 #define fe25519_invert       crypto_sign_ed25519_ref_fe25519_invert
 #define fe25519_pow2523      crypto_sign_ed25519_ref_fe25519_pow2523
 
-typedef int32_t fe25519_new[10];
-
 typedef struct 
 {
   crypto_uint32 v[32]; 
@@ -38,13 +35,9 @@ void fe25519_unpack(fe25519 *r, const unsigned char x[32]);
 
 void fe25519_pack(unsigned char r[32], const fe25519 *x);
 
-int fe25519_iszero(const fe25519 *x);
-
 int fe25519_iseq_vartime(const fe25519 *x, const fe25519 *y);
 
 void fe25519_cmov(fe25519 *r, const fe25519 *x, unsigned char b);
-
-void fe25519_copy(fe25519 *h, const fe25519 *f);
 
 void fe25519_setone(fe25519 *r);
 
@@ -65,23 +58,5 @@ void fe25519_square(fe25519 *r, const fe25519 *x);
 void fe25519_invert(fe25519 *r, const fe25519 *x);
 
 void fe25519_pow2523(fe25519 *r, const fe25519 *x);
-
-void fe25519_sq(fe25519 *h, const fe25519 *f);
-
-void fe25519_sq2(fe25519 *h, const fe25519 *f);
-
-void fe25519_0(fe25519 *h);
-
-void fe25519_1(fe25519 *h);
-
-void fe25519_frombytes(fe25519 *h, const unsigned char *s);
-
-void fe25519_tobytes(unsigned char *s, const fe25519 *h);
-
-void fe25519_pow22523(fe25519 *out, const fe25519 *z);
-
-int fe25519_isnegative(const fe25519 *f);
-
-int fe25519_iszero_new(const fe25519 *f);
 
 #endif

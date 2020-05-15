@@ -40,25 +40,6 @@
 
 #define Dlog_printf printf
 
-int ledControl(int decision, char *obligation, char *action, unsigned long start_time, unsigned long end_time)
-{
-    bool should_log = FALSE;
-    
-    //TODO: only "log_event" obligation is supported currently
-    if(0 == memcmp(obligation, "log_event", strlen("log_event")))
-    {
-        should_log = TRUE;
-    }
-    
-    if (decision == 1)
-    {
-        // TODO: better handling of end_time parameter
-        Resolver_action(action, should_log, &end_time);
-    }
-
-    return ADH_NO_ERROR;
-}
-
 int sendDecision(int decision, dacSession_t *session)
 {
     char grant[] = {"{\"response\":\"access granted\"}"};

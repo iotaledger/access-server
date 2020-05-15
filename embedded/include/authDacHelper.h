@@ -91,21 +91,6 @@ int sendDecision(int decision, dacSession_t *session);
 int sendDecision_new(int decision, dacSession_t *session, char* response, int size);
 
 /**
- * @fn      int ledControl(int decision, unsigned char* polID)
- *
- * @brief   Function that controls led lights based on decision received from pdp
- *
- * @param   decision        Decision from pdp
- * @param   obligation      Obligation from policy
- * @param   action          Action from policy
- * @param   start_time      Time when action starts
- * @param   end_time        Time when action ends
- *
- * @return  0 if it succeeds.
- */
-int ledControl(int decision, char *obligation, char *action, unsigned long start_time, unsigned long end_time);
-
-/**
  * @fn      int checkMsgFormat_new(const char *request)
  *
  * @brief   Function that checks that format of received request is in right format and form
