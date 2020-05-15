@@ -119,11 +119,11 @@ void Demo02Plugin_initializer(resolver_plugin_t* action_set)
     g_action_set->actions[2] = demo02_honk;
     g_action_set->actions[3] = demo02_alarm_on;
     g_action_set->actions[4] = demo02_alarm_off;
-    strncpy(g_action_set->action_names[0], "open_door", RESOLVER_ACTION_NAME_SIZE);
-    strncpy(g_action_set->action_names[1], "close_door", RESOLVER_ACTION_NAME_SIZE);
-    strncpy(g_action_set->action_names[2], "honk", RESOLVER_ACTION_NAME_SIZE);
-    strncpy(g_action_set->action_names[3], "alarm_on", RESOLVER_ACTION_NAME_SIZE);
-    strncpy(g_action_set->action_names[4], "alarm_off", RESOLVER_ACTION_NAME_SIZE);
+    strncpy(g_action_set->action_names[0], "open_door", RES_ACTION_NAME_SIZE);
+    strncpy(g_action_set->action_names[1], "close_door", RES_ACTION_NAME_SIZE);
+    strncpy(g_action_set->action_names[2], "honk", RES_ACTION_NAME_SIZE);
+    strncpy(g_action_set->action_names[3], "alarm_on", RES_ACTION_NAME_SIZE);
+    strncpy(g_action_set->action_names[4], "alarm_off", RES_ACTION_NAME_SIZE);
     g_action_set->count = 5;
     g_action_set->init_ds_interface_cb = init_cb;
     g_action_set->start_ds_interface_cb = start_cb;

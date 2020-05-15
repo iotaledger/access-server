@@ -62,9 +62,12 @@ static resolver_plugin_t resolver_action_set = {0};
 /****************************************************************************
  * LOCAL FUNCTIONS
  ****************************************************************************/
+static int start_data_sharing(const char *action, unsigned long end_time);
+static int stop_data_sharing();
+
 static void timer_handler(size_t timer_id, void * user_data)
 {
-    Resolver_stop_data_sharing();
+    stop_data_sharing();
 }
 
 static int start_data_sharing(const char *action, unsigned long end_time)

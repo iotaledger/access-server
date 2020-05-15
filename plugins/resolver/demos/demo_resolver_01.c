@@ -147,11 +147,11 @@ static resolver_plugin_t* g_action_set = NULL;
 
 static void init_ds_interface(VehicleDataset_state_t* vdstate)
 {
-    char can0_port_name[MAX_STR_SIZE];
-    char can1_port_name[MAX_STR_SIZE];
+    char can0_port_name[RES_MAX_STR_SIZE];
+    char can1_port_name[RES_MAX_STR_SIZE];
 
-    CanReceiver_getBodyChannel(can0_port_name, MAX_STR_SIZE);
-    CanReceiver_getChasChannel(can1_port_name, MAX_STR_SIZE);
+    CanReceiver_getBodyChannel(can0_port_name, RES_MAX_STR_SIZE);
+    CanReceiver_getChasChannel(can1_port_name, RES_MAX_STR_SIZE);
 #ifdef TINY_EMBEDDED
     CanReceiver_deinit();
     // Re-init receiver with new dataset
@@ -165,11 +165,11 @@ static void init_ds_interface(VehicleDataset_state_t* vdstate)
 
 static void init_ds_interface_tcp(VehicleDataset_state_t* vdstate)
 {
-    char can0_port_name[MAX_STR_SIZE];
-    char can1_port_name[MAX_STR_SIZE];
+    char can0_port_name[RES_MAX_STR_SIZE];
+    char can1_port_name[RES_MAX_STR_SIZE];
 
-    CanReceiver_getBodyChannel(can0_port_name, MAX_STR_SIZE);
-    CanReceiver_getChasChannel(can1_port_name, MAX_STR_SIZE);
+    CanReceiver_getBodyChannel(can0_port_name, RES_MAX_STR_SIZE);
+    CanReceiver_getChasChannel(can1_port_name, RES_MAX_STR_SIZE);
 #ifdef TINY_EMBEDDED
     CanReceiver_deinit();
     // Re-init receiver with new dataset
@@ -213,10 +213,10 @@ void Demo01Plugin_initializer(resolver_plugin_t* action_set)
     g_action_set->actions[1] = demo01_car_lock;
     g_action_set->actions[2] = demo01_open_trunk;
     g_action_set->actions[3] = demo01_start_engine;
-    strncpy(g_action_set->action_names[0], "open_door", RESOLVER_ACTION_NAME_SIZE);
-    strncpy(g_action_set->action_names[1], "close_door", RESOLVER_ACTION_NAME_SIZE);
-    strncpy(g_action_set->action_names[2], "open_trunk", RESOLVER_ACTION_NAME_SIZE);
-    strncpy(g_action_set->action_names[3], "start_engine", RESOLVER_ACTION_NAME_SIZE);
+    strncpy(g_action_set->action_names[0], "open_door", RES_ACTION_NAME_SIZE);
+    strncpy(g_action_set->action_names[1], "close_door", RES_ACTION_NAME_SIZE);
+    strncpy(g_action_set->action_names[2], "open_trunk", RES_ACTION_NAME_SIZE);
+    strncpy(g_action_set->action_names[3], "start_engine", RES_ACTION_NAME_SIZE);
     g_action_set->count = 4;
     g_action_set->init_ds_interface_cb = init_ds_interface;
     g_action_set->stop_ds_interface_cb = stop_ds_interface;
@@ -239,14 +239,15 @@ void Demo01Plugin_initializer_tcp(resolver_plugin_t* action_set)
     g_action_set->actions[1] = demo01_tcp_car_lock;
     g_action_set->actions[2] = demo01_tcp_open_trunk;
     g_action_set->actions[3] = demo01_tcp_start_engine;
-    strncpy(g_action_set->action_names[0], "open_door", RESOLVER_ACTION_NAME_SIZE);
-    strncpy(g_action_set->action_names[1], "close_door", RESOLVER_ACTION_NAME_SIZE);
-    strncpy(g_action_set->action_names[2], "open_trunk", RESOLVER_ACTION_NAME_SIZE);
-    strncpy(g_action_set->action_names[3], "start_engine", RESOLVER_ACTION_NAME_SIZE);
+    strncpy(g_action_set->action_names[0], "open_door", RES_ACTION_NAME_SIZE);
+    strncpy(g_action_set->action_names[1], "close_door", RES_ACTION_NAME_SIZE);
+    strncpy(g_action_set->action_names[2], "open_trunk", RES_ACTION_NAME_SIZE);
+    strncpy(g_action_set->action_names[3], "start_engine", RES_ACTION_NAME_SIZE);
     g_action_set->count = 4;
     g_action_set->init_ds_interface_cb = init_ds_interface_tcp;
     g_action_set->stop_ds_interface_cb = stop_ds_interface;
     g_action_set->start_ds_interface_cb = start_ds_interface;
+    g_action_set->term_ds_interface_cb = term_ds_interface;
 }
 
 void Demo01Plugin_terminizer()

@@ -47,7 +47,7 @@
  ****************************************************************************/
 #define RES_MAX_STR_SIZE 256
 #define RES_MAX_RESOLVER_ACTIONS 10
-#define RES_RESOLVER_ACTION_NAME_SIZE 16
+#define RES_ACTION_NAME_SIZE 16
 
 /****************************************************************************
  * TYPES & CALLBACKS
@@ -56,13 +56,13 @@ typedef int (*resolver_action_t)(int should_log);
 
 typedef struct
 {
-	char action_names[RES_MAX_RESOLVER_ACTIONS][RES_RESOLVER_ACTION_NAME_SIZE];
+	char action_names[RES_MAX_RESOLVER_ACTIONS][RES_ACTION_NAME_SIZE];
     resolver_action_t actions[RES_MAX_RESOLVER_ACTIONS];
     size_t count;
     void (*init_ds_interface_cb)(VehicleDataset_state_t*);
     void (*start_ds_interface_cb)(void);
     void (*stop_ds_interface_cb)(void);
-    void (*term_ds_interface_cb)(void);
+    void (*term_ds_interface_cb)(VehicleDataset_state_t*);
 } resolver_plugin_t;
 
 typedef void (*resolver_plugin_initializer_t)(resolver_plugin_t*);
