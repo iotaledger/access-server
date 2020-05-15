@@ -38,7 +38,7 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 
-#include "resolver.h"
+#include "time_manager.h"
 
 #define TCPC_RECV_BUFF_LEN 1024
 #define TCPC_BUFF_LEN 80
@@ -105,7 +105,7 @@ int tcp_client_send(char *msg, int msg_length, char *rec, int *rec_length, char 
     {
         char buf[TCPC_BUFF_LEN];
 
-        get_time(buf);
+        getStringTime(buf, TCPC_BUFF_LEN);
 
         printf("%s %s\tError: Connection Failed\n", buf, module_name);
 

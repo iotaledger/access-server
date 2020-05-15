@@ -23,112 +23,54 @@
  * \brief
  * Implementation of Resolver for Raspberry Pi 3B+ board
  *
- * @Author Vladimir Vojnovic
+ * @Author Vladimir Vojnovic, Strahinja Golic
  *
  * \notes
  *
  * \history
  * 03.10.2018. Initial version.
  * 28.02.2020. Added data sharing through action functionality
+ * 14.05.2020. Refactoring
  ****************************************************************************/
-
-
 #ifndef _RESOLVER_H_
 #define _RESOLVER_H_
 
+/****************************************************************************
+ * INCLUDES
+ ****************************************************************************/
 #include <stdlib.h>
-
 #include "vehicle_dataset.h"
 #include "vehicle_datasharing_dataset.h"
 
-#define MAX_LED_NUMBER 10
-#define MAX_STR_SIZE 256
+/****************************************************************************
+ * MACROS
+ ****************************************************************************/
+#define RES_MAX_STR_SIZE 256
+#define RES_MAX_RESOLVER_ACTIONS 10
+#define RES_RESOLVER_ACTION_NAME_SIZE 16
 
-#define MAX_RESOLVER_ACTIONS 10
-#define RESOLVER_ACTION_NAME_SIZE 16
-
+/****************************************************************************
+ * TYPES & CALLBACKS
+ ****************************************************************************/
 typedef int (*resolver_action_t)(int should_log);
 
-typedef struct {
-	char action_names[MAX_RESOLVER_ACTIONS][RESOLVER_ACTION_NAME_SIZE];
-    resolver_action_t actions[MAX_RESOLVER_ACTIONS];
+typedef struct
+{
+	char action_names[RES_MAX_RESOLVER_ACTIONS][RES_RESOLVER_ACTION_NAME_SIZE];
+    resolver_action_t actions[RES_MAX_RESOLVER_ACTIONS];
     size_t count;
     void (*init_ds_interface_cb)(VehicleDataset_state_t*);
     void (*start_ds_interface_cb)(void);
     void (*stop_ds_interface_cb)(void);
+    void (*term_ds_interface_cb)(void);
 } resolver_plugin_t;
 
 typedef void (*resolver_plugin_initializer_t)(resolver_plugin_t*);
+typedef void (*resolver_plugin_terminizer_t)(resolver_plugin_t*);
 
-/**
- * @fn  void run_led(void)
- *
- * @brief   run led
- *
- */
-int run_led(void);
-
-/**
- * @fn  void set_led_flashing(unsigned char led, unsigned int duration)
- *
- * @brief   led is set flashing for certain duration
- * @param   led    identification of LED in range 0=LED1 to 7=LED8, 8=OUT1 and 9=OUT2 are used for relay driving
- * @param   duration duration of the LED glowing in 50ms
- */
-void set_led_flashing(unsigned char led, unsigned int duration);
-
-/**
- * @fn  void set_led_on(unsigned char led, unsigned int duration);
- *
- * @brief   Set led on for certain duration
- * @param   led    identification of LED in range 0=LED1 to 7=LED8, 8=OUT1 and 9=OUT2 are used for relay driving
- * @param   duration duration of the LED glowing in 50ms
- *
- */
-void set_led_on(unsigned char led, unsigned int duration);
-
-/**
- * @fn int Resolver_action(const char* action, int should_log, void* arg)
- *
- * @brief Perform action mapped to action string
- * @param action 		name of the action to be performed
- * @param should_log	if action should be logged
- * @param arg			optional parameter for action
- */
-int Resolver_action(const char* action, int should_log, void* arg);
-
-/**
- * @fn  int Resolver_start_data_sharing(char*)
- *
- * @brief   Start data sharing
- *
- */
-int Resolver_start_data_sharing(const char *action, unsigned long end_time);
-
-/**
- * @fn  int Resolver_action07(void)
- *
- * @brief   Stop data sharing
- *
- */
-int Resolver_stop_data_sharing();
-
-/**
- * @fn  void policy_update_indication(void)
- *
- * @brief   Indication of the policy store update
- *
- */
-int policy_update_indication();
-
-/**
- * @fn  int get_time(char *buf)
- *
- * @brief   Get current time as string
- *
- */
-int get_time(char *buf);
-
+/****************************************************************************
+ * API FUNCTIONS
+ ****************************************************************************/
 /**
  * @fn  void Resolver_init(resolver_plugin_initializer_t initializer, VehicleDataset_state_t *vdstate)
  *
@@ -137,5 +79,12 @@ int get_time(char *buf);
  */
 void Resolver_init(resolver_plugin_initializer_t initializer, VehicleDataset_state_t *vdstate);
 
+/**
+ * @fn  void Resolver_term(resolver_plugin_terminizer_t terminizer)
+ *
+ * @brief   Terminate Resolver module
+ *
+ */
+void Resolver_term(resolver_plugin_terminizer_t terminizer);
 
 #endif //_RESOLVER_H_

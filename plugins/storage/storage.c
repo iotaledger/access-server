@@ -42,6 +42,7 @@
 #include "resolver.h"
 #include "utils_string.h"
 #include "apiorig.h"
+#include "time_manager.h"
 
 #define Dlog_printf printf
 
@@ -263,7 +264,7 @@ int PolicyStore_put_policy(char *policy_id, int policy_id_size, char *signed_pol
 	ret = datahex2(policy_id);
 
 	char buf[PS_BUFF_LEN];
-	get_time(buf);
+	getStringTime(buf, PS_BUFF_LEN);
 
 	if(PolicyStore_has_string(received_data, size))
 	{
@@ -281,7 +282,8 @@ int PolicyStore_put_policy(char *policy_id, int policy_id_size, char *signed_pol
 
 		PolicyStore_put_string(pol_store[pol_store_counter], demo_pol_store[pol_store_counter], policy_cost, policy_cost_size);
 		pol_store_counter++;
-		policy_update_indication();
+		//@TODO: This shouldn't be handled by Resolver
+		//policy_update_indication();
 	}
 	else
 	{
@@ -595,8 +597,7 @@ int PolicyStore_get_list_of_actions(char *subject_id, int subject_id_length, lis
 	pthread_mutex_unlock(&lock_ps);
 
 	char buf[PS_BUFF_LEN];
-
-	get_time(buf);
+	getStringTime(buf, PS_BUFF_LEN);
 	printf("\n%s <Action performed>\tSent list of actions\n", buf);
 
 	return ret;

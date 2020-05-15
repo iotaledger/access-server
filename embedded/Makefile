@@ -77,6 +77,8 @@ PDP = $(ACCESS)pdp/
 PAP = $(ACCESS)pap/
 STORAGE = $(PLUGINS)storage/
 RESOLVER = $(PLUGINS)resolver/
+RESOLVER_PLATFORMS = $(RESOLVER)platform_interface/
+RESOLVER_RPI = $(RESOLVER_PLATFORMS)r_pi/
 AWS_DAEMON = $(MODULE)AWS_daemon/
 TCP_SERVER = $(MODULE)tcp_server/
 DATA_ACQUISITION = $(PLUGINS)data/acquisition/
@@ -125,7 +127,7 @@ SRCS = \
     $(STORAGE)storage.c \
     $(AWS_DAEMON)psDaemon.c \
     $(RESOLVER)resolver.c \
-    $(RESOLVER)relay_interface.c \
+    $(RESOLVER_RPI)relay_interface.c \
     $(RESOLVER)demos/demo_resolver_01.c \
     $(RESOLVER)demos/demo_resolver_02.c \
     include/json_interface.c \
@@ -200,7 +202,8 @@ CFLAGS = \
     -I$(USER_MANAGEMENT) \
     -I$(MODBUS) \
     -I$(FASTJSON) \
-    -I$(NETWORK)
+    -I$(NETWORK) \
+    -I$(RESOLVER_RPI)
 
 all: $(BINARY_MAIN) can_simulator
 

@@ -51,6 +51,12 @@ void Demo01Plugin_initializer(resolver_plugin_t* action_set);
 void Demo01Plugin_initializer_tcp(resolver_plugin_t* action_set);
 
 /**
+ * @fn void Demo01Plugin_terminizer()
+ * @brief resolver plugin terminizer callback
+ */
+void Demo01Plugin_terminizer();
+
+/**
  * @fn void Demo01Plugin_set_relayboard_addr(const char* addr)
  * @brief sets 	IP address for relayboard access
  * @param addr 	IP address for relayboard access

@@ -23,116 +23,51 @@
  * \brief
  * Implementation of Resolver for Raspberry Pi 3B+ board
  *
- * @Author Vladimir Vojnovic
+ * @Author Vladimir Vojnovic, Strahinja Golic
  *
  * \notes
  *
  * \history
  * 03.10.2018. Initial version.
  * 28.02.2020. Added data sharing through action functionality
+ * 14.05.2020. Refactoring
  ****************************************************************************/
 
+/****************************************************************************
+ * INCLUDES
+ ****************************************************************************/
 #include <string.h>
-
 #include "resolver.h"
 #include "Dlog.h"
-
 #include "json_interface.h"
 #include "timer.h"
 #include "time_manager.h"
+#include "pep.h"
 
-#define DATASET_NUM_SIZE 2
-#define DATASET_NUM_POSITION 9
-#define BUFF_LEN 80
+/****************************************************************************
+ * MACROS
+ ****************************************************************************/
+#define RES_DATASET_NUM_SIZE 2
+#define RES_DATASET_NUM_POSITION 9
+#define RES_BUFF_LEN 80
 
-unsigned int flashing_counter[MAX_LED_NUMBER]={0};
-unsigned int on_counter[MAX_LED_NUMBER]={0};
-
+/****************************************************************************
+ * GLOBAL VARIABLES
+ ****************************************************************************/
+static char action_s[] = "<Action performed>";
 static int timerId = -1;
-
 static VehicleDataset_state_t *g_vdstate = NULL;
-
-void set_led_flashing(unsigned char led, unsigned int duration)
-{
-    flashing_counter[led]=duration;
-}
-
-void set_led_on(unsigned char led, unsigned int duration)
-{
-    on_counter[led]=duration;
-}
-
-int get_time(char *buf)
-{
-    time_t     now;
-    struct tm  ts;
-
-    // Get current time
-    time(&now);
-
-    // Format time, "ddd yyyy-mm-dd hh:mm:ss zzz"
-    ts = *localtime(&now);
-    strftime(buf, BUFF_LEN, "%H:%M:%S", &ts);
-}
-
-
-char action_s[] = "<Action performed>";
-
-
 static resolver_plugin_t resolver_action_set = {0};
 
-void Resolver_init(resolver_plugin_initializer_t initializer, VehicleDataset_state_t *vdstate)
-{
-    initializer(&resolver_action_set);
-    g_vdstate = vdstate;
-}
-
-int run_led()
-{
-    char buf[BUFF_LEN];
-
-    get_time(buf);
-
-    Dlog_printf("%s %s run led\n", buf, action_s);
-
-    return 0;
-}
-
+/****************************************************************************
+ * LOCAL FUNCTIONS
+ ****************************************************************************/
 static void timer_handler(size_t timer_id, void * user_data)
 {
     Resolver_stop_data_sharing();
 }
 
-int Resolver_action(const char* action, int should_log, void* arg)
-{
-    char buf[BUFF_LEN];
-    int retval = -1;
-
-    if (0 == memcmp(action, "start_ds_", strlen("start_ds_") - 1))
-    {
-        retval = Resolver_start_data_sharing(action, *((unsigned long*)arg));
-    }
-    else if (0 == memcmp(action, "stop_ds", strlen("stop_ds")))
-    {
-        retval = Resolver_stop_data_sharing();
-    }
-    else
-    {
-        for (int i = 0; i < resolver_action_set.count; i++)
-        {
-            if (memcmp(action, resolver_action_set.action_names[i], strlen(resolver_action_set.action_names[i])) == 0)
-            {
-                get_time(buf);
-                Dlog_printf("%s %s\t%s\n", buf, action, action_s);
-                retval = resolver_action_set.actions[i](should_log);
-                break;
-            }
-        }
-    }
-    return retval;
-}
-
-int Resolver_start_data_sharing(const char *action, unsigned long end_time)
+static int start_data_sharing(const char *action, unsigned long end_time)
 {
     if (action == NULL)
     {
@@ -145,9 +80,9 @@ int Resolver_start_data_sharing(const char *action, unsigned long end_time)
 
     // Chose dataset
     char* dataset;
-    char dataset_num[DATASET_NUM_SIZE];
+    char dataset_num[RES_DATASET_NUM_SIZE];
 
-    memcpy(dataset_num, &action[DATASET_NUM_POSITION], DATASET_NUM_SIZE);
+    memcpy(dataset_num, &action[RES_DATASET_NUM_POSITION], RES_DATASET_NUM_SIZE);
 
     switch(atoi(dataset_num))
     {
@@ -236,7 +171,7 @@ int Resolver_start_data_sharing(const char *action, unsigned long end_time)
     return 0;
 }
 
-int Resolver_stop_data_sharing()
+static int stop_data_sharing()
 {
     Timer_stop(timerId);
     resolver_action_set.stop_ds_interface_cb();
@@ -244,9 +179,69 @@ int Resolver_stop_data_sharing()
     return 0;
 }
 
-int policy_update_indication()
+static int action_resolve(const char* action, int should_log, void* arg)
 {
-    Dlog_printf("policy_update_indication\n");
+    char buf[RES_BUFF_LEN];
+    int retval = -1;
 
-    return 0;
+    if (0 == memcmp(action, "start_ds_", strlen("start_ds_") - 1))
+    {
+        retval = start_data_sharing(action, *((unsigned long*)arg));
+    }
+    else if (0 == memcmp(action, "stop_ds", strlen("stop_ds")))
+    {
+        retval = stop_data_sharing();
+    }
+    else
+    {
+        for (int i = 0; i < resolver_action_set.count; i++)
+        {
+            if (memcmp(action, resolver_action_set.action_names[i], strlen(resolver_action_set.action_names[i])) == 0)
+            {
+                getStringTime(buf, RES_BUFF_LEN);
+                Dlog_printf("%s %s\t%s\n", buf, action, action_s);
+                retval = resolver_action_set.actions[i](should_log);
+                break;
+            }
+        }
+    }
+    return retval;
+}
+
+static bool pep_request(char *obligation, char *action, unsigned long start_time, unsigned long end_time)
+{
+    bool should_log = FALSE;
+    
+    //TODO: only "log_event" obligation is supported currently
+    if(0 == memcmp(obligation, "log_event", strlen("log_event")))
+    {
+        should_log = TRUE;
+    }
+    
+    // TODO: better handling of end_time parameter
+    if (action_resolve(action, should_log, &end_time) == -1)
+    {
+        Dlog_printf("\nERROR[%s]: Resolving action failed.\n", __FUNCTION__);
+    }
+
+    return TRUE;
+}
+
+/****************************************************************************
+ * API FUNCTIONS
+ ****************************************************************************/
+void Resolver_init(resolver_plugin_initializer_t initializer, VehicleDataset_state_t *vdstate)
+{
+    initializer(&resolver_action_set);
+    g_vdstate = vdstate;
+
+    PEP_register_callback((resolver_fn) pep_request);
+}
+
+void Resolver_term(resolver_plugin_terminizer_t terminizer)
+{
+    terminizer(&resolver_action_set);
+    g_vdstate = NULL;
+
+    PEP_unregister_callback();
 }

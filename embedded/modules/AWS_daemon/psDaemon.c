@@ -42,7 +42,7 @@
 #include "storage.h"
 #include "json_parser.h"
 #include "tcp_client.h"
-#include "resolver.h"
+#include "time_manager.h"
 
 ////////////////////////
 
@@ -395,8 +395,7 @@ static void parsePolicyServiceList() {
         else {
             char buf[PSD_TIME_BUF_LEN];
 
-            get_time(buf);
-
+            getStringTime(buf, PSD_TIME_BUF_LEN);
             printf("%s %s\tError: Response from policy service not received\n", buf, action_ps);
         }
     }

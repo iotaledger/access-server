@@ -191,6 +191,13 @@ static void stop_ds_interface()
     CanReceiver_deinit();
 }
 
+static void term_ds_interface(VehicleDataset_state_t* vdstate)
+{
+    Demo01Plugin_terminizer();
+    vdstate->options = NULL;
+    VehicleDataset_deinit(vdstate);
+}
+
 void Demo01Plugin_initializer(resolver_plugin_t* action_set)
 {
     if (g_action_set == NULL && action_set == NULL)
@@ -214,6 +221,7 @@ void Demo01Plugin_initializer(resolver_plugin_t* action_set)
     g_action_set->init_ds_interface_cb = init_ds_interface;
     g_action_set->stop_ds_interface_cb = stop_ds_interface;
     g_action_set->start_ds_interface_cb = start_ds_interface;
+    g_action_set->term_ds_interface_cb = term_ds_interface;
 }
 
 void Demo01Plugin_initializer_tcp(resolver_plugin_t* action_set)
@@ -239,4 +247,9 @@ void Demo01Plugin_initializer_tcp(resolver_plugin_t* action_set)
     g_action_set->init_ds_interface_cb = init_ds_interface_tcp;
     g_action_set->stop_ds_interface_cb = stop_ds_interface;
     g_action_set->start_ds_interface_cb = start_ds_interface;
+}
+
+void Demo01Plugin_terminizer()
+{
+    g_action_set = NULL;
 }
