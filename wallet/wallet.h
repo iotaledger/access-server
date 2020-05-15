@@ -72,21 +72,11 @@ wallet_err_t wallet_check_balance(wallet_ctx_t const *const ctx, char const *con
  * @param receiver the receiver address
  * @param balance token value
  * @param msg message in the transaction
- * @return wallet_err_t error code
- */
-
-/**
- * @brief Send out a valued or policy transaction to the node.
- *
- * @param ctx wallet context
- * @param receiver the receiver address
- * @param balance token value
- * @param policy an access policy
  * @param bundle_hash a bundle hash with char[81] is returned by client API.
  * @return wallet_err_t
  */
 wallet_err_t wallet_send(wallet_ctx_t const *const ctx, char const *const receiver, uint64_t balance,
-                         char const *const policy, char *const bundle_hash);
+                         char const *const msg, char *const bundle_hash);
 
 /**
  * @brief Gets an unused address of this wallet and update unused_idx in wallet context

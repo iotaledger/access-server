@@ -140,7 +140,7 @@ wallet_err_t wallet_get_address(wallet_ctx_t *const ctx, char *addr_buf, uint64_
 }
 
 wallet_err_t wallet_send(wallet_ctx_t const *const ctx, char const *const receiver, uint64_t balance,
-                         char const *const policy, char *const bundle_hash) {
+                         char const *const msg, char *const bundle_hash) {
   retcode_t client_ret = RC_ERROR;
   wallet_err_t ret = WALLET_ERR_UNKNOW;
   // check parameters
@@ -176,7 +176,7 @@ wallet_err_t wallet_send(wallet_ctx_t const *const ctx, char const *const receiv
   tf.value = balance;
 
   // message (optional)
-  transfer_message_set_string(&tf, policy);
+  transfer_message_set_string(&tf, msg);
 
   transfer_array_add(transfers, &tf);
 

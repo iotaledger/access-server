@@ -110,14 +110,14 @@ void test_wallet_get_address(void) {
 
 void test_wallet_send(void) {
   char const *test_receiver = "UCDZKUEEGVBHBTRTYHQSWVFWURTOPSMUCOFTNXKAHATMTKLJIDQLGGULNOZZGELOGVYFIBR9TLTDMFUNY";
-  char const *test_policy =
+  char const *test_msg =
       "{ \"id\": \"DLKJELKJDLE\", \"name\": \"Foo\", \"price\": 123, \"tags\": [ \"Bar\", \"Eek\" ], \"stock\": { "
       "\"warehouse\": 300, \"retail\": 20 } }";
   char bundle_hash[NUM_TRYTES_BUNDLE + 1] = {};
   wallet_ctx_t *wallet = wallet_create("nodes.iota.cafe", 443, amazon_ca1_pem, 3, 14, test_seed);
   TEST_ASSERT_NOT_NULL(wallet);
 
-  wallet_err_t ret = wallet_send(wallet, test_receiver, 0, test_policy, bundle_hash);
+  wallet_err_t ret = wallet_send(wallet, test_receiver, 0, test_msg, bundle_hash);
   TEST_ASSERT(ret == WALLET_OK);
   TEST_ASSERT(memcmp(bundle_hash, empty_address, NUM_TRYTES_HASH) != 0);
 

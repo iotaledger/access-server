@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.11)
 
 cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
 
-project(my_app DESCRIPTION "My IOTA Client")
+project(access_wallet DESCRIPTION "Access Wallet Module")
 
 enable_language(C)
 enable_testing()
