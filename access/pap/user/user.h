@@ -20,7 +20,7 @@
 #ifndef _USER_MANAGEMENT_H_
 #define _USER_MANAGEMENT_H_
 
-int UserManagement_init(const char* bc_hostname, int bc_port, const char* device_id);
+int UserManagement_init();
 void UserManagement_deinit();
 void UserManagement_get_all_users(char* response);
 void UserManagement_get_string(const char* id, char* response);

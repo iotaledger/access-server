@@ -19,22 +19,22 @@
 
 #include "cfg_mgr.h"
 
-int CfgMgr_init(void* in_parameter, CfgMgr_t* configuration)
+int CfgMgr_init(void* in_parameter)
 {
-    return CfgMgrImpl_init_cb(in_parameter, configuration);
+    return CfgMgrImpl_init_cb(in_parameter);
 }
 
-int CfgMgr_get_option_string(CfgMgr_t* configuration, const char* module_name, const char* option_name, char* option_value, size_t option_size)
+int CfgMgr_get_option_string(const char* module_name, const char* option_name, char* option_value, size_t option_size)
 {
-    return CfgMgrImpl_get_string_cb(configuration, module_name, option_name, option_value, option_size);
+    return CfgMgrImpl_get_string_cb(module_name, option_name, option_value, option_size);
 }
 
-int CfgMgr_get_option_int(CfgMgr_t* configuration, const char* module_name, const char* option_name, int* option_value)
+int CfgMgr_get_option_int(const char* module_name, const char* option_name, int* option_value)
 {
-    return CfgMgrImpl_get_int_cb(configuration, module_name, option_name, option_value);
+    return CfgMgrImpl_get_int_cb(module_name, option_name, option_value);
 }
 
-int CfgMgr_get_option_float(CfgMgr_t* configuration, const char* module_name, const char* option_name, float* option_value)
+int CfgMgr_get_option_float(const char* module_name, const char* option_name, float* option_value)
 {
-    return CfgMgrImpl_get_float_cb(configuration, module_name, option_name, option_value);
+    return CfgMgrImpl_get_float_cb(module_name, option_name, option_value);
 }

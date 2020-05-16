@@ -37,7 +37,7 @@
 #include <pthread.h>
 #include "libfastjson/json.h"
 
-fjson_object* JSONInterface_init(const char* ipaddress, int port, const char* device_id);
+fjson_object* JSONInterface_init();
 void JSONInterface_set_address(const char* new_addr);
 void JSONInterface_set_port(int new_port);
 int JSONInterface_dump_if_needed(int dump_period_s);

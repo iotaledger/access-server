@@ -38,15 +38,9 @@ typedef struct {
     CfgMgr_token_type_t level;
 } CfgMgr_token_t;
 
-typedef struct CfgMgr {
-    char data[CFG_MGR_DATA_SIZE];
-    CfgMgr_token_t tokens[CFG_MGR_MAX_TOKENS];
-    int tokens_count;
-} CfgMgr_t;
-
-int CfgMgrImpl_init_cb(void* in_parameter, CfgMgr_t* configuration);
-int CfgMgrImpl_get_string_cb(CfgMgr_t* configuration, const char* module_name, const char* option_name, char* option_value, size_t option_value_size);
-int CfgMgrImpl_get_int_cb(CfgMgr_t* configuration, const char* module_name, const char* option_name, int* option_value);
-int CfgMgrImpl_get_float_cb(CfgMgr_t* configuration, const char* module_name, const char* option_name, float* option_value);
+int CfgMgrImpl_init_cb(void* in_parameter);
+int CfgMgrImpl_get_string_cb(const char* module_name, const char* option_name, char* option_value, size_t option_value_size);
+int CfgMgrImpl_get_int_cb(const char* module_name, const char* option_name, int* option_value);
+int CfgMgrImpl_get_float_cb(const char* module_name, const char* option_name, float* option_value);
 
 #endif

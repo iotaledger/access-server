@@ -28,8 +28,17 @@
 
 #define READ_CHUNK_SIZE 16
 
-int CfgMgrImpl_init_cb(void* in_parameter, CfgMgr_t* configuration)
+typedef struct CfgMgr {
+    char data[CFG_MGR_DATA_SIZE];
+    CfgMgr_token_t tokens[CFG_MGR_MAX_TOKENS];
+    int tokens_count;
+} CfgMgr_t;
+
+CfgMgr_t g_config = {0};
+
+int CfgMgrImpl_init_cb(void* in_parameter)
 {
+    CfgMgr_t *configuration = &g_config;
     const char* config_file = (const char*)in_parameter;
     FILE* fp = fopen(config_file, "r");
     if (fp == NULL) return CFG_MGR_INIT_ERROR;
@@ -111,8 +120,9 @@ int CfgMgrImpl_init_cb(void* in_parameter, CfgMgr_t* configuration)
     return CFG_MGR_OK;
 }
 
-int CfgMgrImpl_get_string_cb(CfgMgr_t* configuration, const char* module_name, const char* option_name, char* option_value, size_t option_value_size)
+int CfgMgrImpl_get_string_cb(const char* module_name, const char* option_name, char* option_value, size_t option_value_size)
 {
+    CfgMgr_t *configuration = &g_config;
     int found_module = -1;
     int found_config = -1;
     char* cfg_data = configuration->data;
@@ -150,11 +160,11 @@ int CfgMgrImpl_get_string_cb(CfgMgr_t* configuration, const char* module_name, c
     return CFG_MGR_OK;
 }
 
-int CfgMgrImpl_get_int_cb(CfgMgr_t* configuration, const char* module_name, const char* option_name, int* option_value)
+int CfgMgrImpl_get_int_cb(const char* module_name, const char* option_name, int* option_value)
 {
     const size_t string_value_len = 32;
     char string_value[string_value_len];
-    int status = CfgMgrImpl_get_string_cb(configuration, module_name, option_name, string_value, string_value_len);
+    int status = CfgMgrImpl_get_string_cb(module_name, option_name, string_value, string_value_len);
     if (CFG_MGR_OK != status) return status;
 
     *option_value = atoi(string_value);
@@ -162,11 +172,11 @@ int CfgMgrImpl_get_int_cb(CfgMgr_t* configuration, const char* module_name, cons
     return CFG_MGR_OK;
 }
 
-int CfgMgrImpl_get_float_cb(CfgMgr_t* configuration, const char* module_name, const char* option_name, float* option_value)
+int CfgMgrImpl_get_float_cb(const char* module_name, const char* option_name, float* option_value)
 {
     const size_t string_value_len = 32;
     char string_value[string_value_len];
-    int status = CfgMgrImpl_get_string_cb(configuration, module_name, option_name, string_value, string_value_len);
+    int status = CfgMgrImpl_get_string_cb(module_name, option_name, string_value, string_value_len);
     if (CFG_MGR_OK != status) return status;
 
     *option_value = atof(string_value);
