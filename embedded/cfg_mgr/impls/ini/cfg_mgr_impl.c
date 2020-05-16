@@ -20,6 +20,8 @@
 #include "cfg_mgr_impl.h"
 #include "cfg_mgr_cmn.h"
 
+#include "utils.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -53,7 +55,7 @@ int CfgMgrImpl_init_cb(void* in_parameter, CfgMgr_t* configuration)
             }
             else if (new_line == 1)
             {
-                
+
                 if (this_chunk[i] == '[') // start of group token
                 {
                     group_token = this_token;
@@ -65,7 +67,7 @@ int CfgMgrImpl_init_cb(void* in_parameter, CfgMgr_t* configuration)
                 else // start of option=value token
                 {
                     group_token->size++;
-                    
+
                     int new_token_start = total_bytes_read + i;
                     this_token->start = new_token_start;
                     this_token->end = new_token_start;
@@ -109,7 +111,7 @@ int CfgMgrImpl_init_cb(void* in_parameter, CfgMgr_t* configuration)
     return CFG_MGR_OK;
 }
 
-int CfgMgrImpl_get_string_cb(CfgMgr_t* configuration, const char* module_name, const char* option_name, char* option_value)
+int CfgMgrImpl_get_string_cb(CfgMgr_t* configuration, const char* module_name, const char* option_name, char* option_value, size_t option_value_size)
 {
     int found_module = -1;
     int found_config = -1;
@@ -119,7 +121,7 @@ int CfgMgrImpl_get_string_cb(CfgMgr_t* configuration, const char* module_name, c
     for (int i = 0; i < configuration->tokens_count; i++)
     {
         tok = &configuration->tokens[i];
-        
+
         if (tok->level == CFG_MGR_TOKEN_GROUP && strncmp(module_name, &cfg_data[tok->start], tok->end - tok->start) == 0)
         {
             found_module = i;
@@ -141,19 +143,33 @@ int CfgMgrImpl_get_string_cb(CfgMgr_t* configuration, const char* module_name, c
     }
 
     if (found_config == -1) return CFG_MGR_OPTION_NOT_FOUND;
-    size_t option_len = tok->end - tok->eq_sign_idx - 1;
-    strncpy(option_value, &cfg_data[tok->eq_sign_idx + 1], option_len);
-    option_value[option_len] = '\0';
-    
+    size_t copy_len = MIN(tok->end - tok->eq_sign_idx - 1, option_value_size - 1);
+    strncpy(option_value, &cfg_data[tok->eq_sign_idx + 1], copy_len);
+    option_value[copy_len + 1] = '\0';
+
     return CFG_MGR_OK;
 }
 
 int CfgMgrImpl_get_int_cb(CfgMgr_t* configuration, const char* module_name, const char* option_name, int* option_value)
 {
+    const size_t string_value_len = 32;
+    char string_value[string_value_len];
+    int status = CfgMgrImpl_get_string_cb(configuration, module_name, option_name, string_value, string_value_len);
+    if (CFG_MGR_OK != status) return status;
+
+    *option_value = atoi(string_value);
+
     return CFG_MGR_OK;
 }
 
 int CfgMgrImpl_get_float_cb(CfgMgr_t* configuration, const char* module_name, const char* option_name, float* option_value)
 {
+    const size_t string_value_len = 32;
+    char string_value[string_value_len];
+    int status = CfgMgrImpl_get_string_cb(configuration, module_name, option_name, string_value, string_value_len);
+    if (CFG_MGR_OK != status) return status;
+
+    *option_value = atof(string_value);
+
     return CFG_MGR_OK;
 }

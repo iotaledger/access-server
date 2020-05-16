@@ -23,7 +23,7 @@
 #include "cfg_mgr_impl.h"
 
 int CfgMgr_init(void* in_parameter, CfgMgr_t* configuration);
-int CfgMgr_get_option_string(CfgMgr_t* configuration, const char* module_name, const char* option_name, char* option_value);
+int CfgMgr_get_option_string(CfgMgr_t* configuration, const char* module_name, const char* option_name, char* option_value, size_t option_size);
 int CfgMgr_get_option_int(CfgMgr_t* configuration, const char* module_name, const char* option_name, int* option_value);
 int CfgMgr_get_option_float(CfgMgr_t* configuration, const char* module_name, const char* option_name, float* option_value);
 

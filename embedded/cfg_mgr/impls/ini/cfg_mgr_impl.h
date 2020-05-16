@@ -20,6 +20,8 @@
 #ifndef _CFG_INI_H_
 #define _CFG_INI_H_
 
+#include <stddef.h>
+
 #define CFG_MGR_DATA_SIZE 2048
 #define CFG_MGR_MAX_TOKENS 1024
 
@@ -43,7 +45,7 @@ typedef struct CfgMgr {
 } CfgMgr_t;
 
 int CfgMgrImpl_init_cb(void* in_parameter, CfgMgr_t* configuration);
-int CfgMgrImpl_get_string_cb(CfgMgr_t* configuration, const char* module_name, const char* option_name, char* option_value);
+int CfgMgrImpl_get_string_cb(CfgMgr_t* configuration, const char* module_name, const char* option_name, char* option_value, size_t option_value_size);
 int CfgMgrImpl_get_int_cb(CfgMgr_t* configuration, const char* module_name, const char* option_name, int* option_value);
 int CfgMgrImpl_get_float_cb(CfgMgr_t* configuration, const char* module_name, const char* option_name, float* option_value);
 
