@@ -26,7 +26,7 @@
 #include <string.h>
 #include <unistd.h>
 
-const char g_config_ini[] = 
+const char g_config_ini[] =
 "[module1]\n"
 "option1=va1ue\n"
 "option2=v4lue\n"
@@ -42,34 +42,34 @@ int main()
     int fd = mkstemp(file_name);
     printf("fd = %d\n", fd);
     write(fd, g_config_ini, strlen(g_config_ini));
-    
+
     CfgMgr_t configuration;
     CfgMgr_init(file_name, &configuration);
 
     printf("config file contents:\n%s\n", configuration.data);
     char cfg_option_value[2048];
-    int status = CfgMgr_get_option_string(&configuration, "module1", "option2", cfg_option_value);
-    if (status != CFG_MGR_OK) printf("get module1->option2 failed!\nThis is NOT ok!\nstatus = %d\n", status);
+    int status = CfgMgr_get_option_string(&configuration, "module1", "option2", cfg_option_value, 2048);
+    if (status != CFG_MGR_OK) printf("get module1->option2 failed! - This is NOT ok!\nstatus = %d\n", status);
     else printf("module1->option2: %s OK\n", cfg_option_value);
 
-    status = CfgMgr_get_option_string(&configuration, "module2", "option3", cfg_option_value);
-    if (status != CFG_MGR_OK) printf("get module2->option3 failed!\nThis is NOT ok!\nstatus = %d\n", status);
+    status = CfgMgr_get_option_string(&configuration, "module2", "option3", cfg_option_value, 2048);
+    if (status != CFG_MGR_OK) printf("get module2->option3 failed! - This is NOT ok!\nstatus = %d\n", status);
     else printf("module2->option3: %s OK\n", cfg_option_value);
 
-    status = CfgMgr_get_option_string(&configuration, "module2", "option1", cfg_option_value);
-    if (status != CFG_MGR_OK) printf("get module2->option1 failed!\nThis is NOT ok!\nstatus = %d\n", status);
+    status = CfgMgr_get_option_string(&configuration, "module2", "option1", cfg_option_value, 2048);
+    if (status != CFG_MGR_OK) printf("get module2->option1 failed! - This is NOT ok!\nstatus = %d\n", status);
     else printf("module2->option1: %s OK\n", cfg_option_value);
-    
-    status = CfgMgr_get_option_string(&configuration, "module1", "option3", cfg_option_value);
-    if (status != CFG_MGR_OK) printf("get module1->option3 failed!\nThis is ok!\n");
+
+    status = CfgMgr_get_option_string(&configuration, "module1", "option3", cfg_option_value, 2048);
+    if (status != CFG_MGR_OK) printf("get module1->option3 failed! - This is ok!\n");
     else printf("module1->option3: %s NOT ok\n", cfg_option_value);
-    
-    status = CfgMgr_get_option_string(&configuration, "module3", "option4", cfg_option_value);
-    if (status != CFG_MGR_OK) printf("get module3->option4 failed!\nThis is ok!\n");
+
+    status = CfgMgr_get_option_string(&configuration, "module3", "option4", cfg_option_value, 2048);
+    if (status != CFG_MGR_OK) printf("get module3->option4 failed! - This is ok!\n");
     else printf("module3->option4: %s NOT ok\n", cfg_option_value);
-    
-    status = CfgMgr_get_option_string(&configuration, "module3", "option1", cfg_option_value);
-    if (status != CFG_MGR_OK) printf("get module3->option1 failed!\nThis is ok!\n");
+
+    status = CfgMgr_get_option_string(&configuration, "module3", "option1", cfg_option_value, 2048);
+    if (status != CFG_MGR_OK) printf("get module3->option1 failed! - This is ok!\n");
     else printf("module3->option1: %s NOt ok\n", cfg_option_value);
 
     unlink(file_name);
