@@ -37,6 +37,7 @@
 #include "json_interface.h"
 
 #include "globals_declarations.h"
+#include "cfg_mgr.h"
 
 #include <unistd.h>
 #include <string.h>
@@ -544,26 +545,24 @@ static void can_read_callback(struct can_frame *frame)
 }
 
 #ifndef TINY_EMBEDDED
-void CanopenReceiver_preInitSetup(const char *can_interface_name, int _node_id)
+void CanopenReceiver_preInitSetup()
 {
     is_in_use = TRUE;
-    memset(port_name, 0, CANOPEN_MAX_STR_SIZE * sizeof(char));
-    memcpy(port_name, can_interface_name, strlen(can_interface_name));
-    node_id = _node_id;
+    CfgMgr_get_option_string("canopen", "port_name", port_name, CANOPEN_MAX_STR_SIZE);
+    CfgMgr_get_option_int("canopen", "node_id", &node_id);
 }
 #endif
 
-void CanopenReceiver_init(canopen01_vehicle_dataset_t *dataset, pthread_mutex_t *json_mutex, const char *can_interface_name, int _node_id)
+void CanopenReceiver_init(canopen01_vehicle_dataset_t *dataset, pthread_mutex_t *json_mutex)
 {
     wanted_signals = dataset;
     JSONInterface_add_module_init_cb(can_json_filler, &fj_obj_canopen, CANOPEN_JSON_NAME);
     json_sync_lock = json_mutex;
-    node_id = _node_id;
-    CanThread_init(&can_instance, can_interface_name, can_read_callback);
+    CfgMgr_get_option_string("canopen", "port_name", port_name, CANOPEN_MAX_STR_SIZE);
+    CfgMgr_get_option_int("canopen", "node_id", &node_id);
+    CanThread_init(&can_instance, port_name, can_read_callback);
 #ifdef TINY_EMBEDDED
     is_in_use = TRUE;
-    memset(port_name, 0, CANOPEN_MAX_STR_SIZE * sizeof(char));
-    memcpy(port_name, can_interface_name, strlen(can_interface_name));
 #endif
 }
 

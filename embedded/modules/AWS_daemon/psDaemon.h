@@ -52,6 +52,7 @@
 #define PSD_STANDARD_TIMEOUT (2)
 #define PSD_LONG_TIMEOUT     (40)
 
+void PSDaemon_init();
 int PSDaemon_do_work();
 void PSDaemon_set_policy_store_address(const char* address);
 void PSDaemon_set_policy_store_port(int port);

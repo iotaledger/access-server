@@ -43,6 +43,7 @@
 
 #include "can_receiver.h"
 #include "json_interface.h"
+#include "cfg_mgr.h"
 
 #define ADDR_SIZE 128
 
@@ -147,11 +148,6 @@ static resolver_plugin_t* g_action_set = NULL;
 
 static void init_ds_interface(VehicleDataset_state_t* vdstate)
 {
-    char can0_port_name[RES_MAX_STR_SIZE];
-    char can1_port_name[RES_MAX_STR_SIZE];
-
-    CanReceiver_getBodyChannel(can0_port_name, RES_MAX_STR_SIZE);
-    CanReceiver_getChasChannel(can1_port_name, RES_MAX_STR_SIZE);
 #ifdef TINY_EMBEDDED
     CanReceiver_deinit();
     // Re-init receiver with new dataset
@@ -160,16 +156,11 @@ static void init_ds_interface(VehicleDataset_state_t* vdstate)
     Demo01Plugin_initializer(NULL);
     vdstate->options = &VehicleDatasetDemo01_options[0];
     VehicleDataset_init(vdstate);
-    CanReceiver_init(can0_port_name, can1_port_name, vdstate->dataset, JSONInterface_get_mutex());
+    CanReceiver_init(vdstate->dataset, JSONInterface_get_mutex());
 }
 
 static void init_ds_interface_tcp(VehicleDataset_state_t* vdstate)
 {
-    char can0_port_name[RES_MAX_STR_SIZE];
-    char can1_port_name[RES_MAX_STR_SIZE];
-
-    CanReceiver_getBodyChannel(can0_port_name, RES_MAX_STR_SIZE);
-    CanReceiver_getChasChannel(can1_port_name, RES_MAX_STR_SIZE);
 #ifdef TINY_EMBEDDED
     CanReceiver_deinit();
     // Re-init receiver with new dataset
@@ -178,7 +169,7 @@ static void init_ds_interface_tcp(VehicleDataset_state_t* vdstate)
     Demo01Plugin_initializer_tcp(NULL);
     vdstate->options = &VehicleDatasetDemo01_options[0];
     VehicleDataset_init(vdstate);
-    CanReceiver_init(can0_port_name, can1_port_name, vdstate->dataset, JSONInterface_get_mutex());
+    CanReceiver_init(vdstate->dataset, JSONInterface_get_mutex());
 }
 
 static void start_ds_interface()
@@ -200,6 +191,8 @@ static void term_ds_interface(VehicleDataset_state_t* vdstate)
 
 void Demo01Plugin_initializer(resolver_plugin_t* action_set)
 {
+    int cfg_status = CfgMgr_get_option_string("demo01plugin", "relayboard_address", relayboard_addr, ADDR_SIZE);
+
     if (g_action_set == NULL && action_set == NULL)
     {
         return;

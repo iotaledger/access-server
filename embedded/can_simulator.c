@@ -19,7 +19,7 @@
 
 #include "can_linux.h"
 #include "can_msgs.h"
-#include "config_manager.h"
+#include "cfg_mgr.h"
 
 #include <signal.h>
 #include <unistd.h>
@@ -29,7 +29,6 @@
 #include <stdint.h>
 
 int g_task_sleep_time;
-static ConfigManager_config_t config;
 
 static CAN_t can_connection;
 
@@ -48,11 +47,13 @@ static void be2le(unsigned char *in, unsigned char *out)
 }
 
 int main(int argc, char** argv) {
-    ConfigManager_load(&config, "config.ini", argc, argv);
+    CfgMgr_init("config.ini");
     signal(SIGINT, signal_handler);
-    g_task_sleep_time = (int)(config.thread_sleep_period * 1000);
 
-    int r = CAN_open(&can_connection, config.symcan_ifname);
+    int status = CfgMgr_get_option_int("config", "thread_sleep_period", &g_task_sleep_time);
+    if (status != CFG_MGR_OK) g_task_sleep_time = 1000; // 1 second
+
+    int r = CAN_open(&can_connection, "vcan0");
 
     struct can_frame frame_to_be_sent = {0};
     CanMsgs_BodyMessage_t body_msg_payload = {0};

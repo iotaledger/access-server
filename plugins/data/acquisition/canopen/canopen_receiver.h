@@ -41,9 +41,9 @@
 #endif
 
 #ifndef TINY_EMBEDDED
-void CanopenReceiver_preInitSetup(const char *can_interface_name, int _node_id);
+void CanopenReceiver_preInitSetup();
 #endif
-void CanopenReceiver_init(canopen01_vehicle_dataset_t *dataset, pthread_mutex_t *json_mutex, const char *can_interface_name, int node_id);
+void CanopenReceiver_init(canopen01_vehicle_dataset_t *dataset, pthread_mutex_t *json_mutex);
 int CanopenReceiver_start();
 void CanopenReceiver_deinit();
 bool CanopenReceiver_isInUse();
