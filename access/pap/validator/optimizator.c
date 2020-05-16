@@ -1,16 +1,35 @@
+/*
+ * This file is part of the IOTA Access distribution
+ * (https://github.com/iotaledger/access)
+ *
+ * Copyright (c) 2020 IOTA Foundation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /***************************************************************************
- * Project:     Remote Access Delegation
- * 
+ * Project:     IOTA Access
+ *
  * Module:      Policy validation tool
- * 
+ *
  * Info:        This module is created in order to validate or
- *              discard policy, also it has functionality to 
+ *              discard policy, also it has functionality to
  *              perform policy optimisation.
- * 
+ *
  * File:        optimizator.c
- * 
+ *
  * Designed-by: Strahinja Golic
- * 
+ *
  * History:     25.03.2020. - Initial version
  *****************************************************************************/
 
@@ -192,11 +211,11 @@ void new_simple_element(char *policy, jsmntok_t *tokens, int obj_idx, Optimizato
 	new_elem->elem_type = TE_VARIABLE;
 
 	memcpy(new_elem->element.symple_var.type, &policy[tokens[obj_idx + 2].start],
-		(tokens[obj_idx + 2].end - tokens[obj_idx + 2].start) > OPT_MAX_STR_LEN ? 
+		(tokens[obj_idx + 2].end - tokens[obj_idx + 2].start) > OPT_MAX_STR_LEN ?
 			OPT_MAX_STR_LEN : (tokens[obj_idx + 2].end - tokens[obj_idx + 2].start));
 
 	memcpy(new_elem->element.symple_var.value, &policy[tokens[obj_idx + 4].start],
-		(tokens[obj_idx + 4].end - tokens[obj_idx + 4].start) > OPT_MAX_STR_LEN ? 
+		(tokens[obj_idx + 4].end - tokens[obj_idx + 4].start) > OPT_MAX_STR_LEN ?
 			OPT_MAX_STR_LEN : (tokens[obj_idx + 4].end - tokens[obj_idx + 4].start));
 
 	if (strncmp(&policy[tokens[obj_idx + 2].start], "boolean", strlen("boolean")) == 0)
@@ -307,7 +326,7 @@ void new_simple_element(char *policy, jsmntok_t *tokens, int obj_idx, Optimizato
 					}
 				}
 
-				temp = temp->previous;			
+				temp = temp->previous;
 			}
 
 			if (top_symbol <= ONE)
@@ -484,7 +503,7 @@ void new_complex_element(char *policy, jsmntok_t *tokens, int att_list_idx, int 
 					}
 				}
 
-				temp = temp->previous;			
+				temp = temp->previous;
 			}
 
 			if (top_symbol <= ONE)
@@ -588,7 +607,7 @@ int obj_to_expression(char *policy, jsmntok_t *tokens, int obj_idx, int max_idx,
 
 /*
  *  Function: sprint_expression
- *  Description: Print expression from list 
+ *  Description: Print expression from list
  *  Parameters: list_head - list to print from
  *              print_sub_var - should sub-variables be print
  *              buffer - buffer to fill
@@ -678,7 +697,7 @@ int sprint_expression(Optimizator_function_list_elem_t *list_head, bool print_su
 
 /*
  *  Function: sprint_object
- *  Description: Print json object from list 
+ *  Description: Print json object from list
  *  Parameters: list_head - list to print from
  *              buffer - buffer to fill
  *              indentation - indentation starting point
@@ -712,7 +731,7 @@ int sprint_object(Optimizator_function_list_elem_t *list_head, char *buffer, int
 		{
 			is_single_element = TRUE;
 		}
-		
+
 
 		switch (element->elem_type)
 		{
@@ -1024,7 +1043,7 @@ Optimizator_optimization_actions_e check_absorption(Optimizator_function_list_el
 						Parser_operations_e after_op = OP_UNKNOWN;
 						Parser_operations_e outside_op = OP_UNKNOWN;
 
-						if (bracket_opn->previous != NULL && 
+						if (bracket_opn->previous != NULL &&
 							bracket_opn->previous->element.operator.bracket == BR_NONE) //eliminate bracket next to bracket case
 						{
 							before_op = bracket_opn->previous->element.operator.operation;
@@ -1059,7 +1078,7 @@ Optimizator_optimization_actions_e check_absorption(Optimizator_function_list_el
 
 						if (inside_op != outside_op && outside_op != OP_UNKNOWN)
 						{
-							/* Check the each of the elements with commutative property with the bracket. 
+							/* Check the each of the elements with commutative property with the bracket.
 							E.g. F = a + b * c * (d + f) * g * (h + i) * j + k - for (d + f) bracket
 							elements b, c, g, j will be checked. Same elements will be checked for (h + i) bracket,
 							but that's another iteration. If any of these elements is also presented in the
@@ -1339,7 +1358,7 @@ void expression_to_policy(char* policy, jsmntok_t *tokens, char *new_json_path)
 				int cnt = 0;
 				fseek(file, 0, SEEK_END);
 				ch = fgetc(file);
-				
+
 				while (ch != ',')
 				{
 					fseek(file, 0 - cnt, SEEK_END);
