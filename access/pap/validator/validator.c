@@ -1,16 +1,35 @@
+/*
+ * This file is part of the IOTA Access distribution
+ * (https://github.com/iotaledger/access)
+ *
+ * Copyright (c) 2020 IOTA Foundation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /***************************************************************************
- * Project:     Remote Access Delegation
- * 
+ * Project:     IOTA Access
+ *
  * Module:      Policy validation tool
- * 
+ *
  * Info:        This module is created in order to validate or
- *              discard policy, also it has functionality to 
+ *              discard policy, also it has functionality to
  *              perform policy optimisation.
- * 
+ *
  * File:        validator.c
- * 
+ *
  * Designed-by: Djordje Golubovic
- * 
+ *
  * History:     21.02.2020. - Initial version
  *              22.03.2020. - Value limitations check
  *              25.03.2020. - Moved parser functions to helper module
@@ -450,7 +469,7 @@ Validator_check_res_e check_gte(void *val1, void *val2, Validator_cmp_types_e ty
 static int check_gocdoc_object(jsmntok_t* tokens, int obj_idx, int max_idx, const char* policy_data)
 {
     Validator_policy_docgoc_level_e ret = DG_HAS_NONE;
-    
+
     int next_object_index = obj_idx;
 
     while (next_object_index >= 0)
