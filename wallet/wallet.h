@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include <pthread.h>
+
 #include "cclient/api/core/core_api.h"
 #include "cclient/api/extended/extended_api.h"
 #include "common/model/transaction.h"
@@ -40,6 +42,20 @@ typedef struct {
   flex_trit_t seed[FLEX_TRIT_SIZE_243]; /*!< seed */
   iota_client_service_t *iota_client;   /*!< iota client service */
 } wallet_ctx_t;
+
+typedef void (*balance_cb)(uint64_t start, uint64_t end);
+
+typedef struct {
+  pthread_mutex_t mutex_lock;    /*!< locker */
+  pthread_t thread_id;           /*!< thread ID */
+  uint8_t status;                /*!< 0: init, 1: running, 2: stopping */
+  uint32_t interval;             /*!< balance monitoring intervale in sec */
+  uint64_t threshold;            /*!< balance threshold */
+  uint64_t current_balance;      /*!< current balace on the address */
+  char addr[NUM_TRYTES_ADDRESS]; /*!< monitoring address */
+  wallet_ctx_t const *wallet;    /*!< wallet context */
+  balance_cb cb;                 /*!< callback when balance meet the threshold */
+} balance_service_t;
 
 /**
  * @brief Create a wallet instance
@@ -114,3 +130,31 @@ void wallet_destory(wallet_ctx_t **wallet);
 wallet_err_t wallet_fetch_policy(wallet_ctx_t const *const ctx, char const *const hash, char *policy_buf, size_t len);
 
 // TODO wallet monitor
+
+/**
+ * @brief start a balance monitor service, the service will stop and notify by callback when the balance satisfies the
+ * threshold.
+ *
+ * @param wallet a wallet object
+ * @param address the address for monitoring
+ * @param interval the monitoring interval in sec
+ * @param threshold a threshold
+ * @param cb a callback on stop or termination
+ * @return balance_service_t*
+ */
+balance_service_t *balance_service_start(wallet_ctx_t const *wallet, char const *const address, uint32_t interval,
+                                         uint64_t threshold, balance_cb cb);
+
+/**
+ * @brief stop balance service
+ *
+ * @param serv a balance service object
+ */
+void balance_service_stop(balance_service_t *serv);
+
+/**
+ * @brief cleanup balance_service_t object
+ *
+ * @param serv a balance service object
+ */
+void balance_service_free(balance_service_t **serv);

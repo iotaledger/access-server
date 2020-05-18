@@ -17,6 +17,8 @@
  * limitations under the License.
  */
 
+#include <inttypes.h>
+
 #include "unity/unity.h"
 
 #include "wallet.h"
@@ -128,6 +130,27 @@ void test_wallet_send(void) {
   TEST_ASSERT_NULL(wallet);
 }
 
+static void balance_notifier(uint64_t start, uint64_t end) {
+  printf("balance service callback: start %" PRIu64 ", end %" PRIu64 "\n", start, end);
+}
+
+void test_balance_service(void) {
+  wallet_ctx_t *wallet = wallet_create("nodes.iota.cafe", 443, amazon_ca1_pem, 3, 14, test_seed);
+  TEST_ASSERT_NOT_NULL(wallet);
+
+  balance_service_t *service = balance_service_start(
+      wallet, "UCDZKUEEGVBHBTRTYHQSWVFWURTOPSMUCOFTNXKAHATMTKLJIDQLGGULNOZZGELOGVYFIBR9TLTDMFUNY", 30, 10, balance_notifier);
+
+  TEST_ASSERT_NOT_NULL(service);
+  sleep(60);
+  balance_service_stop(service);
+  pthread_join(service->thread_id, NULL);
+  wallet_destory(&wallet);
+  TEST_ASSERT_NULL(wallet);
+  balance_service_free(&service);
+  TEST_ASSERT_NULL(service);
+}
+
 int main() {
   UNITY_BEGIN();
   RUN_TEST(test_create_invalid_seed);
@@ -135,6 +158,7 @@ int main() {
   RUN_TEST(test_wallet_check_balance);
   RUN_TEST(test_wallet_check_balance_invalid_addr);
   RUN_TEST(test_wallet_get_address);
-  RUN_TEST(test_wallet_send);
+  // RUN_TEST(test_wallet_send);
+  // RUN_TEST(test_balance_service);
   return UNITY_END();
 }

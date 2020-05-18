@@ -17,8 +17,10 @@
  * limitations under the License.
  */
 
-#include "wallet.h"
+#include <inttypes.h>
+
 #include "utils/input_validators.h"
+#include "wallet.h"
 
 wallet_ctx_t *wallet_create(char const *const node_url, uint16_t port_number, char const *const ca_pem,
                             uint32_t node_depth, uint8_t node_mwm, char const *const seed) {
@@ -202,4 +204,78 @@ done:
   transfer_message_free(&tf);
   transfer_array_free(transfers);
   return ret;
+}
+
+static void *balance_service(void *arg) {
+  balance_service_t *serv = (balance_service_t *)arg;
+  wallet_err_t err = WALLET_ERR_UNKNOW;
+
+  if ((err = wallet_check_balance(serv->wallet, serv->addr, &serv->current_balance)) == WALLET_OK) {
+    uint64_t old_balance = serv->current_balance;
+    serv->status = 1;
+    printf("[%ld] balance service start at balance %" PRIu64 "\n", pthread_self(), serv->current_balance);
+    while ((serv->current_balance - old_balance) < serv->threshold) {
+      sleep(serv->interval);
+      if (serv->status == 2) {
+        printf("[%ld] balance service stop\n", pthread_self());
+        break;
+      }
+
+      if ((err = wallet_check_balance(serv->wallet, serv->addr, &serv->current_balance)) != WALLET_OK) {
+        printf("[%ld] balance service get balance failed\n", pthread_self());
+        break;
+      }
+      printf("[%ld] starting: %" PRIu64 ", current :%" PRIu64 ", threshold: %" PRIu64 "\n", pthread_self(), old_balance,
+             serv->current_balance, serv->threshold);
+    }
+
+    if (serv->cb) {
+      serv->cb(old_balance, serv->current_balance);
+    }
+
+  } else {
+    printf("[%ld] Err: init balace service failed\n", pthread_self());
+  }
+
+  printf("[%ld] terminating :%" PRIu64 "\n", pthread_self(), serv->current_balance);
+}
+
+balance_service_t *balance_service_start(wallet_ctx_t const *wallet, char const *const address, uint32_t interval,
+                                         uint64_t threshold, balance_cb cb) {
+  // init a balance context
+  balance_service_t *serv = (balance_service_t *)malloc(sizeof(balance_service_t));
+  memcpy(serv->addr, address, NUM_TRYTES_ADDRESS);
+  serv->interval = interval;
+  serv->threshold = threshold;
+  serv->current_balance = 0;
+  serv->status = 0;
+  serv->wallet = wallet;
+  serv->cb = cb;
+
+  if (pthread_mutex_init(&serv->mutex_lock, NULL) != 0) {
+    printf("%s: init locker failed\n", __func__);
+    free(serv);
+    return NULL;
+  }
+
+  if (pthread_create(&serv->thread_id, NULL, balance_service, (void *)serv) != 0) {
+    printf("%s: thread create failed\n", __func__);
+    free(serv);
+    return NULL;
+  }
+
+  return serv;
+}
+
+void balance_service_stop(balance_service_t *serv) {
+  pthread_mutex_lock(&serv->mutex_lock);
+  serv->status = 2;
+  pthread_mutex_unlock(&serv->mutex_lock);
+}
+
+void balance_service_free(balance_service_t **serv) {
+  if (serv && *serv) {
+    free(*serv);
+    *serv = NULL;
+  }
 }
