@@ -21,7 +21,7 @@
  * \project Decentralized Access Control
  * \file resolver.c
  * \brief
- * Implementation of Resolver for Raspberry Pi 3B+ board
+ * Implementation of Resolver
  *
  * @Author Vladimir Vojnovic, Strahinja Golic
  *
@@ -56,7 +56,7 @@
  ****************************************************************************/
 static char action_s[] = "<Action performed>";
 static int timerId = -1;
-static VehicleDataset_state_t *g_vdstate = NULL;
+static PlatformDataset_state_t *g_dstate = NULL;
 static resolver_plugin_t resolver_action_set = {0};
 
 /****************************************************************************
@@ -79,7 +79,7 @@ static int start_data_sharing(const char *action, unsigned long end_time)
     }
 
     // Initialize interface
-    resolver_action_set.init_ds_interface_cb(g_vdstate);
+    resolver_action_set.init_ds_interface_cb(g_dstate);
 
     // Chose dataset
     char* dataset;
@@ -90,52 +90,52 @@ static int start_data_sharing(const char *action, unsigned long end_time)
     switch(atoi(dataset_num))
     {
         case 1:
-            dataset = VehicleDataset01_options;
+            dataset = PLATFORM_DATASET_OPTIONS_1;
             break;
         case 2:
-            dataset = VehicleDataset02_options;
+            dataset = PLATFORM_DATASET_OPTIONS_2;
             break;
         case 3:
-            dataset = VehicleDataset03_options;
+            dataset = PLATFORM_DATASET_OPTIONS_3;
             break;
         case 4:
-            dataset = VehicleDataset04_options;
+            dataset = PLATFORM_DATASET_OPTIONS_4;
             break;
         case 5:
-            dataset = VehicleDataset05_options;
+            dataset = PLATFORM_DATASET_OPTIONS_5;
             break;
         case 6:
-            dataset = VehicleDataset06_options;
+            dataset = PLATFORM_DATASET_OPTIONS_5;
             break;
         case 7:
-            dataset = VehicleDataset07_options;
+            dataset = PLATFORM_DATASET_OPTIONS_7;
             break;
         case 8:
-            dataset = VehicleDataset08_options;
+            dataset = PLATFORM_DATASET_OPTIONS_8;
             break;
         case 9:
-            dataset = VehicleDataset09_options;
+            dataset = PLATFORM_DATASET_OPTIONS_9;
             break;
         case 10:
-            dataset = VehicleDataset10_options;
+            dataset = PLATFORM_DATASET_OPTIONS_10;
             break;
         case 11:
-            dataset = VehicleDataset11_options;
+            dataset = PLATFORM_DATASET_OPTIONS_11;
             break;
         case 12:
-            dataset = VehicleDataset12_options;
+            dataset = PLATFORM_DATASET_OPTIONS_12;
             break;
         case 13:
-            dataset = VehicleDataset13_options;
+            dataset = PLATFORM_DATASET_OPTIONS_13;
             break;
         case 14:
-            dataset = VehicleDataset14_options;
+            dataset = PLATFORM_DATASET_OPTIONS_14;
             break;
         case 15:
-            dataset = VehicleDataset15_options;
+            dataset = PLATFORM_DATASET_OPTIONS_15;
             break;
         case 16:
-            dataset = VehicleDataset16_options;
+            dataset = PLATFORM_DATASET_OPTIONS_16;
             break;
         default:
             dataset = NULL;
@@ -149,23 +149,23 @@ static int start_data_sharing(const char *action, unsigned long end_time)
 
     while (tok != NULL)
     {
-        for (int i = 0; i < g_vdstate->options_count; i++)
+        for (int i = 0; i < g_dstate->options_count; i++)
         {
             // Set options that needs to ne acquried
-            if (strncmp(g_vdstate->tokens[i].name, tok, strlen(tok) < strlen(g_vdstate->tokens[i].name) ? strlen(tok) : strlen(g_vdstate->tokens[i].name)) == 0)
+            if (strncmp(g_dstate->tokens[i].name, tok, strlen(tok) < strlen(g_dstate->tokens[i].name) ? strlen(tok) : strlen(g_dstate->tokens[i].name)) == 0)
             {
-                g_vdstate->tokens[i].val = 1;
+                g_dstate->tokens[i].val = 1;
             }
         }
 
         tok = strtok(NULL, "|");
     }
 
-    unsigned char *dataset_uint8 = (unsigned char*)g_vdstate->dataset;
+    unsigned char *dataset_uint8 = (unsigned char*)g_dstate->dataset;
 
-    for (int i = 0; i < g_vdstate->options_count; i ++)
+    for (int i = 0; i < g_dstate->options_count; i ++)
     {
-        dataset_uint8[i] = g_vdstate->tokens[i].val;
+        dataset_uint8[i] = g_dstate->tokens[i].val;
     }
 
     timerId = Timer_start(end_time - getEpochTime(), (time_handler)timer_handler, TIMER_SINGLE_SHOT, NULL);
@@ -233,10 +233,10 @@ static bool pep_request(char *obligation, char *action, unsigned long start_time
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
-void Resolver_init(resolver_plugin_initializer_t initializer, VehicleDataset_state_t *vdstate)
+void Resolver_init(resolver_plugin_initializer_t initializer, PlatformDataset_state_t *dstate)
 {
     initializer(&resolver_action_set);
-    g_vdstate = vdstate;
+    g_dstate = dstate;
 
     PEP_register_callback((resolver_fn) pep_request);
 }
@@ -244,7 +244,7 @@ void Resolver_init(resolver_plugin_initializer_t initializer, VehicleDataset_sta
 void Resolver_term(resolver_plugin_terminizer_t terminizer)
 {
     terminizer(&resolver_action_set);
-    g_vdstate = NULL;
+    g_dstate = NULL;
 
     PEP_unregister_callback();
 }

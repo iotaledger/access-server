@@ -207,6 +207,7 @@ CFLAGS = \
     -I$(FASTJSON) \
     -I$(NETWORK) \
     -I$(VALIDATOR) \
+    -I$(RESOLVER_PLATFORMS) \
     -I$(RESOLVER_RPI)
 
 all: $(BINARY_MAIN) can_simulator
