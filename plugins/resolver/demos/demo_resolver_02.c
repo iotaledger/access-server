@@ -75,10 +75,10 @@ static resolver_plugin_t* g_action_set = NULL;
 
 static void init_cb(VehicleDataset_state_t* vdstate)
 {
-    char canopen_port_name[MAX_STR_SIZE];
+    char canopen_port_name[RES_MAX_STR_SIZE];
     int canopen_node_id;
 
-    CanopenReceiver_getPortName(canopen_port_name, MAX_STR_SIZE);
+    CanopenReceiver_getPortName(canopen_port_name, RES_MAX_STR_SIZE);
     canopen_node_id = CanopenReceiver_getNodeId();
 #ifdef TINY_EMBEDDED
     CanopenReceiver_deinit();
@@ -93,6 +93,14 @@ static void init_cb(VehicleDataset_state_t* vdstate)
 
 static void start_cb() {}
 static void stop_cb() {}
+
+static void term_cb(VehicleDataset_state_t* vdstate)
+{
+    Demo02Plugin_terminizer();
+    vdstate->options = NULL;
+    VehicleDataset_deinit(vdstate);
+    CanopenReceiver_deinit();
+}
 
 void Demo02Plugin_initializer(resolver_plugin_t* action_set)
 {
@@ -111,13 +119,19 @@ void Demo02Plugin_initializer(resolver_plugin_t* action_set)
     g_action_set->actions[2] = demo02_honk;
     g_action_set->actions[3] = demo02_alarm_on;
     g_action_set->actions[4] = demo02_alarm_off;
-    strncpy(g_action_set->action_names[0], "open_door", RESOLVER_ACTION_NAME_SIZE);
-    strncpy(g_action_set->action_names[1], "close_door", RESOLVER_ACTION_NAME_SIZE);
-    strncpy(g_action_set->action_names[2], "honk", RESOLVER_ACTION_NAME_SIZE);
-    strncpy(g_action_set->action_names[3], "alarm_on", RESOLVER_ACTION_NAME_SIZE);
-    strncpy(g_action_set->action_names[4], "alarm_off", RESOLVER_ACTION_NAME_SIZE);
+    strncpy(g_action_set->action_names[0], "open_door", RES_ACTION_NAME_SIZE);
+    strncpy(g_action_set->action_names[1], "close_door", RES_ACTION_NAME_SIZE);
+    strncpy(g_action_set->action_names[2], "honk", RES_ACTION_NAME_SIZE);
+    strncpy(g_action_set->action_names[3], "alarm_on", RES_ACTION_NAME_SIZE);
+    strncpy(g_action_set->action_names[4], "alarm_off", RES_ACTION_NAME_SIZE);
     g_action_set->count = 5;
     g_action_set->init_ds_interface_cb = init_cb;
     g_action_set->start_ds_interface_cb = start_cb;
     g_action_set->stop_ds_interface_cb = stop_cb;
+    g_action_set->term_ds_interface_cb = term_cb;
+}
+
+void Demo02Plugin_terminizer()
+{
+    g_action_set = NULL;
 }
