@@ -1,0 +1,103 @@
+/*
+ * This file is part of the IOTA Access Distribution
+ * (https://github.com/iotaledger/access)
+ *
+ * Copyright (c) 2020 IOTA Stiftung
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/****************************************************************************
+ * \project Decentralized Access Control
+ * \file protocol.h
+ * \brief
+ * Implementation of data acquisition wrapper for different com. interfaces
+ *
+ * @Author Strahinja Golic
+ *
+ * \notes
+ *
+ * \history
+ * 18.05.2020. Initial version.
+ ****************************************************************************/
+#ifndef __PROTOCOL_H__
+#define __PROTOCOL_H__
+
+/****************************************************************************
+ * MACROS
+ ****************************************************************************/
+#ifndef bool
+#define bool _Bool
+#endif
+#ifndef TRUE
+#define TRUE 1
+#endif
+#ifndef FALSE
+#define FALSE 0
+#endif
+
+#define PROTOCOL_MAX_STR_LEN 256
+
+/****************************************************************************
+ * CALLBACKS
+ ****************************************************************************/
+typedef bool (*acquire_fn)(char* requested_type, char* requested_value, char* type_buff, char* value_buff);
+
+/****************************************************************************
+ * API FUNCTIONS
+ ****************************************************************************/
+/**
+ * @fn      PROTOCOL_init
+ *
+ * @brief   Initialize module
+ *
+ * @param   void
+ *
+ * @return  TRUE - success, FALSE - fail
+ */
+bool PROTOCOL_init(void);
+
+/**
+ * @fn      PROTOCOL_term
+ *
+ * @brief   Terminate module
+ *
+ * @param   void
+ *
+ * @return  TRUE - success, FALSE - fail
+ */
+bool PROTOCOL_term(void);
+
+/**
+ * @fn      PROTOCOL_register_callback
+ *
+ * @brief   Register callback for different communication protocols
+ *
+ * @param   acquire - Callback to register
+ *
+ * @return  void
+ */
+void PROTOCOL_register_callback(acquire_fn acquire);
+
+/**
+ * @fn      PROTOCOL_unregister_callback
+ *
+ * @brief   Unregister callback for different communication protocols
+ *
+ * @param   void
+ *
+ * @return  void
+ */
+void PROTOCOL_unregister_callback();
+
+#endif //__PROTOCOL_H__

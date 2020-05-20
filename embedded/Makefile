@@ -161,7 +161,8 @@ SRCS = \
     $(FASTJSON)json_version.c \
     $(FASTJSON)printbuf.c \
     $(VALIDATOR)validator.c \
-    $(VALIDATOR)parser.c
+    $(VALIDATOR)parser.c \
+    $(DATA_ACQUISITION)protocol.c
 
 OBJS =	$(SRCS:.c=.o)
 
@@ -204,7 +205,8 @@ CFLAGS = \
     -I$(MODBUS) \
     -I$(FASTJSON) \
     -I$(NETWORK) \
-    -I$(VALIDATOR)
+    -I$(VALIDATOR) \
+    -I$(DATA_ACQUISITION)
 
 all: $(BINARY_MAIN) can_simulator
 
