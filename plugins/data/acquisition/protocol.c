@@ -34,6 +34,7 @@
  * INCLUDES
  ****************************************************************************/
 #include <stdio.h>
+#include <string.h>
 #include "protocol.h"
 #include "pip.h"
 
