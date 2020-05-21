@@ -28,8 +28,8 @@
 
 #include "storage.h"
 #include "asn_auth.h"
-#include "vehicle_dataset.h"
 #include "bc_daemon.h"
+#include "dataset.h"
 
 #include "obdii_receiver.h"
 #include "json_interface.h"
@@ -67,7 +67,7 @@ static pthread_mutex_t *json_mutex;
 
 static ConfigManager_config_t config;
 
-static VehicleDataset_state_t vdstate = {0};
+static Dataset_state_t vdstate = {0};
 
 extern void Demo01Plugin_set_relayboard_addr(const char* addr);
 
@@ -106,7 +106,7 @@ int main(int argc, char** argv)
         Resolver_init(Demo01Plugin_initializer, &vdstate);
         vdstate.options = &VehicleDatasetDemo01_options[0];
         vdstate.dataset = (can01_vehicle_dataset_t*)malloc(sizeof(can01_vehicle_dataset_t));
-        VehicleDataset_init(&vdstate);
+        Dataset_init(&vdstate);
         CanReceiver_init(config.can0_port_name, config.can1_port_name, vdstate.dataset, json_mutex);
         //GpsReceiver_init(config.gps_tty_device, json_mutex);
         using_can = 1;
@@ -121,7 +121,7 @@ int main(int argc, char** argv)
         Resolver_init(Demo02Plugin_initializer, &vdstate);
         vdstate.options = &VehicleDatasetDemo02_options[0];
         vdstate.dataset = (canopen01_vehicle_dataset_t*)malloc(sizeof(canopen01_vehicle_dataset_t));
-        VehicleDataset_init(&vdstate);
+        Dataset_init(&vdstate);
         CanopenReceiver_init(vdstate.dataset, json_mutex, config.canopen_port_name, config.canopen_node_id);
         //ModbusReceiver_init(config.modbus_tty_device, vdstate.dataset, json_mutex);
         using_canopen = 1;
@@ -199,7 +199,7 @@ int main(int argc, char** argv)
     UserManagement_deinit();
     JSONInterface_deinit();
     if (vdstate.dataset != 0)
-        VehicleDataset_deinit(&vdstate);
+        Dataset_deinit(&vdstate);
 
     printf("             done...\n");
 

@@ -39,7 +39,7 @@
  * INCLUDES
  ****************************************************************************/
 #include <stdlib.h>
-#include "platform_interface.h"
+#include "dataset.h"
 
 /****************************************************************************
  * MACROS
@@ -53,17 +53,15 @@
  ****************************************************************************/
 typedef int (*resolver_action_t)(int should_log);
 
-typedef PLATFORM_DATASET PlatformDataset_state_t;
-
 typedef struct
 {
     char action_names[RES_MAX_RESOLVER_ACTIONS][RES_ACTION_NAME_SIZE];
     resolver_action_t actions[RES_MAX_RESOLVER_ACTIONS];
     size_t count;
-    void (*init_ds_interface_cb)(PlatformDataset_state_t*);
+    void (*init_ds_interface_cb)(Dataset_state_t*);
     void (*start_ds_interface_cb)(void);
     void (*stop_ds_interface_cb)(void);
-    void (*term_ds_interface_cb)(PlatformDataset_state_t*);
+    void (*term_ds_interface_cb)(Dataset_state_t*);
 } resolver_plugin_t;
 
 typedef void (*resolver_plugin_initializer_t)(resolver_plugin_t*);
@@ -73,12 +71,12 @@ typedef void (*resolver_plugin_terminizer_t)(resolver_plugin_t*);
  * API FUNCTIONS
  ****************************************************************************/
 /**
- * @fn  void Resolver_init(resolver_plugin_initializer_t initializer, PlatformDataset_state_t *dstate)
+ * @fn  void Resolver_init(resolver_plugin_initializer_t initializer, Dataset_state_t *dstate)
  *
  * @brief   Initialize Resolver module
  *
  */
-void Resolver_init(resolver_plugin_initializer_t initializer, PlatformDataset_state_t *dstate);
+void Resolver_init(resolver_plugin_initializer_t initializer, Dataset_state_t *dstate);
 
 /**
  * @fn  void Resolver_term(resolver_plugin_terminizer_t terminizer)

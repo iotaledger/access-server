@@ -35,21 +35,17 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include "dataset.h"
+
+#define vd_token_t               d_token_t
+#define VehicleDataset_state_t   Dataset_state_t
+#define VehicleDataset_init      Dataset_init
+#define VehicleDataset_deinit    Dataset_deinit
+#define VehicleDataset_from_json Dataset_from_json
+#define VehicleDataset_to_json   Dataset_to_json
 
 extern char VehicleDatasetDemo01_options[];
 extern char VehicleDatasetDemo02_options[];
-
-typedef struct {
-	char* name;
-	int val;
-} vd_token_t;
-
-typedef struct {
-    char* options;
-    int options_count;
-    vd_token_t* tokens;
-    void* dataset;
-} VehicleDataset_state_t;
 
 typedef struct {
 	uint8_t DoorDrvrSts;
@@ -111,10 +107,6 @@ typedef struct {
     uint8_t remote_throttle_voltage;
 } canopen01_vehicle_dataset_t;
 
-void VehicleDataset_init(VehicleDataset_state_t *state);
-void VehicleDataset_deinit(VehicleDataset_state_t *state);
-void VehicleDataset_from_json(VehicleDataset_state_t *state, const char* json, size_t json_len);
-int VehicleDataset_to_json(VehicleDataset_state_t *state, char* json);
 int VehicleDataset_checked_count(VehicleDataset_state_t *state);
 
 #endif

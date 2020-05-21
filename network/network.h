@@ -34,9 +34,9 @@
 #ifndef _TCP_SERVER_H_
 #define _TCP_SERVER_H_
 
-#include "vehicle_dataset.h"
+#include "dataset.h"
 
-int TCPServer_start(int port, VehicleDataset_state_t* state);
+int TCPServer_start(int port, Dataset_state_t* state);
 void TCPServer_stop();
 
 #endif

@@ -57,7 +57,7 @@ static int bc_hostname_port = -1;
 static int end_thread = 0;
 static pthread_t bc_daemon_thread;
 static CURL* curl = 0;
-static VehicleDataset_state_t *vd_state;
+static Dataset_state_t *vd_state;
 
 static jsmn_parser parser;
 static jsmntok_t tokens[BC_TOK_ARRAY_SIZE];
@@ -66,7 +66,7 @@ static void *bc_daemon_thread_function(void *ptr);
 static void fund_tokens();
 static size_t parse_fund_tokens_response(void *buffer, size_t size, size_t nmemb, void *stream);
 
-void BlockchainDaemon_init(VehicleDataset_state_t *dataset)
+void BlockchainDaemon_init(Dataset_state_t *dataset)
 {
     vd_state = dataset;
 
