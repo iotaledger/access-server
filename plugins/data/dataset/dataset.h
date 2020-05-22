@@ -74,4 +74,5 @@ void Dataset_init(Dataset_state_t *state);
 void Dataset_deinit(Dataset_state_t *state);
 void Dataset_from_json(Dataset_state_t *state, const char* json, size_t json_len);
 int Dataset_to_json(Dataset_state_t *state, char* json);
+int Dataset_checked_count(Dataset_state_t *state);
 #endif //__DATASET_H__

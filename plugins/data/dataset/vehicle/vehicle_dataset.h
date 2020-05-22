@@ -37,12 +37,13 @@
 #include <stdint.h>
 #include "dataset.h"
 
-#define vd_token_t               d_token_t
-#define VehicleDataset_state_t   Dataset_state_t
-#define VehicleDataset_init      Dataset_init
-#define VehicleDataset_deinit    Dataset_deinit
-#define VehicleDataset_from_json Dataset_from_json
-#define VehicleDataset_to_json   Dataset_to_json
+#define vd_token_t                   d_token_t
+#define VehicleDataset_state_t       Dataset_state_t
+#define VehicleDataset_init          Dataset_init
+#define VehicleDataset_deinit        Dataset_deinit
+#define VehicleDataset_from_json     Dataset_from_json
+#define VehicleDataset_to_json       Dataset_to_json
+#define VehicleDataset_checked_count Dataset_checked_count
 
 extern char VehicleDatasetDemo01_options[];
 extern char VehicleDatasetDemo02_options[];
@@ -106,7 +107,5 @@ typedef struct {
     uint8_t brake_light_pwm_daylight;
     uint8_t remote_throttle_voltage;
 } canopen01_vehicle_dataset_t;
-
-int VehicleDataset_checked_count(VehicleDataset_state_t *state);
 
 #endif

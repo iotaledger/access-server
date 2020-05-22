@@ -117,7 +117,7 @@ static void *bc_daemon_thread_function(void *ptr)
         if (period_counter++ == (token_send_interval * 1000))
         {
             period_counter = 0;
-            should_fund = VehicleDataset_checked_count(vd_state);
+            should_fund = Dataset_checked_count(vd_state);
             if (should_fund > 0)
             {
                 fund_tokens();
@@ -133,7 +133,7 @@ static void fund_tokens()
     char post_body[BC_URL_LEN];
     double amount = 0;
 
-    amount = (double) VehicleDataset_checked_count(vd_state);
+    amount = (double) Dataset_checked_count(vd_state);
     if (amount == 0)
     {
         return;
