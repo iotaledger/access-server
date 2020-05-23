@@ -1,3 +1,25 @@
+- [Access Architecture](#access-architecture)
+- [Access Core Software Development Kit (ACSDK)](#access-core-software-development-kit--acsdk-)
+  * [Access Core API](#access-core-api)
+  * [Platform Plugins](#platform-plugins)
+    + [Input](#input)
+      - [Data Acquisition Plugins](#data-acquisition-plugins)
+      - [Policy Storage Plugins](#policy-storage-plugins)
+    + [Output](#output)
+      - [Resolver Plugins](#resolver-plugins)
+      - [Data Sharing Plugins](#data-sharing-plugins)
+  * [Access Secure Network API](#access-secure-network-api)
+    + [EdDSA Ed25519](#eddsa-ed25519)
+    + [OpenSSL](#openssl)
+- [Access Core Server Reference Implementation (ACSRI)](#access-core-server-reference-implementation--acsri-)
+  * [Access Actor](#access-actor)
+  * [Wallet Actor](#wallet-actor)
+  * [Network Actor](#network-actor)
+  * [Application Supervisor](#application-supervisor)
+- [Access Policy](#access-policy)
+- [Access Request Protocol](#access-request-protocol)
+- [Policy Update Protocol](#policy-update-protocol)
+
 # Access Architecture
 
 The Figure below demonstrates the conceptual relationship between different Access components.
@@ -97,28 +119,6 @@ The EdDSA variant used in ASN is Ed25519, which is based on the [Curve25519](htt
 
 It ensures that traffic is properly encrypted, providing both privacy and integrity for Access Requests.
 
-# Access Policy
-Access Policies are used by the device owner to express under which circumstances his devices will be accessed, and by whom.
-
-The Access Policy Language is instance of the language [PBel](http://www.doc.ic.ac.uk/~mrh/talks/BelnapTalk.pdf) (pronounced “pebble”). A basic form of policy is captured in a rule. There are two simple types of rules from which more complex policies can be formed:
-
-```
-grant if cond_A
-deny if cond_B
-```
-where `cond_*` are logical expressions built from attributes, their values and comparisons, as well as logical operators.
-
-For example, we may specify an access-control rule:
-
-```
-grant if (object == vehicle) && (subject == vehicle.owner.daughter) &&
-         (action == driveVehicle) &&
-         (0900 ≤ localTime) && (localTime ≤ 2000)
-```
-
-This rule implicitly refers to the request made by the daughter of the owner of the vehicle to drive that car. This rule applies only if the requested resource is that vehicle, the action is to drive that vehicle, and the requester is the daughter of the owner of that vehicle. In those circumstances, access is granted if the local time is between 9am and 8pm. The intuition is that this rule does not apply whenever its condition `cond` evaluates to `false`, including in cases in which the request is not of that type.
-
-
 # Access Core Server Reference Implementation (ACSRI)
 The Access Core Server Reference Implementation is meant to act as a reference for developers who want to write their own applications based on IOTA Access.
 
@@ -144,7 +144,28 @@ It is mainly responsible for consuming the Access Secure Network API in order to
 ## Application Supervisor
 The Application Supervisor works as the main orchestrator that makes all Actors interact with each other. User Configurations are set in place, threads and daemons are initiated, and Actors are set up.
 
-## Access Request Protocol
+# Access Policy
+Access Policies are used by the device owner to express under which circumstances his devices will be accessed, and by whom.
+
+The Access Policy Language is instance of the language [PBel](http://www.doc.ic.ac.uk/~mrh/talks/BelnapTalk.pdf) (pronounced “pebble”). A basic form of policy is captured in a rule. There are two simple types of rules from which more complex policies can be formed:
+
+```
+grant if cond_A
+deny if cond_B
+```
+where `cond_*` are logical expressions built from attributes, their values and comparisons, as well as logical operators.
+
+For example, we may specify an access-control rule:
+
+```
+grant if (object == vehicle) && (subject == vehicle.owner.daughter) &&
+         (action == driveVehicle) &&
+         (0900 ≤ localTime) && (localTime ≤ 2000)
+```
+
+This rule implicitly refers to the request made by the daughter of the owner of the vehicle to drive that car. This rule applies only if the requested resource is that vehicle, the action is to drive that vehicle, and the requester is the daughter of the owner of that vehicle. In those circumstances, access is granted if the local time is between 9am and 8pm. The intuition is that this rule does not apply whenever its condition `cond` evaluates to `false`, including in cases in which the request is not of that type.
+
+# Access Request Protocol
 The Figure below shows a visual representation of the Access Request Protocol:
 
 ![drawing](/specs/.images/request.png)
@@ -160,7 +181,7 @@ The Figure below shows a visual representation of the Access Request Protocol:
 9. PEP enforces actions + obligations via Resolver Plugin.
 10. Action is logged on the Tangle. Access and Network Actors go back to Listen mode.
 
-## Policy Update Protocol
+# Policy Update Protocol
 The Figure below shows a visual representation of the Policy Update Protocol:
 
 ![drawing](/specs/.images/update.png)
