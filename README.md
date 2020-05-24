@@ -1,68 +1,36 @@
 <h1 align="center">
   <br>IOTA Access<br>
-  <img src="https://github.com/iotaledger/access/raw/master/access.png">
+  <img src="access.png">
 </h1>
 <h2 align="center">
-Access-control framework on the <a href="https://www.iota.org/" target="_blank">IOTA Distributed Ledger</a>.
+Access-control framework on the IOTA Distributed Ledger.
 </h2>
 
 **IOTA Access** is a lightweight and highly flexible access-control framework tailored for resource-constrained settings, such as embedded devices and the infrastructure in which they are used.
 
 The framework is also expanded with relevant concepts, such as obligations and the delegation of access-control policies, to particularly address the needs of reliable and secure human-machine interactions in commercial settings of the IoT and mobility space.
 
-IOTA Access uses [JSON](https://www.json.org/json-en.html) to describe access control policies. Attributes are described in combination with binary operations that result in the `[grant, deny, conflict, undefined]` set of logical outcomes for access control of some physical device.
+IOTA Access uses access control policies. Attributes are described in combination with binary operations that result in the `[grant, deny, conflict, undefined]` set of logical outcomes for access control of some physical device.
 
-IOTA Access will soon be integrated into IOTA Streams (previously known as MAM). These are the potential areas for integration:
+This repository is a Work-in-Progress, and the [Reference Implementation](/docs/02-architecture.md#access-core-server-reference-implementation-acsri) should be seen as a *Minimum Viable Product* (MVP).
 
-* As Distributed Access Control (DAC) authentication protocol.
-* As a secure layer of the delegation protocol.
-* As a secure layer of publisher/subscriber data sharing protocol.
+## Documentation
+For newcomers, documentation is the ideal place to start. It will give you an overview of how the project is structured, without going too deep.
 
-## Repository Overview
-This repository is a Work-in-Progress. Nevertheless, it shows the possibilities of IOTA Access.
+The [docs](/docs) directory contains markdown files for documentation:
+ - [Introduction](/docs/01-introduction.md)
+ - [Architecture](/docs/02-architecture.md)
+ - [Getting Started](/docs/03-getting_started.md)
 
-* The `android` directory contains a smartphone client application used to create access delegation policies for actions and data streams. Also it is used to identify the user and indicate ownership access right to particular asset.
-* The `embedded` directory contains the codebase necessary to run IOTA Access on a Raspberry Pi as a Proof of Concept in the context of the Automotive Industry.
-* The `iota` directory contains the codebase necessary to run interface servers responsible for managing delegation policies and token stores on the IOTA Tangle. It is meant to be executed on a Cloud Server.
-* The `policy_validation` directory contains tooling used to validate policies, such as:
-  - Validate JSON.
-  - Eliminate reduncancy of a binary circuit.
-  - Limit values checks.
-  - Check for suspicious conditions.
+## Specification
+[Specification](/specs/HOW-TO-SPEC.md) is the ideal place for those who want to actively interact and contribute with the project. It contains templates for:
+ - [Project Scope](/specs/1-SCOPE/access-SCOPE-0000.md)
+ - [Request for Proposal](/specs/2-RFP/access-detail-RFP-0000.md)
+ - [Engineering Specification](/specs/3-SPECS/access-ENGINEERING-SPEC-0000.md)
+ - [Requirements Specification](specs/3-SPECS/access-REQUIREMENTS-SPEC-0000.md)
+ - [Request for Comments](/specs/4-RFC/0000-access-RFC.md)
+ - [Software Bill of Materials](/specs/5-BOM/access-BOM-0000.md)
 
-## Build Instructions
-Development of the PoC is currently focused on [Raspbian Buster](https://www.raspberrypi.org/blog/buster-the-new-version-of-raspbian/).
-
-1. SSH into Raspbian.
-2. Install dependencies:
-```
-$ sudo apt-get update
-$ sudo apt-get install git python3-distutils libfastjson-dev libcurl4-gnutls-dev libsqlite3-dev libssl-dev pigpio
-```
-
-3. Download, build and install [`pigpio`](http://abyz.me.uk/rpi/pigpio/):
-```
-$ cd ~
-$ wget https://github.com/joan2937/pigpio/archive/master.zip
-$ unzip master.zip
-$ cd pigpio-master
-$ make
-$ sudo make install
-```
-
-4. Clone and build IOTA Access:
-```
-$ cd ~
-$ git clone https://github.com/iotaledger/access.git
-$ cd access/embedded
-$ make
-
-```
-
-## Run Instructions
-1. xxx
-2. xxx
-3. xxx
 
 ## XAIN FROST
 IOTA Access is based on [XAIN](https://www.xain.io/)'s **FROST** project, which is the byproduct of [Leif-Nissen Lundbeak](https://www.researchgate.net/profile/Leif_Nissen_Lundbaek)'s 2019 PhD Thesis at Imperial College London.
