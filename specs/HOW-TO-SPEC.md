@@ -8,7 +8,7 @@ It is a combination of logbook, documentation and specification system that acco
 
 It is very useful for guaranteeing engineering best-practices, maintaining transparency into the methodology and easing the often complicated documentation process.
 
-![drawing](/template/.images/7P-Lifecycle.png)
+![drawing](.images/7P-Lifecycle.png)
 
 ## File Naming Conventions
 Files from this template should be renamed, where `project` is replaced with the name of the product. I.e. in the Bee project, there would be:
