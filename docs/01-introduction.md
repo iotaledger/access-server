@@ -10,8 +10,6 @@ Integration with the IOTA Distributed Ledger enables payments, logging of access
 
 # Use Cases
 
-Imagine the following scenarios.
-
 ## Scenario 1
 
 Alice owns a Device that she wants to rent for Bob for x IOTAs. Bob will be able to use this device after transferring x IOTAs to the Device's (or Alice's) Wallet. IOTA Access enables this kind of scenario.
