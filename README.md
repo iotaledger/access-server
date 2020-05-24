@@ -31,6 +31,9 @@ The [docs](/docs) directory contains markdown files for documentation:
  - [Request for Comments](/specs/4-RFC/0000-access-RFC.md)
  - [Software Bill of Materials](/specs/5-BOM/access-BOM-0000.md)
 
+ ## Disclaimer
+
+This repository only contains source code for the **Access Core Server**. The Access framework also includes the [Access Mobile Client](https://github.com/iotaledger/access-mobile), which is used to create the user experience for Policy Creation and Access Requests.
 
 ## XAIN FROST
 IOTA Access is based on [XAIN](https://www.xain.io/)'s **FROST** project, which is the byproduct of [Leif-Nissen Lundbeak](https://www.researchgate.net/profile/Leif_Nissen_Lundbaek)'s 2019 PhD Thesis at Imperial College London.
