@@ -35,6 +35,10 @@ Behavioral and Structural Requirements Specifications.
 Short summary of this document.
 -->
 
+This document contains technical information about **Access Core Server**. It is meant to guide engineers willing to collaborate with the project.
+
+Apart from Access Core Server, the Access framework also includes the [Access Mobile Client](https://github.com/iotaledger/access-mobile), which is used to create the user experience for Policy Creation and Access Requests.
+
 ## Logical System Design
 [system-design]: #system-design
 <!--
@@ -42,11 +46,43 @@ Please describe all of the current components of the system from a logical
 perspective.
 -->
 
+The Figure below demonstrates the conceptual relationship between different Access components.
+
+It can be divided in 4 stacked layers:
+- Application Layer
+- Actor Layer
+- API Layer
+- Portability Layer
+
+![drawing](/specs/.images/access_structure.png)
+
+The **Portability Layer** implements platform-dependent code. Anything related to drivers, Operating Systems and base libraries.
+
+The **API Layer** implements platform-agnostic code. It's where Access Core, Access Secure Network, and IOTA functionality are implemented.
+
+The **Actor Layer** is where different functionality gets implemented as [Actors](https://en.wikipedia.org/wiki/Actor_model) abstractions. It's where API calls are put together into cohesive blocks of specific functionality.
+
+The **Application Layer** is where the Supervisor works as the main orchestrator that makes all Actors interact with each other. User Configurations are set in place, threads are initiated, and Actors are set up.
+
+Together, the Portability and API Layers form the **Access Core Software Development Kit**.
+
+Together, the Actor and Application Layers form the **Access Core Server Reference Implementation**.
+
+Please check the [Architecture Documentaion](/docs/02-architecture.md) for an in-depth explanation of all the components.
+
 ## Programming Language
 [language]: #language
 <!--
 Please describe the language, minimal version and any other details necessary.
 -->
+
+<!--
+ToDo: specify C version here
+-->
+
+IOTA Access Core Server is designed to run on Embedded Systems and IoT devices. Thus, it is imperative that it is implemented in the C programming language, in order to ensure compatibility with these target devices.
+
+[CMake](https://cmake.org/) v3.11 is used as Build System.
 
 ## Environment
 [environment]: #environment
@@ -54,11 +90,21 @@ Please describe the language, minimal version and any other details necessary.
 Please describe the environment and any other details necessary.
 -->
 
+Access Core Server Reference Implementation is originally designed to run on:
+- [Raspbian Buster](https://www.raspberrypi.org/blog/buster-the-new-version-of-raspbian/)
+- [Yocto Project](https://www.yoctoproject.org/) and [OpenEmbedded](http://www.openembedded.org/wiki/Main_Page) based Linux Distributions.
+- [FreeRTOS](https://www.freertos.org/)
+
 ## Schema
 [schema]: #schema
 <!--
 If appropriate, please add the schema here.
 -->
+
+<!--
+ToDo: write down Policy JSON Schema here
+-->
+xxx
 
 ## Functional API
 [api]: #api
@@ -77,3 +123,8 @@ Requirements for functions:
 - returns
 - errors
 -->
+
+<!--
+ToDo: add link to Doxygen here
+-->
+xxx
