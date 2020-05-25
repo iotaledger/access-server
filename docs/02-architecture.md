@@ -152,10 +152,10 @@ Access Policies are used by the device owner to express under which circumstance
 The Access Policy Language is instance of the language [PBel](http://www.doc.ic.ac.uk/~mrh/talks/BelnapTalk.pdf) (pronounced “pebble”). A basic form of policy is captured in a rule. There are two simple types of rules from which more complex policies can be formed:
 
 ```
-grant if cond_A
-deny if cond_B
+grant if cond
+deny if !cond
 ```
-where `cond_*` are logical expressions built from attributes, their values and comparisons, as well as logical operators.
+where `cond` are logical expressions built from attributes, their values and comparisons, as well as logical operators.
 
 For example, we may specify an access-control rule:
 
