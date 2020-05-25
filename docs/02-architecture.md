@@ -1,5 +1,7 @@
-- [Access Architecture](#access-architecture)
-- [Access Core Software Development Kit (ACSDK)](#access-core-software-development-kit--acsdk-)
+**Table of Contents:**
+
+- [Access Core Architecture](#access-core-architecture)
+- [Access Core Software Development Kit (ACSDK)](#access-core-software-development-kit-acsdk)
   * [Access Core API](#access-core-api)
   * [Platform Plugins](#platform-plugins)
     + [Input](#input)
@@ -11,7 +13,7 @@
   * [Access Secure Network API](#access-secure-network-api)
     + [EdDSA Ed25519](#eddsa-ed25519)
     + [OpenSSL](#openssl)
-- [Access Core Server Reference Implementation (ACSRI)](#access-core-server-reference-implementation--acsri-)
+- [Access Core Server Reference Implementation (ACSRI)](#access-core-server-reference-implementation-acsri)
   * [Access Actor](#access-actor)
   * [Wallet Actor](#wallet-actor)
   * [Network Actor](#network-actor)
@@ -20,9 +22,9 @@
 - [Access Request Protocol](#access-request-protocol)
 - [Policy Update Protocol](#policy-update-protocol)
 
-# Access Architecture
+# Access Core Architecture
 
-The Figure below demonstrates the conceptual relationship between different Access components.
+The Figure below demonstrates the conceptual relationship between different Access Core components.
 
 It can be divided in 4 stacked layers:
 - Application Layer
