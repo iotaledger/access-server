@@ -75,11 +75,6 @@ static resolver_plugin_t* g_action_set = NULL;
 
 static void init_cb(Dataset_state_t* vdstate)
 {
-    char canopen_port_name[RES_MAX_STR_SIZE];
-    int canopen_node_id;
-
-    CanopenReceiver_getPortName(canopen_port_name, RES_MAX_STR_SIZE);
-    canopen_node_id = CanopenReceiver_getNodeId();
 #ifdef TINY_EMBEDDED
     CanopenReceiver_deinit();
     // Re-init receiver with new dataset
@@ -88,7 +83,7 @@ static void init_cb(Dataset_state_t* vdstate)
     Demo02Plugin_initializer(NULL);
     vdstate->options = &VehicleDatasetDemo02_options[0];
     Dataset_init(vdstate);
-    CanopenReceiver_init(vdstate->dataset, JSONInterface_get_mutex(), canopen_port_name, canopen_node_id);
+    CanopenReceiver_init(vdstate->dataset, JSONInterface_get_mutex());
 }
 
 static void start_cb() {}
