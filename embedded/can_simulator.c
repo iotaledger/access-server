@@ -19,7 +19,7 @@
 
 #include "can_linux.h"
 #include "can_msgs.h"
-#include "cfg_mgr.h"
+#include "config_manager.h"
 
 #include <signal.h>
 #include <unistd.h>
@@ -47,11 +47,11 @@ static void be2le(unsigned char *in, unsigned char *out)
 }
 
 int main(int argc, char** argv) {
-    CfgMgr_init("config.ini");
+    ConfigManager_init("config.ini");
     signal(SIGINT, signal_handler);
 
-    int status = CfgMgr_get_option_int("config", "thread_sleep_period", &g_task_sleep_time);
-    if (status != CFG_MGR_OK) g_task_sleep_time = 1000; // 1 second
+    int status = ConfigManager_get_option_int("config", "thread_sleep_period", &g_task_sleep_time);
+    if (status != CONFIG_MANAGER_OK) g_task_sleep_time = 1000; // 1 second
 
     int r = CAN_open(&can_connection, "vcan0");
 

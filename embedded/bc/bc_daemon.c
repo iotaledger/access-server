@@ -40,7 +40,7 @@
 #include "jsmn.h"
 #include "bc_daemon.h"
 #include "globals_declarations.h"
-#include "cfg_mgr.h"
+#include "config_manager.h"
 
 #define BC_MAX_STR_LEN 128
 #define BC_TOKEN_SEND_INTERVAL_10s 10000000 // in microseconds
@@ -69,10 +69,10 @@ static size_t parse_fund_tokens_response(void *buffer, size_t size, size_t nmemb
 
 void BlockchainDaemon_init(Dataset_state_t *dataset)
 {
-    CfgMgr_get_option_string("bcdaemon", "bc_hostname", bc_hostname, BC_MAX_STR_LEN);
-    CfgMgr_get_option_int("bcdaemon", "bc_port", &bc_hostname_port);
-    CfgMgr_get_option_string("bcdaemon", "token_address", token_address, BC_MAX_STR_LEN);
-    CfgMgr_get_option_int("bcdaemon", "token_send_interval", &token_send_interval);
+    ConfigManager_get_option_string("bcdaemon", "bc_hostname", bc_hostname, BC_MAX_STR_LEN);
+    ConfigManager_get_option_int("bcdaemon", "bc_port", &bc_hostname_port);
+    ConfigManager_get_option_string("bcdaemon", "token_address", token_address, BC_MAX_STR_LEN);
+    ConfigManager_get_option_int("bcdaemon", "token_send_interval", &token_send_interval);
 
     vd_state = dataset;
 

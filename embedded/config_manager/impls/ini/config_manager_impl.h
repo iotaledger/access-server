@@ -22,25 +22,25 @@
 
 #include <stddef.h>
 
-#define CFG_MGR_DATA_SIZE 2048
-#define CFG_MGR_MAX_TOKENS 1024
+#define CONFIG_MANAGER_DATA_SIZE 2048
+#define CONFIG_MANAGER_MAX_TOKENS 1024
 
 typedef enum {
-    CFG_MGR_TOKEN_GROUP,
-    CFG_MGR_TOKEN_OPTION
-} CfgMgr_token_type_t;
+    CONFIG_MANAGER_TOKEN_GROUP,
+    CONFIG_MANAGER_TOKEN_OPTION
+} ConfigManager_token_type_t;
 
 typedef struct {
     int start;
     int eq_sign_idx;
     int end;
     int size;
-    CfgMgr_token_type_t level;
-} CfgMgr_token_t;
+    ConfigManager_token_type_t level;
+} ConfigManager_token_t;
 
-int CfgMgrImpl_init_cb(void* in_parameter);
-int CfgMgrImpl_get_string_cb(const char* module_name, const char* option_name, char* option_value, size_t option_value_size);
-int CfgMgrImpl_get_int_cb(const char* module_name, const char* option_name, int* option_value);
-int CfgMgrImpl_get_float_cb(const char* module_name, const char* option_name, float* option_value);
+int ConfigManagerImpl_init_cb(void* in_parameter);
+int ConfigManagerImpl_get_string_cb(const char* module_name, const char* option_name, char* option_value, size_t option_value_size);
+int ConfigManagerImpl_get_int_cb(const char* module_name, const char* option_name, int* option_value);
+int ConfigManagerImpl_get_float_cb(const char* module_name, const char* option_name, float* option_value);
 
 #endif

@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 
-#include "cfg_mgr.h"
-#include "cfg_mgr_cmn.h"
+#include "config_manager.h"
+#include "config_manager_cmn.h"
 
 #include <errno.h>
 #include <stdio.h>
@@ -43,33 +43,33 @@ int main()
     printf("fd = %d\n", fd);
     write(fd, g_config_ini, strlen(g_config_ini));
 
-    CfgMgr_t configuration;
-    CfgMgr_init(file_name, &configuration);
+    ConfigManager_t configuration;
+    ConfigManager_init(file_name, &configuration);
 
     printf("config file contents:\n%s\n", configuration.data);
     char cfg_option_value[2048];
-    int status = CfgMgr_get_option_string(&configuration, "module1", "option2", cfg_option_value, 2048);
-    if (status != CFG_MGR_OK) printf("get module1->option2 failed! - This is NOT ok!\nstatus = %d\n", status);
+    int status = ConfigManager_get_option_string(&configuration, "module1", "option2", cfg_option_value, 2048);
+    if (status != CONFIG_MANAGER_OK) printf("get module1->option2 failed! - This is NOT ok!\nstatus = %d\n", status);
     else printf("module1->option2: %s OK\n", cfg_option_value);
 
-    status = CfgMgr_get_option_string(&configuration, "module2", "option3", cfg_option_value, 2048);
-    if (status != CFG_MGR_OK) printf("get module2->option3 failed! - This is NOT ok!\nstatus = %d\n", status);
+    status = ConfigManager_get_option_string(&configuration, "module2", "option3", cfg_option_value, 2048);
+    if (status != CONFIG_MANAGER_OK) printf("get module2->option3 failed! - This is NOT ok!\nstatus = %d\n", status);
     else printf("module2->option3: %s OK\n", cfg_option_value);
 
-    status = CfgMgr_get_option_string(&configuration, "module2", "option1", cfg_option_value, 2048);
-    if (status != CFG_MGR_OK) printf("get module2->option1 failed! - This is NOT ok!\nstatus = %d\n", status);
+    status = ConfigManager_get_option_string(&configuration, "module2", "option1", cfg_option_value, 2048);
+    if (status != CONFIG_MANAGER_OK) printf("get module2->option1 failed! - This is NOT ok!\nstatus = %d\n", status);
     else printf("module2->option1: %s OK\n", cfg_option_value);
 
-    status = CfgMgr_get_option_string(&configuration, "module1", "option3", cfg_option_value, 2048);
-    if (status != CFG_MGR_OK) printf("get module1->option3 failed! - This is ok!\n");
+    status = ConfigManager_get_option_string(&configuration, "module1", "option3", cfg_option_value, 2048);
+    if (status != CONFIG_MANAGER_OK) printf("get module1->option3 failed! - This is ok!\n");
     else printf("module1->option3: %s NOT ok\n", cfg_option_value);
 
-    status = CfgMgr_get_option_string(&configuration, "module3", "option4", cfg_option_value, 2048);
-    if (status != CFG_MGR_OK) printf("get module3->option4 failed! - This is ok!\n");
+    status = ConfigManager_get_option_string(&configuration, "module3", "option4", cfg_option_value, 2048);
+    if (status != CONFIG_MANAGER_OK) printf("get module3->option4 failed! - This is ok!\n");
     else printf("module3->option4: %s NOT ok\n", cfg_option_value);
 
-    status = CfgMgr_get_option_string(&configuration, "module3", "option1", cfg_option_value, 2048);
-    if (status != CFG_MGR_OK) printf("get module3->option1 failed! - This is ok!\n");
+    status = ConfigManager_get_option_string(&configuration, "module3", "option1", cfg_option_value, 2048);
+    if (status != CONFIG_MANAGER_OK) printf("get module3->option1 failed! - This is ok!\n");
     else printf("module3->option1: %s NOt ok\n", cfg_option_value);
 
     unlink(file_name);

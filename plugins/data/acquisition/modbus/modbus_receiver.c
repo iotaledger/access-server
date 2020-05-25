@@ -38,7 +38,7 @@
 
 #include "json_interface.h"
 #include "globals_declarations.h"
-#include "cfg_mgr.h"
+#include "config_manager.h"
 
 #define MODBUS_JSON_NAME "modbus_data"
 #define MODBUS_BUFF_LEN 128
@@ -125,7 +125,7 @@ void ModbusReceiver_init(canopen01_vehicle_dataset_t *dataset,
                          pthread_mutex_t *json_mutex)
 {
     char buff[MODBUS_BUFF_LEN] = {0};
-    CfgMgr_get_option_string("modbus", "serial_device", targs.serial_device, MODBUS_SERIAL_DEV_LEN);
+    ConfigManager_get_option_string("modbus", "serial_device", targs.serial_device, MODBUS_SERIAL_DEV_LEN);
 
     JSONInterface_add_module_init_cb(modbus_json_filler,
                                      &fj_obj_modbus,

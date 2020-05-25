@@ -43,7 +43,7 @@
 
 #include "can_receiver.h"
 #include "json_interface.h"
-#include "cfg_mgr.h"
+#include "config_manager.h"
 
 #define ADDR_SIZE 128
 
@@ -191,7 +191,7 @@ static void term_ds_interface(Dataset_state_t* vdstate)
 
 void Demo01Plugin_initializer(resolver_plugin_t* action_set)
 {
-    int cfg_status = CfgMgr_get_option_string("demo01plugin", "relayboard_address", relayboard_addr, ADDR_SIZE);
+    int cfg_status = ConfigManager_get_option_string("demo01plugin", "relayboard_address", relayboard_addr, ADDR_SIZE);
 
     if (g_action_set == NULL && action_set == NULL)
     {

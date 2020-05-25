@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 
-#include "cfg_mgr_impl.h"
-#include "cfg_mgr_cmn.h"
+#include "config_manager_impl.h"
+#include "config_manager_cmn.h"
 
 #include "utils.h"
 
@@ -29,27 +29,27 @@
 #define READ_CHUNK_SIZE 16
 
 typedef struct CfgMgr {
-    char data[CFG_MGR_DATA_SIZE];
-    CfgMgr_token_t tokens[CFG_MGR_MAX_TOKENS];
+    char data[CONFIG_MANAGER_DATA_SIZE];
+    ConfigManager_token_t tokens[CONFIG_MANAGER_MAX_TOKENS];
     int tokens_count;
-} CfgMgr_t;
+} ConfigManager_t;
 
-CfgMgr_t g_config = {0};
+ConfigManager_t g_config = {0};
 
-int CfgMgrImpl_init_cb(void* in_parameter)
+int ConfigManagerImpl_init_cb(void* in_parameter)
 {
-    CfgMgr_t *configuration = &g_config;
+    ConfigManager_t *configuration = &g_config;
     const char* config_file = (const char*)in_parameter;
     FILE* fp = fopen(config_file, "r");
-    if (fp == NULL) return CFG_MGR_INIT_ERROR;
+    if (fp == NULL) return CONFIG_MANAGER_INIT_ERROR;
 
     int new_line = 1;
     int bytes_read = -1;
     int total_bytes_read = 0;
     int token_index = 0;
     int comment_line = 0;
-    CfgMgr_token_t *this_token = &configuration->tokens[token_index];
-    CfgMgr_token_t *group_token = &configuration->tokens[token_index];
+    ConfigManager_token_t *this_token = &configuration->tokens[token_index];
+    ConfigManager_token_t *group_token = &configuration->tokens[token_index];
     configuration->tokens_count = 0;
     do {
         this_token = &configuration->tokens[token_index];
@@ -71,7 +71,7 @@ int CfgMgrImpl_init_cb(void* in_parameter)
                     this_token->start = total_bytes_read + i + 1;
                     this_token->end = total_bytes_read + i + 1;
                     this_token->size = 0;
-                    this_token->level = CFG_MGR_TOKEN_GROUP;
+                    this_token->level = CONFIG_MANAGER_TOKEN_GROUP;
                 }
                 else // start of option=value token
                 {
@@ -82,7 +82,7 @@ int CfgMgrImpl_init_cb(void* in_parameter)
                     this_token->end = new_token_start;
                     this_token->size = 1;
                     this_token->eq_sign_idx = new_token_start;
-                    this_token->level = CFG_MGR_TOKEN_OPTION;
+                    this_token->level = CONFIG_MANAGER_TOKEN_OPTION;
                 }
                 new_line = 0;
             }
@@ -117,29 +117,29 @@ int CfgMgrImpl_init_cb(void* in_parameter)
     } while (bytes_read == READ_CHUNK_SIZE);
 
     fclose(fp);
-    return CFG_MGR_OK;
+    return CONFIG_MANAGER_OK;
 }
 
-int CfgMgrImpl_get_string_cb(const char* module_name, const char* option_name, char* option_value, size_t option_value_size)
+int ConfigManagerImpl_get_string_cb(const char* module_name, const char* option_name, char* option_value, size_t option_value_size)
 {
-    CfgMgr_t *configuration = &g_config;
+    ConfigManager_t *configuration = &g_config;
     int found_module = -1;
     int found_config = -1;
     char* cfg_data = configuration->data;
-    CfgMgr_token_t *tok;
+    ConfigManager_token_t *tok;
 
     for (int i = 0; i < configuration->tokens_count; i++)
     {
         tok = &configuration->tokens[i];
 
-        if (tok->level == CFG_MGR_TOKEN_GROUP && strncmp(module_name, &cfg_data[tok->start], tok->end - tok->start) == 0)
+        if (tok->level == CONFIG_MANAGER_TOKEN_GROUP && strncmp(module_name, &cfg_data[tok->start], tok->end - tok->start) == 0)
         {
             found_module = i;
             break;
         }
     }
 
-    if (found_module == -1) return CFG_MGR_GROUP_NOT_FOUND;
+    if (found_module == -1) return CONFIG_MANAGER_GROUP_NOT_FOUND;
 
     for (int i = 0; i < configuration->tokens[found_module].size; i++)
     {
@@ -152,34 +152,34 @@ int CfgMgrImpl_get_string_cb(const char* module_name, const char* option_name, c
         }
     }
 
-    if (found_config == -1) return CFG_MGR_OPTION_NOT_FOUND;
+    if (found_config == -1) return CONFIG_MANAGER_OPTION_NOT_FOUND;
     size_t copy_len = MIN(tok->end - tok->eq_sign_idx - 1, option_value_size - 1);
     strncpy(option_value, &cfg_data[tok->eq_sign_idx + 1], copy_len);
     option_value[copy_len + 1] = '\0';
 
-    return CFG_MGR_OK;
+    return CONFIG_MANAGER_OK;
 }
 
-int CfgMgrImpl_get_int_cb(const char* module_name, const char* option_name, int* option_value)
+int ConfigManagerImpl_get_int_cb(const char* module_name, const char* option_name, int* option_value)
 {
     const size_t string_value_len = 32;
     char string_value[string_value_len];
-    int status = CfgMgrImpl_get_string_cb(module_name, option_name, string_value, string_value_len);
-    if (CFG_MGR_OK != status) return status;
+    int status = ConfigManagerImpl_get_string_cb(module_name, option_name, string_value, string_value_len);
+    if (CONFIG_MANAGER_OK != status) return status;
 
     *option_value = atoi(string_value);
 
-    return CFG_MGR_OK;
+    return CONFIG_MANAGER_OK;
 }
 
-int CfgMgrImpl_get_float_cb(const char* module_name, const char* option_name, float* option_value)
+int ConfigManagerImpl_get_float_cb(const char* module_name, const char* option_name, float* option_value)
 {
     const size_t string_value_len = 32;
     char string_value[string_value_len];
-    int status = CfgMgrImpl_get_string_cb(module_name, option_name, string_value, string_value_len);
-    if (CFG_MGR_OK != status) return status;
+    int status = ConfigManagerImpl_get_string_cb(module_name, option_name, string_value, string_value_len);
+    if (CONFIG_MANAGER_OK != status) return status;
 
     *option_value = atof(string_value);
 
-    return CFG_MGR_OK;
+    return CONFIG_MANAGER_OK;
 }

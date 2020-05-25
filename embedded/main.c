@@ -33,8 +33,7 @@
 
 #include "obdii_receiver.h"
 #include "json_interface.h"
-//#include "config_manager.h"
-#include "cfg_mgr.h"
+#include "config_manager.h"
 #include "resolver.h"
 #include "demo_resolver_01.h"
 #include "demo_resolver_02.h"
@@ -88,12 +87,12 @@ int main(int argc, char** argv)
     int using_modbus = 0;
     char client_name[MAX_CLIENT_NAME] = "";
 
-    CfgMgr_init("config.ini");
+    ConfigManager_init("config.ini");
 
-    int status = CfgMgr_get_option_int("config", "thread_sleep_period", &g_task_sleep_time);
-    if (status != CFG_MGR_OK) g_task_sleep_time = 1000; // 1 second
+    int status = ConfigManager_get_option_int("config", "thread_sleep_period", &g_task_sleep_time);
+    if (status != CONFIG_MANAGER_OK) g_task_sleep_time = 1000; // 1 second
 
-    CfgMgr_get_option_string("config", "client", client_name, MAX_CLIENT_NAME);
+    ConfigManager_get_option_string("config", "client", client_name, MAX_CLIENT_NAME);
 
     PSDaemon_init();
 

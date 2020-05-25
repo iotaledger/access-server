@@ -37,7 +37,7 @@
 
 #include "can_receiver.h"
 #include "json_interface.h"
-#include "cfg_mgr.h"
+#include "config_manager.h"
 
 #define MAX_STR_SIZE 256
 #define DATA_SIZE 8
@@ -218,8 +218,8 @@ static void can_chas_frame_read_cb(struct can_frame *frame);
 #ifndef TINY_EMBEDDED
 void CanReceiver_preInitSetup()
 {
-    CfgMgr_get_option_string("can_receiver", "can_body_channel", body_chan, MAX_STR_SIZE);
-    CfgMgr_get_option_string("can_receiver", "can_chas_channel", chas_chan, MAX_STR_SIZE);
+    ConfigManager_get_option_string("can_receiver", "can_body_channel", body_chan, MAX_STR_SIZE);
+    ConfigManager_get_option_string("can_receiver", "can_chas_channel", chas_chan, MAX_STR_SIZE);
 
     is_in_use = TRUE;
 }
@@ -230,8 +230,8 @@ void CanReceiver_init(can01_vehicle_dataset_t *dataset, pthread_mutex_t *json_mu
     wanted_signals = dataset;
     JSONInterface_add_module_init_cb(can_json_filler, &fj_obj_can, CAN_JSON_NAME);
     json_sync_lock = json_mutex;
-    CfgMgr_get_option_string("can_receiver", "can_body_channel", body_chan, MAX_STR_SIZE);
-    CfgMgr_get_option_string("can_receiver", "can_chas_channel", chas_chan, MAX_STR_SIZE);
+    ConfigManager_get_option_string("can_receiver", "can_body_channel", body_chan, MAX_STR_SIZE);
+    ConfigManager_get_option_string("can_receiver", "can_chas_channel", chas_chan, MAX_STR_SIZE);
 
     CanThread_init(&can_body_instance, body_chan, can_body_frame_read_cb);
     CanThread_init(&can_chas_instance, chas_chan, can_chas_frame_read_cb);

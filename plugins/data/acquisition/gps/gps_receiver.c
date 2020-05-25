@@ -41,7 +41,7 @@
 
 #include "json_interface.h"
 #include "globals_declarations.h"
-#include "cfg_mgr.h"
+#include "config_manager.h"
 
 #define GPS_JSON_NAME "gps_data"
 #define GPS_PORTNAME_LEN 64
@@ -291,7 +291,7 @@ static void *gps_thread_loop(void *ptr)
 
 int GpsReceiver_init(pthread_mutex_t *json_mutex)
 {
-    CfgMgr_get_option_string("gps_recv", "serialportname", targs.portname, GPS_PORTNAME_LEN);
+    ConfigManager_get_option_string("gps_recv", "serialportname", targs.portname, GPS_PORTNAME_LEN);
 
     JSONInterface_add_module_init_cb(gps_json_filler, &fj_obj_gps, GPS_JSON_NAME);
 

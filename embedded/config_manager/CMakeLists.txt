@@ -20,18 +20,18 @@
 cmake_minimum_required(VERSION 3.11)
 
 # Config manager implementation choice.
-if(NOT DEFINED ${cfg_mgr_impl})
-set(cfg_mgr_impl ini)
+if(NOT DEFINED ${config_manager_impl})
+set(config_manager_impl ini)
 endif()
 
-set(target cfg_mgr)
+set(target config_manager)
 
-set(source_files cfg_mgr.c impls/${cfg_mgr_impl}/cfg_mgr_impl.c)
+set(source_files config_manager.c impls/${config_manager_impl}/config_manager_impl.c)
 
 add_library(${target} ${source_files})
-target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/impls/${cfg_mgr_impl})
+target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/impls/${config_manager_impl})
 
 # Config manager implementation test
-set(target cfg_mgr_test)
-add_executable(${target} impls/${cfg_mgr_impl}/test.c)
-target_link_libraries(${target} PUBLIC cfg_mgr)
+set(target config_manager_test)
+add_executable(${target} impls/${config_manager_impl}/test.c)
+target_link_libraries(${target} PUBLIC config_manager)

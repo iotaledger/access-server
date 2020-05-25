@@ -27,7 +27,7 @@
 #include <curl/curl.h>
 
 #include "jsmn.h"
-#include "cfg_mgr.h"
+#include "config_manager.h"
 
 #define QUERY_STR_LEN 1024
 #define QUERY_STR_MAX 2048
@@ -175,9 +175,9 @@ static int init_table() {
 int UserManagement_init() {
     CURLcode curl_status = curl_global_init(CURL_GLOBAL_ALL);
 
-    CfgMgr_get_option_string("bc_daemon", "bc_hostname", bc_hostname, BC_HOSTNAME_LEN);
-    CfgMgr_get_option_int("bc_daemon", "bc_port", &bc_port);
-    CfgMgr_get_option_string("config", "device_id", device_id, sizeof(device_id));
+    ConfigManager_get_option_string("bc_daemon", "bc_hostname", bc_hostname, BC_HOSTNAME_LEN);
+    ConfigManager_get_option_int("bc_daemon", "bc_port", &bc_port);
+    ConfigManager_get_option_string("config", "device_id", device_id, sizeof(device_id));
 
     if (curl_status != 0) {
         fprintf(stderr, "curl_global_init failed!");

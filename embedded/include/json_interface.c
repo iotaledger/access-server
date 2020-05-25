@@ -36,7 +36,7 @@
 #include <unistd.h>
 
 #include "json_interface.h"
-#include "cfg_mgr.h"
+#include "config_manager.h"
 
 #define JSONIF_STR_LEN 128
 #define JSONIF_NAME_LEN 64
@@ -137,9 +137,9 @@ fjson_object* JSONInterface_init()
     json_started = time(NULL);
     fj_root = fjson_object_new_object();
 
-    CfgMgr_get_option_string("json_interface", "ipaddr", ipaddr, JSONIF_STR_LEN);
-    CfgMgr_get_option_string("config", "device_id", device_id, JSONIF_STR_LEN);
-    CfgMgr_get_option_int("json_interface", "ipport", &ipport);
+    ConfigManager_get_option_string("json_interface", "ipaddr", ipaddr, JSONIF_STR_LEN);
+    ConfigManager_get_option_string("config", "device_id", device_id, JSONIF_STR_LEN);
+    ConfigManager_get_option_int("json_interface", "ipport", &ipport);
     call_all_filler_callbacks();
 
     return fj_root;

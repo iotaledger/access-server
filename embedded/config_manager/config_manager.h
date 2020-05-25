@@ -17,12 +17,15 @@
  * limitations under the License.
  */
 
-#ifndef _CFG_MGR_CMN_H_
-#define _CFG_MGR_CMN_H_
+#ifndef _CONFIG_MANAGER_H_
+#define _CONFIG_MANAGER_H_
 
-#define CFG_MGR_OK 0
-#define CFG_MGR_INIT_ERROR -1
-#define CFG_MGR_GROUP_NOT_FOUND -2
-#define CFG_MGR_OPTION_NOT_FOUND -3
+#include "config_manager_cmn.h"
+#include "config_manager_impl.h"
+
+int ConfigManager_init(void* in_parameter);
+int ConfigManager_get_option_string(const char* module_name, const char* option_name, char* option_value, size_t option_size);
+int ConfigManager_get_option_int(const char* module_name, const char* option_name, int* option_value);
+int ConfigManager_get_option_float(const char* module_name, const char* option_name, float* option_value);
 
 #endif

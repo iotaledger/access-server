@@ -44,7 +44,7 @@
 #include "json_parser.h"
 #include "tcp_client.h"
 #include "time_manager.h"
-#include "cfg_mgr.h"
+#include "config_manager.h"
 
 ////////////////////////
 
@@ -524,7 +524,7 @@ static int hostname_to_ip(const char *hostname, char *ip_address) {
 
 void PSDaemon_init()
 {
-    CfgMgr_get_option_string("psdaemon", "policy_store_service_ip", policy_store_address, PSD_ADDRESS_SIZE);
-    CfgMgr_get_option_int("psdaemon", "policy_store_service_port", &policy_store_port);
-    CfgMgr_get_option_string("config", "device_id", device_id, PSD_STR_LEN);
+    ConfigManager_get_option_string("psdaemon", "policy_store_service_ip", policy_store_address, PSD_ADDRESS_SIZE);
+    ConfigManager_get_option_int("psdaemon", "policy_store_service_port", &policy_store_port);
+    ConfigManager_get_option_string("config", "device_id", device_id, PSD_STR_LEN);
 }

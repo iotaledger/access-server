@@ -134,8 +134,8 @@ SRCS = \
     $(RESOLVER)demos/demo_resolver_02.c \
     include/json_interface.c \
     include/timer.c \
-    cfg_mgr/cfg_mgr.c \
-    cfg_mgr/impls/ini/cfg_mgr_impl.c \
+    config_manager/config_manager.c \
+    config_manager/impls/ini/config_manager_impl.c \
     $(GPS)minmea/minmea.c \
     $(GPS)gps_receiver.c \
     $(OBDII)ejv_obdii/OBDII.c \
@@ -197,8 +197,8 @@ CFLAGS = \
     -I/usr/include/libfastjson \
     -I$(CANOPEN) \
     -Ibc \
-    -Icfg_mgr \
-    -Icfg_mgr/impls/ini \
+    -Iconfig_manager \
+    -Iconfig_manager/impls/ini \
     -I$(DATASET) \
     -I$(VEHICLE_DATASET) \
     -I$(TCP_SERVER) \
@@ -221,7 +221,7 @@ clean:
 	@echo CC $@
 	$(AT)$(CC) -c $(CFLAGS) $< -o $@
 
-can_simulator: can_simulator.o $(CAN)can_linux.o $(CAN)lib.o cfg_mgr/cfg_mgr.o cfg_mgr/impls/ini/cfg_mgr_impl.o
+can_simulator: can_simulator.o $(CAN)can_linux.o $(CAN)lib.o config_manager/config_manager.o config_manager/impls/ini/config_manager_impl.o
 	@echo LINK can_simulator
 	$(AT)$(CC) -o can_simulator $^
 
