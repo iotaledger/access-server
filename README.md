@@ -15,7 +15,7 @@ IOTA Access uses access control policies. Attributes are described in combinatio
 This repository is a Work-in-Progress, and the [Reference Implementation](/docs/02-architecture.md#access-core-server-reference-implementation-acsri) should be seen as a [*Minimum Viable Product*](https://en.wikipedia.org/wiki/Minimum_viable_product) (MVP).
 
 ## Documentation
-For newcomers, documentation is the ideal place to start. It will give you an overview of how the project is structured, without going too deep.
+For newcomers, documentation is the ideal place to start. It will give you an overview of how the project is structured.
 
 The [docs](/docs) directory contains markdown files for documentation:
  - [Introduction](/docs/01-introduction.md)
