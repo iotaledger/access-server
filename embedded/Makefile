@@ -163,7 +163,8 @@ SRCS = \
     $(FASTJSON)json_version.c \
     $(FASTJSON)printbuf.c \
     $(VALIDATOR)validator.c \
-    $(VALIDATOR)parser.c
+    $(VALIDATOR)parser.c \
+    $(DATA_ACQUISITION)protocol.c
 
 OBJS =	$(SRCS:.c=.o)
 
@@ -207,6 +208,7 @@ CFLAGS = \
     -I$(FASTJSON) \
     -I$(NETWORK) \
     -I$(VALIDATOR) \
+    -I$(DATA_ACQUISITION) \
     -I$(RESOLVER_PLATFORMS) \
     -I$(RESOLVER_RPI)
 
