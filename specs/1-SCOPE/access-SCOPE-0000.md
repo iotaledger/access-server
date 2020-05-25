@@ -58,8 +58,13 @@ IOTA Access is a lightweight and highly flexible access-control framework and la
 <!--
 Why are we doing this? What use cases does it support? What is the expected outcome?
 -->
+A mechanism for access-control integrated with a Distributed Ledger Technology is highly desirable to solve real world problems.
 
-Imagine the following scenario: Alice owns a Device that she wants to rent for Bob for x IOTAs. Bob will be able to use this device after transferring x IOTAs to the Device's (or Alice's) Wallet. **IOTA Access** enables this kind of scenario.
+Imagine the following scenarios:
+
+1. Alice owns a Device that she wants to rent for Bob for x IOTAs. Bob will be able to use this device after transferring x IOTAs to the Device's (or Alice's) Wallet. **IOTA Access** enables this kind of scenario.
+
+2. Alice owns a company that functions in a building with smart locks. Alice writes a Policy where her employees are allowed to enter the building only under specific conditions (such as time, employee ID, clearance level). All Access Events are registered on the Distributed Ledger in a permission-less and immutable manner, thus enabling auditability.
 
 ## Product Introduction
 [product]: #product
@@ -73,6 +78,10 @@ A few examples:
  - Car Rentals
  - Scooter Rentals
  - Building Access Control
+
+It is important to highlight that IOTA Access:
+- **is not a Smart Contract** platform.
+- targets **IoT devices** and **Embedded Systems**.
 
 ## Stakeholders
 [stakeholders]: #stakeholders
@@ -111,6 +120,17 @@ The term Access Control refers to the secure evaluation and protection of access
 The area of Access Control provides models, methods, and tools for controlling which agents – humans, mechanical devices or AIs – have access to what resources and under which circumstances. Many modern access-control architectures formulate the intended access control in a policy. One advantage of policy-based access control is that it supports the composition and mobility of controls – making it ideal for open and distributed systems (such as the IOTA DLT).
 
 Access control is a key security mechanism in enterprise systems, operating systems, physical buildings – to name a few prominent applications. An access-control policy may be somewhat static, e.g., saying which areas in an airport terminal are accessible to passengers who went through a security check already. However, such policies may also be more dynamic and allow for the delegation of access privileges to other agents, e.g. the owner of a vehicle can grant a delivery person access to the trunk of the vehicle under certain conditions – say, within a given time interval. Access to the trunk then creates an obligation, to trigger a notification to the owner that access did indeed occur.
+
+IOTA Access can be divided in three major parts:
+- Access Core SDK (ACSDK)
+- Access Core Server Reference Implementation (ACSRI)
+- Access Client Reference Implementation (ACRI)
+
+ACSDK provides the pieces that developers need to integrate IOTA Access functionality into their own products.
+
+ACSRI acts as a functional example that guides developers on how to integrate the ACSDK pieces into an application of an Access Core Server to be executed in a target Embedded System.
+
+ACRI acts as a functional example that guides developers on how to write Client applications that target end users and help them create Access Policies, as well as initiate Access Requests.
 
 ## Prior art
 [prior-art]: #prior-art
