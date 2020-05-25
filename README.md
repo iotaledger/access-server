@@ -12,7 +12,7 @@ The framework is also expanded with relevant concepts, such as obligations and t
 
 IOTA Access uses access control policies. Attributes are described in combination with binary operations that result in the `[grant, deny, conflict, undefined]` set of logical outcomes for access control of some physical device.
 
-This repository is a Work-in-Progress, and the [Reference Implementation](/docs/02-architecture.md#access-core-server-reference-implementation-acsri) should be seen as a *Minimum Viable Product* (MVP).
+This repository is a Work-in-Progress, and the [Reference Implementation](/docs/02-architecture.md#access-core-server-reference-implementation-acsri) should be seen as a [*Minimum Viable Product*](https://en.wikipedia.org/wiki/Minimum_viable_product) (MVP).
 
 ## Documentation
 For newcomers, documentation is the ideal place to start. It will give you an overview of how the project is structured, without going too deep.
