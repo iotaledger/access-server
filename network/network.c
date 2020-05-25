@@ -88,11 +88,11 @@ static int end = 0;
 static int listenfd = 0;
 static int connfd = 0;
 
-static VehicleDataset_state_t* vdstate;
+static Dataset_state_t* vdstate;
 
 static void *server_thread(void *ptr);
 
-int TCPServer_start(int portname, VehicleDataset_state_t *_vdstate)
+int TCPServer_start(int portname, Dataset_state_t *_vdstate)
 {
     port = portname;
     vdstate = _vdstate;
@@ -369,7 +369,7 @@ static unsigned int doAuthWorkTiny(char **recvData)
         }
         else
         {
-            VehicleDataset_from_json(vdstate, *recvData + get_token_at(arr_start).start, get_token_at(arr_start).end - get_token_at(arr_start).start);
+            Dataset_from_json(vdstate, *recvData + get_token_at(arr_start).start, get_token_at(arr_start).end - get_token_at(arr_start).start);
             memcpy(send_buffer, grant, strlen(grant));
             buffer_position = strlen(grant);
         }
@@ -377,7 +377,7 @@ static unsigned int doAuthWorkTiny(char **recvData)
     }
     else if (request_code == COMMAND_GET_DATASET)
     {
-        buffer_position = VehicleDataset_to_json(vdstate, (char *)send_buffer);
+        buffer_position = Dataset_to_json(vdstate, (char *)send_buffer);
         *recvData = send_buffer;
     }
     else if (request_code == COMMAND_GET_USERNAME)

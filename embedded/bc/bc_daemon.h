@@ -34,9 +34,9 @@
 #ifndef _BC_DAEMON_H_
 #define _BC_DAEMON_H_
 
-#include "vehicle_dataset.h"
+#include "dataset.h"
 
-void BlockchainDaemon_init(VehicleDataset_state_t *dataset);
+void BlockchainDaemon_init(Dataset_state_t *dataset);
 void BlockchainDaemon_start();
 void BlockchainDaemon_stop();
 

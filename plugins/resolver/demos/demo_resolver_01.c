@@ -145,7 +145,7 @@ static int demo01_tcp_open_trunk(int should_log)
 
 static resolver_plugin_t* g_action_set = NULL;
 
-static void init_ds_interface(VehicleDataset_state_t* vdstate)
+static void init_ds_interface(Dataset_state_t* vdstate)
 {
     char can0_port_name[RES_MAX_STR_SIZE];
     char can1_port_name[RES_MAX_STR_SIZE];
@@ -159,11 +159,11 @@ static void init_ds_interface(VehicleDataset_state_t* vdstate)
 
     Demo01Plugin_initializer(NULL);
     vdstate->options = &VehicleDatasetDemo01_options[0];
-    VehicleDataset_init(vdstate);
+    Dataset_init(vdstate);
     CanReceiver_init(can0_port_name, can1_port_name, vdstate->dataset, JSONInterface_get_mutex());
 }
 
-static void init_ds_interface_tcp(VehicleDataset_state_t* vdstate)
+static void init_ds_interface_tcp(Dataset_state_t* vdstate)
 {
     char can0_port_name[RES_MAX_STR_SIZE];
     char can1_port_name[RES_MAX_STR_SIZE];
@@ -177,7 +177,7 @@ static void init_ds_interface_tcp(VehicleDataset_state_t* vdstate)
 
     Demo01Plugin_initializer_tcp(NULL);
     vdstate->options = &VehicleDatasetDemo01_options[0];
-    VehicleDataset_init(vdstate);
+    Dataset_init(vdstate);
     CanReceiver_init(can0_port_name, can1_port_name, vdstate->dataset, JSONInterface_get_mutex());
 }
 
@@ -191,11 +191,11 @@ static void stop_ds_interface()
     CanReceiver_deinit();
 }
 
-static void term_ds_interface(VehicleDataset_state_t* vdstate)
+static void term_ds_interface(Dataset_state_t* vdstate)
 {
     Demo01Plugin_terminizer();
     vdstate->options = NULL;
-    VehicleDataset_deinit(vdstate);
+    Dataset_deinit(vdstate);
 }
 
 void Demo01Plugin_initializer(resolver_plugin_t* action_set)

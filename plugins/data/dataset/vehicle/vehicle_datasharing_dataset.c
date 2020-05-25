@@ -65,3 +65,23 @@ char VehicleDataset14_options[] = "";
 char VehicleDataset15_options[] = "";
 
 char VehicleDataset16_options[] = "";
+
+char* Dataset_options[DATASET_ARRAY_SIZE] =
+{
+    VehicleDataset01_options,
+    VehicleDataset02_options,
+    VehicleDataset03_options,
+    VehicleDataset04_options,
+    VehicleDataset05_options,
+    VehicleDataset06_options,
+    VehicleDataset07_options,
+    VehicleDataset08_options,
+    VehicleDataset09_options,
+    VehicleDataset10_options,
+    VehicleDataset11_options,
+    VehicleDataset12_options,
+    VehicleDataset13_options,
+    VehicleDataset14_options,
+    VehicleDataset15_options,
+    VehicleDataset16_options
+};

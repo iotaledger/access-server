@@ -83,7 +83,8 @@ RESOLVER_RPI = $(RESOLVER_PLATFORMS)r_pi/
 AWS_DAEMON = $(MODULE)AWS_daemon/
 TCP_SERVER = $(MODULE)tcp_server/
 DATA_ACQUISITION = $(PLUGINS)data/acquisition/
-VEHICLE_DATASET = $(PLUGINS)data/dataset/vehicle/
+DATASET = $(PLUGINS)data/dataset/
+VEHICLE_DATASET = $(DATASET)vehicle/
 USER_MANAGEMENT = $(PAP)user/
 GPS = $(DATA_ACQUISITION)gps/
 CAN = $(DATA_ACQUISITION)can/
@@ -194,14 +195,13 @@ CFLAGS = \
     -I$(GPS) \
     -I$(GPS)minmea \
     -I/usr/include/libfastjson \
-    -I$(VEHICLE_DATASET) \
     -I$(CANOPEN) \
     -Ibc \
     -Iconfig_manager \
     -Iconfig_manager/klib \
     -Iconfig_manager/ini \
+    -I$(DATASET) \
     -I$(VEHICLE_DATASET) \
-    -I$(VEHICLE_DATASET)impls \
     -I$(TCP_SERVER) \
     -I$(USER_MANAGEMENT) \
     -I$(MODBUS) \

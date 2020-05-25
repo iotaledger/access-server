@@ -54,9 +54,10 @@
 /****************************************************************************
  * GLOBAL VARIABLES
  ****************************************************************************/
+//@TODO: This can be removed by adding state and timer to resolver_plugin_t, which will be passed as functions argument
 static char action_s[] = "<Action performed>";
 static int timerId = -1;
-static PlatformDataset_state_t *g_dstate = NULL;
+static Dataset_state_t *g_dstate = NULL;
 static resolver_plugin_t resolver_action_set = {0};
 
 /****************************************************************************
@@ -87,60 +88,7 @@ static int start_data_sharing(const char *action, unsigned long end_time)
 
     memcpy(dataset_num, &action[RES_DATASET_NUM_POSITION], RES_DATASET_NUM_SIZE);
 
-    switch(atoi(dataset_num))
-    {
-        case 1:
-            dataset = PLATFORM_DATASET_OPTIONS_1;
-            break;
-        case 2:
-            dataset = PLATFORM_DATASET_OPTIONS_2;
-            break;
-        case 3:
-            dataset = PLATFORM_DATASET_OPTIONS_3;
-            break;
-        case 4:
-            dataset = PLATFORM_DATASET_OPTIONS_4;
-            break;
-        case 5:
-            dataset = PLATFORM_DATASET_OPTIONS_5;
-            break;
-        case 6:
-            dataset = PLATFORM_DATASET_OPTIONS_5;
-            break;
-        case 7:
-            dataset = PLATFORM_DATASET_OPTIONS_7;
-            break;
-        case 8:
-            dataset = PLATFORM_DATASET_OPTIONS_8;
-            break;
-        case 9:
-            dataset = PLATFORM_DATASET_OPTIONS_9;
-            break;
-        case 10:
-            dataset = PLATFORM_DATASET_OPTIONS_10;
-            break;
-        case 11:
-            dataset = PLATFORM_DATASET_OPTIONS_11;
-            break;
-        case 12:
-            dataset = PLATFORM_DATASET_OPTIONS_12;
-            break;
-        case 13:
-            dataset = PLATFORM_DATASET_OPTIONS_13;
-            break;
-        case 14:
-            dataset = PLATFORM_DATASET_OPTIONS_14;
-            break;
-        case 15:
-            dataset = PLATFORM_DATASET_OPTIONS_15;
-            break;
-        case 16:
-            dataset = PLATFORM_DATASET_OPTIONS_16;
-            break;
-        default:
-            dataset = NULL;
-            break;
-    }
+    dataset = Dataset_options[atoi(dataset_num) - 1];
 
     // Tokenize dataset
     char* tok = NULL;
@@ -233,7 +181,7 @@ static bool pep_request(char *obligation, char *action, unsigned long start_time
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
-void Resolver_init(resolver_plugin_initializer_t initializer, PlatformDataset_state_t *dstate)
+void Resolver_init(resolver_plugin_initializer_t initializer, Dataset_state_t *dstate)
 {
     initializer(&resolver_action_set);
     g_dstate = dstate;

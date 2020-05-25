@@ -73,7 +73,7 @@ static int demo02_alarm_off(int should_log)
 
 static resolver_plugin_t* g_action_set = NULL;
 
-static void init_cb(VehicleDataset_state_t* vdstate)
+static void init_cb(Dataset_state_t* vdstate)
 {
     char canopen_port_name[RES_MAX_STR_SIZE];
     int canopen_node_id;
@@ -87,18 +87,18 @@ static void init_cb(VehicleDataset_state_t* vdstate)
 
     Demo02Plugin_initializer(NULL);
     vdstate->options = &VehicleDatasetDemo02_options[0];
-    VehicleDataset_init(vdstate);
+    Dataset_init(vdstate);
     CanopenReceiver_init(vdstate->dataset, JSONInterface_get_mutex(), canopen_port_name, canopen_node_id);
 }
 
 static void start_cb() {}
 static void stop_cb() {}
 
-static void term_cb(VehicleDataset_state_t* vdstate)
+static void term_cb(Dataset_state_t* vdstate)
 {
     Demo02Plugin_terminizer();
     vdstate->options = NULL;
-    VehicleDataset_deinit(vdstate);
+    Dataset_deinit(vdstate);
     CanopenReceiver_deinit();
 }
 
