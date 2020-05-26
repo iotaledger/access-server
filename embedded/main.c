@@ -26,7 +26,7 @@
 #include <pthread.h>
 #include <signal.h>
 
-#include "storage.h"
+#include "pep.h"
 #include "asn_auth.h"
 #include "bc_daemon.h"
 #include "dataset.h"
@@ -93,7 +93,7 @@ int main(int argc, char** argv)
     PSDaemon_set_device_id(config.device_id);
 
     printf("Program start\n\n");
-    PolicyStore_init();
+    PEP_init();
 
     json_mutex = JSONInterface_get_mutex();
     UserManagement_init(config.bc_hostname, config.bc_hostname_port, config.device_id);

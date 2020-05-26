@@ -163,6 +163,7 @@ static int get_server_state()
     return state;
 }
 
+#if 0
 static int append_action_item_to_str(char *str, int pos, list_t *action_item)
 {
     if(action_item == NULL)
@@ -238,6 +239,7 @@ static int list_to_string(list_t *action_list, char *output_str)
 
     return buffer_position;
 }
+#endif
 
 static unsigned int doAuthWorkTiny(char **recvData)
 {
@@ -277,6 +279,8 @@ static unsigned int doAuthWorkTiny(char **recvData)
     }
     else if (request_code == COMMAND_GET_POL_LIST)
     {
+        //@FIXME: Will be refactored
+#if 0
         list_t *action_list = NULL;
 
         // index of "user_id" token
@@ -304,9 +308,12 @@ static unsigned int doAuthWorkTiny(char **recvData)
         *recvData = send_buffer;
 
         PolicyStore_clear_list_of_actions(action_list);
+#endif
     }
     else if (request_code == COMMAND_ENABLE_POLICY)
     {
+        //@FIXME: Will be refactored
+#if 0
         int policy_id_index = -1;
 
         for (int i = 0; i < num_of_tokens; i++)
@@ -346,6 +353,7 @@ static unsigned int doAuthWorkTiny(char **recvData)
             *recvData = send_buffer;
             buffer_position = sizeof(deny);
         }
+#endif
     }
     else if (request_code == COMMAND_SET_DATASET)
     {
