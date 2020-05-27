@@ -58,6 +58,8 @@ this will have to be adjusted accordingly. */
 #define PAP_PRIVATE_KEY_LEN 64
 #define PAP_SIGNATURE_LEN 64
 
+#define PAP_STORAGE_TEST_ACIVE 0
+
 /****************************************************************************
  * ENUMERATIONS
  ****************************************************************************/
@@ -110,6 +112,9 @@ typedef bool (*put_fn)(char* policy_id, PAP_policy_object_t policy_object, PAP_p
 typedef bool (*get_fn)(char* policy_id, PAP_policy_object_t *policy_object, PAP_policy_id_signature_t *policy_id_signature, PAP_hash_functions_e *hash_fn);
 typedef bool (*has_fn)(char* policy_id);
 typedef bool (*del_fn)(char* policy_id);
+#if PAP_STORAGE_TEST_ACIVE
+typedef void (*get_pk)(char* pk);
+#endif
 
 /****************************************************************************
  * API FUNCTIONS
@@ -168,10 +173,11 @@ PAP_error_e PAP_unregister_callbacks(void);
  *
  * @param   signed_policy - Signed policy string buffer
  * @param   signed_policy_size - Size of the signed policy string buffer
+ * @param   parsed_policy_id - Buffer to store policy ID
  *
  * @return  PAP_error_e error status
  */
-PAP_error_e PAP_add_policy(char *signed_policy, int signed_policy_size);
+PAP_error_e PAP_add_policy(char *signed_policy, int signed_policy_size, char *parsed_policy_id);
 
 /**
  * @fn      PAP_get_policy
@@ -211,4 +217,16 @@ bool PAP_has_policy(char *policy_id, int policy_id_len);
  */
 PAP_error_e PAP_remove_policy(char *policy_id, int policy_id_len);
 
+#if PAP_STORAGE_TEST_ACIVE
+/**
+ * @fn      PAP_register_get_pk_cb
+ *
+ * @brief   Register callbacks for getting public key, if internal test is active
+ *
+ * @param   cb - Callback to register
+ *
+ * @return  void
+ */
+void PAP_register_get_pk_cb(get_pk cb);
+#endif
 #endif //_PAP_H_

@@ -293,7 +293,7 @@ static void parsePolicy() {
         }
         if (policy_retrieved == PSD_POL_FULLY_RETRIEVED) {
             Dlog_printf("\nPut policy\n");
-            PAP_add_policy(policy_buff, policy_len);
+            PAP_add_policy(policy_buff, policy_len, NULL);
         }
     }
 

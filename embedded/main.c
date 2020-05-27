@@ -49,6 +49,7 @@
 #include <time.h>
 #include "globals_declarations.h"
 #include "timer.h"
+#include "test_internal.h"
 
 int g_task_sleep_time;
 
@@ -93,7 +94,9 @@ int main(int argc, char** argv)
     PSDaemon_set_device_id(config.device_id);
 
     printf("Program start\n\n");
+    Storage_init(void);
     PEP_init();
+    TEST_POLICY_STORAGE(1)
 
     json_mutex = JSONInterface_get_mutex();
     UserManagement_init(config.bc_hostname, config.bc_hostname_port, config.device_id);

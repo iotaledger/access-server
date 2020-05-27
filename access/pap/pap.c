@@ -81,12 +81,22 @@ static put_fn callback_put = NULL;
 static get_fn callback_get = NULL;
 static has_fn callback_has = NULL;
 static del_fn callback_del = NULL;
+#if PAP_STORAGE_TEST_ACIVE
+static get_pk callback_get_pk = NULL;
+#endif
 
 /****************************************************************************
  * LOCAL FUNCTIONS
  ****************************************************************************/
 static void get_public_key_from_user(char *pk)
 {
+#if PAP_STORAGE_TEST_ACIVE
+	if (callback_get_pk)
+	{
+		callback_get_pk(pk);
+	}
+	return;
+#endif
 	int wait = PAP_WAIT_TIME_S;
 	int sockfd = 0;
 	struct sockaddr_in serv_addr;
@@ -255,7 +265,7 @@ PAP_error_e PAP_unregister_callbacks(void)
 	return PAP_NO_ERROR;
 }
 
-PAP_error_e PAP_add_policy(char *signed_policy, int signed_policy_size)
+PAP_error_e PAP_add_policy(char *signed_policy, int signed_policy_size, char *parsed_policy_id)
 {
 	char policy_id[PAP_POL_ID_MAX_LEN + 1] = {0};
 	char policy_obj_hash[PAP_POL_ID_MAX_LEN + 1] = {0};
@@ -274,7 +284,7 @@ PAP_error_e PAP_add_policy(char *signed_policy, int signed_policy_size)
 	jsmntok_t tokens[PAP_MAX_TOKENS];
 	Validator_report_t report;
 
-	//Check input parameters
+	//Check input parameters (parsed_policy_id is optional)
 	if (signed_policy == NULL || signed_policy_size == 0)
 	{
 		printf("\nERROR[%s]: Bad input parameters.\n", __FUNCTION__);
@@ -327,6 +337,11 @@ PAP_error_e PAP_add_policy(char *signed_policy, int signed_policy_size)
 		{
 			if ((tokens[i + 1].end - tokens[i + 1].start) <= PAP_POL_ID_MAX_LEN * 2)
 			{
+				if (parsed_policy_id)
+				{
+					memcpy(parsed_policy_id, &policy[tokens[i + 1].start], (tokens[i + 1].end - tokens[i + 1].start));
+				}
+
 				if (str_to_hex(&policy[tokens[i + 1].start], policy_id, (tokens[i + 1].end - tokens[i + 1].start)) != UTILS_STRING_SUCCESS)
 				{
 					printf("\nERROR[%s]: Could not convert string to hex value.\n", __FUNCTION__);
@@ -578,3 +593,10 @@ PAP_error_e PAP_remove_policy(char *policy_id, int policy_id_len)
 	pthread_mutex_unlock(&pap_mutex);
 	return PAP_NO_ERROR;
 }
+
+#if PAP_STORAGE_TEST_ACIVE
+void PAP_register_get_pk_cb(get_pk cb)
+{
+	callback_get_pk = cb;
+}
+#endif
