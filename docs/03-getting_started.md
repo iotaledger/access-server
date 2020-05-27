@@ -1,10 +1,10 @@
-- [Building Access Core Server](#building-access-core-server)
-- [Configuring Access Core Server](#configuring-access-core-server)
-- [Starting Access Core Server](#starting-access-core-server)
+- [Building Access Server](#building-access-server)
+- [Configuring Access Server](#configuring-access-server)
+- [Starting Access Server](#starting-access-server)
 - [Writing a Policy File](#writing-a-policy-file)
 - [Creating an Access Request](#creating-an-access-request)
 
-# Building Access Core Server
+# Building Access Server
 
 Reference Implementation is currently focused on [Raspbian Buster](https://www.raspberrypi.org/blog/buster-the-new-version-of-raspbian/).
 
@@ -25,13 +25,13 @@ $ cmake -DCMAKE_INSTALL_PREFIX=$PWD ..
 $ make -j8
 ```
 
-# Configuring Access Core Server
+# Configuring Access Server
 <!--
 ToDo: write this
 -->
 xxx
 
-# Starting Access Core Server
+# Starting Access Server
 <!--
 ToDo: write this
 -->

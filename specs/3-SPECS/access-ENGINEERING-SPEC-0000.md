@@ -3,7 +3,7 @@
 - [Frontmatter](#frontmatter)
 - [Summary](#summary)
 - [Logical System Design](#logical-system-design)
-  * [Access Core Software Development Kit (ACSDK)](#access-core-software-development-kit--acsdk-)
+  * [Access Core Software Development Kit (ACSDK)](#access-core-software-development-kit-acsdk)
     + [Access Core API](#access-core-api)
       - [Policy Administration Point](#policy-administration-point)
       - [Policy Enforcement Point](#policy-enforcement-point)
@@ -21,7 +21,7 @@
       - [Server authentication key exchange](#server-authentication-key-exchange)
       - [Client public key authentication protocol](#client-public-key-authentication-protocol)
       - [Data encryption, decryption and validation](#data-encryption--decryption-and-validation)
-  * [Access Core Server Reference Implementation (ACSRI)](#access-core-server-reference-implementation--acsri-)
+  * [Access Server Reference Implementation (ASRI)](#access-server-reference-implementation-asri)
     + [Access Actor](#access-actor)
     + [Wallet Actor](#wallet-actor)
     + [Network Actor](#network-actor)
@@ -75,9 +75,9 @@ Behavioral and Structural Requirements Specifications.
 Short summary of this document.
 -->
 
-This document contains technical information about **Access Core Server**. It is meant to guide engineers willing to collaborate with the project.
+This document contains technical information about **Access Server**. It is meant to guide engineers willing to collaborate with the project.
 
-Apart from Access Core Server, the Access framework also includes the [Access Mobile Client](https://github.com/iotaledger/access-mobile), which is used to create the user experience for Policy Creation and Access Requests.
+Apart from Access Server, the Access framework also includes the [Access Client](https://github.com/iotaledger/access-mobile), which is used to create the user experience for Policy Creation and Access Requests.
 
 ## Logical System Design
 [system-design]: #system-design
@@ -106,7 +106,7 @@ The **Application Layer** is where the Supervisor works as the main orchestrator
 
 Together, the Portability and API Layers form the **Access Core Software Development Kit**.
 
-Together, the Actor and Application Layers form the **Access Core Server Reference Implementation**.
+Together, the Actor and Application Layers form the **Access Server Reference Implementation**.
 
 ###  Access Core Software Development Kit (ACSDK)
 
@@ -171,7 +171,7 @@ Policy Storage Plugins are used by PAP to read and write Policies from non-volat
 ###### Resolver Plugins
 Resolver Plugins are used by PEP to enforce actions in the physical world. They are the main interface for actuators that need to behave in accordance to the Access being granted or denied.
 
-For example, imagine a door that is controlled by a relay attached to the board's GPIO. The board is running the Access Core Server, and PDP has decided to deny the incoming Access Request. That means that the GPIO needs to set the relay such that the door remains locked.
+For example, imagine a door that is controlled by a relay attached to the board's GPIO. The board is running the Access Server, and PDP has decided to deny the incoming Access Request. That means that the GPIO needs to set the relay such that the door remains locked.
 
 #### Access Secure Network API
 The Access Secure Network API is used to authenticate clients, ensure (off-Tangle) channel security and perform message validation.
@@ -225,7 +225,7 @@ Data integrity is achieved by computing mac of the encrypted messages and previo
 
 ##### Server authentication key exchange
 
-After physical connection is established, Access Client generates a [Diffie-Hellman](https://mathworld.wolfram.com/Diffie-HellmanProtocol.html) (DH) private key. Based on the private key, Client computes DH public key. Client sends its DH public key to the Access Core Server running on the Target Device.
+After physical connection is established, Access Client generates a [Diffie-Hellman](https://mathworld.wolfram.com/Diffie-HellmanProtocol.html) (DH) private key. Based on the private key, Client computes DH public key. Client sends its DH public key to the Access Server running on the Target Device.
 
 Server generates DH key pair using the same algorithm used by client.
 
@@ -277,8 +277,8 @@ On the reception side, the reverse operation is performed in order to decrypt th
 
 Sizes `packet_length` and `encrypted_packet_length` are 2 bytes in big endian format and size of `sequence_number` is 1 byte.
 
-### Access Core Server Reference Implementation (ACSRI)
-The Access Core Server Reference Implementation is meant to act as a reference for developers who want to write their own applications based on IOTA Access.
+### Access Server Reference Implementation (ASRI)
+The Access Server Reference Implementation is meant to act as a reference for developers who want to write their own applications based on IOTA Access.
 
 It runs on a Raspberry Pi, which means it is easily reproducible by Open Source Software Development Communities.
 
@@ -292,7 +292,7 @@ The Wallet Actor is responsible for interacting with the IOTA Tangle. It initiat
 
 The Wallet Actor is also responsible for managing the IOTA seed.
 
-While the initial ACSRI does not support a Secure Element for safe seed storage, this feature is in our roadmap for future integration. Probably, this will be achieved in a modular fashion via Secure Element Plugins for the Wallet Actor.
+While the initial ASRI does not support a Secure Element for safe seed storage, this feature is in our roadmap for future integration. Probably, this will be achieved in a modular fashion via Secure Element Plugins for the Wallet Actor.
 
 #### Network Actor
 The Access Secure Network Actor works as a Daemon that listens for incoming Access Requests.
@@ -367,7 +367,7 @@ Policy Validation is the process where Policy structure is checked in order to:
 Please describe the language, minimal version and any other details necessary.
 -->
 
-IOTA Access Core Server is designed to run on Embedded Systems and IoT devices. Thus, it is imperative that it is implemented in the C programming language ([C99](http://www.open-std.org/jtc1/sc22/WG14/www/docs/n1256.pdf)), in order to ensure compatibility with these target devices.
+IOTA Access Server is designed to run on Embedded Systems and IoT devices. Thus, it is imperative that it is implemented in the C programming language ([C99](http://www.open-std.org/jtc1/sc22/WG14/www/docs/n1256.pdf)), in order to ensure compatibility with these target devices.
 
 [CMake](https://cmake.org/) v3.11 is used as Build System.
 
@@ -377,7 +377,7 @@ IOTA Access Core Server is designed to run on Embedded Systems and IoT devices. 
 Please describe the environment and any other details necessary.
 -->
 
-Access Core Server Reference Implementation is originally designed to run on:
+Access Server Reference Implementation is originally designed to run on:
 - [Raspbian Buster](https://www.raspberrypi.org/blog/buster-the-new-version-of-raspbian/)
 - [Yocto Project](https://www.yoctoproject.org/) and [OpenEmbedded](http://www.openembedded.org/wiki/Main_Page) based Linux Distributions.
 - [FreeRTOS](https://www.freertos.org/)

@@ -1,11 +1,11 @@
 **Table of Contents:**
 
-- [Access Core Architecture](#access-core-architecture)
-- [Access Core Software Development Kit (ACSDK)](#access-core-software-development-kit--acsdk-)
+- [Access Architecture](#access-architecture)
+- [Access Core Software Development Kit (ACSDK)](#access-core-software-development-kit-acsdk)
   * [Access Core API](#access-core-api)
   * [Platform Plugins](#platform-plugins)
   * [Access Secure Network API](#access-secure-network-api)
-- [Access Core Server Reference Implementation (ACSRI)](#access-core-server-reference-implementation--acsri-)
+- [Access Server Reference Implementation (ASRI)](#access-core-server-reference-implementation-asri)
   * [Access Actor](#access-actor)
   * [Wallet Actor](#wallet-actor)
   * [Network Actor](#network-actor)
@@ -14,7 +14,7 @@
 
 Note: for an in-depth explanation of some of the components below, please refer to the [Engineering Specifications](/specs/3-SPECS/access-ENGINEERING-SPEC-0000.md).
 
-# Access Core Architecture
+# Access Architecture
 
 The Figure below demonstrates the conceptual relationship between different Access Core components.
 
@@ -36,7 +36,7 @@ The **Application Layer** is where the Supervisor works as the main orchestrator
 
 Together, the Portability and API Layers form the **Access Core Software Development Kit**.
 
-Together, the Actor and Application Layers form the **Access Core Server Reference Implementation**.
+Together, the Actor and Application Layers form the **Access Server Reference Implementation**.
 
 # Access Core Software Development Kit (ACSDK)
 
@@ -75,8 +75,8 @@ The ASN authentication protocol is used to secure communication channel of the d
 - No OS dependencies
 - Fast execution
 
-# Access Core Server Reference Implementation (ACSRI)
-The Access Core Server Reference Implementation is meant to act as a reference for developers who want to write their own applications based on IOTA Access.
+# Access Server Reference Implementation (ASRI)
+The Access Server Reference Implementation is meant to act as a reference for developers who want to write their own applications based on IOTA Access.
 
 It runs on a Raspberry Pi, which means it is easily reproducible by Open Source Software Development Communities.
 
@@ -90,7 +90,7 @@ The Wallet Actor is responsible for interacting with the IOTA Tangle. It initiat
 
 The Wallet Actor is also responsible for managing the IOTA seed.
 
-While the initial ACSRI does not support a Secure Element for safe seed storage, this feature is in our roadmap for future integration. Probably, this will be achieved in a modular fashion via Secure Element Plugins for the Wallet Actor.
+While the initial ASRI does not support a Secure Element for safe seed storage, this feature is in our roadmap for future integration. Probably, this will be achieved in a modular fashion via Secure Element Plugins for the Wallet Actor.
 
 ## Network Actor
 The Access Secure Network Actor works as a Daemon that listens for incoming Access Requests.

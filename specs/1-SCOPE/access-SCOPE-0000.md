@@ -123,12 +123,12 @@ Access control is a key security mechanism in enterprise systems, operating syst
 
 IOTA Access can be divided in three major parts:
 - Access Core SDK (ACSDK)
-- Access Core Server Reference Implementation (ACSRI)
+- Access Server Reference Implementation (ASRI)
 - Access Client Reference Implementation (ACRI)
 
 ACSDK provides the pieces that developers need to integrate IOTA Access functionality into their own products.
 
-ACSRI acts as a functional example that guides developers on how to integrate the ACSDK pieces into an application of an Access Core Server to be executed in a target Embedded System.
+ASRI acts as a functional example that guides developers on how to integrate the ACSDK pieces into an application of an Access Server to be executed in a target Embedded System.
 
 ACRI acts as a functional example that guides developers on how to write Client applications that target end users and help them create Access Policies, as well as initiate Access Requests.
 
