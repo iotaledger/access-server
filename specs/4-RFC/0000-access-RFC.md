@@ -11,7 +11,7 @@ rfc: 0000
 status: 0
 maintainer: Bernardo A. Rodrigues <bernardo.araujo@iota.org>
 contributors: [Vladimir Vojnovic <vladimir.vojnovic@nttdata.ro>, Golic, Strahinja <strahinja.golic.bp@nttdata.ro>, Sam Chen <sam.chen@iota.org>, Djordje Golubovic <djordje.golubovic@nttdata.ro>]
-sponsor: Jakub Cech <jakub.cech@iota.org>
+sponsor: [Jakub Cech <jakub.cech@iota.org>, Mathew Yarger <mathew.yarger@iota.org>]
 licenses: ["Apache-2.0"]
 updated: 2020-05-21
 ```
