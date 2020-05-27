@@ -1,26 +1,26 @@
 # Engineering Specification
-[engineering-spec]: #engineering-spec
 
 - [Frontmatter](#frontmatter)
 - [Summary](#summary)
 - [Logical System Design](#logical-system-design)
-  * [Access Core API](#access-core-api)
-    + [Policy Administration Point](#policy-administration-point)
-    + [Policy Enforcement Point](#policy-enforcement-point)
-    + [Policy Information Point](#policy-information-point)
-    + [Policy Decision Point](#policy-decision-point)
-  * [Platform Plugins](#platform-plugins)
-    + [Input](#input)
-      - [Data Acquisition Plugins](#data-acquisition-plugins)
-      - [Policy Storage Plugins](#policy-storage-plugins)
-    + [Output](#output)
-      - [Resolver Plugins](#resolver-plugins)
-  * [Access Secure Network API](#access-secure-network-api)
-    + [libCrypto module](#libcrypto-module)
-    + [Tiny Embedded module](#tiny-embedded-module)
-    + [Server authentication key exchange](#server-authentication-key-exchange)
-    + [Client public key authentication protocol](#client-public-key-authentication-protocol)
-    + [Data encryption, decryption and validation](#data-encryption--decryption-and-validation)
+  * [Access Core Software Development Kit (ACSDK)](#access-core-software-development-kit--acsdk-)
+    + [Access Core API](#access-core-api)
+      - [Policy Administration Point](#policy-administration-point)
+      - [Policy Enforcement Point](#policy-enforcement-point)
+      - [Policy Information Point](#policy-information-point)
+      - [Policy Decision Point](#policy-decision-point)
+    + [Platform Plugins](#platform-plugins)
+      - [Input](#input)
+        * [Data Acquisition Plugins](#data-acquisition-plugins)
+        * [Policy Storage Plugins](#policy-storage-plugins)
+      - [Output](#output)
+        * [Resolver Plugins](#resolver-plugins)
+    + [Access Secure Network API](#access-secure-network-api)
+      - [libCrypto module](#libcrypto-module)
+      - [Tiny Embedded module](#tiny-embedded-module)
+      - [Server authentication key exchange](#server-authentication-key-exchange)
+      - [Client public key authentication protocol](#client-public-key-authentication-protocol)
+      - [Data encryption, decryption and validation](#data-encryption--decryption-and-validation)
   * [Access Core Server Reference Implementation (ACSRI)](#access-core-server-reference-implementation--acsri-)
     + [Access Actor](#access-actor)
     + [Wallet Actor](#wallet-actor)
@@ -108,7 +108,9 @@ Together, the Portability and API Layers form the **Access Core Software Develop
 
 Together, the Actor and Application Layers form the **Access Core Server Reference Implementation**.
 
-### Access Core API
+###  Access Core Software Development Kit (ACSDK)
+
+#### Access Core API
 The Access Core API is divided into 4 different modules (and a few submodules):
 - Policy Administration Point (PAP)
 - Policy Information Point (PIP)
@@ -117,19 +119,19 @@ The Access Core API is divided into 4 different modules (and a few submodules):
 
 ![drawing](/specs/.images/pxp.png)
 
-#### Policy Administration Point
+##### Policy Administration Point
 
 **PAP** is used for managing updates to policies and determining which policies apply to what requests. The API expects callback functions to be registered as **Policy Storage Plugins**.
 
-#### Policy Enforcement Point
+##### Policy Enforcement Point
 
 **PEP** routes the access request to the PDP for decision making, and acts on the received decision as appropriate within the system context. The API expects callback functions to be registered as **Resolver Plugins**.
 
-#### Policy Information Point
+##### Policy Information Point
 
 **PIP** coordinates the determination of attribute values used by the PDP. Attribute values are information collected from the outside world, such as IOTA transactions, sensor data or network traffic. The API expects callback functions to be registered as **Data Acquisition Plugins**.
 
-#### Policy Decision Point
+##### Policy Decision Point
 
 **PDP** is responsible for calculating the output for access requests. The API only consumed internally by other Core API modules.
 
@@ -141,7 +143,7 @@ Calculation of `policy goc` and `policy doc` are modules that recursively solve 
 
 ![drawing](/specs/.images/pdp2.png)
 
-### Platform Plugins
+#### Platform Plugins
 Since IOTA Access can be used for different use cases, the underlying hardware used for resolving access decisions or for acquisition of data can take many different shapes and forms.
 
 Platform Plugins are used to allow a platform-agnostic approach for different Access implementations.
@@ -150,28 +152,28 @@ Platform Plugins are written as callback functions. They talk to hardware driver
 
 Platform Plugins can be divided into Input and Output categories:
 
-#### Input
-##### Data Acquisition Plugins
+##### Input
+###### Data Acquisition Plugins
 Data Acquisition Plugins are used by PIP to gather information (Attributes) about the external environment.
 
 For example, a Wallet-based Data Acquisition Plugin is used to verify whether an IOTA transaction was indeed performed. That allows PDP to calculate whether to grant access to the device renter.
 
 Another example is of a GPS-based Data Acquisition Plugin that checks device location and uses this Attribute as input for PDP to make its decisions.
 
-##### Policy Storage Plugins
+###### Policy Storage Plugins
 Policies need to be stored on the device in a non-volatile manner.
 
 Embedded Systems can have different forms of permanent storage. It can be eMMC, SSD, SATA, USB, or many other examples. This variability implies the need for a modular approach for Policy Storage.
 
 Policy Storage Plugins are used by PAP to read and write Policies from non-volatile memory.
 
-#### Output
-##### Resolver Plugins
+##### Output
+###### Resolver Plugins
 Resolver Plugins are used by PEP to enforce actions in the physical world. They are the main interface for actuators that need to behave in accordance to the Access being granted or denied.
 
 For example, imagine a door that is controlled by a relay attached to the board's GPIO. The board is running the Access Core Server, and PDP has decided to deny the incoming Access Request. That means that the GPIO needs to set the relay such that the door remains locked.
 
-### Access Secure Network API
+#### Access Secure Network API
 The Access Secure Network API is used to authenticate clients, ensure (off-Tangle) channel security and perform message validation.
 
 The ASN authentication protocol is used to secure communication channel of the device. It is based on stripped version of SSH protocol. In order to be used in embedded system protocol must fulfill following requirements:
@@ -192,7 +194,7 @@ To meet embedded requirements two versions of client and server internal module 
 - **Tiny embedded** module (based on 3rd party libs) is an even smaller realization of necessary functions required for ASN Authentication.
 * HW acceleration is mentioned as an upgrade where applicable (depends of HW)
 
-#### libCrypto module
+##### libCrypto module
 libCrypto is a module (derivate of OpenSSL) consisting of crypto and hash algorithm realizations needed by ASN Authentication protocol:
 
 - **Diffie-Hellman key exchange**: used for generation and computation of the shared secret.
@@ -203,7 +205,7 @@ libCrypto is a module (derivate of OpenSSL) consisting of crypto and hash algori
 
 The module maintains the code and security from the OpenSSL parent library.
 
-#### Tiny Embedded module
+##### Tiny Embedded module
 Tiny Embedded module uses following cryptographic functions:
 - **Curve25519 elliptic curve function**: to compute public key and shared secret for DH exchange.
 - **ECDSA secp160r1**: for signing and signature validation.
@@ -221,7 +223,7 @@ After successful authentication, client and server are able to exchange encrypte
 
 Data integrity is achieved by computing mac of the encrypted messages and previously computed integrity keys, with HMAC-SHA256.
 
-#### Server authentication key exchange
+##### Server authentication key exchange
 
 After physical connection is established, Access Client generates a [Diffie-Hellman](https://mathworld.wolfram.com/Diffie-HellmanProtocol.html) (DH) private key. Based on the private key, Client computes DH public key. Client sends its DH public key to the Access Core Server running on the Target Device.
 
@@ -237,7 +239,7 @@ Client first verifies the server's public key. It computes DH-shared secret `K`,
 
 ![drawing](/specs/.images/key_exchange.png)
 
-#### Client public key authentication protocol
+##### Client public key authentication protocol
 
 The client public key authentication is executed after server authentication key exchange (described above).
 
@@ -247,7 +249,7 @@ Server verifies the Client's public key and computes hash `H = hash (client ID |
 
 ![drawing](/specs/.images/client_key.png)
 
-#### Data encryption, decryption and validation
+##### Data encryption, decryption and validation
 
 When both server and client have shared secret `K` and hash `H`, following encryption keys can be generated:
 - Initial IV client to server: `hash(K||H||”A”)`
