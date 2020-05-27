@@ -1,26 +1,16 @@
 **Table of Contents:**
 
 - [Access Core Architecture](#access-core-architecture)
-- [Access Core Software Development Kit (ACSDK)](#access-core-software-development-kit-acsdk)
+- [Access Core Software Development Kit (ACSDK)](#access-core-software-development-kit--acsdk-)
   * [Access Core API](#access-core-api)
   * [Platform Plugins](#platform-plugins)
-    + [Input](#input)
-      - [Data Acquisition Plugins](#data-acquisition-plugins)
-      - [Policy Storage Plugins](#policy-storage-plugins)
-    + [Output](#output)
-      - [Resolver Plugins](#resolver-plugins)
-      - [Data Sharing Plugins](#data-sharing-plugins)
   * [Access Secure Network API](#access-secure-network-api)
-    + [EdDSA Ed25519](#eddsa-ed25519)
-    + [OpenSSL](#openssl)
-- [Access Core Server Reference Implementation (ACSRI)](#access-core-server-reference-implementation-acsri)
+- [Access Core Server Reference Implementation (ACSRI)](#access-core-server-reference-implementation--acsri-)
   * [Access Actor](#access-actor)
   * [Wallet Actor](#wallet-actor)
   * [Network Actor](#network-actor)
   * [Application Supervisor](#application-supervisor)
 - [Access Policy](#access-policy)
-- [Access Request Protocol](#access-request-protocol)
-- [Policy Update Protocol](#policy-update-protocol)
 
 Note: for an in-depth explanation of some of the components below, please refer to the [Engineering Specifications](/specs/3-SPECS/access-ENGINEERING-SPEC-0000.md).
 
