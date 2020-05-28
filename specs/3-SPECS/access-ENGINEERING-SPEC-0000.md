@@ -135,7 +135,7 @@ The Access Core API is divided into 4 different modules (and a few submodules):
 
 **PDP** is responsible for calculating the output for access requests. The API only consumed internally by other Core API modules.
 
-On action request, Policy Enforcement Point (PEP) requests decision from Policy Decision Point (PDP), providing a `policyID` from the request. Based on the requested `policyID`, PDP  requests policy from the policy store and, if response is valid policy, it proceeds with calculation of decision. For both `policy goc` and `policy doc`, PDP calculates result of the policy, `true` or `false`, and then combines those results into decision, which can be one of four defined values, grant, deny, conflict or gap, and returns this result to PEP.
+On action request, Policy Enforcement Point (PEP) requests decision from Policy Decision Point (PDP), providing a `policyID` from the request. Based on the requested `policyID`, PDP  requests policy from the policy store and, if response is valid policy, it proceeds with calculation of decision. For both `policy goc` and `policy doc`, PDP calculates result of the policy, `true` or `false`, and then combines those results into decision, which can be one of four defined values: `grant`, `deny`, `conflict` or `undef`, and returns this result to PEP.
 
 ![drawing](/specs/.images/pdp.png)
 
@@ -181,53 +181,42 @@ The ASN authentication protocol is used to secure communication channel of the d
 - Small memory footprint
 - No OS dependencies
 - Fast execution
+- Off-Tangle communication between server and client
 
-The ASN authentication protocol is designed as a module that can be used by both client and server applications. A top level asnAuth API unifies the usage and encapsulates the design, hiding the differences that client and server side facilitate and implement.
+The ASN authentication protocol is designed as a module that can be used by both client and server applications. A top level ANS API unifies the usage and encapsulates the design, hiding the differences that client and server side facilitate and implement.
 
 Client and server use-cases require different paths in authentication methodology. This leads to diversification of authentication steps for each case.
 
 ![drawing](/specs/.images/ASN.png)
 
-To meet embedded requirements two versions of client and server internal module realizations have been defined:
+In order to meet requirements on different Embedded Systems, two versions of internal module realizations have been defined:
 
-- **libCrypto**: module uses the derivative subset of [OpenSSL]([OpenSSL](https://www.openssl.org/) which is widely used, maintained and verified by the open source community.
-- **Tiny embedded** module (based on 3rd party libs) is an even smaller realization of necessary functions required for ASN Authentication.
-* HW acceleration is mentioned as an upgrade where applicable (depends of HW)
+- **libCrypto**: module uses the derivative subset of [OpenSSL](https://www.openssl.org/), which is widely used, maintained and verified by the open source community.
+- **Tiny embedded** module (based on 3rd party libs) is an even smaller realization of necessary functions required for ASN Authentication. Used when the target Embedded System's constrained resources are not able to support OpenSSL.
+- HW acceleration is mentioned as an upgrade where applicable (depends of HW).
 
 ##### libCrypto module
-libCrypto is a module (derivate of OpenSSL) consisting of crypto and hash algorithm realizations needed by ASN Authentication protocol:
+libCrypto is the internal ASN realization based on OpenSSL. It is used in scenarios where Embedded resources are not scarce:
 
 - **Diffie-Hellman key exchange**: used for generation and computation of the shared secret.
-- **RSA**: used for signing and verification of the shared secrets for authenticity purposes.
-- **AES256**: for message encryption and decryption,
-- **SHA256**: used during encryption key generation.
-- **HMAC-SHA256**: used for data integrity during message exchange.
-
-The module maintains the code and security from the OpenSSL parent library.
+- **RSA**: used for signing and verification of the shared secrets.
+- **AES256**: for message encryption and decryption.
+- **SHA256**: for hashing during encryption key generation.
+- **HMAC-SHA256**: used for data integrity during message exchange via Message Authentication Code (MAC).
 
 ##### Tiny Embedded module
-Tiny Embedded module uses following cryptographic functions:
+Tiny Embedded is the internal ASN realization based on 3rd party libraries. It is used in scenarios where Embedded resources are scarce:
 - **Curve25519 elliptic curve function**: to compute public key and shared secret for DH exchange.
 - **ECDSA secp160r1**: for signing and signature validation.
 - **SHA256**: for hashing.
-- **AES256**: for message encryption and decryption,
-- **HMAC-SHA256**: for computing mac.
-
-Client and server generate 32-byte private key and compute 32-byte public key for DH key exchange using [elliptic Curve25519 function](https://github.com/agl/curve25519-donna). Same function is used to compute 32-byte shared secret after the public keys are exchanged.
-
-In server and client authentication both sides sign shared data with respective 32-byte private keys in order to prove identity and other sides confirms this by validating the signature with 64-byte public key. This is done using [ECDSA secp160r1](https://github.com/kmackay/micro-ecc) elliptic curve for both signing and validation.
-
-After the keys were exchanged server and client both compute 32-byte authentication and encryption keys using [SHA256](https://github.com/B-Con/crypto-algorithms/blob/master/sha256.c) hashing algorithm.
-
-After successful authentication, client and server are able to exchange encrypted message. The algorithm used for encryption and decryption of messages is [AES256](https://github.com/kokke/tiny-AES-c).
-
-Data integrity is achieved by computing mac of the encrypted messages and previously computed integrity keys, with HMAC-SHA256.
+- **AES256**: for message encryption and decryption.
+- **HMAC-SHA256**: used for data integrity during message exchange via Message Authentication Code (MAC).
 
 ##### Server authentication key exchange
 
-After physical connection is established, Access Client generates a [Diffie-Hellman](https://mathworld.wolfram.com/Diffie-HellmanProtocol.html) (DH) private key. Based on the private key, Client computes DH public key. Client sends its DH public key to the Access Server running on the Target Device.
+After physical connection is established, client generates a [Diffie-Hellman](https://mathworld.wolfram.com/Diffie-HellmanProtocol.html) (DH) private key. Based on the private key, client computes DH public key. Client sends its DH public key to the server running on the Target Device.
 
-Server generates DH key pair using the same algorithm used by client.
+Server generates the DH key pair using the same algorithm used by client (dictated by the choice of either libCrypto or TinyEmbedded).
 
 Server computes the DH-shared secret `K` and hash `H = hash (client ID || server ID || server public key || client DH public key || server DH public key || shared secret K)`, where Client ID and server ID are identification strings of client and server.
 
@@ -449,6 +438,8 @@ xxx
 
 ### Access Secure Network API
 ASN API is designed to both facilitate the client and the server side of the ASN protocol. The only difference between client and server usage of the API is at the initialization stage.
+
+Underlying implementation can be based on either `libCrypto` or `TinyEmbedded`.
 
 <!--
 ToDo: switch this to Doxygen?
