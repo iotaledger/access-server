@@ -411,6 +411,7 @@ Requirements for functions:
 #### Policy Administration Point
 
 ##### Callback Functions (Policy Storage Plugin)
+---
 ```
 typedef bool (*put_fn)(char* policy_id, PAP_policy_object_t policy_object, PAP_policy_id_signature_t policy_id_signature, PAP_hash_functions_e hash_fn);
 ```
@@ -419,6 +420,7 @@ ToDo: write description
 -->
 xxx
 
+---
 ```
 typedef bool (*get_fn)(char* policy_id, PAP_policy_object_t *policy_object, PAP_policy_id_signature_t *policy_id_signature, PAP_hash_functions_e *hash_fn);
 ```
@@ -427,6 +429,7 @@ ToDo: write description
 -->
 xxx
 
+---
 ```
 typedef bool (*has_fn)(char* policy_id);
 
@@ -436,6 +439,7 @@ ToDo: write description
 -->
 xxx
 
+---
 ```
 typedef bool (*del_fn)(char* policy_id);
 ```
@@ -445,7 +449,7 @@ ToDo: write description
 xxx
 
 ##### Internal Functions
-
+---
 ```
 static void get_public_key_from_user(char *pk);
 ```
@@ -454,6 +458,7 @@ ToDo: write description
 -->
 xxx
 
+---
 ```
 static int normalize_JSON_object(char *json_object, int object_len, char **json_object_normalized);
 ```
@@ -462,6 +467,7 @@ ToDo: write description
 -->
 xxx
 
+---
 ```
 static void get_SHA256_hash(char *msg, int msg_len, char *hash_val);
 ```
@@ -471,6 +477,7 @@ ToDo: write description
 xxx
 
 ##### External API Functions
+---
 ```
 PAP_error_e PAP_init(void);
 ```
@@ -480,6 +487,7 @@ Return values:
 - `PAP_NO_ERROR`
 - `PAP_ERROR`
 
+---
 ```
 PAP_error_e PAP_term(void);
 ```
@@ -489,6 +497,7 @@ Return values:
 - `PAP_NO_ERROR`
 - `PAP_ERROR`
 
+---
 ```
 PAP_error_e PAP_register_callbacks(put_fn put, get_fn get, has_fn has, del_fn del);
 ```
@@ -504,6 +513,7 @@ Parameters:
 - `has_fn has`: Callback for checking if the policy is in the storage.
 - `del_fn del`: Callback for deleting policy data from the storage.
 
+---
 ```
 PAP_error_e PAP_unregister_callbacks(void);
 ```
@@ -513,6 +523,7 @@ Return values:
 - `PAP_NO_ERROR`
 - `PAP_ERROR`
 
+---
 ```
 PAP_error_e PAP_add_policy(char *signed_policy, int signed_policy_size);
 ```
@@ -526,6 +537,7 @@ Parameters:
 - `char *signed_policy`: Signed policy string buffer.
 - `int signed_policy_size`: Size of the signed policy string buffer.
 
+---
 ```
 PAP_error_e PAP_get_policy(char *policy_id, int policy_id_len, PAP_policy_t *policy);
 ```
@@ -540,6 +552,7 @@ Parameters:
 - `int policy_id_len`: Length of the policy ID string.
 - `PAP_policy_t *policy`: Requested policy data.
 
+---
 ```
 bool PAP_has_policy(char *policy_id, int policy_id_len);
 ```
@@ -553,6 +566,7 @@ Parameters:
 - `char *policy_id,`: Policy ID as a string.
 - `int policy_id_len`: Length of the policy ID string.
 
+---
 ```
 PAP_error_e PAP_remove_policy(char *policy_id, int policy_id_len);
 ```
@@ -592,10 +606,7 @@ ASN API is designed to both facilitate the client and the server side of the ASN
 
 Underlying implementation can be based on either `libCrypto` or `TinyEmbedded`.
 
-<!--
-ToDo: switch this to Doxygen?
--->
-
+---
 ```
 int asnAuth_init_client(asnSession_t *session, void *ext)
 ```
@@ -609,6 +620,7 @@ Parameters:
 - `asnSession_t *session`: pointer to `asnSession` structure.
 - `void *ext`: pointer to user-defined memory (callback function data).
 
+---
 ```
 int asnAuth_init_server(asnSession_t *session, void *ext)
 ```
@@ -622,6 +634,7 @@ Parameters:
 - `asnSession_t *session`: pointer to `asnSession` structure.
 - `void *ext`: pointer to user-defined memory (callback function data).
 
+---
 ```
 int asnAuth_set_option(asnSession_t *session, const char *key, unsigned char *value)
 ```
@@ -630,14 +643,13 @@ Return values:
 - 0: Ok
 - 1: Error
 
-<!--
-ToDo: finish this
--->
+
 Parameters:
 - `asnSession_t *session`: pointer to `asnSession` structure.
 - `const char *key`: xxx
 - `unsigned char *value`: xxx
 
+---
 ```
 int asnAuth_authenticate(asnSession_t *session)
 ```
@@ -649,8 +661,9 @@ Return values:
 Parameters:
 - `asnSession_t *session`: pointer to `asnSession` structure.
 
+---
 ```
-int asnAuth_send(asnSession_t *session, const unsigned char *data, unsigned short  len)
+int asnAuth_send(asnSession_t *session, const unsigned char *data, unsigned short *len)
 ```
 The application calls this function to send a message. All encapsulation, encryption and verification is performed internally.
 
@@ -658,13 +671,12 @@ Return values:
 - 0: Ok
 - 1: Error
 
-<!--
-ToDo: finish this
--->
 Parameters:
 - `asnSession_t *session`: pointer to `asnSession` structure.
-- xxx
+- `const unsigned char *data`: message content.
+- `unsigned short *len`: message length.
 
+---
 ```
 int asnAuth_receive(asnSession_t *session, unsigned char **data, unsigned short *len)
 ```
@@ -673,13 +685,10 @@ Return values:
 - 0: Ok
 - 1: Error
 
-<!--
-ToDo: finish this
--->
 Parameters:
 - `asnSession_t *session`: pointer to `asnSession` structure.
-- `unsigned char **data`: xxx
-- `unsigned short *len`: xxx
+- `unsigned char **data`: message content.
+- `unsigned short *len`: message length.
 
 ```
 int asnAuth_release(asnSession_t *session)
