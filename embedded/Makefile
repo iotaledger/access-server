@@ -129,6 +129,7 @@ SRCS = \
     $(ASN)asn_auth_helper.c \
     $(ASN)asn_auth.c \
     $(STORAGE)storage.c \
+    $(STORAGE)test_internal.c \
     $(STORE_RPI)rpi_storage.c \
     $(AWS_DAEMON)psDaemon.c \
     $(RESOLVER)resolver.c \

@@ -54,7 +54,6 @@
  * MACROS
  ****************************************************************************/
 #define PAP_MAX_TOKENS 1024
-#define PAP_ECDSA_PK_SIZE 32
 #define PAP_ASCII_SPACE 32
 #define PAP_ASCII_TAB 9
 #define PAP_ASCII_CR 13
@@ -269,10 +268,12 @@ PAP_error_e PAP_add_policy(char *signed_policy, int signed_policy_size, char *pa
 {
 	char policy_id[PAP_POL_ID_MAX_LEN + 1] = {0};
 	char policy_obj_hash[PAP_POL_ID_MAX_LEN + 1] = {0};
-	char public_key[PAP_ECDSA_PK_SIZE] = {0};
+	char public_key_user[PAP_PUBLIC_KEY_LEN] = {0};
 	char signed_policy_id[PAP_SIGNATURE_LEN + PAP_POL_ID_MAX_LEN + 1] = {0};
 	char *policy = NULL;
+	char *policy_object_buff = NULL;
 	char *policy_object_norm = NULL;
+	int policy_object_len = 0;
 	int policy_object_norm_len = 0;
 	int tok_num = 0;
 	unsigned long long policy_size = 0;
@@ -296,8 +297,8 @@ PAP_error_e PAP_add_policy(char *signed_policy, int signed_policy_size, char *pa
 	policy = malloc(signed_policy_size * sizeof(char)); //Worst case scenario
 
 	//Verify policy signature
-	get_public_key_from_user(public_key);
-	if (crypto_sign_open(policy, &policy_size, signed_policy, signed_policy_size, public_key) != 0)
+	get_public_key_from_user(public_key_user);
+	if (crypto_sign_open(policy, &policy_size, signed_policy, signed_policy_size, public_key_user) != 0)
 	{
 		//Signature verification failed
 		printf("\nERROR[%s]: Policy signature can not be verified.\n", __FUNCTION__);
@@ -374,8 +375,12 @@ PAP_error_e PAP_add_policy(char *signed_policy, int signed_policy_size, char *pa
 		//Get policy_object
 		if (strncmp(&policy[tokens[i].start], "policy_object", strlen("policy_object")) == 0)
 		{
-			//Policy object shoudl be normalized
-			policy_object_norm_len = normalize_JSON_object(&policy[tokens[i + 1].start], tokens[i + 1].end - tokens[i + 1].start, &policy_object_norm);
+			policy_object_len = tokens[i + 1].end - tokens[i + 1].start;
+			policy_object_buff = malloc(policy_object_len * sizeof(char));
+			memcpy(policy_object_buff, &policy[tokens[i + 1].start], policy_object_len);
+
+			//Policy object should be normalized
+			policy_object_norm_len = normalize_JSON_object(policy_object_buff, policy_object_len, &policy_object_norm);
 
 			policy_object.policy_object = policy_object_norm;
 			policy_object.policy_object_size = policy_object_norm_len;
@@ -392,6 +397,7 @@ PAP_error_e PAP_add_policy(char *signed_policy, int signed_policy_size, char *pa
 			else
 			{
 				printf("\nERROR[%s]: Hash function not supported.\n", __FUNCTION__);
+				free(policy_object_buff);
 				free(policy_object_norm);
 				free(policy);
 				pthread_mutex_unlock(&pap_mutex);
@@ -401,7 +407,8 @@ PAP_error_e PAP_add_policy(char *signed_policy, int signed_policy_size, char *pa
 	}
 
 	//Check if policy ID responds to policy object
-	get_SHA256_hash(policy_object_norm, policy_object_norm_len, policy_obj_hash);
+	get_SHA256_hash(policy_object_buff, policy_object_len, policy_obj_hash);
+	free(policy_object_buff);
 
 	if (memcmp(policy_id, policy_obj_hash, PAP_POL_ID_MAX_LEN * sizeof(char)) != 0)
 	{
@@ -415,6 +422,8 @@ PAP_error_e PAP_add_policy(char *signed_policy, int signed_policy_size, char *pa
 	//Signe policy ID and save signature, this will be use in order to verify policy on acquisition from storage
 	crypto_sign(signed_policy_id, &smlen, policy_id, PAP_POL_ID_MAX_LEN, private_key);
 
+	memset(policy_id_signature.public_key, 0, PAP_PUBLIC_KEY_LEN * sizeof(char));
+	memset(policy_id_signature.signature, 0, PAP_SIGNATURE_LEN * sizeof(char));
 	memcpy(policy_id_signature.public_key, public_key, PAP_PUBLIC_KEY_LEN * sizeof(char));
 	memcpy(policy_id_signature.signature, signed_policy_id, PAP_SIGNATURE_LEN * sizeof(char)); //Signature is preppend to message
 	policy_id_signature.signature_algorithm = PAP_ECDSA;
@@ -433,6 +442,7 @@ PAP_error_e PAP_add_policy(char *signed_policy, int signed_policy_size, char *pa
 		return PAP_ERROR;
 	}
 
+	free(policy_object_norm);
 	free(policy);
 	pthread_mutex_unlock(&pap_mutex);
 	return PAP_NO_ERROR;
@@ -568,14 +578,6 @@ PAP_error_e PAP_remove_policy(char *policy_id, int policy_id_len)
 		printf("\nERROR[%s]: Could not convert string to hex value.\n", __FUNCTION__);
 		pthread_mutex_unlock(&pap_mutex);
 		return PAP_ERROR;
-	}
-
-	//Get policy from storage
-	if (callback_get != NULL)
-	{
-		callback_get(policy_id_hex, &(policy.policy_object), &(policy.policy_id_signature), &(policy.hash_function));
-		//Free policy object
-		free(policy.policy_object.policy_object);
 	}
 
 	//Delete policy from storage

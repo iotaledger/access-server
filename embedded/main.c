@@ -49,6 +49,7 @@
 #include <time.h>
 #include "globals_declarations.h"
 #include "timer.h"
+#include "storage.h"
 #include "test_internal.h"
 
 int g_task_sleep_time;
@@ -94,7 +95,7 @@ int main(int argc, char** argv)
     PSDaemon_set_device_id(config.device_id);
 
     printf("Program start\n\n");
-    Storage_init(void);
+    Storage_init();
     PEP_init();
     TEST_POLICY_STORAGE(1)
 

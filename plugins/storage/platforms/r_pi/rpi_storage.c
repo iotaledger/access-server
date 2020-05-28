@@ -38,12 +38,14 @@
 #include <string.h>
 #include <unistd.h>
 #include "rpi_storage.h"
+#include "utils_string.h"
 
 /****************************************************************************
  * MACROS
  ****************************************************************************/
-#define RPI_MAX_STR_LEN 512
+#define RPI_MAX_STR_LEN 1024
 #define RPI_ACCESS_ERR -1
+#define RPI_POL_ID_MAX_LEN 32
 
 /****************************************************************************
  * API FUNCTIONS
@@ -53,22 +55,34 @@ bool RPI_store_policy(char* policy_id, char* policy_object, int policy_object_si
 						char* hash_function)
 {
 	char pol_path[RPI_MAX_STR_LEN] = {0};
-	FILE *f;
+	char pol_id_str[RPI_POL_ID_MAX_LEN * 2 + 1] = {0};
+	FILE *f = NULL;
 
 	//Check input parameters
-	if ((policy_id == NULL) || (policy_object == NULL) || (policy_object_size = 0) || (signature == NULL) ||
+	if ((policy_id == NULL) || (policy_object == NULL) || (policy_object_size == 0) || (signature == NULL) ||
 		(public_key == NULL) || (signature_algorithm == NULL) || (hash_function == NULL))
 	{
 		printf("\nERROR[%s]: Bad input parameter.\n", __FUNCTION__);
 		return FALSE;
 	}
 
+	if (hex_to_str(policy_id, pol_id_str, RPI_POL_ID_MAX_LEN) != UTILS_STRING_SUCCESS)
+	{
+		printf("\nERROR[%s]: Could not convert hex value to string.\n", __FUNCTION__);
+		return FALSE;
+	}
+
 	//Write policy data to a file
-	sprintf(pol_path, "../plugins/storage/platforms/r_pi/policies/%s.txt", policy_id);
+	sprintf(pol_path, "../plugins/storage/platforms/r_pi/policies/%s.txt", pol_id_str);
 	f = fopen(pol_path, "w+");
+	if (f == NULL)
+	{
+		printf("\nERROR[%s]: Invalid path to file.\n", __FUNCTION__);
+		return FALSE;
+	}
 
 	fwrite("policy id:", strlen("policy id:"), 1, f);
-	fwrite(policy_id, strlen(policy_id), 1, f);
+	fwrite(pol_id_str, strlen(pol_id_str), 1, f);
 	fwrite("\npolicy object:", strlen("\npolicy object:"), 1, f);
 	fwrite(policy_object, policy_object_size, 1, f);
 	fwrite("\npolicy id signature:", strlen("\npolicy id signature:"), 1, f);
@@ -90,6 +104,7 @@ bool RPI_acquire_policy(char* policy_id, char* policy_object, int *policy_object
 						char* hash_function)
 {
 	char pol_path[RPI_MAX_STR_LEN] = {0};
+	char pol_id_str[RPI_POL_ID_MAX_LEN * 2 + 1] = {0};
 	char *buffer;
 	char *substr;
 	int buff_len;
@@ -97,16 +112,27 @@ bool RPI_acquire_policy(char* policy_id, char* policy_object, int *policy_object
 	FILE *f;
 
 	//Check input parameters
-	if ((policy_id == NULL) || (policy_object == NULL) || (policy_object_size = NULL) || (signature == NULL) ||
+	if ((policy_id == NULL) || (policy_object == NULL) || (policy_object_size == NULL) || (signature == NULL) ||
 		(public_key == NULL) || (signature_algorithm == NULL) || (hash_function == NULL))
 	{
 		printf("\nERROR[%s]: Bad input parameter.\n", __FUNCTION__);
 		return FALSE;
 	}
 
+	if (hex_to_str(policy_id, pol_id_str, RPI_POL_ID_MAX_LEN) != UTILS_STRING_SUCCESS)
+	{
+		printf("\nERROR[%s]: Could not convert hex value to string.\n", __FUNCTION__);
+		return FALSE;
+	}
+
 	//Open file
-	sprintf(pol_path, "../plugins/storage/platforms/r_pi/policies/%s.txt", policy_id);
+	sprintf(pol_path, "../plugins/storage/platforms/r_pi/policies/%s.txt", pol_id_str);
 	f = fopen(pol_path, "r");
+	if (f == NULL)
+	{
+		printf("\nERROR[%s]: Invalid path to file.\n", __FUNCTION__);
+		return FALSE;
+	}
 
 	//Get file size
 	fseek(f, 0L, SEEK_END);
@@ -150,6 +176,7 @@ bool RPI_acquire_policy(char* policy_id, char* policy_object, int *policy_object
 bool RPI_check_if_stored_policy(char* policy_id)
 {
 	char pol_path[RPI_MAX_STR_LEN] = {0};
+	char pol_id_str[RPI_POL_ID_MAX_LEN * 2 + 1] = {0};
 
 	//Check input parameters
 	if (policy_id == NULL)
@@ -158,7 +185,13 @@ bool RPI_check_if_stored_policy(char* policy_id)
 		return FALSE;
 	}
 
-	sprintf(pol_path, "../plugins/storage/platforms/r_pi/policies/%s.txt", policy_id);
+	if (hex_to_str(policy_id, pol_id_str, RPI_POL_ID_MAX_LEN) != UTILS_STRING_SUCCESS)
+	{
+		printf("\nERROR[%s]: Could not convert hex value to string.\n", __FUNCTION__);
+		return FALSE;
+	}
+
+	sprintf(pol_path, "../plugins/storage/platforms/r_pi/policies/%s.txt", pol_id_str);
 
 	//Check file existance
 	if(access(pol_path, F_OK) != RPI_ACCESS_ERR)
@@ -176,6 +209,7 @@ bool RPI_check_if_stored_policy(char* policy_id)
 bool RPI_flush_policy(char* policy_id)
 {
 	char pol_path[RPI_MAX_STR_LEN] = {0};
+	char pol_id_str[RPI_POL_ID_MAX_LEN * 2 + 1] = {0};
 
 	//Check input parameters
 	if (policy_id == NULL)
@@ -184,7 +218,13 @@ bool RPI_flush_policy(char* policy_id)
 		return FALSE;
 	}
 
-	sprintf(pol_path, "../plugins/storage/platforms/r_pi/policies/%s.txt", policy_id);
+	if (hex_to_str(policy_id, pol_id_str, RPI_POL_ID_MAX_LEN) != UTILS_STRING_SUCCESS)
+	{
+		printf("\nERROR[%s]: Could not convert hex value to string.\n", __FUNCTION__);
+		return FALSE;
+	}
+
+	sprintf(pol_path, "../plugins/storage/platforms/r_pi/policies/%s.txt", pol_id_str);
 
 	if (remove(pol_path) == 0)
 	{

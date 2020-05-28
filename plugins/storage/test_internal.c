@@ -39,11 +39,13 @@
 #include <stdio.h>
 #include "test_internal.h"
 #include "utils_string.h"
+#include "apiorig.h"
 
 /****************************************************************************
  * MACROS
  ****************************************************************************/
 #define TEST_ASCII_SPACE 32
+#define TEST_BRACKETS_NUM 2
 #define TEST_ASCII_TAB 9
 #define TEST_ASCII_CR 13
 #define TEST_ASCII_LF 10
@@ -118,25 +120,30 @@ bool TEST_policy_storage()
 	bool ret = TRUE;
 	char policy_id[TEST_POL_ID_MAX_LEN] = {0};
 	char policy_id_hex[TEST_POL_ID_MAX_LEN/2] = {0};
+	char policy_id_hex_verified[TEST_POL_ID_MAX_LEN/2] = {0};
+	char signed_policy_id[TEST_POL_ID_MAX_LEN/2 + TEST_SIGNATURE_LEN];
 	char *policy_buffer = NULL;
 	char *signed_policy_buffer = NULL;
 	char *policy_object_buff = NULL;
 	char *policy_object_pos = NULL;
 	char *policy_object_norm = NULL;
 	int buff_len = 0;
-	int signed_buff_len = 0;
 	int pol_object_norm_chars = 0;
+	unsigned long long signed_buff_len = 0;
+	unsigned long long signed_pol_id_ver_len = 0;
 	FILE *f = NULL;
 	PAP_policy_t policy;
 
 	//Generate keypair
 	crypto_sign_keypair(public_key, private_key);
 
+#if PAP_STORAGE_TEST_ACIVE
 	//Register pk callback
 	PAP_register_get_pk_cb(provide_public_key);
+#endif
 
 	//Load test policy to a buffer
-	f = fopen("../../acess/pap/validator/policies_test_set/policy_no1_ok.json", "r");
+	f = fopen("../access/pap/validator/policies_test_set/policy_no1_ok.json", "r");
 	if (f == NULL)
 	{
 		printf("\nSTORAGE TEST FAILED - policy policy_no1_ok.json not available at acess/pap/validator/policies_test_set\n");
@@ -200,13 +207,13 @@ bool TEST_policy_storage()
 		pol_object_norm_chars = normalize_object(policy_object_pos, &policy_buffer[buff_len] - policy_object_pos, &policy_object_norm);
 	}
 
-	if (ret && ((pol_object_norm_chars - strlen("policy_object:")) != policy.policy_object.policy_object_size))
+	if (ret && ((pol_object_norm_chars - strlen("policy_object:") - TEST_BRACKETS_NUM) != policy.policy_object.policy_object_size))
 	{
 		printf("\nSTORAGE TEST FAILED - Policy object size differ from recovered value\n");
 		ret = FALSE;
 	}
 
-	if (ret && (memcmp(&policy_object_norm[strlen("policy_object:")], policy.policy_object.policy_object, policy.policy_object.policy_object_size) != 0))
+	if (ret && (memcmp(&policy_object_norm[strlen("policy_object:{")], policy.policy_object.policy_object, policy.policy_object.policy_object_size) != 0))
 	{
 		printf("\nSTORAGE TEST FAILED - Policy object differ from recovered value\n");
 		ret = FALSE;
@@ -217,16 +224,17 @@ bool TEST_policy_storage()
 		printf("\nSTORAGE TEST FAILED - Policy ID signature algorithm differ from recovered value\n");
 		ret = FALSE;
 	}
-
-	if (ret && (memcmp(signed_policy_buffer, policy.policy_id_signature.signature, TEST_SIGNATURE_LEN) != 0))
+	else
 	{
-		printf("\nSTORAGE TEST FAILED - Policy ID signature differ from recovered value\n");
-		ret = FALSE;
+		//Prepend signature to policy_id_hex
+		memcpy(signed_policy_id, policy.policy_id_signature.signature, TEST_SIGNATURE_LEN);
+		memcpy(&signed_policy_id[TEST_SIGNATURE_LEN], policy_id_hex, TEST_POL_ID_MAX_LEN/2);
 	}
 
-	if (ret && (memcmp(public_key, policy.policy_id_signature.public_key, TEST_PUBLIC_KEY_LEN) != 0))
+	if (ret && (crypto_sign_open(policy_id_hex_verified, &signed_pol_id_ver_len, signed_policy_id,
+									TEST_SIGNATURE_LEN + TEST_POL_ID_MAX_LEN/2, policy.policy_id_signature.public_key) != 0))
 	{
-		printf("\nSTORAGE TEST FAILED - Policy ID signature's public key differ from recovered value\n");
+		printf("\nSTORAGE TEST FAILED - Policy ID signature differ from recovered value\n");
 		ret = FALSE;
 	}
 
@@ -237,7 +245,7 @@ bool TEST_policy_storage()
 	}
 
 	//Delete policy
-	if (ret && (PAP_remove_policy(policy_id, TEST_POL_ID_MAX_LEN) == FALSE))
+	if (ret && (PAP_remove_policy(policy_id, TEST_POL_ID_MAX_LEN) == PAP_ERROR))
 	{
 		printf("\nSTORAGE TEST FAILED - Policy is not removed\n");
 		ret = FALSE;
