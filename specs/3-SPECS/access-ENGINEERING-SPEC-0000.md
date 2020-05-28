@@ -410,10 +410,161 @@ Requirements for functions:
 
 #### Policy Administration Point
 
+##### Callback Functions (Policy Storage Plugin)
+```
+typedef bool (*put_fn)(char* policy_id, PAP_policy_object_t policy_object, PAP_policy_id_signature_t policy_id_signature, PAP_hash_functions_e hash_fn);
+```
 <!--
-ToDo: add link to Doxygen here
+ToDo: write description
 -->
 xxx
+
+```
+typedef bool (*get_fn)(char* policy_id, PAP_policy_object_t *policy_object, PAP_policy_id_signature_t *policy_id_signature, PAP_hash_functions_e *hash_fn);
+```
+<!--
+ToDo: write description
+-->
+xxx
+
+```
+typedef bool (*has_fn)(char* policy_id);
+
+```
+<!--
+ToDo: write description
+-->
+xxx
+
+```
+typedef bool (*del_fn)(char* policy_id);
+```
+<!--
+ToDo: write description
+-->
+xxx
+
+##### Internal Functions
+
+```
+static void get_public_key_from_user(char *pk);
+```
+<!--
+ToDo: write description
+-->
+xxx
+
+```
+static int normalize_JSON_object(char *json_object, int object_len, char **json_object_normalized);
+```
+<!--
+ToDo: write description
+-->
+xxx
+
+```
+static void get_SHA256_hash(char *msg, int msg_len, char *hash_val);
+```
+<!--
+ToDo: write description
+-->
+xxx
+
+##### External API Functions
+```
+PAP_error_e PAP_init(void);
+```
+Initialize PAP module.
+
+Return values:
+- `PAP_NO_ERROR`
+- `PAP_ERROR`
+
+```
+PAP_error_e PAP_term(void);
+```
+Terminate PAP module.
+
+Return values:
+- `PAP_NO_ERROR`
+- `PAP_ERROR`
+
+```
+PAP_error_e PAP_register_callbacks(put_fn put, get_fn get, has_fn has, del_fn del);
+```
+Register callbacks for Policy Storage Plugin.
+
+Return values:
+- `PAP_NO_ERROR`
+- `PAP_ERROR`
+
+Parameters:
+- `put_fn put`: Callback for writing policy data to storage.
+- `get_fn get`: Callback for reading policy data from storage.
+- `has_fn has`: Callback for checking if the policy is in the storage.
+- `del_fn del`: Callback for deleting policy data from the storage.
+
+```
+PAP_error_e PAP_unregister_callbacks(void);
+```
+Unregister callbacks for Policy Storage Plugin.
+
+Return values:
+- `PAP_NO_ERROR`
+- `PAP_ERROR`
+
+```
+PAP_error_e PAP_add_policy(char *signed_policy, int signed_policy_size);
+```
+Add new policy from cloud to embedded storage.
+
+Return values:
+- `PAP_NO_ERROR`
+- `PAP_ERROR`
+
+Parameters:
+- `char *signed_policy`: Signed policy string buffer.
+- `int signed_policy_size`: Size of the signed policy string buffer.
+
+```
+PAP_error_e PAP_get_policy(char *policy_id, int policy_id_len, PAP_policy_t *policy);
+```
+Acquire policy data in order to make decision upon the request.
+
+Return values:
+- `PAP_NO_ERROR`
+- `PAP_ERROR`
+
+Parameters:
+- `char *policy_id`: Policy ID as a string.
+- `int policy_id_len`: Length of the policy ID string.
+- `PAP_policy_t *policy`: Requested policy data.
+
+```
+bool PAP_has_policy(char *policy_id, int policy_id_len);
+```
+Check if the policy is already stored.
+
+Return values:
+- 0: policy is not stored.
+- 1: policy is stored.
+
+Parameters:
+- `char *policy_id,`: Policy ID as a string.
+- `int policy_id_len`: Length of the policy ID string.
+
+```
+PAP_error_e PAP_remove_policy(char *policy_id, int policy_id_len);
+```
+Delete policy from embedded storage.
+
+Return values:
+- `PAP_NO_ERROR`
+- `PAP_ERROR`
+
+Parameters:
+- `char *policy_id,`: Policy ID as a string.
+- `int policy_id_len`: Length of the policy ID string.
 
 #### Policy Enforcement Point
 
