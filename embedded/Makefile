@@ -139,7 +139,7 @@ SRCS = \
     include/json_interface.c \
     include/timer.c \
     config_manager/config_manager.c \
-    config_manager/ini/ini.c \
+    config_manager/impls/ini/config_manager_impl.c \
     $(GPS)minmea/minmea.c \
     $(GPS)gps_receiver.c \
     $(OBDII)ejv_obdii/OBDII.c \
@@ -203,8 +203,7 @@ CFLAGS = \
     -I$(CANOPEN) \
     -Ibc \
     -Iconfig_manager \
-    -Iconfig_manager/klib \
-    -Iconfig_manager/ini \
+    -Iconfig_manager/impls/ini \
     -I$(DATASET) \
     -I$(VEHICLE_DATASET) \
     -I$(TCP_SERVER) \
@@ -227,7 +226,7 @@ clean:
 	@echo CC $@
 	$(AT)$(CC) -c $(CFLAGS) $< -o $@
 
-can_simulator: can_simulator.o $(CAN)can_linux.o $(CAN)lib.o config_manager/config_manager.o config_manager/ini/ini.o
+can_simulator: can_simulator.o $(CAN)can_linux.o $(CAN)lib.o config_manager/config_manager.o config_manager/impls/ini/config_manager_impl.o
 	@echo LINK can_simulator
 	$(AT)$(CC) -o can_simulator $^
 
