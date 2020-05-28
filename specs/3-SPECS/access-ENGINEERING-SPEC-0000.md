@@ -606,8 +606,8 @@ Return values:
 - 1: Error
 
 Parameters:
-- pointer to `asnSession` structure
-- pointer to user-defined memory (callback function data).
+- `asnSession_t *session`: pointer to `asnSession` structure.
+- `void *ext`: pointer to user-defined memory (callback function data).
 
 ```
 int asnAuth_init_server(asnSession_t *session, void *ext)
@@ -619,8 +619,8 @@ Return values:
 - 1: Error
 
 Parameters:
-- pointer to `asnSession` structure
-- pointer to user-defined memory (callback function data).
+- `asnSession_t *session`: pointer to `asnSession` structure.
+- `void *ext`: pointer to user-defined memory (callback function data).
 
 ```
 int asnAuth_set_option(asnSession_t *session, const char *key, unsigned char *value)
@@ -634,8 +634,9 @@ Return values:
 ToDo: finish this
 -->
 Parameters:
-- pointer to `asnSession` structure
-- xxx
+- `asnSession_t *session`: pointer to `asnSession` structure.
+- `const char *key`: xxx
+- `unsigned char *value`: xxx
 
 ```
 int asnAuth_authenticate(asnSession_t *session)
@@ -646,7 +647,7 @@ Return values:
 - 1: Error
 
 Parameters:
-- pointer to `asnSession` structure
+- `asnSession_t *session`: pointer to `asnSession` structure.
 
 ```
 int asnAuth_send(asnSession_t *session, const unsigned char *data, unsigned short  len)
@@ -661,11 +662,11 @@ Return values:
 ToDo: finish this
 -->
 Parameters:
-- pointer to `asnSession` structure
+- `asnSession_t *session`: pointer to `asnSession` structure.
 - xxx
 
 ```
-int asnAuth_receive(asnSession_t *session, unsigned char **data, unsigned short  *len)
+int asnAuth_receive(asnSession_t *session, unsigned char **data, unsigned short *len)
 ```
 The application calls this function to receive a message. All encapsulation, decryption and verification is performed internally. Raw data and length is returned.
 Return values:
@@ -676,8 +677,9 @@ Return values:
 ToDo: finish this
 -->
 Parameters:
-- pointer to `asnSession` structure
-- xxx
+- `asnSession_t *session`: pointer to `asnSession` structure.
+- `unsigned char **data`: xxx
+- `unsigned short *len`: xxx
 
 ```
 int asnAuth_release(asnSession_t *session)
