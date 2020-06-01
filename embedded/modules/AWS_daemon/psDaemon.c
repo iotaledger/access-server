@@ -40,7 +40,7 @@
 #include "psDaemon.h"
 
 #include "Dlog.h"
-#include "storage.h"
+#include "pap.h"
 #include "json_parser.h"
 #include "tcp_client.h"
 #include "time_manager.h"
@@ -294,8 +294,7 @@ static void parsePolicy() {
         }
         if (policy_retrieved == PSD_POL_FULLY_RETRIEVED) {
             Dlog_printf("\nPut policy\n");
-            PolicyStore_put_policy(policy_id_buff, policy_id_len, policy_buff, policy_len,
-                                    policy_id_signature_buff, policy_id_signature_len, policy_cost, policy_cost_len);
+            PAP_add_policy(policy_buff, policy_len, NULL);
         }
     }
 
@@ -384,10 +383,6 @@ static void parsePolicyServiceList() {
             else if(response_type == PSD_POL_RESPONSE_TYPE_STRING) {
                 if(memcmp(PolicyList + get_start_of_token(response), "ok", strlen("ok")) == 0) {
                     Dlog_printf("\nPolicy store up to date");
-                }
-                else if(memcmp(PolicyList + get_start_of_token(response), "none", strlen("none")) == 0) {
-                    Dlog_printf("\nAWS empty");
-                    PolicyStore_clean();
                 }
                 else {
                     Dlog_printf("\nERROR: unknown response");

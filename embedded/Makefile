@@ -77,6 +77,8 @@ PDP = $(ACCESS)pdp/
 PAP = $(ACCESS)pap/
 VALIDATOR = $(PAP)validator/
 STORAGE = $(PLUGINS)storage/
+STORE_PLATFORMS = $(STORAGE)platforms/
+STORE_RPI = $(STORE_PLATFORMS)r_pi/
 RESOLVER = $(PLUGINS)resolver/
 RESOLVER_PLATFORMS = $(RESOLVER)platform_interface/
 RESOLVER_RPI = $(RESOLVER_PLATFORMS)r_pi/
@@ -127,6 +129,8 @@ SRCS = \
     $(ASN)asn_auth_helper.c \
     $(ASN)asn_auth.c \
     $(STORAGE)storage.c \
+    $(STORAGE)test_internal.c \
+    $(STORE_RPI)rpi_storage.c \
     $(AWS_DAEMON)psDaemon.c \
     $(RESOLVER)resolver.c \
     $(RESOLVER_RPI)relay_interface.c \
@@ -181,6 +185,7 @@ CFLAGS = \
     -I$(JSMN) \
     -I$(AWS_DAEMON) \
     -I$(STORAGE) \
+    -I$(STORE_RPI) \
     -I$(CRYPTO) \
     -I$(ASN_IMPL) \
     -I$(PIP) \

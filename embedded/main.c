@@ -26,7 +26,7 @@
 #include <pthread.h>
 #include <signal.h>
 
-#include "storage.h"
+#include "pep.h"
 #include "asn_auth.h"
 #include "bc_daemon.h"
 #include "dataset.h"
@@ -49,6 +49,8 @@
 #include <time.h>
 #include "globals_declarations.h"
 #include "timer.h"
+#include "storage.h"
+#include "test_internal.h"
 
 #define MAX_CLIENT_NAME 32
 #define CONFIG_CLIENT_CAN01 "can01"
@@ -97,7 +99,9 @@ int main(int argc, char** argv)
     PSDaemon_init();
 
     printf("Program start\n\n");
-    PolicyStore_init();
+    Storage_init();
+    PEP_init();
+    TEST_POLICY_STORAGE(1)
 
     json_mutex = JSONInterface_get_mutex();
     UserManagement_init();
