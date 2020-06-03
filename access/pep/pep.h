@@ -50,7 +50,7 @@
 /****************************************************************************
  * CALLBACKS
  ****************************************************************************/
-typedef bool (*resolver_fn)(char* obligation, char* action, unsigned long start_time, unsigned long end_time);
+typedef bool (*resolver_fn)(char* obligation, void* action);
 
 /****************************************************************************
  * API FUNCTIONS
@@ -61,11 +61,11 @@ typedef bool (*resolver_fn)(char* obligation, char* action, unsigned long start_
  *
  * @brief   Initialize module
  *
- * @param   void
+ * @param   wallet_ctx - Context of the device's wallet
  *
  * @return  TRUE on success, FALSE on failure
  */
-bool PEP_init(void);
+bool PEP_init(wallet_ctx_t* wallet_ctx);
 
 /**
  * @fn      PEP_term

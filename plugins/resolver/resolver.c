@@ -130,14 +130,14 @@ static int stop_data_sharing()
     return 0;
 }
 
-static int action_resolve(const char* action, int should_log, void* arg)
+static int action_resolve(resolver_action_data_t* action, int should_log)
 {
     char buf[RES_BUFF_LEN];
     int retval = -1;
 
     if (0 == memcmp(action, "start_ds_", strlen("start_ds_") - 1))
     {
-        retval = start_data_sharing(action, *((unsigned long*)arg));
+        retval = start_data_sharing(action, action->stop_time);
     }
     else if (0 == memcmp(action, "stop_ds", strlen("stop_ds")))
     {
@@ -147,11 +147,11 @@ static int action_resolve(const char* action, int should_log, void* arg)
     {
         for (int i = 0; i < resolver_action_set.count; i++)
         {
-            if (memcmp(action, resolver_action_set.action_names[i], strlen(resolver_action_set.action_names[i])) == 0)
+            if (memcmp(action->value, resolver_action_set.action_names[i], strlen(resolver_action_set.action_names[i])) == 0)
             {
                 getStringTime(buf, RES_BUFF_LEN);
                 Dlog_printf("%s %s\t%s\n", buf, action, action_s);
-                retval = resolver_action_set.actions[i](should_log);
+                retval = resolver_action_set.actions[i](action, should_log);
                 break;
             }
         }
@@ -159,9 +159,20 @@ static int action_resolve(const char* action, int should_log, void* arg)
     return retval;
 }
 
-static bool pep_request(char *obligation, char *action, unsigned long start_time, unsigned long end_time)
+static bool pep_request(char *obligation, void *action)
 {
     bool should_log = FALSE;
+    resolver_action_data_t *action_r;
+
+    if (action == NULL)
+    {
+        Dlog_printf("\nERROR[%s]: Bad input parameter.\n", __FUNCTION__);
+        return FALSE;
+    }
+    else
+    {
+        action_r = (resolver_action_data_t*)action;
+    }
     
     //TODO: only "log_event" obligation is supported currently
     if(0 == memcmp(obligation, "log_event", strlen("log_event")))
@@ -170,9 +181,10 @@ static bool pep_request(char *obligation, char *action, unsigned long start_time
     }
     
     // TODO: better handling of end_time parameter
-    if (action_resolve(action, should_log, &end_time) == -1)
+    if (action_resolve(action_r, should_log) == -1)
     {
         Dlog_printf("\nERROR[%s]: Resolving action failed.\n", __FUNCTION__);
+        return FALSE;
     }
 
     return TRUE;

@@ -43,6 +43,7 @@
 #include "user.h"
 #include "network.h"
 #include "modbus_receiver.h"
+#include "wallet.h"
 
 #include "psDaemon.h"
 
@@ -56,6 +57,12 @@
 #define CONFIG_CLIENT_CAN01 "can01"
 #define CONFIG_CLIENT_CANOPEN01 "canopen01"
 #define CONFIG_CLIENT_OBDII "obdii"
+
+#define NODE_URL "nodes.comnet.thetangle.org"
+#define NODE_PORT 443
+#define NODE_DEPTH 3
+#define NODE_MWM 14
+#define WALLET_SEED "GSRL9AN3RFKESUS2DEBEEWR3YPJ8S2PPX9BJTBXCV3X96B55ZSS4PZ2QFKRV73PQ5NHHCAVDBBR57GFAY"
 
 int g_task_sleep_time;
 
@@ -73,6 +80,8 @@ static void *AWS(void *arg);
 static pthread_mutex_t *json_mutex;
 
 static Dataset_state_t vdstate = {0};
+
+static wallet_ctx_t *device_wallet = NULL;
 
 extern void Demo01Plugin_set_relayboard_addr(const char* addr);
 
@@ -97,10 +106,11 @@ int main(int argc, char** argv)
     ConfigManager_get_option_string("config", "client", client_name, MAX_CLIENT_NAME);
 
     PSDaemon_init();
+    device_wallet = wallet_create(NODE_URL, NODE_PORT, NULL, NODE_DEPTH, NODE_MWM, WALLET_SEED);
 
     printf("Program start\n\n");
     Storage_init();
-    PEP_init();
+    PEP_init(device_wallet);
     TEST_POLICY_STORAGE(1)
 
     json_mutex = JSONInterface_get_mutex();

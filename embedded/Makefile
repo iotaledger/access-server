@@ -56,6 +56,7 @@ INCLUDE = include/
 ACCESS = ../access/
 NETWORK = ../network/
 PLUGINS = ../plugins/
+WALLET = ../wallet/
 MODULE = ./modules/
 EXTERN = ./CpuGeneric/
 ASN = $(NETWORK)asn/
@@ -169,7 +170,9 @@ SRCS = \
     $(FASTJSON)printbuf.c \
     $(VALIDATOR)validator.c \
     $(VALIDATOR)parser.c \
-    $(DATA_ACQUISITION)protocol.c
+    $(DATA_ACQUISITION)protocol.c \
+    $(WALLET)wallet.c \
+    $(WALLET)wallet_errors.c
 
 OBJS =	$(SRCS:.c=.o)
 
@@ -214,7 +217,8 @@ CFLAGS = \
     -I$(VALIDATOR) \
     -I$(DATA_ACQUISITION) \
     -I$(RESOLVER_PLATFORMS) \
-    -I$(RESOLVER_RPI)
+    -I$(RESOLVER_RPI) \
+    -I$(WALLET)
 
 all: $(BINARY_MAIN) can_simulator
 
