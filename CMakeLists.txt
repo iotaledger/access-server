@@ -13,3 +13,5 @@ add_subdirectory(access/pap)
 add_subdirectory(access/pep)
 
 add_subdirectory(network/asn)
+
+add_subdirectory(embedded/config_manager)
