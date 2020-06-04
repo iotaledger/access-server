@@ -21,6 +21,15 @@ cmake_minimum_required(VERSION 3.11)
 
 set(target pdp)
 
-add_library(${target} pdp.c)
-target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(${target} PUBLIC json_parser pip pap)
+set(sources pdp.c)
+
+set(include_dirs ${CMAKE_CURRENT_SOURCE_DIR})
+
+set(libs
+  json_parser
+  pip
+  pap)
+
+add_library(${target} ${sources})
+target_include_directories(${target} PUBLIC ${include_dirs})
+target_link_libraries(${target} PUBLIC ${libs})

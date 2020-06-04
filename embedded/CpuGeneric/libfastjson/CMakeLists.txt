@@ -21,5 +21,16 @@ cmake_minimum_required(VERSION 3.11)
 
 set(target fastjson)
 
-add_library(${target} arraylist.c debug.c json_object.c json_object_iterator.c json_print.c json_tokener.c json_util.c json_version.c printbuf.c)
+set(sources
+  arraylist.c
+  debug.c
+  json_object.c
+  json_object_iterator.c
+  json_print.c
+  json_tokener.c
+  json_util.c
+  json_version.c
+  printbuf.c)
+
+add_library(${target} ${sources})
 target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

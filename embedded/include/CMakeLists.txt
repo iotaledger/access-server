@@ -21,6 +21,16 @@ cmake_minimum_required(VERSION 3.11)
 
 set(target legacy_modules)
 
-add_library(${target} tcp_client.c utils_string.c time_manager.c timer.c json_interface.c)
+set(sources
+  tcp_client.c
+  utils_string.c
+  time_manager.c
+  timer.c
+  json_interface.c)
+
+set(libs
+  config_manager)
+
+add_library(${target} ${sources})
 target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(${target} PUBLIC config_manager)
+target_link_libraries(${target} PUBLIC ${libs})

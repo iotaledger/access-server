@@ -21,6 +21,10 @@ cmake_minimum_required(VERSION 3.11)
 
 set(target psdaemon)
 
+set(libs
+  config_manager
+  pep)
+
 add_library(${target} psDaemon.c)
 target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(${target} PUBLIC config_manager pep)
+target_link_libraries(${target} PUBLIC ${libs})

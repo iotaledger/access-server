@@ -20,6 +20,17 @@
 cmake_minimum_required(VERSION 3.11)
 
 set(target storage_plugin)
-add_library(${target} storage.c platforms/r_pi/rpi_storage.c)
-target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/platforms/r_pi)
-target_link_libraries(${target} PUBLIC pap)
+
+set(sources
+  storage.c
+  platforms/r_pi/rpi_storage.c)
+
+set(include_dirs
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/platforms/r_pi)
+
+set(libs pap)
+
+add_library(${target} ${sources})
+target_include_directories(${target} PUBLIC ${include_dirs})
+target_link_libraries(${target} PUBLIC ${libs})

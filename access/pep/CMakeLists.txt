@@ -20,6 +20,13 @@
 cmake_minimum_required(VERSION 3.11)
 
 set(target pep)
+
+set(sources pep.c)
+
+set(include_dirs ${CMAKE_CURRENT_SOURCE_DIR})
+
+set(libs pdp)
+
 add_library(${target} pep.c)
-target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(${target} PUBLIC pdp)
+target_include_directories(${target} PUBLIC ${include_dirs})
+target_link_libraries(${target} PUBLIC ${libs})
