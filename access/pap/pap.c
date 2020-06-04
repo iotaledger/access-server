@@ -80,6 +80,8 @@ static put_fn callback_put = NULL;
 static get_fn callback_get = NULL;
 static has_fn callback_has = NULL;
 static del_fn callback_del = NULL;
+static get_pol_obj_len_fn callback_get_pol_obj_len = NULL;
+static get_all_fn callback_get_all = NULL;
 #if PAP_STORAGE_TEST_ACIVE
 static get_pk callback_get_pk = NULL;
 #endif
@@ -231,7 +233,7 @@ PAP_error_e PAP_term(void)
 	return PAP_NO_ERROR;
 }
 
-PAP_error_e PAP_register_callbacks(put_fn put, get_fn get, has_fn has, del_fn del)
+PAP_error_e PAP_register_callbacks(put_fn put, get_fn get, has_fn has, del_fn del, get_pol_obj_len_fn get_pol_obj_len, get_all_fn get_all)
 {
 	/*
 	Plugin doesn't need to use all callbacks, so any of parrameters can be NULL.
@@ -244,6 +246,8 @@ PAP_error_e PAP_register_callbacks(put_fn put, get_fn get, has_fn has, del_fn de
 	callback_get = get;
 	callback_has = has;
 	callback_del = del;
+	callback_get_pol_obj_len = get_pol_obj_len;
+	callback_get_all = get_all;
 
 	pthread_mutex_unlock(&pap_mutex);
 
@@ -258,6 +262,8 @@ PAP_error_e PAP_unregister_callbacks(void)
 	callback_get = NULL;
 	callback_has = NULL;
 	callback_del = NULL;
+	callback_get_pol_obj_len = NULL;
+	callback_get_all = NULL;
 
 	pthread_mutex_unlock(&pap_mutex);
 
@@ -561,7 +567,6 @@ bool PAP_has_policy(char *policy_id, int policy_id_len)
 PAP_error_e PAP_remove_policy(char *policy_id, int policy_id_len)
 {
 	char policy_id_hex[PAP_POL_ID_MAX_LEN + 1] = {0};
-	PAP_policy_t policy;
 
 	//Check input parameters
 	if (policy_id == NULL || policy_id_len == 0)
@@ -590,6 +595,188 @@ PAP_error_e PAP_remove_policy(char *policy_id, int policy_id_len)
 		printf("\nERROR[%s]: Callback is not registered.\n", __FUNCTION__);
 		pthread_mutex_unlock(&pap_mutex);
 		return PAP_ERROR;
+	}
+
+	pthread_mutex_unlock(&pap_mutex);
+	return PAP_NO_ERROR;
+}
+
+PAP_error_e PAP_get_policy_obj_len(char *policy_id, int policy_id_len, int *pol_obj_len)
+{
+	char policy_id_hex[PAP_POL_ID_MAX_LEN + 1] = {0};
+	int pol_obj_len = 0;
+
+	//Check input parameters
+	if (policy_id == NULL || policy_id_len == 0 || pol_obj_len == NULL)
+	{
+		printf("\nERROR[%s]: Bad input parameters.\n", __FUNCTION__);
+		return PAP_ERROR;
+	}
+
+	pthread_mutex_lock(&pap_mutex);
+
+	//Get policy ID hex value
+	if (str_to_hex(policy_id, policy_id_hex, policy_id_len) != UTILS_STRING_SUCCESS)
+	{
+		printf("\nERROR[%s]: Could not convert string to hex value.\n", __FUNCTION__);
+		pthread_mutex_unlock(&pap_mutex);
+		return PAP_ERROR;
+	}
+
+	//Get obj. len
+	if (callback_get_pol_obj_len)
+	{
+		callback_get_pol_obj_len(policy_id_hex, &pol_obj_len);
+	}
+
+	if (pol_obj_len == 0)
+	{
+		printf("\nERROR[%s]: Invalida object length.\n", __FUNCTION__);
+		pthread_mutex_unlock(&pap_mutex);
+		return PAP_ERROR;
+	}
+
+	pthread_mutex_unlock(&pap_mutex);
+	return PAP_NO_ERROR;
+}
+
+PAP_error_e PAP_get_subjects_list_of_actions(char *subject_id, int subject_id_length, PAP_action_list_t **action_list)
+{
+	int tok_num = 0;
+	jsmn_parser parser;
+	jsmntok_t tokens[PAP_MAX_TOKENS];
+	PAP_policy_id_list_t *pol_id_list = NULL;
+	PAP_policy_id_list_t *prev = NULL;
+
+	//Check input parameter
+	if (subject_id == NULL || subject_id_length == 0)
+	{
+		printf("\nERROR[%s]: Bad input parameters.\n", __FUNCTION__);
+		return PAP_ERROR;
+	}
+
+	pthread_mutex_lock(&pap_mutex);
+
+	//Get all stored policy IDs
+	if (callback_get_all)
+	{
+		callback_get_all(&pol_id_list);
+	}
+	else
+	{
+		printf("\nERROR[%s]: Callback get_all is not registered.\n", __FUNCTION__);
+		pthread_mutex_unlock(&pap_mutex);
+		return PAP_ERROR;
+	}
+
+	if (pol_id_list == NULL)
+	{
+		printf("\nERROR[%s]: No policies stored.\n", __FUNCTION__);
+		pthread_mutex_unlock(&pap_mutex);
+		return PAP_ERROR;
+	}
+
+	while (pol_id_list)
+	{
+		char *pol_obj = NULL;
+		int pol_obj_len;
+		int action = -1;
+		PAP_policy_object_t policy_object;
+		PAP_policy_id_signature_t policy_id_signature;
+		PAP_hash_functions_e hash_fn;
+		PAP_action_list_t *action_elem = NULL;
+		PAP_action_list_t *action_temp = NULL;
+
+		//Get obj. len
+		if (callback_get_pol_obj_len)
+		{
+			callback_get_pol_obj_len(pol_id_list->policy_ID, &pol_obj_len);
+		}
+		else
+		{
+			printf("\nERROR[%s]: Callback get pol. obj. len is not registered.\n", __FUNCTION__);
+			pthread_mutex_unlock(&pap_mutex);
+			return PAP_ERROR;
+		}
+
+		pol_obj = malloc(pol_obj_len * sizeof(char));
+
+		policy_object.policy_object = pol_obj;
+
+		//Get policy
+		if (callback_get)
+		{
+			callback_get(pol_id_list->policy_ID, &policy_object, &policy_id_signature, &hash_fn);
+		}
+		else
+		{
+			printf("\nERROR[%s]: Callback get is not registered.\n", __FUNCTION__);
+			pthread_mutex_unlock(&pap_mutex);
+			free(pol_obj);
+			return PAP_ERROR;
+		}
+
+		jsmn_init(&parser);
+		tok_num = jsmn_parse(&parser, policy_object.policy_object, policy_object.policy_object_size,
+								tokens, sizeof(tokens)/sizeof(tokens[0]));
+
+		for(int i = 0; i < tok_num; i++)
+		{
+			if(((subject_id_length + strlen("0x")) == (tokens[i].end - tokens[i].start)) &&
+				(memcmp(policy_object.policy_object + tokens[i].start + strlen("0x"), subject_id, subject_id_length) == 0))
+			{
+				for(int j = 0; j < tok_num; j++)
+				{
+					if(((tokens[j].end - tokens[j].start) == strlen("action")) &&
+						(memcmp(policy_object.policy_object + tokens[j].start, "action", strlen("action")) == 0))
+					{
+						action = j + 2;	//Skip 'value' token and return requested token
+						break;
+					}
+				}
+			}
+		}
+
+		if (action != -1)
+		{
+			char pol_id_str[PAP_POL_ID_MAX_LEN * 2 + 1] = {0};
+
+			action_elem = malloc(sizeof(PAP_action_list_t));
+			memset(action_elem, 0, sizeof(PAP_action_list_t));
+
+			if (hex_to_str(pol_id_list->policy_ID, pol_id_str, PAP_POL_ID_MAX_LEN) != UTILS_STRING_SUCCESS)
+			{
+				printf("\nERROR[%s]: Could not convert hex value to string.\n", __FUNCTION__);
+				pthread_mutex_unlock(&pap_mutex);
+				free(pol_obj);
+				return PAP_ERROR;
+			}
+
+			memcpy(action_elem->action, policy_object.policy_object + tokens[action].start, tokens[action].end - tokens[action].start);
+			memcpy(action_elem->policy_ID_str, pol_id_str, PAP_POL_ID_MAX_LEN * 2);
+			action_elem->next = NULL;
+
+			if (*action_list == NULL)
+			{
+				*action_list = action_elem;
+			}
+			else
+			{
+				action_temp = *action_list;
+				while(action_temp->next)
+				{
+					action_temp = action_temp->next;
+				}
+
+				action_temp->next = action_elem;
+			}
+		}
+
+		free(pol_obj);
+
+		prev = pol_id_list;
+		pol_id_list = pol_id_list->next;
+		free(prev);
 	}
 
 	pthread_mutex_unlock(&pap_mutex);

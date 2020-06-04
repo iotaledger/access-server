@@ -656,8 +656,10 @@ bool PDP_term(void)
 PDP_decision_e PDP_calculate_decision(char *request_norm, char *obligation, PDP_action_t *action)
 {
 	char *policy_id = NULL;
+	char *policy_object = NULL;
 	int request_policy_id = -1;
 	int size = -1;
+	int pol_obj_len = 0;
 	PDP_decision_e ret = PDP_ERROR;
 	PAP_policy_t policy;
 
@@ -676,12 +678,24 @@ PDP_decision_e PDP_calculate_decision(char *request_norm, char *obligation, PDP_
 	policy_id = malloc(size * sizeof(char));
 	memcpy(policy_id, request_norm + get_start_of_token(request_policy_id), size * sizeof(char));
 
+	//Get pol. object size and allocate policy object
+	if (PAP_get_policy_obj_len(policy_id, size, &pol_obj_len) == PAP_ERROR)
+	{
+		Dlog_printf("\nERROR[%s]: Could not get the policy object length.\n", __FUNCTION__);
+		free(policy_id);
+		return PDP_ERROR;
+	}
+
+	policy_object = malloc(pol_obj_len * sizeof(char));
+
+	policy.policy_object.policy_object = policy_object;
 
 	//Get policy from PAP
 	if (PAP_get_policy(policy_id, size, &policy) == PAP_ERROR)
 	{
 		Dlog_printf("\nERROR[%s]: Could not get the policy.\n", __FUNCTION__);
 		free(policy_id);
+		free(policy_object);
 		return PDP_ERROR;
 	}
 
@@ -748,5 +762,6 @@ PDP_decision_e PDP_calculate_decision(char *request_norm, char *obligation, PDP_
 	Dlog_printf("\nPOLICY RESOLVED: %d\n", ret);
 
 	free(policy_id);
+	free(policy_object);
 	return ret;
 }

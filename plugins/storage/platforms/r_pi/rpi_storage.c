@@ -96,6 +96,22 @@ bool RPI_store_policy(char* policy_id, char* policy_object, int policy_object_si
 
 	fclose(f);
 
+	//Store policy ID in stored policies file
+	memset(pol_path, 0, RPI_MAX_STR_LEN * sizeof(char));
+	sprintf(pol_path, "../plugins/storage/platforms/r_pi/policies/stored_policies.txt");
+
+	f = fopen(pol_path, "a");
+	if (f == NULL)
+	{
+		printf("\nERROR[%s]: Invalid path to stored_policies file.\n", __FUNCTION__);
+		return FALSE;
+	}
+
+	fwrite(pol_id_str, strlen(pol_id_str), 1, f);
+	fwrite("|", strlen("|"), 1, f);
+
+	fclose(f);
+
 	return TRUE;
 }
 
@@ -210,6 +226,10 @@ bool RPI_flush_policy(char* policy_id)
 {
 	char pol_path[RPI_MAX_STR_LEN] = {0};
 	char pol_id_str[RPI_POL_ID_MAX_LEN * 2 + 1] = {0};
+	char *stored_pol_buff = NULL;
+	char *stored_pol_buff_new = NULL;
+	int stored_pol_buff_len = 0;
+	FILE *f;
 
 	//Check input parameters
 	if (policy_id == NULL)
@@ -228,6 +248,46 @@ bool RPI_flush_policy(char* policy_id)
 
 	if (remove(pol_path) == 0)
 	{
+		//Remove policy ID from stored policies file
+		memset(pol_path, 0, RPI_MAX_STR_LEN * sizeof(char));
+		sprintf(pol_path, "../plugins/storage/platforms/r_pi/policies/stored_policies.txt");
+		f = fopen(pol_path, "r");
+		if (f == NULL)
+		{
+			printf("\nERROR[%s]: Invalid path to stored_policies file.\n", __FUNCTION__);
+			return FALSE;
+		}
+
+		fseek(f, 0L, SEEK_END);
+		stored_pol_buff_len = ftell(f);
+		fseek(f, 0L, SEEK_SET);
+
+		stored_pol_buff = malloc(stored_pol_buff_len * sizeof(char));
+		stored_pol_buff_new = malloc((stored_pol_buff_len - (strlen(pol_id_str) + 1)) * sizeof(char)); //Add +1 for "|"
+
+		fread(stored_pol_buff_len, stored_pol_buff_len, 1, f);
+
+		fclose(f);
+
+		memcpy(stored_pol_buff_new, stored_pol_buff, (strstr(stored_pol_buff, pol_id_str) - stored_pol_buff));
+		memcpy(&stored_pol_buff_new[strstr(stored_pol_buff, pol_id_str) - stored_pol_buff],
+				(strstr(stored_pol_buff, pol_id_str) + (strlen(pol_id_str) + 1)), //Add +1 for "|"
+				(&stored_pol_buff[stored_pol_buff_len] - ((strstr(stored_pol_buff, pol_id_str) + (strlen(pol_id_str) + 1)))));
+
+		f = fopen(pol_path, "w");
+		if (f == NULL)
+		{
+			printf("\nERROR[%s]: Invalid path to stored_policies file.\n", __FUNCTION__);
+			return FALSE;
+		}
+
+		fwrite(stored_pol_buff_new, stored_pol_buff_len - (strlen(pol_id_str) + 1), 1, f); //Add +1 for "|"
+
+		fclose(f);
+
+		free(stored_pol_buff);
+		free(stored_pol_buff_new);
+
 		//Success
 		return TRUE;
 	}
@@ -236,4 +296,56 @@ bool RPI_flush_policy(char* policy_id)
 		//Fail
 		return FALSE;
 	}
+}
+
+int RPI_get_pol_obj_len(char* policy_id)
+{
+	char pol_path[RPI_MAX_STR_LEN] = {0};
+	char pol_id_str[RPI_POL_ID_MAX_LEN * 2 + 1] = {0};
+	char *buffer;
+	int buff_len;
+	int ret = 0;
+	FILE *f;
+
+	//Check input parameters
+	if (policy_id == NULL)
+	{
+		printf("\nERROR[%s]: Bad input parameter.\n", __FUNCTION__);
+		return ret;
+	}
+
+	if (hex_to_str(policy_id, pol_id_str, RPI_POL_ID_MAX_LEN) != UTILS_STRING_SUCCESS)
+	{
+		printf("\nERROR[%s]: Could not convert hex value to string.\n", __FUNCTION__);
+		return ret;
+	}
+
+	//Open file
+	sprintf(pol_path, "../plugins/storage/platforms/r_pi/policies/%s.txt", pol_id_str);
+	f = fopen(pol_path, "r");
+	if (f == NULL)
+	{
+		printf("\nERROR[%s]: Invalid path to file.\n", __FUNCTION__);
+		return ret;
+	}
+
+	//Get file size
+	fseek(f, 0L, SEEK_END);
+	buff_len = ftell(f);
+	fseek(f, 0L, SEEK_SET);
+
+	//Write policy to a buffer
+	buffer = malloc(buff_len * sizeof(char));
+
+	fread(buffer, buff_len * sizeof(char), 1, f);
+	fclose(f);
+
+	ret = &buffer[buff_len] - (strstr(buffer, "policy object:") + strlen("policy object:"));
+
+	return ret;
+}
+
+char* RPI_get_stored_pol_info_file(void)
+{
+	return "../plugins/storage/platforms/r_pi/policies/stored_policies.txt";
 }

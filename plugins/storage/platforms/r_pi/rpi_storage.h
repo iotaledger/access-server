@@ -109,4 +109,26 @@ bool RPI_check_if_stored_policy(char* policy_id);
  */
 bool RPI_flush_policy(char* policy_id);
 
+/**
+ * @fn      RPI_get_pol_obj_len
+ *
+ * @brief   Get length of stored policy's policy object
+ *
+ * @param   policy_id - policy ID
+ *
+ * @return  Length of stored policy's policy object
+ */
+int RPI_get_pol_obj_len(char* policy_id);
+
+/**
+ * @fn      RPI_get_stored_pol_info_file
+ *
+ * @brief   Acquire path to the file which keeps stored policies info
+ *
+ * @param   void
+ *
+ * @return  Path to the file which keeps stored policies info
+ */
+char* RPI_get_stored_pol_info_file(void);
+
 #endif //_RPI_STORAGE_H_

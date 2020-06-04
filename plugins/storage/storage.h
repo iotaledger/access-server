@@ -66,7 +66,7 @@ typedef enum
  * @fn      Storage_init
  *
  * @brief   Initialize storage module
- * 
+ *
  * @param   void
  *
  * @return  STORAGE_error_t state.
@@ -77,7 +77,7 @@ STORAGE_error_t Storage_init(void);
  * @fn      Storage_term
  *
  * @brief   Terminate storage module
- * 
+ *
  * @param   void
  *
  * @return  STORAGE_error_t state.

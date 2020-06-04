@@ -58,6 +58,8 @@ this will have to be adjusted accordingly. */
 #define PAP_PRIVATE_KEY_LEN 64
 #define PAP_SIGNATURE_LEN 64
 
+#define PAP_MAX_STR_LEN 128
+
 #define PAP_STORAGE_TEST_ACIVE 0
 
 /****************************************************************************
@@ -91,7 +93,7 @@ typedef struct policy_id_signature
 	char public_key[PAP_PUBLIC_KEY_LEN];
 } PAP_policy_id_signature_t;
 
-typedef struct PAP_policy_object
+typedef struct policy_object
 {
 	int policy_object_size;
 	char *policy_object;
@@ -105,6 +107,19 @@ typedef struct policy
 	PAP_hash_functions_e hash_function;
 } PAP_policy_t;
 
+typedef struct policy_id_list
+{
+	char policy_ID[PAP_POL_ID_MAX_LEN + 1]; //Consider null character
+	struct policy_id_list *next;
+} PAP_policy_id_list_t;
+
+typedef struct action_list
+{
+	char policy_ID_str[PAP_POL_ID_MAX_LEN * 2 + 1]; //Consider null character
+	char action[PAP_MAX_STR_LEN];
+	struct action_list *next;
+} PAP_action_list_t;
+
 /****************************************************************************
  * CALLBACKS
  ****************************************************************************/
@@ -112,6 +127,8 @@ typedef bool (*put_fn)(char* policy_id, PAP_policy_object_t policy_object, PAP_p
 typedef bool (*get_fn)(char* policy_id, PAP_policy_object_t *policy_object, PAP_policy_id_signature_t *policy_id_signature, PAP_hash_functions_e *hash_fn);
 typedef bool (*has_fn)(char* policy_id);
 typedef bool (*del_fn)(char* policy_id);
+typedef bool (*get_pol_obj_len_fn)(char* policy_id, int *pol_obj_len);
+typedef bool (*get_all_fn)(PAP_policy_id_list_t **pol_list_head); //List acquired here, must be freed by the caller
 #if PAP_STORAGE_TEST_ACIVE
 typedef void (*get_pk)(char* pk);
 #endif
@@ -150,10 +167,12 @@ PAP_error_e PAP_term(void);
  * @param   get - Callback for reading policy data from storage
  * @param   has - Callback for checking if the policy is in the storage
  * @param   del - Callback for deleting policy data from the storage
+ * @param   get_pol_obj_len - Callback for getting stored policy's pol. object len
+ * @param   get_all - Callback for getting all stored policy IDs
  *
  * @return  PAP_error_e error status
  */
-PAP_error_e PAP_register_callbacks(put_fn put, get_fn get, has_fn has, del_fn del);
+PAP_error_e PAP_register_callbacks(put_fn put, get_fn get, has_fn has, del_fn del, get_pol_obj_len_fn get_pol_obj_len, get_all_fn get_all);
 
 /**
  * @fn      PAP_unregister_callbacks
@@ -216,6 +235,32 @@ bool PAP_has_policy(char *policy_id, int policy_id_len);
  * @return  PAP_error_e error status
  */
 PAP_error_e PAP_remove_policy(char *policy_id, int policy_id_len);
+
+/**
+ * @fn      PAP_get_policy_obj_len
+ *
+ * @brief   Get length of the stored policy objected
+ *
+ * @param   policy_id - Policy ID as a string
+ * @param   policy_id_len - Length of the policy ID string
+ * @param   pol_obj_len - Length of the policy object
+ *
+ * @return  PAP_error_e error status
+ */
+PAP_error_e PAP_get_policy_obj_len(char *policy_id, int policy_id_len, int *pol_obj_len);
+
+/**
+ * @fn      PAP_get_subjects_list_of_actions
+ *
+ * @brief   Get list of actions available for specified user
+ *
+ * @param   subject_id - User's ID
+ * @param   subject_id_length - Length of the user ID
+ * @param   action_list - List of available actions (needs to be freed by the caller)
+ *
+ * @return  PAP_error_e error status
+ */
+PAP_error_e PAP_get_subjects_list_of_actions(char *subject_id, int subject_id_length, PAP_action_list_t **action_list);
 
 #if PAP_STORAGE_TEST_ACIVE
 /**

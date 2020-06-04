@@ -42,6 +42,7 @@
 #include "json_parser.h"
 #include "asn_auth_helper.h"
 #include "pep.h"
+#include "pap.h"
 #include "storage.h"
 #include "utils_string.h"
 #include "user.h"
@@ -163,14 +164,13 @@ static int get_server_state()
     return state;
 }
 
-#if 0
-static int append_action_item_to_str(char *str, int pos, list_t *action_item)
+static int append_action_item_to_str(char *str, int pos, PAP_action_list_t *action_item)
 {
     if(action_item == NULL)
     {
         return 0;
     }
-    else if(action_item->policyID == NULL)
+    else if(action_item->policy_ID_str == NULL)
     {
         return 0;
     }
@@ -189,7 +189,7 @@ static int append_action_item_to_str(char *str, int pos, list_t *action_item)
     buffer_position += strlen("\"policy_id\":\"");
 
     // add "policy_id" value
-    hex_to_str(action_item->policyID, str + buffer_position, POL_ID_HEX_LEN);
+    hex_to_str(action_item->policy_ID_str, str + buffer_position, POL_ID_HEX_LEN);
     buffer_position += POL_ID_STR_LEN;
     str[buffer_position++] = '\"';
 
@@ -198,11 +198,12 @@ static int append_action_item_to_str(char *str, int pos, list_t *action_item)
     buffer_position += strlen(",\"action\":\"");
 
     // add "action" value
-    memcpy(str + buffer_position, action_item->action, action_item->action_length);
-    buffer_position += action_item->action_length;
+    memcpy(str + buffer_position, action_item->action, strlen(action_item->action));
+    buffer_position += strlen(action_item->action);
     str[buffer_position++] = '\"';
 
-    int is_paid = PolicyStore_is_policy_paid(action_item->policyID, POL_ID_HEX_LEN);
+/*
+    int is_paid = PolicyStore_is_policy_paid(action_item->policy_ID, POL_ID_HEX_LEN);
 
     // check if "cost" field should be added (add it if policy is not paid)
     if (is_paid == 0)
@@ -216,17 +217,18 @@ static int append_action_item_to_str(char *str, int pos, list_t *action_item)
         buffer_position += action_item->policy_cost_size;
         str[buffer_position++] = '\"';
     }
+*/
 
     str[buffer_position++] = '}';
 
     return buffer_position - pos;
 }
 
-static int list_to_string(list_t *action_list, char *output_str)
+static int list_to_string(PAP_action_list_t *action_list, char *output_str)
 {
     output_str[0] = '[';
     int buffer_position = 1;
-    list_t *action_list_temp = action_list;
+    PAP_action_list_t *action_list_temp = action_list;
 
     while(action_list_temp != NULL)
     {
@@ -239,7 +241,6 @@ static int list_to_string(list_t *action_list, char *output_str)
 
     return buffer_position;
 }
-#endif
 
 static unsigned int doAuthWorkTiny(char **recvData)
 {
@@ -279,9 +280,8 @@ static unsigned int doAuthWorkTiny(char **recvData)
     }
     else if (request_code == COMMAND_GET_POL_LIST)
     {
-        //@FIXME: Will be refactored
-#if 0
-        list_t *action_list = NULL;
+        PAP_action_list_t *action_list = NULL;
+        PAP_action_list_t *temp = NULL;
 
         // index of "user_id" token
         int user_id_index = 0;
@@ -295,7 +295,7 @@ static unsigned int doAuthWorkTiny(char **recvData)
             }
         }
 
-        PolicyStore_get_list_of_actions(*recvData + get_start_of_token(user_id_index), get_size_of_token(user_id_index), &action_list);
+        PAP_get_subjects_list_of_actions(*recvData + get_start_of_token(user_id_index), get_size_of_token(user_id_index), &action_list);
 
         buffer_position = list_to_string(action_list, (char *)send_buffer);
         Dlog_printf("\nResponse: %s\n", send_buffer);
@@ -307,8 +307,12 @@ static unsigned int doAuthWorkTiny(char **recvData)
 
         *recvData = send_buffer;
 
-        PolicyStore_clear_list_of_actions(action_list);
-#endif
+        while (action_list)
+        {
+            temp = action_list;
+            action_list = action_list->next;
+            free(temp);
+        }
     }
     else if (request_code == COMMAND_ENABLE_POLICY)
     {
