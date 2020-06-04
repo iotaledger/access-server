@@ -134,6 +134,14 @@ void wallet_destory(wallet_ctx_t **wallet);
  */
 wallet_err_t wallet_fetch_msg(wallet_ctx_t const *const ctx, char const *const hash, char *msg_buf, size_t len);
 
+/**
+ * @brief Checks if the given transaction has been confirmed.
+ *
+ * @param ctx wallet context
+ * @param tx_hash a transaction hash
+ * @return true
+ * @return false
+ */
 bool wallet_check_confirmation(wallet_ctx_t const *const ctx, char const *const tx_hash);
 
 // TODO wallet monitor
