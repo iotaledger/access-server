@@ -290,9 +290,9 @@ bool wallet_check_confirmation(wallet_ctx_t const *const ctx, char const *const 
   bool is_confirmed = false;
 
   flex_trit_t flex_tx[FLEX_TRIT_SIZE_243];
-  check_consistency_req_t *consistency_req = check_consistency_req_new();
-  check_consistency_res_t *consistency_res = check_consistency_res_new();
-  if (!consistency_req || !consistency_res) {
+  get_inclusion_states_req_t *get_inclusion_req = get_inclusion_states_req_new();
+  get_inclusion_states_res_t *get_inclusion_res = get_inclusion_states_res_new();
+  if (!get_inclusion_req || !get_inclusion_res) {
     printf("Error: OOM\n");
     goto done;
   }
@@ -302,18 +302,21 @@ bool wallet_check_confirmation(wallet_ctx_t const *const ctx, char const *const 
     goto done;
   }
 
-  hash243_queue_push(&consistency_req->tails, flex_tx);
+  if ((client_ret = get_inclusion_states_req_hash_add(get_inclusion_req, flex_tx)) != RC_OK) {
+    printf("Error: adding hash failed.\n");
+    goto done;
+  }
 
-  if ((client_ret = iota_client_check_consistency(ctx->iota_client, consistency_req, consistency_res)) == RC_OK) {
-    is_confirmed = consistency_res->state;
-    printf("wallet_check_confirmation %d\n", is_confirmed);
+  if ((client_ret = iota_client_get_inclusion_states(ctx->iota_client, get_inclusion_req, get_inclusion_res)) ==
+      RC_OK) {
+    is_confirmed = get_inclusion_states_res_states_at(get_inclusion_res, 0);
   } else {
     printf("Error: %s\n", error_2_string(client_ret));
   }
 
 done:
-  check_consistency_req_free(&consistency_req);
-  check_consistency_res_free(&consistency_res);
+  get_inclusion_states_req_free(&get_inclusion_req);
+  get_inclusion_states_res_free(&get_inclusion_res);
   return is_confirmed;
 }
 
@@ -340,7 +343,7 @@ static void *confirmation_service(void *arg) {
       }
 
       time += serv->interval;
-      printf("[%ld] is_confirmed %d\n", pthread_self(), is_confirmed);
+      // printf("[%ld] is_confirmed %d\n", pthread_self(), is_confirmed);
       sleep(serv->interval);
     };
   }
