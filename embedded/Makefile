@@ -156,6 +156,7 @@ SRCS = \
     $(VEHICLE_DATASET)vehicle_datasharing_dataset.c \
     $(NETWORK)network.c \
     $(USER_MANAGEMENT)user.c \
+    $(USER_MANAGEMENT)impls/sqlite3_example/user_impl.c \
     $(MODBUS)modbus.c \
     $(MODBUS)modbus_receiver.c \
     $(FASTJSON)arraylist.c \
@@ -208,6 +209,7 @@ CFLAGS = \
     -I$(VEHICLE_DATASET) \
     -I$(TCP_SERVER) \
     -I$(USER_MANAGEMENT) \
+    -I$(USER_MANAGEMENT)impls/sqlite3_example/ \
     -I$(MODBUS) \
     -I$(FASTJSON) \
     -I$(NETWORK) \
