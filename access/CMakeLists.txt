@@ -19,17 +19,7 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-project(Access)
-
-# Global includes
-include_directories(embedded/include plugins/data/dataset)
-
-add_subdirectory(embedded)
-add_subdirectory(plugins)
-
-add_subdirectory(access)
-
-add_subdirectory(network)
-add_subdirectory(network/asn)
-
-#add_subdirectory(wallet)
+add_subdirectory(pdp)
+add_subdirectory(pip)
+add_subdirectory(pap)
+add_subdirectory(pep)
