@@ -20,12 +20,14 @@
 #ifndef _USER_H_
 #define _USER_H_
 
+#include "user_impl.h"
+
 int User_init();
 void User_deinit();
-void User_get_all(char* response);
-void User_get_obj(const char* id, char* response);
-void User_put_obj(const char* json_string, char* json_response);
-void User_get_user_id(const char* username, char* json_string);
-void User_clear_all(char* response);
+void User_get_all(char* json_response);
+void User_get_obj(const char* username, char* json_response);
+void User_put_obj(const char* user_object, char* json_response);
+void User_get_user_id(const char* username, char* json_response);
+void User_clear_all(char* json_response);
 
 #endif
