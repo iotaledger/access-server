@@ -24,12 +24,8 @@ project(Access)
 # Global includes
 include_directories(embedded/include plugins/data/dataset)
 
-add_subdirectory(embedded)
-add_subdirectory(plugins)
-
 add_subdirectory(access)
-
+add_subdirectory(embedded)
 add_subdirectory(network)
-add_subdirectory(network/asn)
-
+add_subdirectory(plugins)
 #add_subdirectory(wallet)
