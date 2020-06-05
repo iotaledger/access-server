@@ -604,7 +604,6 @@ PAP_error_e PAP_remove_policy(char *policy_id, int policy_id_len)
 PAP_error_e PAP_get_policy_obj_len(char *policy_id, int policy_id_len, int *pol_obj_len)
 {
 	char policy_id_hex[PAP_POL_ID_MAX_LEN + 1] = {0};
-	int pol_obj_len = 0;
 
 	//Check input parameters
 	if (policy_id == NULL || policy_id_len == 0 || pol_obj_len == NULL)
@@ -626,10 +625,10 @@ PAP_error_e PAP_get_policy_obj_len(char *policy_id, int policy_id_len, int *pol_
 	//Get obj. len
 	if (callback_get_pol_obj_len)
 	{
-		callback_get_pol_obj_len(policy_id_hex, &pol_obj_len);
+		callback_get_pol_obj_len(policy_id_hex, pol_obj_len);
 	}
 
-	if (pol_obj_len == 0)
+	if (*pol_obj_len == 0)
 	{
 		printf("\nERROR[%s]: Invalida object length.\n", __FUNCTION__);
 		pthread_mutex_unlock(&pap_mutex);

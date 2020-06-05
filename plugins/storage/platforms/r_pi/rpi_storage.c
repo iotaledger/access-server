@@ -265,7 +265,7 @@ bool RPI_flush_policy(char* policy_id)
 		stored_pol_buff = malloc(stored_pol_buff_len * sizeof(char));
 		stored_pol_buff_new = malloc((stored_pol_buff_len - (strlen(pol_id_str) + 1)) * sizeof(char)); //Add +1 for "|"
 
-		fread(stored_pol_buff_len, stored_pol_buff_len, 1, f);
+		fread(stored_pol_buff, stored_pol_buff_len, 1, f);
 
 		fclose(f);
 
