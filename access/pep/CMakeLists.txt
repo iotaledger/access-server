@@ -19,22 +19,14 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-set(asn_impl ini CACHE STRING "Config manager implementation choice")
+set(target pep)
 
-set(target config_manager)
+set(sources pep.c)
 
-set(sources
-  config_manager.c
-  impls/${config_manager_impl}/config_manager_impl.c)
+set(include_dirs ${CMAKE_CURRENT_SOURCE_DIR})
 
-set(include_dirs
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/impls/${config_manager_impl})
+set(libs pdp)
 
-add_library(${target} ${sources})
+add_library(${target} pep.c)
 target_include_directories(${target} PUBLIC ${include_dirs})
-
-# Config manager implementation test
-set(target config_manager_test)
-add_executable(${target} impls/${config_manager_impl}/test.c)
-target_link_libraries(${target} PUBLIC config_manager)
+target_link_libraries(${target} PUBLIC ${libs})

@@ -19,22 +19,14 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-set(asn_impl ini CACHE STRING "Config manager implementation choice")
-
-set(target config_manager)
+set(target vehicle_dataset)
 
 set(sources
-  config_manager.c
-  impls/${config_manager_impl}/config_manager_impl.c)
+  vehicle_dataset.c
+  vehicle_datasharing_dataset.c)
 
-set(include_dirs
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/impls/${config_manager_impl})
+set(libs json_parser)
 
 add_library(${target} ${sources})
-target_include_directories(${target} PUBLIC ${include_dirs})
-
-# Config manager implementation test
-set(target config_manager_test)
-add_executable(${target} impls/${config_manager_impl}/test.c)
-target_link_libraries(${target} PUBLIC config_manager)
+target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(${target} PUBLIC ${libs})
