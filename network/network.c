@@ -403,7 +403,7 @@ static unsigned int doAuthWorkTiny(char **recvData)
         }
 
         printf("get user\n");
-        PAP_user_management_action(PAP_USERMNG_GET_USER, 2, username, send_buffer);
+        PAP_user_management_action(PAP_USERMNG_GET_USER, username, send_buffer);
         *recvData = send_buffer;
         buffer_position = strlen(send_buffer);
     }
@@ -422,7 +422,7 @@ static unsigned int doAuthWorkTiny(char **recvData)
         }
 
         printf("get_auth_id\n");
-        PAP_user_management_action(PAP_USERMNG_GET_USER_ID, 2, username, send_buffer);
+        PAP_user_management_action(PAP_USERMNG_GET_USER_ID, username, send_buffer);
         *recvData = send_buffer;
         buffer_position = strlen(send_buffer);
     }
@@ -440,21 +440,21 @@ static unsigned int doAuthWorkTiny(char **recvData)
         }
 
         printf("put user\n");
-        PAP_user_management_action(PAP_USERMNG_PUT_USER, 2, user_data, send_buffer);
+        PAP_user_management_action(PAP_USERMNG_PUT_USER, user_data, send_buffer);
         *recvData = send_buffer;
         buffer_position = strlen(send_buffer);
     }
     else if (request_code == COMMAND_GET_ALL_USER)
     {
         printf("get all users\n");
-        PAP_user_management_action(PAP_USERMNG_GET_ALL_USR, 1, send_buffer);
+        PAP_user_management_action(PAP_USERMNG_GET_ALL_USR, send_buffer);
         *recvData = send_buffer;
         buffer_position = strlen(send_buffer);
     }
     else if (request_code == COMMAND_CLEAR_ALL_USER)
     {
         printf("clear all users\n");
-        PAP_user_management_action(PAP_USERMNG_CLR_ALL_USR, 1, send_buffer);
+        PAP_user_management_action(PAP_USERMNG_CLR_ALL_USR, send_buffer);
         *recvData = send_buffer;
         buffer_position = strlen(send_buffer);
     }

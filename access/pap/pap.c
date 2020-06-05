@@ -609,12 +609,11 @@ void PAP_register_get_pk_cb(get_pk cb)
 }
 #endif
 
-void PAP_user_management_action(PAP_user_mng_req_e request, int arg_num, ...)
+void PAP_user_management_action(PAP_user_mng_req_e request, ...)
 {
     va_list valist;
 
-    //Initialize valist for num number of argument
-    va_start(valist, arg_num);
+    va_start(valist, request);
 
     //Ceck request
     switch (request)

@@ -247,10 +247,9 @@ void PAP_register_get_pk_cb(get_pk cb);
  * @brief   Access User Management API
  *
  * @param   request - Request User Management's action
- * @param   arg_num - Number of arguments (not counting request and arg_num)
  * @param   others - Action depended
  *
  * @return  void
  */
-void PAP_user_management_action(PAP_user_mng_req_e request, int arg_num, ...);
+void PAP_user_management_action(PAP_user_mng_req_e request, ...);
 #endif //_PAP_H_
