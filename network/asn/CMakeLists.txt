@@ -21,10 +21,7 @@ cmake_minimum_required(VERSION 3.11)
 
 set(target asn)
 
-# Set libCrypto (ssl) as default implementation
-if(NOT DEFINED ${asn_impl})
-set(asn_impl libCrypto)
-endif()
+set(asn_impl libCrypto CACHE STRING "ASN implementation choice")
 
 set(libs json_parser cryptography)
 

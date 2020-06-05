@@ -19,10 +19,7 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-# Config manager default implementation choice
-if(NOT DEFINED ${config_manager_impl})
-set(config_manager_impl ini)
-endif()
+set(asn_impl ini CACHE STRING "Config manager implementation choice")
 
 set(target config_manager)
 
