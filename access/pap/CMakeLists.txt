@@ -21,10 +21,8 @@ cmake_minimum_required(VERSION 3.11)
 
 set(target pap)
 
-# User management default implementation choice
-if(NOT DEFINED ${user_management_impl})
-set(user_management_impl sqlite3_example)
-endif()
+set(user_management_impl sqlite3_example CACHE STRING
+  "User management implementation choice")
 
 set(sources
   pap.c
