@@ -59,6 +59,8 @@ this will have to be adjusted accordingly. */
 #define PAP_SIGNATURE_LEN 64
 
 #define PAP_MAX_STR_LEN 128
+#define PAP_MAX_COST_LEN 64
+#define PAP_WALLET_ADDR_LEN 81
 
 #define PAP_STORAGE_TEST_ACIVE 0
 
@@ -83,6 +85,13 @@ typedef enum
 	PAP_SHA_256
 } PAP_hash_functions_e;
 
+typedef enum
+{
+	PAP_NOT_PAYED,
+	PAP_PAYED_PENDING,
+	PAP_PAYED_VERIFIED
+} PAP_payment_state_e;
+
 /****************************************************************************
  * TYPES
  ****************************************************************************/
@@ -93,10 +102,18 @@ typedef struct policy_id_signature
 	char public_key[PAP_PUBLIC_KEY_LEN];
 } PAP_policy_id_signature_t;
 
+typedef struct policy_value
+{
+	PAP_payment_state_e is_payed;
+	char cost[PAP_MAX_COST_LEN];
+	char wallet_address[PAP_WALLET_ADDR_LEN];
+} PAP_policy_value_t;
+
 typedef struct policy_object
 {
 	int policy_object_size;
 	char *policy_object;
+	char cost[PAP_MAX_COST_LEN];
 } PAP_policy_object_t;
 
 typedef struct policy
@@ -117,6 +134,7 @@ typedef struct action_list
 {
 	char policy_ID_str[PAP_POL_ID_MAX_LEN * 2 + 1]; //Consider null character
 	char action[PAP_MAX_STR_LEN];
+	PAP_policy_value_t is_available;
 	struct action_list *next;
 } PAP_action_list_t;
 

@@ -57,6 +57,7 @@
  * @param   policy_id - policy ID
  * @param   policy_object - policy object
  * @param   policy_object_size - policy object size
+ * @param   policy_cost - policy cost
  * @param   signature - policy ID signature
  * @param   public_key - public key for policy ID signature
  * @param   signature_algorithm - policy ID signature algorithm
@@ -65,8 +66,8 @@
  * @return  TRUE - success, FALSE - error
  */
 bool RPI_store_policy(char* policy_id, char* policy_object, int policy_object_size,
-						char* signature, char* public_key, char* signature_algorithm,
-						char* hash_function);
+						char* policy_cost, char* signature, char* public_key,
+						char* signature_algorithm, char* hash_function);
 
 /**
  * @fn      RPI_acquire_policy
@@ -76,6 +77,7 @@ bool RPI_store_policy(char* policy_id, char* policy_object, int policy_object_si
  * @param   policy_id - policy ID
  * @param   policy_object - policy object
  * @param   policy_object_size - policy object size
+ * @param   policy_cost - policy cost
  * @param   signature - policy ID signature
  * @param   public_key - public key for policy ID signature
  * @param   signature_algorithm - policy ID signature algorithm
@@ -83,9 +85,9 @@ bool RPI_store_policy(char* policy_id, char* policy_object, int policy_object_si
  *
  * @return  TRUE - success, FALSE - error
  */
-bool RPI_acquire_policy(char* policy_id, char* policy_object, int* policy_object_size,
-						char* signature, char* public_key, char* signature_algorithm,
-						char* hash_function);
+bool RPI_acquire_policy(char* policy_id, char* policy_object, int *policy_object_size,
+						char* policy_cost, char* signature, char* public_key,
+						char* signature_algorithm, char* hash_function);
 
 /**
  * @fn      RPI_check_if_stored_policy

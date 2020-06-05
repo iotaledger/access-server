@@ -51,16 +51,16 @@
  * API FUNCTIONS
  ****************************************************************************/
 bool RPI_store_policy(char* policy_id, char* policy_object, int policy_object_size,
-						char* signature, char* public_key, char* signature_algorithm,
-						char* hash_function)
+						char* policy_cost, char* signature, char* public_key,
+						char* signature_algorithm, char* hash_function)
 {
 	char pol_path[RPI_MAX_STR_LEN] = {0};
 	char pol_id_str[RPI_POL_ID_MAX_LEN * 2 + 1] = {0};
 	FILE *f = NULL;
 
 	//Check input parameters
-	if ((policy_id == NULL) || (policy_object == NULL) || (policy_object_size == 0) || (signature == NULL) ||
-		(public_key == NULL) || (signature_algorithm == NULL) || (hash_function == NULL))
+	if ((policy_id == NULL) || (policy_object == NULL) || (policy_object_size == 0) || (policy_cost == NULL) ||
+		(signature == NULL) || (public_key == NULL) || (signature_algorithm == NULL) || (hash_function == NULL))
 	{
 		printf("\nERROR[%s]: Bad input parameter.\n", __FUNCTION__);
 		return FALSE;
@@ -85,6 +85,8 @@ bool RPI_store_policy(char* policy_id, char* policy_object, int policy_object_si
 	fwrite(pol_id_str, strlen(pol_id_str), 1, f);
 	fwrite("\npolicy object:", strlen("\npolicy object:"), 1, f);
 	fwrite(policy_object, policy_object_size, 1, f);
+	fwrite("\npolicy cost:", strlen("\npolicy cost:"), 1, f);
+	fwrite(policy_cost, strlen(policy_cost), 1, f);
 	fwrite("\npolicy id signature:", strlen("\npolicy id signature:"), 1, f);
 	fwrite(signature, strlen(signature), 1, f);
 	fwrite("\npolicy id signature public key:", strlen("\npolicy id signature public key:"), 1, f);
@@ -116,8 +118,8 @@ bool RPI_store_policy(char* policy_id, char* policy_object, int policy_object_si
 }
 
 bool RPI_acquire_policy(char* policy_id, char* policy_object, int *policy_object_size,
-						char* signature, char* public_key, char* signature_algorithm,
-						char* hash_function)
+						char* policy_cost, char* signature, char* public_key,
+						char* signature_algorithm, char* hash_function)
 {
 	char pol_path[RPI_MAX_STR_LEN] = {0};
 	char pol_id_str[RPI_POL_ID_MAX_LEN * 2 + 1] = {0};
@@ -128,8 +130,8 @@ bool RPI_acquire_policy(char* policy_id, char* policy_object, int *policy_object
 	FILE *f;
 
 	//Check input parameters
-	if ((policy_id == NULL) || (policy_object == NULL) || (policy_object_size == NULL) || (signature == NULL) ||
-		(public_key == NULL) || (signature_algorithm == NULL) || (hash_function == NULL))
+	if ((policy_id == NULL) || (policy_object == NULL) || (policy_object_size == NULL) || (policy_cost == NULL) ||
+		(signature == NULL) || (public_key == NULL) || (signature_algorithm == NULL) || (hash_function == NULL))
 	{
 		printf("\nERROR[%s]: Bad input parameter.\n", __FUNCTION__);
 		return FALSE;
@@ -163,10 +165,14 @@ bool RPI_acquire_policy(char* policy_id, char* policy_object, int *policy_object
 
 	//Set the arguments
 	substr = strstr(buffer, "policy object:");
-	substr_len = strstr(buffer, "\npolicy id signature:") - (substr + strlen("policy object:"));
+	substr_len = strstr(buffer, "\npolicy cost:") - (substr + strlen("policy object:"));
 	memcpy(policy_object, substr + strlen("policy object:"), substr_len);
 
 	*policy_object_size = substr_len;
+
+	substr = strstr(buffer, "policy cost:");
+	substr_len = strstr(buffer, "\npolicy id signature:") - (substr + strlen("policy cost:"));
+	memcpy(policy_cost, substr + strlen("policy cost:"), substr_len);
 
 	substr = strstr(buffer, "policy id signature:");
 	substr_len = strstr(buffer, "\npolicy id signature public key:") - (substr + strlen("policy id signature:"));

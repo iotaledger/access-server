@@ -92,8 +92,8 @@ bool store_policy(char* policy_id, PAP_policy_object_t policy_object, PAP_policy
 
 	//Call function for storing policy on used platform
 #ifdef USE_RPI
-	return RPI_store_policy(policy_id, policy_object.policy_object, policy_object.policy_object_size,
-						policy_id_signature.signature, policy_id_signature.public_key, sign_algorithm, hash_function);
+	return RPI_store_policy(policy_id, policy_object.policy_object, policy_object.policy_object_size, policy_object.cost,
+							policy_id_signature.signature, policy_id_signature.public_key, sign_algorithm, hash_function);
 #else
 	//TODO: Support for other platforms will be added here
 #endif
@@ -113,8 +113,9 @@ bool acquire_policy(char* policy_id, PAP_policy_object_t* policy_object, PAP_pol
 
 	//Call function for storing policy on used platform
 #ifdef USE_RPI
-	if (RPI_acquire_policy(policy_id, policy_object->policy_object, &(policy_object->policy_object_size), policy_id_signature->signature,
-							policy_id_signature->public_key, sign_algorithm, hash_function) == FALSE)
+	if (RPI_acquire_policy(policy_id, policy_object->policy_object, &(policy_object->policy_object_size), policy_object->cost,
+							policy_id_signature->signature, policy_id_signature->public_key, sign_algorithm, 
+							hash_function) == FALSE)
 	{
 		printf("\nERROR[%s]: Could not acquire policy from R-Pi.\n", __FUNCTION__);
 		return FALSE;

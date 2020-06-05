@@ -392,6 +392,13 @@ PAP_error_e PAP_add_policy(char *signed_policy, int signed_policy_size, char *pa
 			policy_object.policy_object_size = policy_object_norm_len;
 		}
 
+		//Get policy cost
+		if (strncmp(&policy[tokens[i].start], "cost", strlen("cost")) == 0)
+		{
+			memset(policy_object.cost, 0, PAP_MAX_COST_LEN * sizeof(char));
+			memcpy(policy_object.cost, &policy[tokens[i + 1].start], (tokens[i + 1].end - tokens[i + 1].start));
+		}
+
 		//Get hash_fn
 		if (strncmp(&policy[tokens[i].start], "hash_function", strlen("hash_function")) == 0)
 		{
@@ -753,6 +760,8 @@ PAP_error_e PAP_get_subjects_list_of_actions(char *subject_id, int subject_id_le
 
 			memcpy(action_elem->action, policy_object.policy_object + tokens[action].start, tokens[action].end - tokens[action].start);
 			memcpy(action_elem->policy_ID_str, pol_id_str, PAP_POL_ID_MAX_LEN * 2);
+			memcpy(action_elem->is_available.cost, policy_object.cost, strlen(policy_object.cost));
+			//@TODO: Fill wallet address and is payed status
 			action_elem->next = NULL;
 
 			if (*action_list == NULL)

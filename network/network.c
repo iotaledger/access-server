@@ -202,22 +202,27 @@ static int append_action_item_to_str(char *str, int pos, PAP_action_list_t *acti
     buffer_position += strlen(action_item->action);
     str[buffer_position++] = '\"';
 
-/*
-    int is_paid = PolicyStore_is_policy_paid(action_item->policy_ID, POL_ID_HEX_LEN);
-
     // check if "cost" field should be added (add it if policy is not paid)
-    if (is_paid == 0)
+    if (action_item->is_available.is_payed == PAP_NOT_PAYED)
     {
         // add "cost"
         memcpy(str + buffer_position, ",\"cost\":\"", strlen(",\"cost\":\""));
         buffer_position += strlen(",\"cost\":\"");
 
         // add "cost" value
-        memcpy(str + buffer_position, action_item->policy_cost, action_item->policy_cost_size);
-        buffer_position += action_item->policy_cost_size;
+        memcpy(str + buffer_position, action_item->is_available.cost, strlen(action_item->is_available.cost));
+        buffer_position += strlen(action_item->is_available.cost);
+        str[buffer_position++] = '\"';
+
+        // add wallet address
+        memcpy(str + buffer_position, ",\"wallet address\":\"", strlen(",\"wallet address\":\""));
+        buffer_position += strlen(",\"wallet address\":\"");
+
+        // add wallet address value
+        memcpy(str + buffer_position, action_item->is_available.wallet_address, PAP_WALLET_ADDR_LEN);
+        buffer_position += PAP_WALLET_ADDR_LEN;
         str[buffer_position++] = '\"';
     }
-*/
 
     str[buffer_position++] = '}';
 
