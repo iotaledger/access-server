@@ -21,33 +21,33 @@
 
 int User_init()
 {
-    return UserImpl_init_cb();
+    return UserImplementation_init_cb();
 }
 
 void User_deinit()
 {
-    UserImpl_deinit_cb();
+    UserImplementation_deinit_cb();
 }
 
 void User_get_all(char* json_response)
 {
-    UserImpl_get_all_cb(json_response);
+    UserImplementation_get_all_cb(json_response);
 }
 
 void User_get_obj(const char* username, char* json_response)
 {
-    UserImpl_get_obj_cb(username, json_response);
+    UserImplementation_get_obj_cb(username, json_response);
 }
 
 void User_put_obj(const char* user_object, char* json_response)
 {
-    UserImpl_put_obj_cb(user_object, json_response);
+    UserImplementation_put_obj_cb(user_object, json_response);
 }
 void User_get_user_id(const char* username, char* json_response)
 {
-    UserImpl_get_user_id_cb(username, json_response);
+    UserImplementation_get_user_id_cb(username, json_response);
 }
 void User_clear_all(char* json_response)
 {
-    UserImpl_clear_all_cb(json_response);
+    UserImplementation_clear_all_cb(json_response);
 }

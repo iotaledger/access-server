@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-#include "user_impl.h"
+#include "user_implementation.h"
 
 #include <string.h>
 
@@ -162,7 +162,7 @@ static int init_table()
     return 0;
 }
 
-int UserImpl_init_cb()
+int UserImplementation_init_cb()
 {
     int rc = sqlite3_open("users.db", &users_db);
 
@@ -191,12 +191,12 @@ int UserImpl_init_cb()
     return 0;
 }
 
-void UserImpl_deinit_cb()
+void UserImplementation_deinit_cb()
 {
     sqlite3_close(users_db);
 }
 
-void UserImpl_get_all_cb(char* response)
+void UserImplementation_get_all_cb(char* response)
 {
     fjson_object* fjobj_response = fjson_object_new_array();
     int rc = query_helper("SELECT username, publicId FROM users", get_all_cb, fjobj_response);
@@ -214,7 +214,7 @@ void UserImpl_get_all_cb(char* response)
     strncpy(response, fjson_object_to_json_string(fjobj_resp), QUERY_STR_MAX);
 }
 
-void UserImpl_get_obj_cb(const char* username, char* response)
+void UserImplementation_get_obj_cb(const char* username, char* response)
 {
     fjson_object* fjobj_response = fjson_object_new_object();
     snprintf(query_string, QUERY_STR_MAX, "SELECT * FROM users WHERE username = '%s'", username);
@@ -241,7 +241,7 @@ static jsmntok_t t[JSMN_TOK_MAX];
 
 static char response[RESPONSE_LEN];
 
-void UserImpl_put_obj_cb(const char* json_string, char* json_response)
+void UserImplementation_put_obj_cb(const char* json_string, char* json_response)
 {
     jsmn_init(&p);
     size_t r = jsmn_parse(&p, json_string, strlen(json_string), t, JSMN_TOK_MAX);
@@ -309,7 +309,7 @@ void UserImpl_put_obj_cb(const char* json_string, char* json_response)
     fjson_object_put(fjobj_resp);
 }
 
-void UserImpl_get_user_id_cb(const char* username, char* json_string)
+void UserImplementation_get_user_id_cb(const char* username, char* json_string)
 {
     fjson_object* fjobj_response = fjson_object_new_object();
     snprintf(query_string, QUERY_STR_MAX, "SELECT userId FROM users WHERE username = '%s'", username);
@@ -342,12 +342,12 @@ void UserImpl_get_user_id_cb(const char* username, char* json_string)
     strncpy(json_string, fjson_object_to_json_string(fjobj_resp), QUERY_STR_MAX);
 }
 
-void UserImpl_clear_all_cb(char* response)
+void UserImplementation_clear_all_cb(char* response)
 {
     int count = 0;
     int rc = query_helper("DROP TABLE users", count_cb, &count);
-    UserImpl_deinit_cb();
-    UserImpl_init_cb(NULL, 0, NULL);
+    UserImplementation_deinit_cb();
+    UserImplementation_init_cb(NULL, 0, NULL);
     fjson_object* fjobj_resp = fjson_object_new_object();
     create_json_response(fjobj_resp, NULL, 0, "");
     strncpy(response, fjson_object_to_json_string(fjobj_resp), QUERY_STR_MAX);

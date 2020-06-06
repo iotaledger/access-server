@@ -43,7 +43,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include "pap.h"
-#define JSMN_HEADER //jsmn library bug workaround
+#define JSMN_HEADER
 #include "jsmn.h"
 #include "utils_string.h"
 #include "apiorig.h"

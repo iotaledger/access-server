@@ -38,9 +38,9 @@ typedef struct {
     ConfigManager_token_type_t level;
 } ConfigManager_token_t;
 
-int ConfigManagerImpl_init_cb(void* in_parameter);
-int ConfigManagerImpl_get_string_cb(const char* module_name, const char* option_name, char* option_value, size_t option_value_size);
-int ConfigManagerImpl_get_int_cb(const char* module_name, const char* option_name, int* option_value);
-int ConfigManagerImpl_get_float_cb(const char* module_name, const char* option_name, float* option_value);
+int ConfigManagerImplementation_init_cb(void* in_parameter);
+int ConfigManagerImplementation_get_string_cb(const char* module_name, const char* option_name, char* option_value, size_t option_value_size);
+int ConfigManagerImplementation_get_int_cb(const char* module_name, const char* option_name, int* option_value);
+int ConfigManagerImplementation_get_float_cb(const char* module_name, const char* option_name, float* option_value);
 
 #endif

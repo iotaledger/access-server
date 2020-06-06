@@ -21,13 +21,13 @@ cmake_minimum_required(VERSION 3.11)
 
 set(target pap)
 
-set(user_management_impl sqlite3_example CACHE STRING
+set(user_management_implementation sqlite3_example CACHE STRING
   "User management implementation choice")
 
 set(sources
   pap.c
   user/user.c
-  user/impls/${user_management_impl}/user_impl.c
+  user/implementations/${user_management_implementation}/user_impl.c
   validator/parser.c
   validator/validator.c)
 
@@ -35,7 +35,7 @@ set(include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/validator
   ${CMAKE_CURRENT_SOURCE_DIR}/user
-  ${CMAKE_CURRENT_SOURCE_DIR}/user/impls/${user_management_impl})
+  ${CMAKE_CURRENT_SOURCE_DIR}/user/implementations/${user_management_implementation})
 
 set(libs
   json_parser

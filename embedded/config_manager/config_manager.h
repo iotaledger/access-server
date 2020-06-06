@@ -21,7 +21,7 @@
 #define _CONFIG_MANAGER_H_
 
 #include "config_manager_cmn.h"
-#include "config_manager_impl.h"
+#include "config_manager_implementation.h"
 
 int ConfigManager_init(void* in_parameter);
 int ConfigManager_get_option_string(const char* module_name, const char* option_name, char* option_value, size_t option_size);
