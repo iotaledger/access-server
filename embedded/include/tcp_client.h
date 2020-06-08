@@ -32,5 +32,3 @@
  ****************************************************************************/
 
 int tcp_client_send(char *msg, int msg_length, char *rec, int *rec_length, char *servip, int port);
-
-int read_AWS_response(void *ext, char *recvBuffer);
