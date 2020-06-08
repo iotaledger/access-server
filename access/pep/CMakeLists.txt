@@ -25,7 +25,9 @@ set(sources pep.c)
 
 set(include_dirs ${CMAKE_CURRENT_SOURCE_DIR})
 
-set(libs pdp)
+set(libs
+  access_wallet
+  pdp)
 
 add_library(${target} pep.c)
 target_include_directories(${target} PUBLIC ${include_dirs})

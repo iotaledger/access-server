@@ -135,11 +135,11 @@ static int action_resolve(resolver_action_data_t* action, int should_log)
     char buf[RES_BUFF_LEN];
     int retval = -1;
 
-    if (0 == memcmp(action, "start_ds_", strlen("start_ds_") - 1))
+    if (0 == memcmp(action->value, "start_ds_", strlen("start_ds_") - 1))
     {
-        retval = start_data_sharing(action, action->stop_time);
+        retval = start_data_sharing(action->value, action->stop_time);
     }
-    else if (0 == memcmp(action, "stop_ds", strlen("stop_ds")))
+    else if (0 == memcmp(action->value, "stop_ds", strlen("stop_ds")))
     {
         retval = stop_data_sharing();
     }
