@@ -20,6 +20,7 @@
 cmake_minimum_required(VERSION 3.11)
 
 add_subdirectory(asn)
+add_subdirectory(policy_updater)
 
 set(target network)
 

@@ -25,7 +25,6 @@ add_subdirectory(CpuGeneric/crypto)
 add_subdirectory(CpuGeneric/jsmn)
 add_subdirectory(CpuGeneric/libfastjson)
 add_subdirectory(include)
-add_subdirectory(modules/AWS_daemon)
 
 set(target main)
 
