@@ -58,6 +58,7 @@ set(wallet_libs
   mbedtls
   mbedcrypto
   mbedx509
+  m
 )
 
 target_link_libraries(access_wallet PUBLIC ${wallet_libs})
