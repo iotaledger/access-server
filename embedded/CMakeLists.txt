@@ -42,7 +42,7 @@ set(libs
   resolver
   pap
   network
-  psdaemon
+  policy_updater
   legacy_modules
   fastjson)
 

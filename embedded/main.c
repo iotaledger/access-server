@@ -45,7 +45,7 @@
 #include "modbus_receiver.h"
 #include "wallet.h"
 
-#include "psDaemon.h"
+#include "policy_updater.h"
 
 #include <time.h>
 #include "globals_declarations.h"

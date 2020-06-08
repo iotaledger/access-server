@@ -17,27 +17,12 @@
  * limitations under the License.
  */
 
-/****************************************************************************
- * \project Decentralized Access Control
- * \file psDaemon.c
- * \brief
- * Implementation of the policy store daemon
- *
- * @Author Nikola Kuzmanovic
- *
- * \notes
- *
- * \history
- * 04.09.2018. Initial version.
- ****************************************************************************/
-
-////////////////////////
 #include <string.h>
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <stdlib.h>
 
-#include "psDaemon.h"
+#include "policy_updater.h"
 
 #include "Dlog.h"
 #include "pap.h"

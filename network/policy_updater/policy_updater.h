@@ -17,22 +17,8 @@
  * limitations under the License.
  */
 
-/****************************************************************************
- * \project Decentralized Access Control
- * \file psDaemon.h
- * \brief
- * Implementation of the policy store daemon
- *
- * @Author Nikola Kuzmanovic
- *
- * \notes
- *
- * \history
- * 01.10.2018. Initial version.
- ****************************************************************************/
-
-#ifndef _PSDAEMON_H_
-#define _PSDAEMON_H_
+#ifndef _POLICY_UPDATER_H_
+#define _POLICY_UPDATER_H_
 
 
 #define AWS_REQ_GET_LIST_SIZE (256)
