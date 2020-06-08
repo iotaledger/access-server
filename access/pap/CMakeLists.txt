@@ -27,7 +27,7 @@ set(user_management_implementation sqlite3_example CACHE STRING
 set(sources
   pap.c
   user/user.c
-  user/implementations/${user_management_implementation}/user_impl.c
+  user/implementations/${user_management_implementation}/user_implementation.c
   validator/parser.c
   validator/validator.c)
 
