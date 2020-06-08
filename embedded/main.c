@@ -23,7 +23,6 @@
 #include <errno.h>
 #include <string.h>
 #include <sys/types.h>
-#include <pthread.h>
 #include <signal.h>
 
 #include "pep.h"
@@ -75,8 +74,6 @@ static int end = 0;
 static volatile int running = 1;
 static void signal_handler(int _) { running = 0; }
 
-static void *AWS(void *arg);
-
 static pthread_mutex_t *json_mutex;
 
 static Dataset_state_t vdstate = {0};
@@ -89,7 +86,6 @@ int main(int argc, char** argv)
 {
     signal(SIGINT, signal_handler);
     sigaction(SIGPIPE, &(struct sigaction){SIG_IGN}, NULL);
-    pthread_t AWSthread;
     int using_can = 0;
     int using_gps = 0;
     int using_obdii = 0;
@@ -105,7 +101,7 @@ int main(int argc, char** argv)
 
     ConfigManager_get_option_string("config", "client", client_name, MAX_CLIENT_NAME);
 
-    PSDaemon_init();
+    PolicyUpdater_init();
     device_wallet = wallet_create(NODE_URL, NODE_PORT, NULL, NODE_DEPTH, NODE_MWM, WALLET_SEED);
 
     printf("Program start\n\n");
@@ -176,24 +172,16 @@ int main(int argc, char** argv)
         end = 1;
     }
 
-    /* create a third thread which executes server */
-    if (running != 0 && pthread_create(&AWSthread, NULL, AWS, NULL))
+    if (running != 0)
     {
-        fprintf(stderr, "Error creating AWS thread\n");
-        running = 0;
-        end = 1;
+        PolicyUpdater_start();
     }
 
     while (running == 1) usleep(g_task_sleep_time);
 
     end = 1;
 
-    /* wait for the third thread to finish */
-    if (pthread_join(AWSthread, NULL))
-    {
-        fprintf(stderr, "Error joining thread\n");
-        return 2;
-    }
+    PolicyUpdater_stop();
 
     /* wait for the second thread to finish */
     TCPServer_stop();
@@ -215,22 +203,4 @@ int main(int argc, char** argv)
     printf("             done...\n");
 
     return 0;
-}
-
-static void *AWS(void *arg)
-{
-    int period_counter = 0;
-    while(!end)
-    {
-        //pthread_mutex_lock(&lock);
-
-        if (period_counter++ == (5000000 / g_task_sleep_time) || (5000000 / g_task_sleep_time) == 0) { // 5 seconds
-            period_counter = 0;
-            PSDaemon_do_work();
-        }
-
-        //pthread_mutex_unlock(&lock);
-
-        usleep(g_task_sleep_time);
-    }
 }

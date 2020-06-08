@@ -20,28 +20,8 @@
 #ifndef _POLICY_UPDATER_H_
 #define _POLICY_UPDATER_H_
 
+void PolicyUpdater_init();
+int PolicyUpdater_start();
+int PolicyUpdater_stop();
 
-#define AWS_REQ_GET_LIST_SIZE (256)
-
-#define AWS_REPLY_LIST_SIZE   (1024)
-
-#define AWS_REPLY_POLICY_SIZE (2048)
-
-/* PSD_STAGES */
-#define PSD_ERROR            (0)
-#define PSD_INIT             (1)
-#define PSD_GET_PL           (2)
-#define PSD_GET_PL_DONE      (3)
-#define PSD_GET_PSS          (4)
-#define PSD_GET_PSS_DONE     (5)
-
-#define PSD_STANDARD_TIMEOUT (2)
-#define PSD_LONG_TIMEOUT     (40)
-
-void PSDaemon_init();
-int PSDaemon_do_work();
-void PSDaemon_set_policy_store_address(const char* address);
-void PSDaemon_set_policy_store_port(int port);
-void PSDaemon_set_device_id(const char* new_device_id);
-
-#endif /* _PSDAEMON_H_ */
+#endif /* _POLICY_UPDATER_H_ */
