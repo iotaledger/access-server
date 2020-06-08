@@ -37,6 +37,10 @@ link_directories("${CMAKE_INSTALL_PREFIX}/lib")
 # your source files
 add_library(access_wallet "wallet.c" "wallet_errors.c")
 
+target_link_directories(access_wallet PUBLIC
+  "${CMAKE_INSTALL_PREFIX}/lib"
+  "${iota.c_BUILD_DIR}")
+
 target_include_directories(access_wallet PUBLIC
   "${PROJECT_SOURCE_DIR}"
   "${CMAKE_INSTALL_PREFIX}/include"
