@@ -21,26 +21,26 @@ cmake_minimum_required(VERSION 3.11)
 
 set(target asn)
 
-set(asn_impl libCrypto CACHE STRING "ASN implementation choice")
+set(asn_implementation libCrypto CACHE STRING "ASN implementation choice")
 
 set(libs json_parser cryptography)
 
 # Depends on system libcrypto for libCrypto (ssl) variant
-if(asn_impl STREQUAL libCrypto)
+if(asn_implementation STREQUAL libCrypto)
 set(libs ${libs} -lcrypto)
 endif()
 
 set(sources
   asn_auth.c
   asn_auth_helper.c
-  implementations/${asn_impl}/asn_client.c
-  implementations/${asn_impl}/asn_server.c
-  implementations/${asn_impl}/asn_client.c
-  implementations/${asn_impl}/asn_utils.c)
+  implementations/${asn_implementation}/asn_client.c
+  implementations/${asn_implementation}/asn_server.c
+  implementations/${asn_implementation}/asn_client.c
+  implementations/${asn_implementation}/asn_utils.c)
 
 set(include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/implementations/${asn_impl})
+  ${CMAKE_CURRENT_SOURCE_DIR}/implementations/${asn_implementation})
 
 add_library(${target} ${sources})
 target_include_directories(${target} PUBLIC ${include_dirs})

@@ -19,22 +19,22 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-set(config_manager_impl ini CACHE STRING "Config manager implementation choice")
+set(config_manager_implementation ini CACHE STRING "Config manager implementation choice")
 
 set(target config_manager)
 
 set(sources
   config_manager.c
-  impls/${config_manager_impl}/config_manager_impl.c)
+  implementations/${config_manager_implementation}/config_manager_implementation.c)
 
 set(include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/impls/${config_manager_impl})
+  ${CMAKE_CURRENT_SOURCE_DIR}/implementations/${config_manager_implementation})
 
 add_library(${target} ${sources})
 target_include_directories(${target} PUBLIC ${include_dirs})
 
 # Config manager implementation test
 set(target config_manager_test)
-add_executable(${target} impls/${config_manager_impl}/test.c)
+add_executable(${target} implementations/${config_manager_implementation}/test.c)
 target_link_libraries(${target} PUBLIC config_manager)

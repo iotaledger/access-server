@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-#include "config_manager_impl.h"
+#include "config_manager_implementation.h"
 #include "config_manager_cmn.h"
 
 #include "utils.h"
@@ -36,7 +36,7 @@ typedef struct CfgMgr {
 
 ConfigManager_t g_config = {0};
 
-int ConfigManagerImpl_init_cb(void* in_parameter)
+int ConfigManagerImplementation_init_cb(void* in_parameter)
 {
     ConfigManager_t *configuration = &g_config;
     const char* config_file = (const char*)in_parameter;
@@ -120,7 +120,7 @@ int ConfigManagerImpl_init_cb(void* in_parameter)
     return CONFIG_MANAGER_OK;
 }
 
-int ConfigManagerImpl_get_string_cb(const char* module_name, const char* option_name, char* option_value, size_t option_value_size)
+int ConfigManagerImplementation_get_string_cb(const char* module_name, const char* option_name, char* option_value, size_t option_value_size)
 {
     ConfigManager_t *configuration = &g_config;
     int found_module = -1;
@@ -160,11 +160,11 @@ int ConfigManagerImpl_get_string_cb(const char* module_name, const char* option_
     return CONFIG_MANAGER_OK;
 }
 
-int ConfigManagerImpl_get_int_cb(const char* module_name, const char* option_name, int* option_value)
+int ConfigManagerImplementation_get_int_cb(const char* module_name, const char* option_name, int* option_value)
 {
     const size_t string_value_len = 32;
     char string_value[string_value_len];
-    int status = ConfigManagerImpl_get_string_cb(module_name, option_name, string_value, string_value_len);
+    int status = ConfigManagerImplementation_get_string_cb(module_name, option_name, string_value, string_value_len);
     if (CONFIG_MANAGER_OK != status) return status;
 
     *option_value = atoi(string_value);
@@ -172,11 +172,11 @@ int ConfigManagerImpl_get_int_cb(const char* module_name, const char* option_nam
     return CONFIG_MANAGER_OK;
 }
 
-int ConfigManagerImpl_get_float_cb(const char* module_name, const char* option_name, float* option_value)
+int ConfigManagerImplementation_get_float_cb(const char* module_name, const char* option_name, float* option_value)
 {
     const size_t string_value_len = 32;
     char string_value[string_value_len];
-    int status = ConfigManagerImpl_get_string_cb(module_name, option_name, string_value, string_value_len);
+    int status = ConfigManagerImplementation_get_string_cb(module_name, option_name, string_value, string_value_len);
     if (CONFIG_MANAGER_OK != status) return status;
 
     *option_value = atof(string_value);
