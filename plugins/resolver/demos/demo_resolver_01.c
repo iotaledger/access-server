@@ -81,7 +81,7 @@ static int demo01_open_trunk(resolver_action_data_t *action, int should_log)
 static int demo_01_transfer_tokens(resolver_action_data_t *action, int should_log)
 {
     char bundle[81];
-    wallet_send(action->wallet_context, action->wallet_address, action->balance, NULL, bundle);
+    wallet_send(action->device_wallet_context, action->wallet_address, action->balance, NULL, bundle);
     return 0;
 }
 

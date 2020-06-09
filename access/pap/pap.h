@@ -38,6 +38,7 @@
 #include <stdint.h>
 #include <stdarg.h>
 #include "user.h"
+#include "wallet.h"
 
 /****************************************************************************
  * MACROS
@@ -170,11 +171,11 @@ typedef void (*get_pk)(char* pk);
  *
  * @brief   Initialize module
  *
- * @param   void
+ * @param   wallet_ctx - wallet context
  *
  * @return  PAP_error_e error status
  */
-PAP_error_e PAP_init(void);
+PAP_error_e PAP_init(wallet_ctx_t* wallet_ctx);
 
 /**
  * @fn      PAP_term

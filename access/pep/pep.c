@@ -131,7 +131,7 @@ bool PEP_init(wallet_ctx_t* wallet_ctx)
 	}
 
 	//Initialize PDP module
-	if (PDP_init() == FALSE)
+	if (PDP_init(dev_wallet) == FALSE)
 	{
 		printf("\nERROR[%s]: PDP init failed.\n", __FUNCTION__);
 		return FALSE;
@@ -219,7 +219,7 @@ bool PEP_request_access(char *request)
 
 	action.value = action_value;
 	action.wallet_address = tangle_address;
-	action.wallet_context = dev_wallet;
+	action.device_wallet_context = dev_wallet;
 
 	//Get normalized request
 	if (normalize_request(request, strlen(request), &norm_request) == 0)

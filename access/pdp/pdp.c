@@ -614,10 +614,10 @@ static int resolve_obligation(char *policy_object, char *policy_id, int obl_posi
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
-bool PDP_init(void)
+bool PDP_init(wallet_ctx_t* wallet_ctx)
 {
 	//Initialize PAP
-	if (PAP_init() == PAP_ERROR)
+	if (PAP_init(wallet_ctx) == PAP_ERROR)
 	{
 		printf("\nERROR[%s]: PAP initialization failed.\n", __FUNCTION__);
 		return FALSE;

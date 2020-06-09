@@ -38,6 +38,7 @@ set(include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}/user/implementations/${user_management_implementation})
 
 set(libs
+  access_wallet
   json_parser
   cryptography
   config_manager)

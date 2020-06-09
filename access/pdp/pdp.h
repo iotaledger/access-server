@@ -106,7 +106,7 @@ typedef struct action
 	unsigned long stop_time;
 	unsigned long balance;
 	char* wallet_address;
-	wallet_ctx_t* wallet_context;
+	wallet_ctx_t* device_wallet_context;
 	char* value;
 } PDP_action_t;
 
@@ -118,11 +118,11 @@ typedef struct action
  *
  * @brief   Initialize module
  *
- * @param   void
+ * @param   wallet_ctx - wallet context
  *
  * @return  TRUE on success, FALSE on failure
  */
-bool PDP_init(void);
+bool PDP_init(wallet_ctx_t* wallet_ctx);
 
 /**
  * @fn      PDP_term

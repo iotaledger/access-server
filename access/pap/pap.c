@@ -72,6 +72,7 @@
 static unsigned char public_key[PAP_PUBLIC_KEY_LEN];
 static unsigned char private_key[PAP_PRIVATE_KEY_LEN];
 static pthread_mutex_t pap_mutex;
+static wallet_ctx_t* dev_wallet = NULL;
 
 /****************************************************************************
  * CALLBACK FUNCTIONS
@@ -210,8 +211,19 @@ static void get_SHA256_hash(char *msg, int msg_len, char *hash_val)
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
-PAP_error_e PAP_init(void)
+PAP_error_e PAP_init(wallet_ctx_t* wallet_ctx)
 {
+    //Set wallet
+    if (wallet_ctx == NULL)
+    {
+        printf("\nERROR[%s]: Bad input parameter.\n", __FUNCTION__);
+        return PAP_ERROR;
+    }
+    else
+    {
+        dev_wallet = wallet_ctx;
+    }
+
     //Generate keypair
     crypto_sign_keypair(public_key, private_key);
 
@@ -752,6 +764,8 @@ PAP_error_e PAP_get_subjects_list_of_actions(char *subject_id, int subject_id_le
 		if (action != -1)
 		{
 			char pol_id_str[PAP_POL_ID_MAX_LEN * 2 + 1] = {0};
+			char addr_buf[PAP_WALLET_ADDR_LEN] = {0};
+			uint64_t index;
 
 			action_elem = malloc(sizeof(PAP_action_list_t));
 			memset(action_elem, 0, sizeof(PAP_action_list_t));
@@ -767,7 +781,9 @@ PAP_error_e PAP_get_subjects_list_of_actions(char *subject_id, int subject_id_le
 			memcpy(action_elem->action, policy_object.policy_object + tokens[action].start, tokens[action].end - tokens[action].start);
 			memcpy(action_elem->policy_ID_str, pol_id_str, PAP_POL_ID_MAX_LEN * 2);
 			memcpy(action_elem->is_available.cost, policy_object.cost, strlen(policy_object.cost));
-			//@TODO: Fill wallet address and is payed status
+			wallet_get_address(dev_wallet, addr_buf, &index);
+			memcpy(action_elem->is_available.wallet_address, addr_buf, PAP_WALLET_ADDR_LEN * sizeof(char));
+			//@TODO: Fill is payed status
 			action_elem->next = NULL;
 
 			if (*action_list == NULL)
