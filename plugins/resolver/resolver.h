@@ -58,7 +58,7 @@ typedef struct action
 	unsigned long stop_time;
 	unsigned long balance;
 	char* wallet_address;
-	wallet_ctx_t* wallet_context;
+	wallet_ctx_t* device_wallet_context;
 	char* value;
 } resolver_action_data_t;
 
