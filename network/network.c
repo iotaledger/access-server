@@ -19,9 +19,9 @@
 
 /****************************************************************************
  * \project Decentralized Access Control
- * \file tcp_server.c
+ * \file network.c
  * \brief
- * Implementation of tcp_server module
+ * Implementation of network module
  *
  * @Author Djordje Golubovic
  *
@@ -76,69 +76,84 @@
 #define COMMAND_GET_ALL_USER 8
 #define COMMAND_CLEAR_ALL_USER 9
 
-static pthread_t thread;
-static asnSession_t session;
-static int state = 0;
-static int DAC_AUTH = 1;
-static char send_buffer[SEND_BUFF_LEN];
+typedef struct {
+    pthread_t thread;
+    asnSession_t session;
+    int state;
+    int DAC_AUTH;
+    char send_buffer[SEND_BUFF_LEN];
 
-static unsigned short port = 9998;
-static int end = 0;
+    unsigned short port;
+    int end;
 
-static int listenfd = 0;
-static int connfd = 0;
+    int listenfd;
+    int connfd;
 
-static Dataset_state_t* vdstate;
+    Dataset_state_t* vdstate;
+} Network_actor_ctx_t;
 
 static void *server_thread(void *ptr);
 
-int TCPServer_start(int portname, Dataset_state_t *_vdstate)
+int Network_actor_start(int portname, Dataset_state_t *_vdstate, Network_actor_ctx_id* network_actor_context)
 {
-    port = portname;
-    vdstate = _vdstate;
+    Network_actor_ctx_t *ctx = malloc(sizeof(Network_actor_ctx_t));
+    ctx->state = 0;
+    ctx->DAC_AUTH = 1;
+    ctx->port = 9998;
+    ctx->end = 0;
+    ctx->listenfd = 0;
+    ctx->connfd = 0;
+
+    ctx->port = portname;
+    ctx->vdstate = _vdstate;
 
     struct sockaddr_in serv_addr;
     char read_buffer[READ_BUFF_LEN];
 
-    listenfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    ctx->listenfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     memset(&serv_addr, '0', sizeof(serv_addr));
     memset(read_buffer, '0', sizeof(read_buffer));
 
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    serv_addr.sin_port = htons(port);
+    serv_addr.sin_port = htons(ctx->port);
 
-    int retstat = bind(listenfd, (struct sockaddr*) &serv_addr, sizeof(serv_addr));
+    int retstat = bind(ctx->listenfd, (struct sockaddr*) &serv_addr, sizeof(serv_addr));
     if (retstat != 0)
     {
         perror("bind failed");
-        end = 1;
+        free(ctx);
         return ERROR_BIND_FAILED;
     }
 
-    if (end != 1)
+    if (ctx->end != 1)
     {
-        retstat = listen(listenfd, CONNECTION_BACKLOG_LEN);
+        retstat = listen(ctx->listenfd, CONNECTION_BACKLOG_LEN);
         if (retstat != 0)
         {
             perror("listen failed");
-            end = 1;
+            free(ctx);
             return ERROR_LISTEN_FAILED;
         }
     }
 
-    if (pthread_create(&thread, NULL, server_thread, NULL))
+    if (pthread_create(&ctx->thread, NULL, server_thread, ctx))
     {
         fprintf(stderr, "Error creating thread\n");
+        free(ctx);
         return ERROR_CREATE_THREAD_FAILED;
     }
 
+    *network_actor_context = (void*)ctx;
     return NO_ERROR;
 }
 
-void TCPServer_stop()
+void Network_actor_stop(Network_actor_ctx_id* network_actor_context)
 {
-    end = 1;
+    Network_actor_ctx_t *ctx = (Network_actor_ctx_t*)(*network_actor_context);
+    ctx->end = 1;
+    pthread_join(ctx->thread, NULL);
+    free(ctx);
 }
 
 static ssize_t read_socket(void *ext, void *data, unsigned short len)
@@ -158,9 +173,9 @@ static int verify(unsigned char *key, int len)
     return 0;
 }
 
-static int get_server_state()
+static int get_server_state(Network_actor_ctx_t *ctx)
 {
-    return state;
+    return ctx->state;
 }
 
 #if 0
@@ -241,7 +256,7 @@ static int list_to_string(list_t *action_list, char *output_str)
 }
 #endif
 
-static unsigned int doAuthWorkTiny(char **recvData)
+static unsigned int doAuthWorkTiny(char **recvData, Network_actor_ctx_t *ctx)
 {
     int request_code = -1;
     int decision = -1;
@@ -268,13 +283,13 @@ static unsigned int doAuthWorkTiny(char **recvData)
             msg = deny;
         }
 
-        if(DAC_AUTH == 1)
+        if(ctx->DAC_AUTH == 1)
         {
             free(*recvData);
         }
 
-        memcpy(send_buffer, msg, sizeof(grant));
-        *recvData = send_buffer;
+        memcpy(ctx->send_buffer, msg, sizeof(grant));
+        *recvData = ctx->send_buffer;
         buffer_position = sizeof(grant);
     }
     else if (request_code == COMMAND_GET_POL_LIST)
@@ -372,21 +387,21 @@ static unsigned int doAuthWorkTiny(char **recvData)
 
         if ((dataset_list_index == -1) || (get_token_at(arr_start).type != JSMN_ARRAY))
         {
-            memcpy(send_buffer, deny, strlen(deny));
+            memcpy(ctx->send_buffer, deny, strlen(deny));
             buffer_position = strlen(deny);
         }
         else
         {
-            Dataset_from_json(vdstate, *recvData + get_token_at(arr_start).start, get_token_at(arr_start).end - get_token_at(arr_start).start);
-            memcpy(send_buffer, grant, strlen(grant));
+            Dataset_from_json(ctx->vdstate, *recvData + get_token_at(arr_start).start, get_token_at(arr_start).end - get_token_at(arr_start).start);
+            memcpy(ctx->send_buffer, grant, strlen(grant));
             buffer_position = strlen(grant);
         }
-        *recvData = send_buffer;
+        *recvData = ctx->send_buffer;
     }
     else if (request_code == COMMAND_GET_DATASET)
     {
-        buffer_position = Dataset_to_json(vdstate, (char *)send_buffer);
-        *recvData = send_buffer;
+        buffer_position = Dataset_to_json(ctx->vdstate, (char *)ctx->send_buffer);
+        *recvData = ctx->send_buffer;
     }
     else if (request_code == COMMAND_GET_USER_OBJ)
     {
@@ -403,9 +418,9 @@ static unsigned int doAuthWorkTiny(char **recvData)
         }
 
         printf("get user\n");
-        PAP_user_management_action(PAP_USERMNG_GET_USER, username, send_buffer);
-        *recvData = send_buffer;
-        buffer_position = strlen(send_buffer);
+        PAP_user_management_action(PAP_USERMNG_GET_USER, username, ctx->send_buffer);
+        *recvData = ctx->send_buffer;
+        buffer_position = strlen(ctx->send_buffer);
     }
     else if (request_code == COMMAND_GET_USERID)
     {
@@ -422,9 +437,9 @@ static unsigned int doAuthWorkTiny(char **recvData)
         }
 
         printf("get_auth_id\n");
-        PAP_user_management_action(PAP_USERMNG_GET_USER_ID, username, send_buffer);
-        *recvData = send_buffer;
-        buffer_position = strlen(send_buffer);
+        PAP_user_management_action(PAP_USERMNG_GET_USER_ID, username, ctx->send_buffer);
+        *recvData = ctx->send_buffer;
+        buffer_position = strlen(ctx->send_buffer);
     }
     else if (request_code == COMMAND_REDISTER_USER)
     {
@@ -440,30 +455,30 @@ static unsigned int doAuthWorkTiny(char **recvData)
         }
 
         printf("put user\n");
-        PAP_user_management_action(PAP_USERMNG_PUT_USER, user_data, send_buffer);
-        *recvData = send_buffer;
-        buffer_position = strlen(send_buffer);
+        PAP_user_management_action(PAP_USERMNG_PUT_USER, user_data, ctx->send_buffer);
+        *recvData = ctx->send_buffer;
+        buffer_position = strlen(ctx->send_buffer);
     }
     else if (request_code == COMMAND_GET_ALL_USER)
     {
         printf("get all users\n");
-        PAP_user_management_action(PAP_USERMNG_GET_ALL_USR, send_buffer);
-        *recvData = send_buffer;
-        buffer_position = strlen(send_buffer);
+        PAP_user_management_action(PAP_USERMNG_GET_ALL_USR, ctx->send_buffer);
+        *recvData = ctx->send_buffer;
+        buffer_position = strlen(ctx->send_buffer);
     }
     else if (request_code == COMMAND_CLEAR_ALL_USER)
     {
         printf("clear all users\n");
-        PAP_user_management_action(PAP_USERMNG_CLR_ALL_USR, send_buffer);
-        *recvData = send_buffer;
-        buffer_position = strlen(send_buffer);
+        PAP_user_management_action(PAP_USERMNG_CLR_ALL_USR, ctx->send_buffer);
+        *recvData = ctx->send_buffer;
+        buffer_position = strlen(ctx->send_buffer);
     }
     else
     {
         Dlog_printf("\nRequest message format not valid\n > %s\n", *recvData);
-        memset(*recvData, '0', sizeof(send_buffer));
-        memcpy(send_buffer, deny, sizeof(deny));
-        *recvData = send_buffer;
+        memset(*recvData, '0', sizeof(ctx->send_buffer));
+        memcpy(ctx->send_buffer, deny, sizeof(deny));
+        *recvData = ctx->send_buffer;
         buffer_position = sizeof(deny);
     }
 
@@ -472,22 +487,23 @@ static unsigned int doAuthWorkTiny(char **recvData)
 
 static void *server_thread(void *ptr)
 {
-    while (!end)
+    Network_actor_ctx_t *ctx = (Network_actor_ctx_t*)ptr;
+    while (!ctx->end)
     {
         struct timeval tv = { 0, TIME_50MS };
         int result;
         fd_set rfds;
 
         FD_ZERO(&rfds);
-        FD_SET(listenfd, &rfds);
+        FD_SET(ctx->listenfd, &rfds);
 
-        result = select(listenfd + 1, &rfds, (fd_set *) 0, (fd_set *) 0, &tv);
+        result = select(ctx->listenfd + 1, &rfds, (fd_set *) 0, (fd_set *) 0, &tv);
 
         if (0 < result)
         {
             int ret, n = 0;
 
-            connfd = accept(listenfd, (struct sockaddr*) NULL, NULL);
+            ctx->connfd = accept(ctx->listenfd, (struct sockaddr*) NULL, NULL);
 
             time_t     now;
             struct tm  ts;
@@ -504,27 +520,27 @@ static void *server_thread(void *ptr)
 
             //START
 
-            if((state == 0))
+            if((ctx->state == 0))
             {
-                state = 1;
+                ctx->state = 1;
                 char *recvData = NULL;
                 unsigned short recv_len = 0;
                 int auth = -1;
                 int decision = -1;
 
-                asnAuth_init_server(&session, &connfd);
+                asnAuth_init_server(&ctx->session, &ctx->connfd);
 
-                session.f_read = read_socket;
-                session.f_write = write_socket;
-                session.f_verify = verify;
+                ctx->session.f_read = read_socket;
+                ctx->session.f_write = write_socket;
+                ctx->session.f_verify = verify;
 
-                auth = asnAuth_authenticate(&session);
+                auth = asnAuth_authenticate(&ctx->session);
 
                 if(auth == 0)
                 {
-                    asnAuth_receive(&session, (unsigned char**)&recvData, &recv_len);
-                    decision = doAuthWorkTiny(&recvData);
-                    asnAuthHelper_send_decision(decision, &session, recvData, decision);
+                    asnAuth_receive(&ctx->session, (unsigned char**)&recvData, &recv_len);
+                    decision = doAuthWorkTiny(&recvData, ctx);
+                    asnAuthHelper_send_decision(decision, &ctx->session, recvData, decision);
                 }
                 else
                 {
@@ -538,20 +554,20 @@ static void *server_thread(void *ptr)
 
                     decision = 0;
                     int size = 34;
-                    write_socket(&connfd, "{\"error\":\"authentication failed\"}", size);
+                    write_socket(&ctx->connfd, "{\"error\":\"authentication failed\"}", size);
                 }
 
-                state = 0;
+                ctx->state = 0;
 
-                asnAuth_release(&session);
+                asnAuth_release(&ctx->session);
 
                 unsigned char try = 0;
-                while((get_server_state() != 0) && ( try++ < MAX_TRY_NUM));
+                while((get_server_state(ctx) != 0) && ( try++ < MAX_TRY_NUM));
             }
 
             // END
 
-            close(connfd);
+            close(ctx->connfd);
         }
 
         usleep(g_task_sleep_time);

@@ -79,6 +79,7 @@ static pthread_mutex_t *json_mutex;
 static Dataset_state_t vdstate = {0};
 
 static wallet_ctx_t *device_wallet = NULL;
+static Network_actor_ctx_id network_actor_context = 0;
 
 extern void Demo01Plugin_set_relayboard_addr(const char* addr);
 
@@ -165,7 +166,7 @@ int main(int argc, char** argv)
     if (using_canopen == 1) CanopenReceiver_start();
 
     /* create a second thread which executes server */
-    if (TCPServer_start(9998, &vdstate) != 0)
+    if (Network_actor_start(9998, &vdstate, &network_actor_context) != 0)
     {
         fprintf(stderr, "Error creating TCP server thread\n");
         running = 0;
@@ -184,7 +185,7 @@ int main(int argc, char** argv)
     PolicyUpdater_stop();
 
     /* wait for the second thread to finish */
-    TCPServer_stop();
+    Network_actor_stop(&network_actor_context);
 
     if (vdstate.dataset != 0)
         BlockchainDaemon_stop();
