@@ -35,6 +35,11 @@
 #define _PDP_H_
 
 /****************************************************************************
+ * INCLUDES
+ ****************************************************************************/
+#include "wallet.h"
+
+/****************************************************************************
  * MACROS
  ****************************************************************************/
 #ifndef bool
@@ -99,6 +104,9 @@ typedef struct action
 {
 	unsigned long start_time;
 	unsigned long stop_time;
+	unsigned long balance;
+	char* wallet_address;
+	wallet_ctx_t* wallet_context;
 	char* value;
 } PDP_action_t;
 

@@ -49,6 +49,7 @@
  ****************************************************************************/
 #define PEP_POL_ID_SIZE 32
 #define PEP_ACTION_LEN 15
+#define PEP_IOTA_ADDR_LEN 81
 
 #define PEP_ASCII_SPACE 32
 #define PEP_ASCII_TAB 9
@@ -61,6 +62,7 @@
  * GLOBAL VARIABLES
  ****************************************************************************/
 static pthread_mutex_t pep_mutex;
+static wallet_ctx_t* dev_wallet = NULL;
 
 /****************************************************************************
  * LOCAL FUNCTIONS
@@ -116,8 +118,11 @@ static resolver_fn callback_resolver = NULL;
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
-bool PEP_init(void)
+bool PEP_init(wallet_ctx_t* wallet_ctx)
 {
+	//Set wallet
+	dev_wallet = wallet_ctx;
+
 	//Initialize mutex
 	if (pthread_mutex_init(&pep_mutex, NULL) != 0)
 	{
@@ -137,6 +142,9 @@ bool PEP_init(void)
 
 bool PEP_term(void)
 {
+	//Clear wallet
+	dev_wallet = NULL;
+
 	//Destroy mutex
 	pthread_mutex_destroy(&pep_mutex);
 
@@ -193,6 +201,7 @@ bool PEP_request_access(char *request)
 	char action_value[PEP_ACTION_LEN];
 	//TODO: obligations should be linked list of the elements of the 'obligation_s' structure type
 	char obligation[PDP_OBLIGATION_LEN];
+	char tangle_address[PEP_IOTA_ADDR_LEN];
 	char *norm_request = NULL;
 	PDP_action_t action;
 	PDP_decision_e ret = PDP_ERROR;
@@ -209,6 +218,8 @@ bool PEP_request_access(char *request)
 	memset(obligation, 0, PEP_ACTION_LEN * sizeof(char));
 
 	action.value = action_value;
+	action.wallet_address = tangle_address;
+	action.wallet_context = dev_wallet;
 
 	//Get normalized request
 	if (normalize_request(request, strlen(request), &norm_request) == 0)
@@ -224,7 +235,7 @@ bool PEP_request_access(char *request)
 	//Resolver callback
 	if (callback_resolver != NULL)
 	{
-		callback_resolver(obligation, action.value, action.start_time, action.stop_time);
+		callback_resolver(obligation, (void*)&action);
 	}
 	else
 	{

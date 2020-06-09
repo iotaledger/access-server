@@ -35,7 +35,8 @@ set(include_dirs
 set(libs
   pep
   data_acquisition_plugins
-  pap)
+  pap
+  pigpio)
 
 add_library(${target} ${sources})
 target_include_directories(${target} PUBLIC ${include_dirs})

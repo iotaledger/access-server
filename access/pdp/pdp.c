@@ -657,6 +657,8 @@ PDP_decision_e PDP_calculate_decision(char *request_norm, char *obligation, PDP_
 {
 	char *policy_id = NULL;
 	int request_policy_id = -1;
+	int request_balance = -1;
+	int request_wallet_addr = -1;
 	int size = -1;
 	PDP_decision_e ret = PDP_ERROR;
 	PAP_policy_t policy;
@@ -676,6 +678,18 @@ PDP_decision_e PDP_calculate_decision(char *request_norm, char *obligation, PDP_
 	policy_id = malloc(size * sizeof(char));
 	memcpy(policy_id, request_norm + get_start_of_token(request_policy_id), size * sizeof(char));
 
+	//Check if any wallet action is requested
+	request_balance = json_get_value(request_norm, 0, "balance");
+	if (request_balance != -1)
+	{
+		action->balance = strtoul(request_norm + get_start_of_token(request_balance + 1), NULL, PDP_STRTOUL_BASE);
+	}
+
+	request_wallet_addr = json_get_value(request_norm, 0, "user_wallet");
+	if (request_wallet_addr != -1 && action->wallet_address != NULL)
+	{
+		memcpy(action->wallet_address, request_norm + get_start_of_token(request_wallet_addr + 1), get_size_of_token(request_wallet_addr + 1));
+	}
 
 	//Get policy from PAP
 	if (PAP_get_policy(policy_id, size, &policy) == PAP_ERROR)
