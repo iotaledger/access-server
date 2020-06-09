@@ -114,7 +114,6 @@ int main(int argc, char** argv)
     TEST_POLICY_STORAGE(1)
 
     json_mutex = JSONInterface_get_mutex();
-    UserManagement_init();
 
     Timer_init();
 
@@ -209,7 +208,6 @@ int main(int argc, char** argv)
 
     Timer_deinit();
 
-    UserManagement_deinit();
     JSONInterface_deinit();
     if (vdstate.dataset != 0)
         Dataset_deinit(&vdstate);
@@ -236,5 +234,3 @@ static void *AWS(void *arg)
         usleep(g_task_sleep_time);
     }
 }
-
-
