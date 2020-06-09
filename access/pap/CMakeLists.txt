@@ -19,22 +19,29 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-set(config_manager_implementation ini CACHE STRING "Config manager implementation choice")
+set(target pap)
 
-set(target config_manager)
+set(user_management_implementation sqlite3_example CACHE STRING
+  "User management implementation choice")
 
 set(sources
-  config_manager.c
-  implementations/${config_manager_implementation}/config_manager_implementation.c)
+  pap.c
+  user/user.c
+  user/implementations/${user_management_implementation}/user_implementation.c
+  validator/parser.c
+  validator/validator.c)
 
 set(include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/implementations/${config_manager_implementation})
+  ${CMAKE_CURRENT_SOURCE_DIR}/validator
+  ${CMAKE_CURRENT_SOURCE_DIR}/user
+  ${CMAKE_CURRENT_SOURCE_DIR}/user/implementations/${user_management_implementation})
+
+set(libs
+  json_parser
+  cryptography
+  config_manager)
 
 add_library(${target} ${sources})
 target_include_directories(${target} PUBLIC ${include_dirs})
-
-# Config manager implementation test
-set(target config_manager_test)
-add_executable(${target} implementations/${config_manager_implementation}/test.c)
-target_link_libraries(${target} PUBLIC config_manager)
+target_link_libraries(${target} PUBLIC ${libs})

@@ -54,7 +54,10 @@ $ sudo make install
 ```
 $ cd ~
 $ git clone https://github.com/iotaledger/access.git
-$ cd access/embedded
+$ cd access
+$ mkdir build
+$ cd build
+$ cmake .. -DCMAKE_INSTALL_PREFIX=$PWD/ext_install
 $ make
 
 ```

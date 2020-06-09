@@ -40,6 +40,7 @@
  ****************************************************************************/
 #include <stdlib.h>
 #include "dataset.h"
+#include "wallet.h"
 
 /****************************************************************************
  * MACROS
@@ -51,7 +52,17 @@
 /****************************************************************************
  * TYPES & CALLBACKS
  ****************************************************************************/
-typedef int (*resolver_action_t)(int should_log);
+typedef struct action
+{
+	unsigned long start_time;
+	unsigned long stop_time;
+	unsigned long balance;
+	char* wallet_address;
+	wallet_ctx_t* wallet_context;
+	char* value;
+} resolver_action_data_t;
+
+typedef int (*resolver_action_t)(resolver_action_data_t* action, int should_log);
 
 typedef struct
 {

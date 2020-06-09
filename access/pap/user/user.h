@@ -17,15 +17,17 @@
  * limitations under the License.
  */
 
-#ifndef _USER_MANAGEMENT_H_
-#define _USER_MANAGEMENT_H_
+#ifndef _USER_H_
+#define _USER_H_
 
-int UserManagement_init();
-void UserManagement_deinit();
-void UserManagement_get_all_users(char* response);
-void UserManagement_get_string(const char* id, char* response);
-void UserManagement_put_string(const char* json_string, char* json_response);
-void UserManagement_get_authenteq_id(const char* username, char* json_string);
-void UserManagement_clear_all_users(char* response);
+#include "user_implementation.h"
+
+int User_init();
+void User_deinit();
+void User_get_all(char* json_response);
+void User_get_obj(const char* username, char* json_response);
+void User_put_obj(const char* user_object, char* json_response);
+void User_get_user_id(const char* username, char* json_response);
+void User_clear_all(char* json_response);
 
 #endif

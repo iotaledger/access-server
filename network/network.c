@@ -45,7 +45,7 @@
 #include "pap.h"
 #include "storage.h"
 #include "utils_string.h"
-#include "user.h"
+#include "pap.h"
 #include "globals_declarations.h"
 
 #define Dlog_printf printf
@@ -71,7 +71,7 @@
 #define COMMAND_ENABLE_POLICY 2
 #define COMMAND_SET_DATASET 3
 #define COMMAND_GET_DATASET 4
-#define COMMAND_GET_USERNAME 5
+#define COMMAND_GET_USER_OBJ 5
 #define COMMAND_GET_USERID 6
 #define COMMAND_REDISTER_USER 7
 #define COMMAND_GET_ALL_USER 8
@@ -397,7 +397,7 @@ static unsigned int doAuthWorkTiny(char **recvData)
         buffer_position = Dataset_to_json(vdstate, (char *)send_buffer);
         *recvData = send_buffer;
     }
-    else if (request_code == COMMAND_GET_USERNAME)
+    else if (request_code == COMMAND_GET_USER_OBJ)
     {
         char username[USERNAME_LEN] = "";
 
@@ -412,7 +412,7 @@ static unsigned int doAuthWorkTiny(char **recvData)
         }
 
         printf("get user\n");
-        UserManagement_get_string(username, send_buffer);
+        PAP_user_management_action(PAP_USERMNG_GET_USER, username, send_buffer);
         *recvData = send_buffer;
         buffer_position = strlen(send_buffer);
     }
@@ -431,7 +431,7 @@ static unsigned int doAuthWorkTiny(char **recvData)
         }
 
         printf("get_auth_id\n");
-        UserManagement_get_authenteq_id(username, send_buffer);
+        PAP_user_management_action(PAP_USERMNG_GET_USER_ID, username, send_buffer);
         *recvData = send_buffer;
         buffer_position = strlen(send_buffer);
     }
@@ -449,21 +449,21 @@ static unsigned int doAuthWorkTiny(char **recvData)
         }
 
         printf("put user\n");
-        UserManagement_put_string(user_data, send_buffer);
+        PAP_user_management_action(PAP_USERMNG_PUT_USER, user_data, send_buffer);
         *recvData = send_buffer;
         buffer_position = strlen(send_buffer);
     }
     else if (request_code == COMMAND_GET_ALL_USER)
     {
         printf("get all users\n");
-        UserManagement_get_all_users(send_buffer);
+        PAP_user_management_action(PAP_USERMNG_GET_ALL_USR, send_buffer);
         *recvData = send_buffer;
         buffer_position = strlen(send_buffer);
     }
     else if (request_code == COMMAND_CLEAR_ALL_USER)
     {
         printf("clear all users\n");
-        UserManagement_clear_all_users(send_buffer);
+        PAP_user_management_action(PAP_USERMNG_CLR_ALL_USR, send_buffer);
         *recvData = send_buffer;
         buffer_position = strlen(send_buffer);
     }

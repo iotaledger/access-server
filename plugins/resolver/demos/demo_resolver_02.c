@@ -41,31 +41,31 @@
 #include "canopen_receiver.h"
 #include "json_interface.h"
 
-static int demo02_vehicle_lock(int should_log)
+static int demo02_vehicle_lock(resolver_action_data_t *action, int should_log)
 {
     RelayInterface_off(3);
     return 0;
 }
 
-static int demo02_vehicle_unlock(int should_log)
+static int demo02_vehicle_unlock(resolver_action_data_t *action, int should_log)
 {
     RelayInterface_on(3);
     return 0;
 }
 
-static int demo02_honk(int should_log)
+static int demo02_honk(resolver_action_data_t *action, int should_log)
 {
     RelayInterface_pulse(2);
     return 0;
 }
 
-static int demo02_alarm_on(int should_log)
+static int demo02_alarm_on(resolver_action_data_t *action, int should_log)
 {
     RelayInterface_on(1);
     return 0;
 }
 
-static int demo02_alarm_off(int should_log)
+static int demo02_alarm_off(resolver_action_data_t *action, int should_log)
 {
     RelayInterface_off(1);
     return 0;

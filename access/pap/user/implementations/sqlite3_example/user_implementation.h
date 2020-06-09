@@ -1,8 +1,8 @@
 /*
- * This file is part of the IOTA Access distribution
+ * This file is part of the IOTA Access Distribution
  * (https://github.com/iotaledger/access)
  *
- * Copyright (c) 2020 IOTA Foundation
+ * Copyright (c) 2020 IOTA Stiftung
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,15 +17,15 @@
  * limitations under the License.
  */
 
-#ifndef _CONFIG_MANAGER_H_
-#define _CONFIG_MANAGER_H_
+#ifndef _USER_IMPLEMENTATION_H_
+#define _USER_IMPLEMENTATION_H_
 
-#include "config_manager_cmn.h"
-#include "config_manager_implementation.h"
-
-int ConfigManager_init(void* in_parameter);
-int ConfigManager_get_option_string(const char* module_name, const char* option_name, char* option_value, size_t option_size);
-int ConfigManager_get_option_int(const char* module_name, const char* option_name, int* option_value);
-int ConfigManager_get_option_float(const char* module_name, const char* option_name, float* option_value);
+int UserImplementation_init_cb();
+void UserImplementation_deinit_cb();
+void UserImplementation_get_all_cb(char* response);
+void UserImplementation_get_obj_cb(const char* username, char* user_object);
+void UserImplementation_put_obj_cb(const char* user_object, char* json_response);
+void UserImplementation_get_user_id_cb(const char* username, char* json_string);
+void UserImplementation_clear_all_cb(char* response);
 
 #endif

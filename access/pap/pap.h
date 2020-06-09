@@ -36,6 +36,8 @@
  * INCLUDES
  ****************************************************************************/
 #include <stdint.h>
+#include <stdarg.h>
+#include "user.h"
 
 /****************************************************************************
  * MACROS
@@ -91,6 +93,15 @@ typedef enum
 	PAP_PAYED_PENDING,
 	PAP_PAYED_VERIFIED
 } PAP_payment_state_e;
+
+typedef enum
+{
+	PAP_USERMNG_GET_ALL_USR,
+	PAP_USERMNG_GET_USER,
+	PAP_USERMNG_PUT_USER,
+	PAP_USERMNG_GET_USER_ID,
+	PAP_USERMNG_CLR_ALL_USR
+} PAP_user_mng_req_e;
 
 /****************************************************************************
  * TYPES
@@ -292,4 +303,16 @@ PAP_error_e PAP_get_subjects_list_of_actions(char *subject_id, int subject_id_le
  */
 void PAP_register_get_pk_cb(get_pk cb);
 #endif
+
+/**
+ * @fn      PAP_user_management_action
+ *
+ * @brief   Access User Management API
+ *
+ * @param   request - Request User Management's action
+ * @param   others - Action depended
+ *
+ * @return  void
+ */
+void PAP_user_management_action(PAP_user_mng_req_e request, ...);
 #endif //_PAP_H_

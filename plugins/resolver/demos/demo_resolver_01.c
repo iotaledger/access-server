@@ -54,27 +54,34 @@ void Demo01Plugin_set_relayboard_addr(const char* addr)
     strncpy(relayboard_addr, addr, sizeof(relayboard_addr));
 }
 
-static int demo01_car_lock(int should_log)
+static int demo01_car_lock(resolver_action_data_t *action, int should_log)
 {
     RelayInterface_pulse(0);
     return 0;
 }
 
-static int demo01_car_unlock(int should_log)
+static int demo01_car_unlock(resolver_action_data_t *action, int should_log)
 {
     RelayInterface_pulse(1);
     return 0;
 }
 
-static int demo01_start_engine(int should_log)
+static int demo01_start_engine(resolver_action_data_t *action, int should_log)
 {
     RelayInterface_pulse(2);
     return 0;
 }
 
-static int demo01_open_trunk(int should_log)
+static int demo01_open_trunk(resolver_action_data_t *action, int should_log)
 {
     RelayInterface_pulse(3);
+    return 0;
+}
+
+static int demo_01_transfer_tokens(resolver_action_data_t *action, int should_log)
+{
+    char bundle[81];
+    wallet_send(action->wallet_context, action->wallet_address, action->balance, NULL, bundle);
     return 0;
 }
 
@@ -120,25 +127,25 @@ static void socket_send_byte_to_port(int portname)
     close(sockfd);
 }
 
-static int demo01_tcp_car_lock(int should_log)
+static int demo01_tcp_car_lock(resolver_action_data_t *action, int should_log)
 {
     socket_send_byte_to_port(2222);
     return 0;
 }
 
-static int demo01_tcp_car_unlock(int should_log)
+static int demo01_tcp_car_unlock(resolver_action_data_t *action, int should_log)
 {
     socket_send_byte_to_port(2223);
     return 0;
 }
 
-static int demo01_tcp_start_engine(int should_log)
+static int demo01_tcp_start_engine(resolver_action_data_t *action, int should_log)
 {
     socket_send_byte_to_port(2224);
     return 0;
 }
 
-static int demo01_tcp_open_trunk(int should_log)
+static int demo01_tcp_open_trunk(resolver_action_data_t *action, int should_log)
 {
     socket_send_byte_to_port(2225);
     return 0;
@@ -206,11 +213,13 @@ void Demo01Plugin_initializer(resolver_plugin_t* action_set)
     g_action_set->actions[1] = demo01_car_lock;
     g_action_set->actions[2] = demo01_open_trunk;
     g_action_set->actions[3] = demo01_start_engine;
+    g_action_set->actions[4] = demo_01_transfer_tokens;
     strncpy(g_action_set->action_names[0], "open_door", RES_ACTION_NAME_SIZE);
     strncpy(g_action_set->action_names[1], "close_door", RES_ACTION_NAME_SIZE);
     strncpy(g_action_set->action_names[2], "open_trunk", RES_ACTION_NAME_SIZE);
     strncpy(g_action_set->action_names[3], "start_engine", RES_ACTION_NAME_SIZE);
-    g_action_set->count = 4;
+    strncpy(g_action_set->action_names[4], "transfer_tokens", RES_ACTION_NAME_SIZE);
+    g_action_set->count = 5;
     g_action_set->init_ds_interface_cb = init_ds_interface;
     g_action_set->stop_ds_interface_cb = stop_ds_interface;
     g_action_set->start_ds_interface_cb = start_ds_interface;
@@ -232,11 +241,13 @@ void Demo01Plugin_initializer_tcp(resolver_plugin_t* action_set)
     g_action_set->actions[1] = demo01_tcp_car_lock;
     g_action_set->actions[2] = demo01_tcp_open_trunk;
     g_action_set->actions[3] = demo01_tcp_start_engine;
+    g_action_set->actions[4] = demo_01_transfer_tokens;
     strncpy(g_action_set->action_names[0], "open_door", RES_ACTION_NAME_SIZE);
     strncpy(g_action_set->action_names[1], "close_door", RES_ACTION_NAME_SIZE);
     strncpy(g_action_set->action_names[2], "open_trunk", RES_ACTION_NAME_SIZE);
     strncpy(g_action_set->action_names[3], "start_engine", RES_ACTION_NAME_SIZE);
-    g_action_set->count = 4;
+    strncpy(g_action_set->action_names[4], "transfer_tokens", RES_ACTION_NAME_SIZE);
+    g_action_set->count = 5;
     g_action_set->init_ds_interface_cb = init_ds_interface_tcp;
     g_action_set->stop_ds_interface_cb = stop_ds_interface;
     g_action_set->start_ds_interface_cb = start_ds_interface;

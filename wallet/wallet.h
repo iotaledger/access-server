@@ -46,16 +46,28 @@ typedef struct {
 typedef void (*balance_cb)(uint64_t start, uint64_t end);
 
 typedef struct {
+  char addr[NUM_TRYTES_ADDRESS]; /*!< monitoring address */
   pthread_mutex_t mutex_lock;    /*!< locker */
   pthread_t thread_id;           /*!< thread ID */
   uint8_t status;                /*!< 0: init, 1: running, 2: stopping */
   uint32_t interval;             /*!< balance monitoring intervale in sec */
   uint64_t threshold;            /*!< balance threshold */
   uint64_t current_balance;      /*!< current balace on the address */
-  char addr[NUM_TRYTES_ADDRESS]; /*!< monitoring address */
   wallet_ctx_t const *wallet;    /*!< wallet context */
   balance_cb cb;                 /*!< callback when balance meet the threshold */
 } balance_service_t;
+
+typedef void (*confirmed_cb)(uint32_t time);
+typedef struct {
+  char tx[NUM_TRYTES_HASH];   /*!< a tx hash for monitoring*/
+  pthread_mutex_t mutex_lock; /*!< locker */
+  pthread_t thread_id;        /*!< thread ID */
+  uint8_t status;             /*!< 0: init, 1: running, 2: stopping */
+  uint32_t interval;          /*!< monitoring intervale in sec */
+  uint32_t timeout;           /*!< timeout */
+  wallet_ctx_t const *wallet; /*!< wallet context */
+  confirmed_cb cb;            /*!< callback when transaction has been confirmed */
+} confirmation_service_t;
 
 /**
  * @brief Create a wallet instance
@@ -98,13 +110,6 @@ wallet_err_t wallet_send(wallet_ctx_t const *const ctx, char const *const receiv
  * @brief Gets an unused address of this wallet and update unused_idx in wallet context
  *
  * @param ctx wallet context
- * @return wallet_err_t
- */
-
-/**
- * @brief Gets an unused address of this wallet and update unused_idx in wallet context
- *
- * @param ctx wallet context
  * @param addr_buf an address buffer
  * @param index the index of the address
  * @return wallet_err_t
@@ -119,15 +124,25 @@ wallet_err_t wallet_get_address(wallet_ctx_t *const ctx, char *addr_buf, uint64_
 void wallet_destory(wallet_ctx_t **wallet);
 
 /**
- * @brief Gets policy from a given hash
+ * @brief Gets message from a given hash
  *
  * @param ctx wallet context
  * @param hash a bundle hash
- * @param policy_buf a buffer stores policy
+ * @param msg_buf a buffer stores message
  * @param len the length of policy buffer
  * @return wallet_err_t
  */
-wallet_err_t wallet_fetch_policy(wallet_ctx_t const *const ctx, char const *const hash, char *policy_buf, size_t len);
+wallet_err_t wallet_fetch_msg(wallet_ctx_t const *const ctx, char const *const hash, char *msg_buf, size_t len);
+
+/**
+ * @brief Checks if the given transaction has been confirmed.
+ *
+ * @param ctx wallet context
+ * @param tx_hash a transaction hash
+ * @return true
+ * @return false
+ */
+bool wallet_check_confirmation(wallet_ctx_t const *const ctx, char const *const tx_hash);
 
 // TODO wallet monitor
 
@@ -158,3 +173,30 @@ void balance_service_stop(balance_service_t *serv);
  * @param serv a balance service object
  */
 void balance_service_free(balance_service_t **serv);
+
+/**
+ * @brief start a transaction monitor service, it callback when the transaction is confrimed.
+ *
+ * @param wallet a wallet object
+ * @param tx_hash the transaction hash of a bundle transaction
+ * @param interval the monitoring interval in sec
+ * @param timeout a timeout for this service
+ * @param cb a callback on stop or termination
+ * @return confirmation_service_t*
+ */
+confirmation_service_t *confirmation_service_start(wallet_ctx_t const *wallet, char const *const tx_hash,
+                                                   uint32_t interval, uint32_t timeout, confirmed_cb cb);
+
+/**
+ * @brief stop confirmation service
+ *
+ * @param serv a confirmation service object
+ */
+void confirmation_service_stop(confirmation_service_t *serv);
+
+/**
+ * @brief cleanup confirmation_service_t object
+ *
+ * @param serv a confirmation service object
+ */
+void confirmation_service_free(confirmation_service_t **serv);

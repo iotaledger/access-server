@@ -43,6 +43,7 @@
 #include "user.h"
 #include "network.h"
 #include "modbus_receiver.h"
+#include "wallet.h"
 
 #include "psDaemon.h"
 
@@ -56,6 +57,12 @@
 #define CONFIG_CLIENT_CAN01 "can01"
 #define CONFIG_CLIENT_CANOPEN01 "canopen01"
 #define CONFIG_CLIENT_OBDII "obdii"
+
+#define NODE_URL "nodes.comnet.thetangle.org"
+#define NODE_PORT 443
+#define NODE_DEPTH 3
+#define NODE_MWM 14
+#define WALLET_SEED "DEJUXV9ZQMIEXTWJJHJPLAWMOEKGAYDNALKSMCLG9APR9LCKHMLNZVCRFNFEPMGOBOYYIKJNYWSAKVPAI"
 
 int g_task_sleep_time;
 
@@ -73,6 +80,8 @@ static void *AWS(void *arg);
 static pthread_mutex_t *json_mutex;
 
 static Dataset_state_t vdstate = {0};
+
+static wallet_ctx_t *device_wallet = NULL;
 
 extern void Demo01Plugin_set_relayboard_addr(const char* addr);
 
@@ -97,21 +106,21 @@ int main(int argc, char** argv)
     ConfigManager_get_option_string("config", "client", client_name, MAX_CLIENT_NAME);
 
     PSDaemon_init();
+    device_wallet = wallet_create(NODE_URL, NODE_PORT, NULL, NODE_DEPTH, NODE_MWM, WALLET_SEED);
 
     printf("Program start\n\n");
     Storage_init();
-    PEP_init();
+    PEP_init(device_wallet);
     TEST_POLICY_STORAGE(1)
 
     json_mutex = JSONInterface_get_mutex();
-    UserManagement_init();
 
     Timer_init();
 
     if (strncmp(client_name, CONFIG_CLIENT_CAN01, strlen(CONFIG_CLIENT_CAN01)) == 0)
     {
-#ifdef TINY_EMBEDDED
         Resolver_init(Demo01Plugin_initializer, &vdstate);
+#ifdef TINY_EMBEDDED
         vdstate.options = &VehicleDatasetDemo01_options[0];
         vdstate.dataset = (can01_vehicle_dataset_t*)malloc(sizeof(can01_vehicle_dataset_t));
         Dataset_init(&vdstate);
@@ -125,8 +134,8 @@ int main(int argc, char** argv)
     }
     else if (strncmp(client_name, CONFIG_CLIENT_CANOPEN01, strlen(CONFIG_CLIENT_CANOPEN01)) == 0)
     {
-#ifdef TINY_EMBEDDED
         Resolver_init(Demo02Plugin_initializer, &vdstate);
+#ifdef TINY_EMBEDDED
         vdstate.options = &VehicleDatasetDemo02_options[0];
         vdstate.dataset = (canopen01_vehicle_dataset_t*)malloc(sizeof(canopen01_vehicle_dataset_t));
         Dataset_init(&vdstate);
@@ -199,7 +208,6 @@ int main(int argc, char** argv)
 
     Timer_deinit();
 
-    UserManagement_deinit();
     JSONInterface_deinit();
     if (vdstate.dataset != 0)
         Dataset_deinit(&vdstate);
@@ -226,5 +234,3 @@ static void *AWS(void *arg)
         usleep(g_task_sleep_time);
     }
 }
-
-

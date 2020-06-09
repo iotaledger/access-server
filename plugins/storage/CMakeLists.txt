@@ -19,22 +19,18 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-set(config_manager_implementation ini CACHE STRING "Config manager implementation choice")
-
-set(target config_manager)
+set(target storage_plugin)
 
 set(sources
-  config_manager.c
-  implementations/${config_manager_implementation}/config_manager_implementation.c)
+  storage.c
+  platforms/r_pi/rpi_storage.c)
 
 set(include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/implementations/${config_manager_implementation})
+  ${CMAKE_CURRENT_SOURCE_DIR}/platforms/r_pi)
+
+set(libs pap)
 
 add_library(${target} ${sources})
 target_include_directories(${target} PUBLIC ${include_dirs})
-
-# Config manager implementation test
-set(target config_manager_test)
-add_executable(${target} implementations/${config_manager_implementation}/test.c)
-target_link_libraries(${target} PUBLIC config_manager)
+target_link_libraries(${target} PUBLIC ${libs})

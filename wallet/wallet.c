@@ -279,3 +279,116 @@ void balance_service_free(balance_service_t **serv) {
     *serv = NULL;
   }
 }
+
+wallet_err_t wallet_fetch_msg(wallet_ctx_t const *const ctx, char const *const hash, char *msg_buf, size_t len) {
+  // TODO
+  return 0;
+}
+
+bool wallet_check_confirmation(wallet_ctx_t const *const ctx, char const *const tx_hash) {
+  retcode_t client_ret = RC_ERROR;
+  bool is_confirmed = false;
+
+  flex_trit_t flex_tx[FLEX_TRIT_SIZE_243];
+  get_inclusion_states_req_t *get_inclusion_req = get_inclusion_states_req_new();
+  get_inclusion_states_res_t *get_inclusion_res = get_inclusion_states_res_new();
+  if (!get_inclusion_req || !get_inclusion_res) {
+    printf("Error: OOM\n");
+    goto done;
+  }
+
+  if (flex_trits_from_trytes(flex_tx, NUM_TRITS_HASH, tx_hash, NUM_TRYTES_HASH, NUM_TRYTES_HASH) == 0) {
+    printf("Error: converting flex_trit failed\n");
+    goto done;
+  }
+
+  if ((client_ret = get_inclusion_states_req_hash_add(get_inclusion_req, flex_tx)) != RC_OK) {
+    printf("Error: adding hash failed.\n");
+    goto done;
+  }
+
+  if ((client_ret = iota_client_get_inclusion_states(ctx->iota_client, get_inclusion_req, get_inclusion_res)) ==
+      RC_OK) {
+    is_confirmed = get_inclusion_states_res_states_at(get_inclusion_res, 0);
+  } else {
+    printf("Error: %s\n", error_2_string(client_ret));
+  }
+
+done:
+  get_inclusion_states_req_free(&get_inclusion_req);
+  get_inclusion_states_res_free(&get_inclusion_res);
+  return is_confirmed;
+}
+
+static void *confirmation_service(void *arg) {
+  confirmation_service_t *serv = (confirmation_service_t *)arg;
+  bool is_confirmed = false;
+  uint32_t time = 0;
+
+  if ((is_confirmed = wallet_check_confirmation(serv->wallet, serv->tx)) == false) {
+    while (1) {
+      if (time >= serv->timeout) {
+        printf("[%ld] confirmation service stop due to timeout\n", pthread_self());
+        break;
+      }
+
+      if (serv->status == 2) {
+        printf("[%ld] confirmation service stop\n", pthread_self());
+        break;
+      }
+
+      if (is_confirmed = wallet_check_confirmation(serv->wallet, serv->tx) == true) {
+        printf("[%ld] transaction has been confirmed\n", pthread_self());
+        break;
+      }
+
+      time += serv->interval;
+      // printf("[%ld] is_confirmed %d\n", pthread_self(), is_confirmed);
+      sleep(serv->interval);
+    };
+  }
+
+  if (serv->cb) {
+    serv->cb(time);
+  }
+  printf("[%ld] confirmation service terminating\n", pthread_self());
+}
+
+confirmation_service_t *confirmation_service_start(wallet_ctx_t const *wallet, char const *const tx_hash,
+                                                   uint32_t interval, uint32_t timeout, confirmed_cb cb) {
+  // init service context
+  confirmation_service_t *serv = (confirmation_service_t *)calloc(1, sizeof(confirmation_service_t));
+  memcpy(serv->tx, tx_hash, NUM_TRYTES_HASH);
+  serv->interval = interval;
+  serv->timeout = timeout;
+  serv->status = 0;
+  serv->wallet = wallet;
+  serv->cb = cb;
+
+  if (pthread_mutex_init(&serv->mutex_lock, NULL) != 0) {
+    printf("%s: init locker failed\n", __func__);
+    free(serv);
+    return NULL;
+  }
+
+  if (pthread_create(&serv->thread_id, NULL, confirmation_service, (void *)serv) != 0) {
+    printf("%s: thread create failed\n", __func__);
+    free(serv);
+    return NULL;
+  }
+
+  return serv;
+}
+
+void confirmation_service_stop(confirmation_service_t *serv) {
+  pthread_mutex_lock(&serv->mutex_lock);
+  serv->status = 2;
+  pthread_mutex_unlock(&serv->mutex_lock);
+}
+
+void confirmation_service_free(confirmation_service_t **serv) {
+  if (serv && *serv) {
+    free(*serv);
+    *serv = NULL;
+  }
+}

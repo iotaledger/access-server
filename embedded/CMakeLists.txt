@@ -19,22 +19,34 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-set(config_manager_implementation ini CACHE STRING "Config manager implementation choice")
+add_subdirectory(bc)
+add_subdirectory(config_manager)
+add_subdirectory(CpuGeneric/crypto)
+add_subdirectory(CpuGeneric/jsmn)
+add_subdirectory(CpuGeneric/libfastjson)
+add_subdirectory(include)
+add_subdirectory(modules/AWS_daemon)
 
-set(target config_manager)
+set(target main)
 
-set(sources
-  config_manager.c
-  implementations/${config_manager_implementation}/config_manager_implementation.c)
+set(libs
+  -pthread
+  -lcurl
+  -lsqlite3
+  json_parser
+  pep
+  pdp
+  asn
+  bc
+  data_acquisition_plugins
+  vehicle_dataset
+  resolver
+  pap
+  network
+  psdaemon
+  legacy_modules
+  fastjson)
 
-set(include_dirs
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/implementations/${config_manager_implementation})
-
-add_library(${target} ${sources})
-target_include_directories(${target} PUBLIC ${include_dirs})
-
-# Config manager implementation test
-set(target config_manager_test)
-add_executable(${target} implementations/${config_manager_implementation}/test.c)
-target_link_libraries(${target} PUBLIC config_manager)
+add_executable(${target} main.c)
+target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(${target} PUBLIC ${libs})

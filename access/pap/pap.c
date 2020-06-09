@@ -43,7 +43,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include "pap.h"
-#define JSMN_HEADER //jsmn library bug workaround
+#define JSMN_HEADER
 #include "jsmn.h"
 #include "utils_string.h"
 #include "apiorig.h"
@@ -92,119 +92,119 @@ static get_pk callback_get_pk = NULL;
 static void get_public_key_from_user(char *pk)
 {
 #if PAP_STORAGE_TEST_ACIVE
-	if (callback_get_pk)
-	{
-		callback_get_pk(pk);
-	}
-	return;
+    if (callback_get_pk)
+    {
+        callback_get_pk(pk);
+    }
+    return;
 #endif
-	int wait = PAP_WAIT_TIME_S;
-	int sockfd = 0;
-	struct sockaddr_in serv_addr;
+    int wait = PAP_WAIT_TIME_S;
+    int sockfd = 0;
+    struct sockaddr_in serv_addr;
 
-	//Check input parameter
-	if (pk == NULL)
-	{
-		printf("\nERROR[%s]: Bad input parameters.\n", __FUNCTION__);
-		return;
-	}
+    //Check input parameter
+    if (pk == NULL)
+    {
+        printf("\nERROR[%s]: Bad input parameters.\n", __FUNCTION__);
+        return;
+    }
 
-	//Create socket
-	sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if (sockfd < 0)
-	{
-		printf("\nERROR[%s]: Socket creating failed.\n", __FUNCTION__);
-		return;
-	}
+    //Create socket
+    sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (sockfd < 0)
+    {
+        printf("\nERROR[%s]: Socket creating failed.\n", __FUNCTION__);
+        return;
+    }
 
-	memset(&serv_addr, '0', sizeof(serv_addr));
+    memset(&serv_addr, '0', sizeof(serv_addr));
 
-	serv_addr.sin_family = AF_INET;
-	serv_addr.sin_port = htons(PAP_PORT);
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_port = htons(PAP_PORT);
 
-	if (inet_pton(AF_INET, PAP_SERVER_IP, &serv_addr.sin_addr) <= 0)
-	{
-		printf("\nERROR[%s]: inet_pton failed.\n", __FUNCTION__);
-		return;
-	}
+    if (inet_pton(AF_INET, PAP_SERVER_IP, &serv_addr.sin_addr) <= 0)
+    {
+        printf("\nERROR[%s]: inet_pton failed.\n", __FUNCTION__);
+        return;
+    }
 
-	//Connect to socket
-	if (connect(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
-	{
-		printf("\nERROR[%s]: Connection failed.\n", __FUNCTION__);
-		return;
-	}
+    //Connect to socket
+    if (connect(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
+    {
+        printf("\nERROR[%s]: Connection failed.\n", __FUNCTION__);
+        return;
+    }
 
-	while (wait)
-	{
-		//Request public key
-		write(sockfd, PAP_PK_REQUEST, PAP_PK_REQUEST_LEN);
+    while (wait)
+    {
+        //Request public key
+        write(sockfd, PAP_PK_REQUEST, PAP_PK_REQUEST_LEN);
 
-		//Read the response
-		read(sockfd, pk, PAP_PUBLIC_KEY_LEN);
+        //Read the response
+        read(sockfd, pk, PAP_PUBLIC_KEY_LEN);
 
-		//If no response is received, wait for 1s, then, try another request
-		if (pk == NULL)
-		{
-			wait--;
-			sleep(1);
-		}
-		else
-		{
-			wait = 0;
-		}
-	}
+        //If no response is received, wait for 1s, then, try another request
+        if (pk == NULL)
+        {
+            wait--;
+            sleep(1);
+        }
+        else
+        {
+            wait = 0;
+        }
+    }
 }
 
 static int normalize_JSON_object(char *json_object, int object_len, char **json_object_normalized)
 {
-	char temp[object_len];
-	int charCnt = 0;
+    char temp[object_len];
+    int charCnt = 0;
 
-	//Check input parameters
-	if (json_object == NULL || object_len == 0)
-	{
-		printf("\nERROR[%s]: Bad input parameters.\n", __FUNCTION__);
-		return 0;
-	}
+    //Check input parameters
+    if (json_object == NULL || object_len == 0)
+    {
+        printf("\nERROR[%s]: Bad input parameters.\n", __FUNCTION__);
+        return 0;
+    }
 
-	//Normalize JSON object and save it to temp
-	memset(temp, 0, object_len);
+    //Normalize JSON object and save it to temp
+    memset(temp, 0, object_len);
 
-	for (int i = 0; i < object_len; i++)
-	{
-		if (!PAP_CHECK_WHITESPACE(json_object[i]))
-		{
-			temp[charCnt] = json_object[i];
-			charCnt++;
-		}
-	}
+    for (int i = 0; i < object_len; i++)
+    {
+        if (!PAP_CHECK_WHITESPACE(json_object[i]))
+        {
+            temp[charCnt] = json_object[i];
+            charCnt++;
+        }
+    }
 
-	//Allocate memory for json_object_normalized
-	if (*json_object_normalized)
-	{
-		free(*json_object_normalized);
-		*json_object_normalized = NULL;
-	}
+    //Allocate memory for json_object_normalized
+    if (*json_object_normalized)
+    {
+        free(*json_object_normalized);
+        *json_object_normalized = NULL;
+    }
 
-	*json_object_normalized = malloc(charCnt * sizeof(char));
-	if (*json_object_normalized == NULL)
-	{
-		return 0;
-	}
+    *json_object_normalized = malloc(charCnt * sizeof(char));
+    if (*json_object_normalized == NULL)
+    {
+        return 0;
+    }
 
-	//Copy temp to json_object_normalized
-	memcpy(*json_object_normalized, temp, charCnt * sizeof(char));
+    //Copy temp to json_object_normalized
+    memcpy(*json_object_normalized, temp, charCnt * sizeof(char));
 
-	return charCnt;
+    return charCnt;
 }
 
 static void get_SHA256_hash(char *msg, int msg_len, char *hash_val)
 {
-	SHA256_CTX ctx;
-	sha256_init(&ctx);
-	sha256_update(&ctx, msg, msg_len);
-	sha256_final(&ctx, hash_val);
+    SHA256_CTX ctx;
+    sha256_init(&ctx);
+    sha256_update(&ctx, msg, msg_len);
+    sha256_final(&ctx, hash_val);
 }
 
 /****************************************************************************
@@ -212,35 +212,41 @@ static void get_SHA256_hash(char *msg, int msg_len, char *hash_val)
  ****************************************************************************/
 PAP_error_e PAP_init(void)
 {
-	//Generate keypair
-	crypto_sign_keypair(public_key, private_key);
+    //Generate keypair
+    crypto_sign_keypair(public_key, private_key);
 
-	//Initalize mutex
-	if (pthread_mutex_init(&pap_mutex, NULL) != 0)
-	{
-		printf("\nERROR[%s]: Mutex init failed.\n", __FUNCTION__);
-		return PAP_ERROR;
-	}
+    //Init User Management
+    User_init();
 
-	return PAP_NO_ERROR;
+    //Initalize mutex
+    if (pthread_mutex_init(&pap_mutex, NULL) != 0)
+    {
+        printf("\nERROR[%s]: Mutex init failed.\n", __FUNCTION__);
+        return PAP_ERROR;
+    }
+
+    return PAP_NO_ERROR;
 }
 
 PAP_error_e PAP_term(void)
 {
-	//Destroy mutex
-	pthread_mutex_destroy(&pap_mutex);
+    //Term User Management
+    User_deinit();
 
-	return PAP_NO_ERROR;
+    //Destroy mutex
+    pthread_mutex_destroy(&pap_mutex);
+
+    return PAP_NO_ERROR;
 }
 
 PAP_error_e PAP_register_callbacks(put_fn put, get_fn get, has_fn has, del_fn del, get_pol_obj_len_fn get_pol_obj_len, get_all_fn get_all)
 {
-	/*
-	Plugin doesn't need to use all callbacks, so any of parrameters can be NULL.
-	Therefore, we will not check input parameters at function entry.
-	*/
+    /*
+    Plugin doesn't need to use all callbacks, so any of parrameters can be NULL.
+    Therefore, we will not check input parameters at function entry.
+    */
 
-	pthread_mutex_lock(&pap_mutex);
+    pthread_mutex_lock(&pap_mutex);
 
 	callback_put = put;
 	callback_get = get;
@@ -249,14 +255,14 @@ PAP_error_e PAP_register_callbacks(put_fn put, get_fn get, has_fn has, del_fn de
 	callback_get_pol_obj_len = get_pol_obj_len;
 	callback_get_all = get_all;
 
-	pthread_mutex_unlock(&pap_mutex);
+    pthread_mutex_unlock(&pap_mutex);
 
-	return PAP_NO_ERROR;
+    return PAP_NO_ERROR;
 }
 
 PAP_error_e PAP_unregister_callbacks(void)
 {
-	pthread_mutex_lock(&pap_mutex);
+    pthread_mutex_lock(&pap_mutex);
 
 	callback_put = NULL;
 	callback_get = NULL;
@@ -265,9 +271,9 @@ PAP_error_e PAP_unregister_callbacks(void)
 	callback_get_pol_obj_len = NULL;
 	callback_get_all = NULL;
 
-	pthread_mutex_unlock(&pap_mutex);
+    pthread_mutex_unlock(&pap_mutex);
 
-	return PAP_NO_ERROR;
+    return PAP_NO_ERROR;
 }
 
 PAP_error_e PAP_add_policy(char *signed_policy, int signed_policy_size, char *parsed_policy_id)
@@ -463,112 +469,112 @@ PAP_error_e PAP_add_policy(char *signed_policy, int signed_policy_size, char *pa
 
 PAP_error_e PAP_get_policy(char *policy_id, int policy_id_len, PAP_policy_t *policy)
 {
-	char policy_id_hex[PAP_POL_ID_MAX_LEN + 1] = {0};
-	char calc_policy_id[PAP_POL_ID_MAX_LEN + 1] = {0};
-	char signed_policy_id[PAP_SIGNATURE_LEN + PAP_POL_ID_MAX_LEN + 1] = {0};
-	unsigned long long smlen;
+    char policy_id_hex[PAP_POL_ID_MAX_LEN + 1] = {0};
+    char calc_policy_id[PAP_POL_ID_MAX_LEN + 1] = {0};
+    char signed_policy_id[PAP_SIGNATURE_LEN + PAP_POL_ID_MAX_LEN + 1] = {0};
+    unsigned long long smlen;
 
-	//Check input parameters
-	if (policy_id == NULL || policy_id_len == 0 || policy == NULL)
-	{
-		printf("\nERROR[%s]: Bad input parameters.\n", __FUNCTION__);
-		return PAP_ERROR;
-	}
+    //Check input parameters
+    if (policy_id == NULL || policy_id_len == 0 || policy == NULL)
+    {
+        printf("\nERROR[%s]: Bad input parameters.\n", __FUNCTION__);
+        return PAP_ERROR;
+    }
 
-	pthread_mutex_lock(&pap_mutex);
+    pthread_mutex_lock(&pap_mutex);
 
-	//Get policy ID hex value
-	if (str_to_hex(policy_id, policy_id_hex, policy_id_len) != UTILS_STRING_SUCCESS)
-	{
-		printf("\nERROR[%s]: Could not convert string to hex value.\n", __FUNCTION__);
-		pthread_mutex_unlock(&pap_mutex);
-		return PAP_ERROR;
-	}
+    //Get policy ID hex value
+    if (str_to_hex(policy_id, policy_id_hex, policy_id_len) != UTILS_STRING_SUCCESS)
+    {
+        printf("\nERROR[%s]: Could not convert string to hex value.\n", __FUNCTION__);
+        pthread_mutex_unlock(&pap_mutex);
+        return PAP_ERROR;
+    }
 
-	memcpy(policy->policy_ID, policy_id_hex, PAP_POL_ID_MAX_LEN + 1);
+    memcpy(policy->policy_ID, policy_id_hex, PAP_POL_ID_MAX_LEN + 1);
 
-	//Get policy from storage
-	if (callback_get != NULL)
-	{
-		callback_get(policy_id_hex, &(policy->policy_object), &(policy->policy_id_signature), &(policy->hash_function));
-	}
-	else
-	{
-		printf("\nERROR[%s]: Callback is not registered.\n", __FUNCTION__);
-		pthread_mutex_unlock(&pap_mutex);
-		return PAP_ERROR;
-	}
+    //Get policy from storage
+    if (callback_get != NULL)
+    {
+        callback_get(policy_id_hex, &(policy->policy_object), &(policy->policy_id_signature), &(policy->hash_function));
+    }
+    else
+    {
+        printf("\nERROR[%s]: Callback is not registered.\n", __FUNCTION__);
+        pthread_mutex_unlock(&pap_mutex);
+        return PAP_ERROR;
+    }
 
-	//Check if policy_id_signature is valid
-	if (policy->policy_id_signature.signature_algorithm == PAP_ECDSA)
-	{
-		//Calculate policy object hash
-		if (policy->hash_function == PAP_SHA_256)
-		{
-			get_SHA256_hash(policy->policy_object.policy_object, policy->policy_object.policy_object_size, calc_policy_id);
+    //Check if policy_id_signature is valid
+    if (policy->policy_id_signature.signature_algorithm == PAP_ECDSA)
+    {
+        //Calculate policy object hash
+        if (policy->hash_function == PAP_SHA_256)
+        {
+            get_SHA256_hash(policy->policy_object.policy_object, policy->policy_object.policy_object_size, calc_policy_id);
 
-			//Sign policy ID with module private key
-			crypto_sign(signed_policy_id, &smlen, calc_policy_id, PAP_POL_ID_MAX_LEN, private_key);
+            //Sign policy ID with module private key
+            crypto_sign(signed_policy_id, &smlen, calc_policy_id, PAP_POL_ID_MAX_LEN, private_key);
 
-			//Check if that signature matches with acquired one
-			if (memcmp(signed_policy_id, policy->policy_id_signature.signature, PAP_SIGNATURE_LEN) != 0)
-			{
-				printf("\nERROR[%s]: Invalid policy ID signature.\n", __FUNCTION__);
-				pthread_mutex_unlock(&pap_mutex);
-				return PAP_ERROR;
-			}
-		}
-		else
-		{
-			printf("\nERROR[%s]: Invalid policy ID signature.\n", __FUNCTION__);
-			pthread_mutex_unlock(&pap_mutex);
-			return PAP_ERROR;
-		}
-	}
-	else
-	{
-		printf("\nERROR[%s]: Invalid policy ID signature.\n", __FUNCTION__);
-		pthread_mutex_unlock(&pap_mutex);
-		return PAP_ERROR;
-	}
+            //Check if that signature matches with acquired one
+            if (memcmp(signed_policy_id, policy->policy_id_signature.signature, PAP_SIGNATURE_LEN) != 0)
+            {
+                printf("\nERROR[%s]: Invalid policy ID signature.\n", __FUNCTION__);
+                pthread_mutex_unlock(&pap_mutex);
+                return PAP_ERROR;
+            }
+        }
+        else
+        {
+            printf("\nERROR[%s]: Invalid policy ID signature.\n", __FUNCTION__);
+            pthread_mutex_unlock(&pap_mutex);
+            return PAP_ERROR;
+        }
+    }
+    else
+    {
+        printf("\nERROR[%s]: Invalid policy ID signature.\n", __FUNCTION__);
+        pthread_mutex_unlock(&pap_mutex);
+        return PAP_ERROR;
+    }
 
-	pthread_mutex_unlock(&pap_mutex);
-	return PAP_NO_ERROR;
+    pthread_mutex_unlock(&pap_mutex);
+    return PAP_NO_ERROR;
 }
 
 bool PAP_has_policy(char *policy_id, int policy_id_len)
 {
-	char policy_id_hex[PAP_POL_ID_MAX_LEN + 1] = {0};
+    char policy_id_hex[PAP_POL_ID_MAX_LEN + 1] = {0};
 
-	//Check input parameters
-	if (policy_id == NULL || policy_id_len == 0)
-	{
-		printf("\nERROR[%s]: Bad input parameters.\n", __FUNCTION__);
-		return FALSE;
-	}
+    //Check input parameters
+    if (policy_id == NULL || policy_id_len == 0)
+    {
+        printf("\nERROR[%s]: Bad input parameters.\n", __FUNCTION__);
+        return FALSE;
+    }
 
-	pthread_mutex_lock(&pap_mutex);
+    pthread_mutex_lock(&pap_mutex);
 
-	//Get policy ID hex value
-	if (str_to_hex(policy_id, policy_id_hex, policy_id_len) != UTILS_STRING_SUCCESS)
-	{
-		printf("\nERROR[%s]: Could not convert string to hex value.\n", __FUNCTION__);
-		pthread_mutex_unlock(&pap_mutex);
-		return FALSE;
-	}
+    //Get policy ID hex value
+    if (str_to_hex(policy_id, policy_id_hex, policy_id_len) != UTILS_STRING_SUCCESS)
+    {
+        printf("\nERROR[%s]: Could not convert string to hex value.\n", __FUNCTION__);
+        pthread_mutex_unlock(&pap_mutex);
+        return FALSE;
+    }
 
-	//Check if policy is already in the storage
-	if (callback_has != NULL)
-	{
-		pthread_mutex_unlock(&pap_mutex);
-		return callback_has(policy_id_hex);
-	}
-	else
-	{
-		printf("\nERROR[%s]: Callback is not registered.\n", __FUNCTION__);
-		pthread_mutex_unlock(&pap_mutex);
-		return FALSE;
-	}
+    //Check if policy is already in the storage
+    if (callback_has != NULL)
+    {
+        pthread_mutex_unlock(&pap_mutex);
+        return callback_has(policy_id_hex);
+    }
+    else
+    {
+        printf("\nERROR[%s]: Callback is not registered.\n", __FUNCTION__);
+        pthread_mutex_unlock(&pap_mutex);
+        return FALSE;
+    }
 }
 
 PAP_error_e PAP_remove_policy(char *policy_id, int policy_id_len)
@@ -794,6 +800,61 @@ PAP_error_e PAP_get_subjects_list_of_actions(char *subject_id, int subject_id_le
 #if PAP_STORAGE_TEST_ACIVE
 void PAP_register_get_pk_cb(get_pk cb)
 {
-	callback_get_pk = cb;
+    callback_get_pk = cb;
 }
 #endif
+
+void PAP_user_management_action(PAP_user_mng_req_e request, ...)
+{
+    va_list valist;
+
+    va_start(valist, request);
+
+    //Ceck request
+    switch (request)
+    {
+        case PAP_USERMNG_GET_ALL_USR:
+        {
+            char* response;
+            response = va_arg(valist, char*);
+            User_get_all(response);
+            break;
+        }
+        case PAP_USERMNG_GET_USER:
+        {
+            char* id;
+            char* response;
+            id = va_arg(valist, char*);
+            response = va_arg(valist, char*);
+            User_get_obj(id, response);
+            break;
+        }
+        case PAP_USERMNG_PUT_USER:
+        {
+            char* json_string;
+            char* json_response;
+            json_string = va_arg(valist, char*);
+            json_response = va_arg(valist, char*);
+            User_put_obj(json_string, json_response);
+            break;
+        }
+        case PAP_USERMNG_GET_USER_ID:
+        {
+            char* username;
+            char* json_string;
+            username = va_arg(valist, char*);
+            json_string = va_arg(valist, char*);
+            User_get_user_id(username, json_string);
+            break;
+        }
+        case PAP_USERMNG_CLR_ALL_USR:
+        {
+            char* response;
+            response = va_arg(valist, char*);
+            User_clear_all(response);
+            break;
+        }
+        default:
+            break;
+    }
+}

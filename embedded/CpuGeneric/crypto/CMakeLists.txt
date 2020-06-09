@@ -19,22 +19,25 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-set(config_manager_implementation ini CACHE STRING "Config manager implementation choice")
-
-set(target config_manager)
+set(target cryptography)
 
 set(sources
-  config_manager.c
-  implementations/${config_manager_implementation}/config_manager_implementation.c)
+  sha512.c
+  curve25519-donna.c
+  aes.c
+  sha256.c
+  ref/ge25519.c
+  ref/crypto_hash_sha512.c
+  ref/fe25519.c
+  ref/sc25519.c
+  ref/keypair.c
+  ref/open.c
+  ref/sign.c
+  ref/verify.c)
 
 set(include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/implementations/${config_manager_implementation})
+  ${CMAKE_CURRENT_SOURCE_DIR}/ref)
 
 add_library(${target} ${sources})
 target_include_directories(${target} PUBLIC ${include_dirs})
-
-# Config manager implementation test
-set(target config_manager_test)
-add_executable(${target} implementations/${config_manager_implementation}/test.c)
-target_link_libraries(${target} PUBLIC config_manager)

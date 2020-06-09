@@ -19,22 +19,29 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-set(config_manager_implementation ini CACHE STRING "Config manager implementation choice")
+set(target asn)
 
-set(target config_manager)
+set(asn_implementation libCrypto CACHE STRING "ASN implementation choice")
+
+set(libs json_parser cryptography)
+
+# Depends on system libcrypto for libCrypto (ssl) variant
+if(asn_implementation STREQUAL libCrypto)
+set(libs ${libs} -lcrypto)
+endif()
 
 set(sources
-  config_manager.c
-  implementations/${config_manager_implementation}/config_manager_implementation.c)
+  asn_auth.c
+  asn_auth_helper.c
+  implementations/${asn_implementation}/asn_client.c
+  implementations/${asn_implementation}/asn_server.c
+  implementations/${asn_implementation}/asn_client.c
+  implementations/${asn_implementation}/asn_utils.c)
 
 set(include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/implementations/${config_manager_implementation})
+  ${CMAKE_CURRENT_SOURCE_DIR}/implementations/${asn_implementation})
 
 add_library(${target} ${sources})
 target_include_directories(${target} PUBLIC ${include_dirs})
-
-# Config manager implementation test
-set(target config_manager_test)
-add_executable(${target} implementations/${config_manager_implementation}/test.c)
-target_link_libraries(${target} PUBLIC config_manager)
+target_link_libraries(${target} PUBLIC ${libs})
