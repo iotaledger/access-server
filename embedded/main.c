@@ -62,7 +62,7 @@
 #define NODE_PORT 443
 #define NODE_DEPTH 3
 #define NODE_MWM 14
-#define WALLET_SEED "GSRL9AN3RFKESUS2DEBEEWR3YPJ8S2PPX9BJTBXCV3X96B55ZSS4PZ2QFKRV73PQ5NHHCAVDBBR57GFAY"
+#define WALLET_SEED "DEJUXV9ZQMIEXTWJJHJPLAWMOEKGAYDNALKSMCLG9APR9LCKHMLNZVCRFNFEPMGOBOYYIKJNYWSAKVPAI"
 
 int g_task_sleep_time;
 
@@ -120,8 +120,8 @@ int main(int argc, char** argv)
 
     if (strncmp(client_name, CONFIG_CLIENT_CAN01, strlen(CONFIG_CLIENT_CAN01)) == 0)
     {
-#ifdef TINY_EMBEDDED
         Resolver_init(Demo01Plugin_initializer, &vdstate);
+#ifdef TINY_EMBEDDED
         vdstate.options = &VehicleDatasetDemo01_options[0];
         vdstate.dataset = (can01_vehicle_dataset_t*)malloc(sizeof(can01_vehicle_dataset_t));
         Dataset_init(&vdstate);
@@ -135,8 +135,8 @@ int main(int argc, char** argv)
     }
     else if (strncmp(client_name, CONFIG_CLIENT_CANOPEN01, strlen(CONFIG_CLIENT_CANOPEN01)) == 0)
     {
-#ifdef TINY_EMBEDDED
         Resolver_init(Demo02Plugin_initializer, &vdstate);
+#ifdef TINY_EMBEDDED
         vdstate.options = &VehicleDatasetDemo02_options[0];
         vdstate.dataset = (canopen01_vehicle_dataset_t*)malloc(sizeof(canopen01_vehicle_dataset_t));
         Dataset_init(&vdstate);
