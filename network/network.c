@@ -46,6 +46,7 @@
 #include "utils_string.h"
 #include "pap.h"
 #include "globals_declarations.h"
+#include "policy_updater.h"
 
 #define Dlog_printf printf
 
@@ -94,9 +95,10 @@ typedef struct {
 
 static void *server_thread(void *ptr);
 
-int Network_actor_start(int portname, Dataset_state_t *_vdstate, Network_actor_ctx_id* network_actor_context)
+int Network_actor_init(int portname, Dataset_state_t *_vdstate, Network_actor_ctx_id* network_actor_context)
 {
     Network_actor_ctx_t *ctx = malloc(sizeof(Network_actor_ctx_t));
+
     ctx->state = 0;
     ctx->DAC_AUTH = 1;
     ctx->port = 9998;
@@ -106,6 +108,19 @@ int Network_actor_start(int portname, Dataset_state_t *_vdstate, Network_actor_c
 
     ctx->port = portname;
     ctx->vdstate = _vdstate;
+
+    PolicyUpdater_init();
+
+    *network_actor_context = (void*)ctx;
+
+    return 0;
+}
+
+int Network_actor_start(Network_actor_ctx_id network_actor_context)
+{
+    Network_actor_ctx_t *ctx = (Network_actor_ctx_t*)network_actor_context;
+
+    PolicyUpdater_start();
 
     struct sockaddr_in serv_addr;
     char read_buffer[READ_BUFF_LEN];
@@ -144,16 +159,19 @@ int Network_actor_start(int portname, Dataset_state_t *_vdstate, Network_actor_c
         return ERROR_CREATE_THREAD_FAILED;
     }
 
-    *network_actor_context = (void*)ctx;
+
     return NO_ERROR;
 }
 
-void Network_actor_stop(Network_actor_ctx_id* network_actor_context)
+void Network_actor_stop(Network_actor_ctx_id network_actor_context)
 {
-    Network_actor_ctx_t *ctx = (Network_actor_ctx_t*)(*network_actor_context);
-    ctx->end = 1;
-    pthread_join(ctx->thread, NULL);
-    free(ctx);
+    Network_actor_ctx_t *ctx = (Network_actor_ctx_t*)network_actor_context;
+    if (ctx != NULL)
+    {
+        ctx->end = 1;
+        pthread_join(ctx->thread, NULL);
+        free(ctx);
+    }
 }
 
 static ssize_t read_socket(void *ext, void *data, unsigned short len)

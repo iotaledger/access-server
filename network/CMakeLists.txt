@@ -28,7 +28,8 @@ set(libs
   json_parser
   asn
   pep
-  storage_plugin)
+  storage_plugin
+  policy_updater)
 
 add_library(${target} network.c)
 target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
