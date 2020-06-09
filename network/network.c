@@ -47,6 +47,7 @@
 #include "pap.h"
 #include "globals_declarations.h"
 #include "policy_updater.h"
+#include "config_manager.h"
 
 #define Dlog_printf printf
 
@@ -95,18 +96,26 @@ typedef struct {
 
 static void *server_thread(void *ptr);
 
-int Network_actor_init(int portname, Dataset_state_t *_vdstate, Network_actor_ctx_id* network_actor_context)
+int Network_actor_init(Dataset_state_t *_vdstate, Network_actor_ctx_id* network_actor_context)
 {
     Network_actor_ctx_t *ctx = malloc(sizeof(Network_actor_ctx_t));
 
+    ConfigManager_init("config.ini");
+    int tcp_port;
+    if (CONFIG_MANAGER_OK != ConfigManager_get_option_int("network_actor", "tcp_port", &tcp_port))
+    {
+        ctx->port = 9998;
+    }
+    else
+    {
+        ctx->port = tcp_port;
+    }
+
     ctx->state = 0;
     ctx->DAC_AUTH = 1;
-    ctx->port = 9998;
     ctx->end = 0;
     ctx->listenfd = 0;
     ctx->connfd = 0;
-
-    ctx->port = portname;
     ctx->vdstate = _vdstate;
 
     PolicyUpdater_init();

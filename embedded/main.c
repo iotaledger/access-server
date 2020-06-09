@@ -30,15 +30,11 @@
 #include "json_interface.h"
 #include "config_manager.h"
 
-#include "user.h"
 #include "network.h"
-
-#include "policy_updater.h"
 
 #include <time.h>
 #include "globals_declarations.h"
 #include "timer.h"
-#include "storage.h"
 
 #include "access.h"
 
@@ -53,42 +49,34 @@ static Network_actor_ctx_id network_actor_context = 0;
 
 int main(int argc, char** argv)
 {
-    signal(SIGINT, signal_handler);
-    sigaction(SIGPIPE, &(struct sigaction){SIG_IGN}, NULL);
     Dataset_state_t *vdstate;
 
-    Access_ctx_t access_context = 0;
-    Access_init(&access_context);
+    signal(SIGINT, signal_handler);
+    sigaction(SIGPIPE, &(struct sigaction){SIG_IGN}, NULL);
 
     ConfigManager_init("config.ini");
 
     int status = ConfigManager_get_option_int("config", "thread_sleep_period", &g_task_sleep_time);
     if (status != CONFIG_MANAGER_OK) g_task_sleep_time = 1000; // 1 second
 
-    Network_actor_init(9998, vdstate, &network_actor_context);
-
-    Storage_init();
-
-    Timer_init();
-
-    Access_start(access_context);
+    Access_ctx_t access_context = 0;
+    Access_init(&access_context);
     Access_get_vdstate(access_context, &vdstate);
 
+    Network_actor_init(vdstate, &network_actor_context);
+
+    Access_start(access_context);
     if (Network_actor_start(network_actor_context) != 0)
     {
         fprintf(stderr, "Error starting Network actor\n");
         running = 0;
     }
 
+    // Wait until process receives SIGINT
     while (running == 1) usleep(g_task_sleep_time);
 
     Network_actor_stop(&network_actor_context);
-
     Access_deinit(access_context);
-
-    Timer_deinit();
-
-    printf("             done...\n");
 
     return 0;
 }

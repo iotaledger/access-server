@@ -38,7 +38,7 @@
 
 typedef void* Network_actor_ctx_id;
 
-int Network_actor_init(int portname, Dataset_state_t *_vdstate, Network_actor_ctx_id* network_actor_context);
+int Network_actor_init(Dataset_state_t *_vdstate, Network_actor_ctx_id* network_actor_context);
 int Network_actor_start(Network_actor_ctx_id network_actor_context);
 void Network_actor_stop(Network_actor_ctx_id network_actor_context);
 

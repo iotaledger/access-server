@@ -31,7 +31,8 @@ set(libs
   pep
   legacy_modules
   fastjson
-  data_acquisition_plugins)
+  data_acquisition_plugins
+  storage_plugin)
 
 add_library(${target} access.c)
 target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

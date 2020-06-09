@@ -31,6 +31,8 @@
 #include "canopen_receiver.h"
 #include "obdii_receiver.h"
 #include "modbus_receiver.h"
+#include "storage.h"
+#include "timer.h"
 
 #define MAX_CLIENT_NAME 32
 #define CONFIG_CLIENT_CAN01 "can01"
@@ -61,8 +63,11 @@ void Access_init(Access_ctx_t *access_context)
     Access_ctx_t_ *ctx = calloc(1, sizeof(Access_ctx_t_));
 
     ConfigManager_init("config.ini");
-
     ConfigManager_get_option_string("config", "client", ctx->client_name, MAX_CLIENT_NAME);
+
+    // Register plugins
+    Timer_init();
+    Storage_init();
 
     ctx->device_wallet = wallet_create(NODE_URL, NODE_PORT, NULL, NODE_DEPTH, NODE_MWM, WALLET_SEED);
     PEP_init(ctx->device_wallet);
@@ -114,11 +119,8 @@ void Access_start(Access_ctx_t access_context)
     Access_ctx_t_ *ctx = (Access_ctx_t_*)access_context;
 
     if (ctx->using_modbus == 1) ModbusReceiver_start();
-
     if (ctx->using_can == 1) CanReceiver_start();
-
     if (ctx->using_gps == 1) GpsReceiver_start();
-
     if (ctx->using_canopen == 1) CanopenReceiver_start();
 }
 
@@ -135,6 +137,7 @@ void Access_deinit(Access_ctx_t access_context)
     if (ctx->vdstate.dataset != 0)
         Dataset_deinit(&ctx->vdstate);
 
+    Timer_deinit();
 }
 
 void Access_get_vdstate(Access_ctx_t access_context, Dataset_state_t **vdstate)
