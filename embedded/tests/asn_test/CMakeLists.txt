@@ -19,7 +19,7 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-set(target asm_test)
+set(target asn_test)
 
 set(sources
   asn_test.c)
