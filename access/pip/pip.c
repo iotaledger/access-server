@@ -51,17 +51,30 @@
  * GLOBAL VARIABLES
  ****************************************************************************/
 static pthread_mutex_t pip_mutex;
+static wallet_ctx_t* dev_wallet = NULL;
 
 /****************************************************************************
  * CALLBACK FUNCTIONS
  ****************************************************************************/
 static fetch_fn callback_fetch[PIP_MAX_AUTH_CALLBACKS] = {0};
+static save_transaction_fn save_transaction = NULL;
 
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
-PIP_error_e PIP_init(void)
+PIP_error_e PIP_init(wallet_ctx_t* wallet_ctx)
 {
+	//Check input parameter
+	if (wallet_ctx == NULL)
+	{
+		printf("\nERROR[%s]: Bad input parameter.\n", __FUNCTION__);
+		return PIP_ERROR;
+	}
+	else
+	{
+		dev_wallet = wallet_ctx;
+	}
+
 	//Initalize mutex
 	if (pthread_mutex_init(&pip_mutex, NULL) != 0)
 	{
@@ -74,13 +87,15 @@ PIP_error_e PIP_init(void)
 
 PIP_error_e PIP_term(void)
 {
+	dev_wallet = NULL;
+
 	//Destroy mutex
 	pthread_mutex_destroy(&pip_mutex);
 
 	return PIP_NO_ERROR;
 }
 
-PIP_error_e PIP_register_callback(PIP_authorities_e authority, fetch_fn fetch)
+PIP_error_e PIP_register_fetch_callback(PIP_authorities_e authority, fetch_fn fetch)
 {
 	pthread_mutex_lock(&pip_mutex);
 
@@ -115,7 +130,7 @@ PIP_error_e PIP_register_callback(PIP_authorities_e authority, fetch_fn fetch)
 	return PIP_NO_ERROR;
 }
 
-PIP_error_e PIP_unregister_callback(PIP_authorities_e authority)
+PIP_error_e PIP_unregister_fetch_callback(PIP_authorities_e authority)
 {
 	pthread_mutex_lock(&pip_mutex);
 
@@ -134,7 +149,7 @@ PIP_error_e PIP_unregister_callback(PIP_authorities_e authority)
 	return PIP_NO_ERROR;
 }
 
-PIP_error_e PIP_unregister_all_callbacks(void)
+PIP_error_e PIP_unregister_all_fetch_callbacks(void)
 {
 	pthread_mutex_lock(&pip_mutex);
 
@@ -145,6 +160,35 @@ PIP_error_e PIP_unregister_all_callbacks(void)
 	}
 
 	pthread_mutex_unlock(&pip_mutex);
+
+	return PIP_NO_ERROR;
+}
+
+PIP_error_e PIP_register_save_tr_callback(save_transaction_fn save_tr)
+{
+	//Check input parameter
+	if (save_tr == NULL)
+	{
+		printf("\nERROR[%s]: Bad input parameter.\n", __FUNCTION__);
+		return PIP_ERROR;
+	}
+
+	pthread_mutex_lock(&pip_mutex);
+
+	save_transaction = save_tr;
+
+	pthread_mutex_lock(&pip_mutex);
+
+	return PIP_NO_ERROR;
+}
+
+PIP_error_e PIP_unregister_save_tr_callback(void)
+{
+	pthread_mutex_lock(&pip_mutex);
+
+	save_transaction = NULL;
+
+	pthread_mutex_lock(&pip_mutex);
 
 	return PIP_NO_ERROR;
 }
@@ -208,4 +252,34 @@ PIP_error_e PIP_get_data(char* uri, PIP_attribute_object_t* attribute)
 
 	pthread_mutex_unlock(&pip_mutex);
 	return PIP_NO_ERROR;
+}
+
+PIP_error_e PIP_store_transaction(char* user_id, int user_id_len,
+									char* action, int action_len,
+									char* transaction_hash, int transaction_hash_len)
+{
+	PIP_error_e ret = PIP_ERROR;
+
+	//Check input parameters
+	if (user_id == NULL || action == NULL || transaction_hash == NULL)
+	{
+		printf("\nERROR[%s]: Bad input prameter.\n", __FUNCTION__);
+		return ret;
+	}
+
+	pthread_mutex_lock(&pip_mutex);
+
+	if (save_transaction)
+	{
+		save_transaction(dev_wallet, user_id, user_id_len, action, action_len, transaction_hash, transaction_hash_len);
+		ret = PIP_NO_ERROR;
+	}
+	else
+	{
+		printf("\nERROR[%s]: Callback not registered.\n", __FUNCTION__);
+	}
+
+	pthread_mutex_unlock(&pip_mutex);
+
+	return ret;
 }

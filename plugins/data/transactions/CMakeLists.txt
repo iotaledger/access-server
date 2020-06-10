@@ -19,17 +19,18 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-add_subdirectory(asn)
+set(target data_transactions_plugins)
 
-set(target network)
+set(sources
+  transaction.c
+  platforms/r_pi/rpi_trans.c)
 
-set(libs
-  json_parser
-  asn
-  pep
-  pip
-  storage_plugin)
+set(include_dirs
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/platforms/r_pi)
 
-add_library(${target} network.c)
-target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+set(libs pip)
+
+add_library(${target} ${sources})
+target_include_directories(${target} PUBLIC ${include_dirs})
 target_link_libraries(${target} PUBLIC ${libs})

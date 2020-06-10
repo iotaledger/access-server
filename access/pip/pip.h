@@ -35,6 +35,11 @@
 #define _PIP_H_
 
 /****************************************************************************
+ * INCLUDE
+ ****************************************************************************/
+#include "wallet.h"
+
+/****************************************************************************
  * MACROS
  ****************************************************************************/
 #ifndef bool
@@ -77,6 +82,8 @@ typedef struct attribute_object
  * CALLBACKS
  ****************************************************************************/
 typedef bool (*fetch_fn)(char* uri, PIP_attribute_object_t* attribute_object);
+typedef bool (*save_transaction_fn)(wallet_ctx_t* wallet_ctx, char* user_id, int user_id_len,
+									char* action, int action_len, char* transaction_hash, int transaction_hash_len);
 
 /****************************************************************************
  * API FUNCTIONS
@@ -86,11 +93,11 @@ typedef bool (*fetch_fn)(char* uri, PIP_attribute_object_t* attribute_object);
  *
  * @brief   Initialize module
  *
- * @param   void
+ * @param   wallet_ctx - Wallet context
  *
  * @return  PIP_error_e error status
  */
-PIP_error_e PIP_init(void);
+PIP_error_e PIP_init(wallet_ctx_t* wallet_ctx);
 
 /**
  * @fn      PIP_term
@@ -104,7 +111,7 @@ PIP_error_e PIP_init(void);
 PIP_error_e PIP_term(void);
 
 /**
- * @fn      PIP_register_callback
+ * @fn      PIP_register_fetch_callback
  *
  * @brief   Register callback for authority
  *
@@ -113,10 +120,10 @@ PIP_error_e PIP_term(void);
  *
  * @return  PIP_error_e error status
  */
-PIP_error_e PIP_register_callback(PIP_authorities_e authority, fetch_fn fetch);
+PIP_error_e PIP_register_fetch_callback(PIP_authorities_e authority, fetch_fn fetch);
 
 /**
- * @fn      PIP_unregister_callback
+ * @fn      PIP_unregister_fetch_callback
  *
  * @brief   Unregister callback for authority
  *
@@ -124,10 +131,10 @@ PIP_error_e PIP_register_callback(PIP_authorities_e authority, fetch_fn fetch);
  *
  * @return  PIP_error_e error status
  */
-PIP_error_e PIP_unregister_callback(PIP_authorities_e authority);
+PIP_error_e PIP_unregister_fetch_callback(PIP_authorities_e authority);
 
 /**
- * @fn      PIP_unregister_all_callbacks
+ * @fn      PIP_unregister_all_fetch_callbacks
  *
  * @brief   Unregister callbacka for every authority
  *
@@ -135,7 +142,29 @@ PIP_error_e PIP_unregister_callback(PIP_authorities_e authority);
  *
  * @return  PIP_error_e error status
  */
-PIP_error_e PIP_unregister_all_callbacks(void);
+PIP_error_e PIP_unregister_all_fetch_callbacks(void);
+
+/**
+ * @fn      PIP_register_save_tr_callback
+ *
+ * @brief   Register callback for saving transaction
+ *
+ * @param   save_tr - Callback to register
+ *
+ * @return  PIP_error_e error status
+ */
+PIP_error_e PIP_register_save_tr_callback(save_transaction_fn save_tr);
+
+/**
+ * @fn      PIP_unregister_save_tr_callback
+ *
+ * @brief   Unregister callback for saving transaction
+ *
+ * @param   void
+ *
+ * @return  PIP_error_e error status
+ */
+PIP_error_e PIP_unregister_save_tr_callback(void);
 
 /**
  * @fn      PIP_get_data
@@ -148,5 +177,23 @@ PIP_error_e PIP_unregister_all_callbacks(void);
  * @return  PIP_error_e error status
  */
 PIP_error_e PIP_get_data(char* uri, PIP_attribute_object_t* attribute);
+
+/**
+ * @fn      PIP_store_transaction
+ *
+ * @brief   Store user's transaction to database
+ *
+ * @param   user_id - User ID string
+ * @param   user_id_len - Length of user ID string
+ * @param   action - Action string
+ * @param   action_len - Length of action string
+ * @param   transaction_hash - Transaction hash string
+ * @param   transaction_hash_len - Length of transaction hash string
+ *
+ * @return  PIP_error_e error status
+ */
+PIP_error_e PIP_store_transaction(char* user_id, int user_id_len,
+									char* action, int action_len,
+									char* transaction_hash, int transaction_hash_len);
 
 #endif /* _PIP_H_ */

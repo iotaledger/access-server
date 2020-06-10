@@ -102,7 +102,7 @@ static bool fetch_data(char* uri, PIP_attribute_object_t* attribute_object)
  ****************************************************************************/
 bool PROTOCOL_init(void)
 {
-	if (PIP_register_callback(PIP_IOTA, fetch_data) != PIP_NO_ERROR)
+	if (PIP_register_fetch_callback(PIP_IOTA, fetch_data) != PIP_NO_ERROR)
 	{
 		printf("\nERROR[%s]: Register PIP callback failed.\n", __FUNCTION__);
 		return FALSE;
@@ -113,7 +113,7 @@ bool PROTOCOL_init(void)
 
 bool PROTOCOL_term(void)
 {
-	if (PIP_unregister_callback(PIP_IOTA) != PIP_NO_ERROR)
+	if (PIP_unregister_fetch_callback(PIP_IOTA) != PIP_NO_ERROR)
 	{
 		printf("\nERROR[%s]: Unregister PIP callback failed.\n");
 		return FALSE;

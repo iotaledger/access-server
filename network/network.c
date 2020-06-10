@@ -42,10 +42,10 @@
 #include "json_parser.h"
 #include "asn_auth_helper.h"
 #include "pep.h"
-#include "pap.h"
 #include "storage.h"
 #include "utils_string.h"
 #include "pap.h"
+#include "pip.h"
 #include "globals_declarations.h"
 
 #define Dlog_printf printf
@@ -76,6 +76,7 @@
 #define COMMAND_REDISTER_USER 7
 #define COMMAND_GET_ALL_USER 8
 #define COMMAND_CLEAR_ALL_USER 9
+#define COMMAND_NOTIFY_TRANSACTION 10
 
 static pthread_t thread;
 static asnSession_t session;
@@ -466,6 +467,32 @@ static unsigned int doAuthWorkTiny(char **recvData)
         PAP_user_management_action(PAP_USERMNG_CLR_ALL_USR, send_buffer);
         *recvData = send_buffer;
         buffer_position = strlen(send_buffer);
+    }
+    else if (request_code == COMMAND_NOTIFY_TRANSACTION)
+    {
+        int user_id_index = -1;
+        int action_index = -1;
+        int transaction_hash_index = -1;
+
+        for (int i = 0; i < num_of_tokens; i++)
+        {
+            if (memcmp(*recvData + get_start_of_token(i), "user_id", strlen("user_id")) == 0)
+            {
+                user_id_index = i + 1;
+            }
+            else if (memcmp(*recvData + get_start_of_token(i), "action", strlen("action")) == 0)
+            {
+                action_index = i + 1;
+            }
+            else if (memcmp(*recvData + get_start_of_token(i), "transaction_hash", strlen("transaction_hash")) == 0)
+            {
+                transaction_hash_index = i + 1;
+            }
+        }
+
+        PIP_store_transaction(*recvData + get_start_of_token(user_id_index), get_size_of_token(user_id_index),
+                                *recvData + get_start_of_token(action_index), get_size_of_token(action_index),
+                                *recvData + get_start_of_token(transaction_hash_index), get_size_of_token(transaction_hash_index));
     }
     else
     {

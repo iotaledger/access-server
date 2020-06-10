@@ -73,7 +73,7 @@ bool RPI_store_policy(char* policy_id, char* policy_object, int policy_object_si
 	}
 
 	//Write policy data to a file
-	sprintf(pol_path, "../plugins/storage/platforms/r_pi/policies/%s.txt", pol_id_str);
+	sprintf(pol_path, "../../plugins/storage/platforms/r_pi/policies/%s.txt", pol_id_str);
 	f = fopen(pol_path, "w+");
 	if (f == NULL)
 	{
@@ -100,7 +100,7 @@ bool RPI_store_policy(char* policy_id, char* policy_object, int policy_object_si
 
 	//Store policy ID in stored policies file
 	memset(pol_path, 0, RPI_MAX_STR_LEN * sizeof(char));
-	sprintf(pol_path, "../plugins/storage/platforms/r_pi/policies/stored_policies.txt");
+	sprintf(pol_path, "../../plugins/storage/platforms/r_pi/policies/stored_policies.txt");
 
 	f = fopen(pol_path, "a");
 	if (f == NULL)
@@ -144,7 +144,7 @@ bool RPI_acquire_policy(char* policy_id, char* policy_object, int *policy_object
 	}
 
 	//Open file
-	sprintf(pol_path, "../plugins/storage/platforms/r_pi/policies/%s.txt", pol_id_str);
+	sprintf(pol_path, "../../plugins/storage/platforms/r_pi/policies/%s.txt", pol_id_str);
 	f = fopen(pol_path, "r");
 	if (f == NULL)
 	{
@@ -213,7 +213,7 @@ bool RPI_check_if_stored_policy(char* policy_id)
 		return FALSE;
 	}
 
-	sprintf(pol_path, "../plugins/storage/platforms/r_pi/policies/%s.txt", pol_id_str);
+	sprintf(pol_path, "../../plugins/storage/platforms/r_pi/policies/%s.txt", pol_id_str);
 
 	//Check file existance
 	if(access(pol_path, F_OK) != RPI_ACCESS_ERR)
@@ -250,13 +250,13 @@ bool RPI_flush_policy(char* policy_id)
 		return FALSE;
 	}
 
-	sprintf(pol_path, "../plugins/storage/platforms/r_pi/policies/%s.txt", pol_id_str);
+	sprintf(pol_path, "../../plugins/storage/platforms/r_pi/policies/%s.txt", pol_id_str);
 
 	if (remove(pol_path) == 0)
 	{
 		//Remove policy ID from stored policies file
 		memset(pol_path, 0, RPI_MAX_STR_LEN * sizeof(char));
-		sprintf(pol_path, "../plugins/storage/platforms/r_pi/policies/stored_policies.txt");
+		sprintf(pol_path, "../../plugins/storage/platforms/r_pi/policies/stored_policies.txt");
 		f = fopen(pol_path, "r");
 		if (f == NULL)
 		{
@@ -327,7 +327,7 @@ int RPI_get_pol_obj_len(char* policy_id)
 	}
 
 	//Open file
-	sprintf(pol_path, "../plugins/storage/platforms/r_pi/policies/%s.txt", pol_id_str);
+	sprintf(pol_path, "../../plugins/storage/platforms/r_pi/policies/%s.txt", pol_id_str);
 	f = fopen(pol_path, "r");
 	if (f == NULL)
 	{
@@ -353,5 +353,5 @@ int RPI_get_pol_obj_len(char* policy_id)
 
 char* RPI_get_stored_pol_info_file(void)
 {
-	return "../plugins/storage/platforms/r_pi/policies/stored_policies.txt";
+	return "../../plugins/storage/platforms/r_pi/policies/stored_policies.txt";
 }
