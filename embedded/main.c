@@ -38,6 +38,12 @@
 
 #include "access.h"
 
+#define NODE_URL "nodes.comnet.thetangle.org"
+#define NODE_PORT 443
+#define NODE_DEPTH 3
+#define NODE_MWM 14
+#define WALLET_SEED "DEJUXV9ZQMIEXTWJJHJPLAWMOEKGAYDNALKSMCLG9APR9LCKHMLNZVCRFNFEPMGOBOYYIKJNYWSAKVPAI"
+
 int g_task_sleep_time;
 
 #define Dlog_printf printf
@@ -45,7 +51,9 @@ int g_task_sleep_time;
 static volatile int running = 1;
 static void signal_handler(int _) { running = 0; }
 
-static Network_actor_ctx_id network_actor_context = 0;
+static Network_actor_ctx_t network_actor_context = 0;
+static Access_ctx_t access_context = 0;
+static wallet_ctx_t *device_wallet;
 
 int main(int argc, char** argv)
 {
@@ -59,8 +67,9 @@ int main(int argc, char** argv)
     int status = ConfigManager_get_option_int("config", "thread_sleep_period", &g_task_sleep_time);
     if (status != CONFIG_MANAGER_OK) g_task_sleep_time = 1000; // 1 second
 
-    Access_ctx_t access_context = 0;
-    Access_init(&access_context);
+    device_wallet = wallet_create(NODE_URL, NODE_PORT, NULL, NODE_DEPTH, NODE_MWM, WALLET_SEED);
+
+    Access_init(&access_context, device_wallet);
     Access_get_vdstate(access_context, &vdstate);
 
     Network_actor_init(vdstate, &network_actor_context);

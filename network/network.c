@@ -92,13 +92,13 @@ typedef struct {
     int connfd;
 
     Dataset_state_t* vdstate;
-} Network_actor_ctx_t;
+} Network_actor_ctx_t_;
 
-static void *server_thread(void *ptr);
+static void *network_thread_function(void *ptr);
 
-int Network_actor_init(Dataset_state_t *_vdstate, Network_actor_ctx_id* network_actor_context)
+int Network_actor_init(Dataset_state_t *_vdstate, Network_actor_ctx_t* network_actor_context)
 {
-    Network_actor_ctx_t *ctx = malloc(sizeof(Network_actor_ctx_t));
+    Network_actor_ctx_t_ *ctx = malloc(sizeof(Network_actor_ctx_t_));
 
     ConfigManager_init("config.ini");
     int tcp_port;
@@ -125,9 +125,9 @@ int Network_actor_init(Dataset_state_t *_vdstate, Network_actor_ctx_id* network_
     return 0;
 }
 
-int Network_actor_start(Network_actor_ctx_id network_actor_context)
+int Network_actor_start(Network_actor_ctx_t network_actor_context)
 {
-    Network_actor_ctx_t *ctx = (Network_actor_ctx_t*)network_actor_context;
+    Network_actor_ctx_t_ *ctx = (Network_actor_ctx_t_*)network_actor_context;
 
     PolicyUpdater_start();
 
@@ -161,7 +161,7 @@ int Network_actor_start(Network_actor_ctx_id network_actor_context)
         }
     }
 
-    if (pthread_create(&ctx->thread, NULL, server_thread, ctx))
+    if (pthread_create(&ctx->thread, NULL, network_thread_function, ctx))
     {
         fprintf(stderr, "Error creating thread\n");
         free(ctx);
@@ -172,9 +172,9 @@ int Network_actor_start(Network_actor_ctx_id network_actor_context)
     return NO_ERROR;
 }
 
-void Network_actor_stop(Network_actor_ctx_id network_actor_context)
+void Network_actor_stop(Network_actor_ctx_t network_actor_context)
 {
-    Network_actor_ctx_t *ctx = (Network_actor_ctx_t*)network_actor_context;
+    Network_actor_ctx_t_ *ctx = (Network_actor_ctx_t_*)network_actor_context;
     if (ctx != NULL)
     {
         ctx->end = 1;
@@ -200,7 +200,7 @@ static int verify(unsigned char *key, int len)
     return 0;
 }
 
-static int get_server_state(Network_actor_ctx_t *ctx)
+static int get_server_state(Network_actor_ctx_t_ *ctx)
 {
     return ctx->state;
 }
@@ -283,7 +283,7 @@ static int list_to_string(list_t *action_list, char *output_str)
 }
 #endif
 
-static unsigned int doAuthWorkTiny(char **recvData, Network_actor_ctx_t *ctx)
+static unsigned int calculate_decision(char **recvData, Network_actor_ctx_t_ *ctx)
 {
     int request_code = -1;
     int decision = -1;
@@ -512,9 +512,9 @@ static unsigned int doAuthWorkTiny(char **recvData, Network_actor_ctx_t *ctx)
     return buffer_position;
 }
 
-static void *server_thread(void *ptr)
+static void *network_thread_function(void *ptr)
 {
-    Network_actor_ctx_t *ctx = (Network_actor_ctx_t*)ptr;
+    Network_actor_ctx_t_ *ctx = (Network_actor_ctx_t_*)ptr;
     while (!ctx->end)
     {
         struct timeval tv = { 0, TIME_50MS };
@@ -566,7 +566,7 @@ static void *server_thread(void *ptr)
                 if(auth == 0)
                 {
                     asnAuth_receive(&ctx->session, (unsigned char**)&recvData, &recv_len);
-                    decision = doAuthWorkTiny(&recvData, ctx);
+                    decision = calculate_decision(&recvData, ctx);
                     asnAuthHelper_send_decision(decision, &ctx->session, recvData, decision);
                 }
                 else

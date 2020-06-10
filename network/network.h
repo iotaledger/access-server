@@ -36,10 +36,10 @@
 
 #include "dataset.h"
 
-typedef void* Network_actor_ctx_id;
+typedef void* Network_actor_ctx_t;
 
-int Network_actor_init(Dataset_state_t *_vdstate, Network_actor_ctx_id* network_actor_context);
-int Network_actor_start(Network_actor_ctx_id network_actor_context);
-void Network_actor_stop(Network_actor_ctx_id network_actor_context);
+int Network_actor_init(Dataset_state_t *_vdstate, Network_actor_ctx_t* network_actor_context);
+int Network_actor_start(Network_actor_ctx_t network_actor_context);
+void Network_actor_stop(Network_actor_ctx_t network_actor_context);
 
 #endif

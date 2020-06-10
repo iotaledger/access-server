@@ -39,12 +39,6 @@
 #define CONFIG_CLIENT_CANOPEN01 "canopen01"
 #define CONFIG_CLIENT_OBDII "obdii"
 
-#define NODE_URL "nodes.comnet.thetangle.org"
-#define NODE_PORT 443
-#define NODE_DEPTH 3
-#define NODE_MWM 14
-#define WALLET_SEED "DEJUXV9ZQMIEXTWJJHJPLAWMOEKGAYDNALKSMCLG9APR9LCKHMLNZVCRFNFEPMGOBOYYIKJNYWSAKVPAI"
-
 typedef struct {
     int using_can;
     int using_gps;
@@ -55,11 +49,15 @@ typedef struct {
     char client_name[MAX_CLIENT_NAME];
     pthread_mutex_t *json_mutex;
     Dataset_state_t vdstate;
-    wallet_ctx_t *device_wallet;
 } Access_ctx_t_;
 
-void Access_init(Access_ctx_t *access_context)
+void Access_init(Access_ctx_t *access_context, wallet_ctx_t *device_wallet)
 {
+    if (device_wallet == NULL)
+    {
+        access_context = NULL;
+        return;
+    }
     Access_ctx_t_ *ctx = calloc(1, sizeof(Access_ctx_t_));
 
     ConfigManager_init("config.ini");
@@ -69,8 +67,7 @@ void Access_init(Access_ctx_t *access_context)
     Timer_init();
     Storage_init();
 
-    ctx->device_wallet = wallet_create(NODE_URL, NODE_PORT, NULL, NODE_DEPTH, NODE_MWM, WALLET_SEED);
-    PEP_init(ctx->device_wallet);
+    PEP_init(device_wallet);
 
     ctx->json_mutex = JSONInterface_get_mutex();
 

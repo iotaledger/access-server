@@ -21,10 +21,11 @@
 #define _ACCESS_H_
 
 #include "dataset.h"
+#include "wallet.h"
 
 typedef void* Access_ctx_t;
 
-void Access_init(Access_ctx_t *access_context);
+void Access_init(Access_ctx_t *access_context, wallet_ctx_t *device_wallet);
 
 void Access_start(Access_ctx_t access_context);
 
