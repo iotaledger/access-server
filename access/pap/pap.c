@@ -83,6 +83,7 @@ static has_fn callback_has = NULL;
 static del_fn callback_del = NULL;
 static get_pol_obj_len_fn callback_get_pol_obj_len = NULL;
 static get_all_fn callback_get_all = NULL;
+static transaction_status_fn callback_transaction_status = NULL;
 #if PAP_STORAGE_TEST_ACIVE
 static get_pk callback_get_pk = NULL;
 #endif
@@ -286,6 +287,43 @@ PAP_error_e PAP_unregister_callbacks(void)
     pthread_mutex_unlock(&pap_mutex);
 
     return PAP_NO_ERROR;
+}
+
+PAP_error_e PAP_register_payment_state_callback(transaction_status_fn trans_fn)
+{
+	//Check input parameters
+	if (trans_fn == NULL)
+	{
+		printf("\nERROR[%s]: Bad input parameter.\n", __FUNCTION__);
+		return PAP_ERROR;
+	}
+
+	pthread_mutex_lock(&pap_mutex);
+
+	if (callback_transaction_status == NUL)
+	{
+		callback_transaction_status = trans_fn;
+	}
+	else
+	{
+		printf("\nERROR[%s]: Callback already registered.\n", __FUNCTION__);
+		return PAP_ERROR;
+	}
+
+	pthread_mutex_unlock(&pap_mutex);
+
+	return PAP_NO_ERROR;
+}
+
+PAP_error_e PAP_unregister_payment_state_callback(void)
+{
+	pthread_mutex_lock(&pap_mutex);
+
+	callback_transaction_status = NULL;
+
+	pthread_mutex_unlock(&pap_mutex);
+
+	return PAP_NO_ERROR;
 }
 
 PAP_error_e PAP_add_policy(char *signed_policy, int signed_policy_size, char *parsed_policy_id)
@@ -783,7 +821,14 @@ PAP_error_e PAP_get_subjects_list_of_actions(char *subject_id, int subject_id_le
 			memcpy(action_elem->is_available.cost, policy_object.cost, strlen(policy_object.cost));
 			wallet_get_address(dev_wallet, addr_buf, &index);
 			memcpy(action_elem->is_available.wallet_address, addr_buf, PAP_WALLET_ADDR_LEN * sizeof(char));
-			//@TODO: Fill is payed status
+			if (memcmp(policy_object.cost, "0.0", strlen("0.0")) == 0)
+			{
+				action_elem->is_available.is_payed = PAP_PAYED_VERIFIED;
+			}
+			else
+			{
+				action_elem->is_available.is_payed = callback_transaction_status(pol_id_str, PAP_POL_ID_MAX_LEN * 2);
+			}
 			action_elem->next = NULL;
 
 			if (*action_list == NULL)

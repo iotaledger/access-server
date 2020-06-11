@@ -64,7 +64,7 @@ bool RPITRANSACTION_store(char* policy_id, int policy_id_len);
 /**
  * @fn      RPITRANSACTION_store
  *
- * @brief   Store trnasaction on RPI
+ * @brief   Store transaction on RPI
  *
  * @param   policy_id - Policy ID string
  * @param   policy_id_len - Length of policy ID string
@@ -73,5 +73,28 @@ bool RPITRANSACTION_store(char* policy_id, int policy_id_len);
  * @return  TRUE - success, FALSE - fail
  */
 bool RPITRANSACTION_update_payment_status(char* policy_id, int policy_id_len, bool is_verified);
+
+/**
+ * @fn      RPITRANSACTION_is_stored
+ *
+ * @brief   Check if transaction is stored on RPI
+ *
+ * @param   policy_id - Policy ID string
+ *
+ * @return  TRUE - stored, FALSE - not stored
+ */
+bool RPITRANSACTION_is_stored(char* policy_id);
+
+/**
+ * @fn      RPITRANSACTION_is_verified
+ *
+ * @brief   Check if transaction payment is verified
+ *
+ * @param   policy_id - Policy ID string
+ * @param   policy_id_len - Length of policy ID string
+ *
+ * @return  TRUE - verified, FALSE - not verified
+ */
+bool RPITRANSACTION_is_verified(char* policy_id, int policy_id_len);
 
 #endif //_RPI_TRANSACTION_H_

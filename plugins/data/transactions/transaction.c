@@ -48,6 +48,9 @@
 #define TRANS_CONF_SERV_MAX_NUM 64
 #define TRANS_INTERVAL_S 30
 #define TRANS_TIMEOUT_S 120
+#define TRANS_NOT_PAYED 0
+#define TRANS_PAYED 1
+#define TRANS_PAYED_VERIFIED 2
 
 /****************************************************************************
  * GLOBAL VARIBLES
@@ -168,15 +171,48 @@ static bool store_transaction(wallet_ctx_t* wallet_ctx, char* policy_id, int pol
 	return TRUE;
 }
 
+static int recover_transaction(char* policy_id, int policy_id_len)
+{
+	//Check input parameters
+	if (policy_id == NULL)
+	{
+		printf("\nERROR[%s]: Bad input prameter.\n", __FUNCTION__);
+		return 0;
+	}
+
+	//Check transaction status
+#ifdef USE_RPI
+	if (!RPITRANSACTION_is_stored(policy_id))
+	{
+		return TRANS_NOT_PAYED;
+	}
+	else
+	{
+		if (!RPITRANSACTION_is_verified(policy_id, policy_id_len))
+		{
+			return TRANS_PAYED;
+		}
+		else
+		{
+			return TRANS_PAYED_VERIFIED;
+		}
+	}
+#else
+	//Add support for other platforms
+#endif
+}
+
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
 void TRANSACTION_init(void)
 {
 	PIP_register_save_tr_callback(store_transaction);
+	PAP_register_payment_state_callback(recover_transaction);
 }
 
 void TRANSACTION_term(void)
 {
 	PIP_unregister_save_tr_callback();
+	PAP_unregister_payment_state_callback();
 }
