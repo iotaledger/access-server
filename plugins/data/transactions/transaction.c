@@ -208,7 +208,7 @@ static int recover_transaction(char* policy_id, int policy_id_len)
 void TRANSACTION_init(void)
 {
 	PIP_register_save_tr_callback(store_transaction);
-	PAP_register_payment_state_callback(recover_transaction);
+	PAP_register_payment_state_callback((transaction_status_fn)recover_transaction);
 }
 
 void TRANSACTION_term(void)

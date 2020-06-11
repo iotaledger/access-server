@@ -300,7 +300,7 @@ PAP_error_e PAP_register_payment_state_callback(transaction_status_fn trans_fn)
 
 	pthread_mutex_lock(&pap_mutex);
 
-	if (callback_transaction_status == NUL)
+	if (callback_transaction_status == NULL)
 	{
 		callback_transaction_status = trans_fn;
 	}

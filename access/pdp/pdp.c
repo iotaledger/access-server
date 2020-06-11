@@ -624,7 +624,7 @@ bool PDP_init(wallet_ctx_t* wallet_ctx)
 	}
 
 	//Initialize PIP
-	if (PIP_init() == PIP_ERROR)
+	if (PIP_init(wallet_ctx) == PIP_ERROR)
 	{
 		printf("\nERROR[%s]: PIP initialization failed.\n", __FUNCTION__);
 		return FALSE;
