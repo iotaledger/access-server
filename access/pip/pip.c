@@ -46,6 +46,7 @@
  * MACROS
  ****************************************************************************/
 #define PIP_DELIMITER_LEN 2
+#define PIP_PAID 2
 
 /****************************************************************************
  * GLOBAL VARIABLES
@@ -58,6 +59,7 @@ static wallet_ctx_t* dev_wallet = NULL;
  ****************************************************************************/
 static fetch_fn callback_fetch[PIP_MAX_AUTH_CALLBACKS] = {0};
 static save_transaction_fn save_transaction = NULL;
+static transaction_status_fn transaction_status = NULL;
 
 /****************************************************************************
  * API FUNCTIONS
@@ -193,10 +195,42 @@ PIP_error_e PIP_unregister_save_tr_callback(void)
 	return PIP_NO_ERROR;
 }
 
+PIP_error_e PIP_register_payment_state_callback(transaction_status_fn trans_fn)
+{
+	//Check input parameter
+	if (trans_fn == NULL)
+	{
+		printf("\nERROR[%s]: Bad input parameter.\n", __FUNCTION__);
+		return PIP_ERROR;
+	}
+
+	pthread_mutex_lock(&pip_mutex);
+
+	transaction_status = trans_fn;
+
+	pthread_mutex_lock(&pip_mutex);
+
+	return PIP_NO_ERROR;
+}
+
+PIP_error_e PIP_unregister_payment_state_callback(void)
+{
+	pthread_mutex_lock(&pip_mutex);
+
+	transaction_status = NULL;
+
+	pthread_mutex_lock(&pip_mutex);
+
+	return PIP_NO_ERROR;
+}
+
 PIP_error_e PIP_get_data(char* uri, PIP_attribute_object_t* attribute)
 {
 	char delimiter[PIP_DELIMITER_LEN] = ":";
-	char temp[PIP_MAX_STR_LEN];
+	char temp[PIP_MAX_STR_LEN] = {0};
+	char pol_id[PIP_MAX_STR_LEN] = {0};
+	char type[PIP_MAX_STR_LEN] = {0};
+	char value[PIP_MAX_STR_LEN] = {0};
 	char *ptr = NULL;
 	PIP_authorities_e authority;
 
@@ -238,16 +272,43 @@ PIP_error_e PIP_get_data(char* uri, PIP_attribute_object_t* attribute)
 		return PIP_ERROR;
 	}
 
-	//Fetch attribute from plugin
-	if (callback_fetch[authority] != NULL)
+	memcpy(delimiter, "/", strlen("/"));
+	ptr  = strtok(NULL, delimiter);
+	memcpy(pol_id, ptr, strlen(ptr));
+
+	memcpy(delimiter, "?", strlen("?"));
+	ptr  = strtok(NULL, delimiter);
+	memcpy(type, ptr, strlen(ptr));
+
+	memcpy(delimiter, "?", strlen("?"));
+	ptr  = strtok(NULL, delimiter);
+	memcpy(value, ptr, strlen(ptr));
+
+	if (memcmp(type, "request.isPayed.type", strlen("request.isPayed.type")) == 0)
 	{
-		callback_fetch[authority](uri, attribute);
+		memcpy(attribute->type, "bool", strlen("bool"));
+		if (transaction_status != NULL && transaction_status(pol_id, strlen(pol_id)) == PIP_PAID)
+		{
+			memcpy(attribute->value, "true", strlen("true"));
+		}
+		else
+		{
+			memcpy(attribute->value, "false", strlen("false"));
+		}
 	}
 	else
 	{
-		printf("\nERROR[%s]: Callback not registered.\n", __FUNCTION__);
-		pthread_mutex_unlock(&pip_mutex);
-		return PIP_ERROR;
+		//Fetch attribute from plugin
+		if (callback_fetch[authority] != NULL)
+		{
+			callback_fetch[authority](uri, attribute);
+		}
+		else
+		{
+			printf("\nERROR[%s]: Callback not registered.\n", __FUNCTION__);
+			pthread_mutex_unlock(&pip_mutex);
+			return PIP_ERROR;
+		}
 	}
 
 	pthread_mutex_unlock(&pip_mutex);

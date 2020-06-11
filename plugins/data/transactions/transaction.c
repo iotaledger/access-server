@@ -37,6 +37,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <pthread.h>
 #include "transaction.h"
 #ifdef USE_RPI
 #include "rpi_trans.h"
@@ -56,6 +57,7 @@
  * GLOBAL VARIBLES
  ****************************************************************************/
 static TRANSACTION_serv_confirm_t service[TRANS_CONF_SERV_MAX_NUM] = {0};
+static pthread_mutex_t trans_mutex;
 
 /****************************************************************************
  * LOCAL FUNCTIONS
@@ -104,10 +106,13 @@ static bool store_transaction(wallet_ctx_t* wallet_ctx, char* policy_id, int pol
 		return FALSE;
 	}
 
+	pthread_mutex_lock(&trans_mutex);
+
 #ifdef USE_RPI
 	if (!RPITRANSACTION_store(policy_id, policy_id_len))
 	{
 		printf("\nERROR[%s]: Failed to store transaction.\n", __FUNCTION__);
+		pthread_mutex_unlock(&trans_mutex);
 		return FALSE;
 	}
 #else
@@ -121,6 +126,7 @@ static bool store_transaction(wallet_ctx_t* wallet_ctx, char* policy_id, int pol
 		if (!RPITRANSACTION_update_payment_status(policy_id, policy_id_len, TRUE))
 		{
 			printf("\nERROR[%s]: Failed to store transaction.\n", __FUNCTION__);
+			pthread_mutex_unlock(&trans_mutex);
 			return FALSE;
 		}
 #else
@@ -158,6 +164,7 @@ static bool store_transaction(wallet_ctx_t* wallet_ctx, char* policy_id, int pol
 		if (i == TRANS_CONF_SERV_MAX_NUM)
 		{
 			printf("\nERROR[%s]: Transaction confirmation services limit reached.\n", __FUNCTION__);
+			pthread_mutex_unlock(&trans_mutex);
 			return FALSE;
 		}
 
@@ -168,6 +175,7 @@ static bool store_transaction(wallet_ctx_t* wallet_ctx, char* policy_id, int pol
 		service[i].transaction_confirmed = FALSE;
 	}
 
+	pthread_mutex_unlock(&trans_mutex);
 	return TRUE;
 }
 
@@ -177,23 +185,28 @@ static int recover_transaction(char* policy_id, int policy_id_len)
 	if (policy_id == NULL)
 	{
 		printf("\nERROR[%s]: Bad input prameter.\n", __FUNCTION__);
-		return 0;
+		return TRANS_NOT_PAYED;
 	}
+
+	pthread_mutex_lock(&trans_mutex);
 
 	//Check transaction status
 #ifdef USE_RPI
 	if (!RPITRANSACTION_is_stored(policy_id))
 	{
+		pthread_mutex_unlock(&trans_mutex);
 		return TRANS_NOT_PAYED;
 	}
 	else
 	{
 		if (!RPITRANSACTION_is_verified(policy_id, policy_id_len))
 		{
+			pthread_mutex_unlock(&trans_mutex);
 			return TRANS_PAYED;
 		}
 		else
 		{
+			pthread_mutex_unlock(&trans_mutex);
 			return TRANS_PAYED_VERIFIED;
 		}
 	}
@@ -207,12 +220,26 @@ static int recover_transaction(char* policy_id, int policy_id_len)
  ****************************************************************************/
 void TRANSACTION_init(void)
 {
+	//Initalize mutex
+	if (pthread_mutex_init(&trans_mutex, NULL) != 0)
+	{
+		printf("\nERROR[%s]: Mutex init failed.\n", __FUNCTION__);
+		return;
+	}
+
+	//Register callbacks
 	PIP_register_save_tr_callback(store_transaction);
 	PAP_register_payment_state_callback((transaction_status_fn)recover_transaction);
+	PIP_register_payment_state_callback(recover_transaction);
 }
 
 void TRANSACTION_term(void)
 {
+	//Destroy mutex
+	pthread_mutex_destroy(&pip_mutex);
+
+	//Unregister callbacks
 	PIP_unregister_save_tr_callback();
 	PAP_unregister_payment_state_callback();
+	PIP_unregister_payment_state_callback();
 }
