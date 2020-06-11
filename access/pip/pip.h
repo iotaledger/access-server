@@ -84,7 +84,7 @@ typedef struct attribute_object
 typedef bool (*fetch_fn)(char* uri, PIP_attribute_object_t* attribute_object);
 typedef bool (*save_transaction_fn)(wallet_ctx_t* wallet_ctx, char* policy_id, int policy_id_len,
 									char* transaction_hash, int transaction_hash_len);
-typedef int (*transaction_status_fn)(char* policy_id, int policy_id_len);
+typedef int (*payment_status_fn)(char* policy_id, int policy_id_len);
 
 /****************************************************************************
  * API FUNCTIONS
@@ -176,7 +176,7 @@ PIP_error_e PIP_unregister_save_tr_callback(void);
  *
  * @return  PIP_error_e error status
  */
-PIP_error_e PIP_register_payment_state_callback(transaction_status_fn trans_fn);
+PIP_error_e PIP_register_payment_state_callback(payment_status_fn trans_fn);
 
 /**
  * @fn      PIP_unregister_payment_state_callback

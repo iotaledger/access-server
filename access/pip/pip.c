@@ -59,7 +59,7 @@ static wallet_ctx_t* dev_wallet = NULL;
  ****************************************************************************/
 static fetch_fn callback_fetch[PIP_MAX_AUTH_CALLBACKS] = {0};
 static save_transaction_fn save_transaction = NULL;
-static transaction_status_fn transaction_status = NULL;
+static payment_status_fn transaction_status = NULL;
 
 /****************************************************************************
  * API FUNCTIONS
@@ -195,7 +195,7 @@ PIP_error_e PIP_unregister_save_tr_callback(void)
 	return PIP_NO_ERROR;
 }
 
-PIP_error_e PIP_register_payment_state_callback(transaction_status_fn trans_fn)
+PIP_error_e PIP_register_payment_state_callback(payment_status_fn trans_fn)
 {
 	//Check input parameter
 	if (trans_fn == NULL)

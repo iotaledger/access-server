@@ -236,7 +236,7 @@ void TRANSACTION_init(void)
 void TRANSACTION_term(void)
 {
 	//Destroy mutex
-	pthread_mutex_destroy(&pip_mutex);
+	pthread_mutex_destroy(&trans_mutex);
 
 	//Unregister callbacks
 	PIP_unregister_save_tr_callback();
