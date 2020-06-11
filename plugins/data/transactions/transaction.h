@@ -60,10 +60,8 @@
 typedef struct serv_confirm
 {
 	confirmation_service_t *service;
-	char* user_id;
-	int user_id_len;
-	char* action;
-	int action_len;
+	char* policy_id;
+	int policy_id_len;
 	bool transaction_confirmed;
 } TRANSACTION_serv_confirm_t;
 

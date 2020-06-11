@@ -42,26 +42,24 @@
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
-bool RPITRANSACTION_store(char* user_id, int user_id_len,
-							char* action, int action_len)
+bool RPITRANSACTION_store(char* policy_id, int policy_id_len)
 {
 	char *line = NULL;
 	int line_len = 0;
 	FILE *f = NULL;
 
 	//Check input parameters
-	if (user_id == NULL || action == NULL)
+	if (policy_id == NULL)
 	{
 		printf("\nERROR[%s]: Bad input prameter.\n", __FUNCTION__);
 		return FALSE;
 	}
 
-	line_len = strlen("user_id:") + user_id_len + strlen(",") + strlen("action:") + action_len + strlen(",") + 
-						strlen("validated:") + strlen("0") + strlen("\n") + 1;
+	line_len = strlen("policy_id:") + policy_id_len + strlen(",validated:0\n") + 1;
 
 	line = malloc((line_len) * sizeof(char));
 
-	sprintf(line, "user_id:%s,action:%s,validated:0\n", user_id, action);
+	sprintf(line, "policy_id:%s,validated:0\n", policy_id);
 
 	//Write transaction to file
 	f = fopen("../../plugins/data/transactions/platforms/r_pi/bill", "a");
@@ -78,8 +76,7 @@ bool RPITRANSACTION_store(char* user_id, int user_id_len,
 	return TRUE;
 }
 
-bool RPITRANSACTION_update_payment_status(char* user_id, int user_id_len,
-											char* action, int action_len, bool is_verified)
+bool RPITRANSACTION_update_payment_status(char* policy_id, int policy_id_len, bool is_verified)
 {
 	char *buff = NULL;
 	char *transaction = NULL;
@@ -89,7 +86,7 @@ bool RPITRANSACTION_update_payment_status(char* user_id, int user_id_len,
 	FILE *f = NULL;
 
 	//Check input parameters
-	if (user_id == NULL || action == NULL)
+	if (policy_id == NULL)
 	{
 		printf("\nERROR[%s]: Bad input prameter.\n", __FUNCTION__);
 		return FALSE;
@@ -112,10 +109,9 @@ bool RPITRANSACTION_update_payment_status(char* user_id, int user_id_len,
 	fclose(f);
 
 	//Change transaction status
-	line_len = strlen("user_id:") + user_id_len + strlen(",") + strlen("action:") + action_len + 
-							strlen(",") + strlen("validated:");
+	line_len = strlen("policy_id:") + policy_id_len + strlen(",validated:");
 	line = malloc((line_len + 1) * sizeof(char));
-	sprintf(line, "user_id:%s,action:%s,validated:", user_id, action);
+	sprintf(line, "policy_id:%s,validated:", policy_id);
 	transaction = strstr(buff, line);
 	if (is_verified)
 	{

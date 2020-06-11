@@ -77,8 +77,7 @@ static void transaction_confirmation(uint32_t time, bool is_confirmed, pthread_t
 	}
 
 #ifdef USE_RPI
-	if (!RPITRANSACTION_update_payment_status(service[i].user_id, service[i].user_id_len, service[i].action,
-												service[i].action_len, is_confirmed))
+	if (!RPITRANSACTION_update_payment_status(service[i].policy_id, service[i].policy_id_len, is_confirmed))
 	{
 		printf("\nERROR[%s]: Failed to store transaction.\n", __FUNCTION__);
 		return;
@@ -90,20 +89,20 @@ static void transaction_confirmation(uint32_t time, bool is_confirmed, pthread_t
 	service[i].transaction_confirmed = TRUE;
 }
 
-static bool store_transaction(wallet_ctx_t* wallet_ctx, char* user_id, int user_id_len,
-							char* action, int action_len, char* transaction_hash, int transaction_hash_len)
+static bool store_transaction(wallet_ctx_t* wallet_ctx, char* policy_id, int policy_id_len,
+							char* transaction_hash, int transaction_hash_len)
 {
 	int i;
 
 	//Check input parameters
-	if (user_id == NULL || action == NULL || transaction_hash == NULL)
+	if (policy_id == NULL || transaction_hash == NULL)
 	{
 		printf("\nERROR[%s]: Bad input prameter.\n", __FUNCTION__);
 		return FALSE;
 	}
 
 #ifdef USE_RPI
-	if (!RPITRANSACTION_store(user_id, user_id_len, action, action_len))
+	if (!RPITRANSACTION_store(policy_id, policy_id_len))
 	{
 		printf("\nERROR[%s]: Failed to store transaction.\n", __FUNCTION__);
 		return FALSE;
@@ -116,7 +115,7 @@ static bool store_transaction(wallet_ctx_t* wallet_ctx, char* user_id, int user_
 	{
 		//Confirmed transaction
 #ifdef USE_RPI
-		if (!RPITRANSACTION_update_payment_status(user_id, user_id_len, action, action_len, TRUE))
+		if (!RPITRANSACTION_update_payment_status(policy_id, policy_id_len, TRUE))
 		{
 			printf("\nERROR[%s]: Failed to store transaction.\n", __FUNCTION__);
 			return FALSE;
@@ -137,11 +136,9 @@ static bool store_transaction(wallet_ctx_t* wallet_ctx, char* user_id, int user_
 				pthread_join(service[i].service->thread_id, NULL);
 				confirmation_service_free(&service[i].service);
 				service[i].service = NULL;
-				service[i].action_len = 0;
-				service[i].user_id_len = 0;
+				service[i].policy_id_len = 0;
 				service[i].transaction_confirmed = FALSE;
-				free(service[i].action);
-				free(service[i].user_id);
+				free(service[i].policy_id);
 			}
 		}
 		
@@ -163,10 +160,8 @@ static bool store_transaction(wallet_ctx_t* wallet_ctx, char* user_id, int user_
 
 		service[i].service = confirmation_service_start(wallet_ctx, transaction_hash, TRANS_INTERVAL_S,
 															TRANS_TIMEOUT_S, transaction_confirmation);
-		service[i].user_id = malloc(user_id_len * sizeof(char));
-		service[i].user_id_len = user_id_len;
-		service[i].action = malloc(action_len * sizeof(char));
-		service[i].action_len = action_len;
+		service[i].policy_id = malloc(policy_id_len * sizeof(char));
+		service[i].policy_id_len = policy_id_len;
 		service[i].transaction_confirmed = FALSE;
 	}
 

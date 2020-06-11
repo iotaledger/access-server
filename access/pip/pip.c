@@ -254,14 +254,13 @@ PIP_error_e PIP_get_data(char* uri, PIP_attribute_object_t* attribute)
 	return PIP_NO_ERROR;
 }
 
-PIP_error_e PIP_store_transaction(char* user_id, int user_id_len,
-									char* action, int action_len,
+PIP_error_e PIP_store_transaction(char* policy_id, int policy_id_len,
 									char* transaction_hash, int transaction_hash_len)
 {
 	PIP_error_e ret = PIP_ERROR;
 
 	//Check input parameters
-	if (user_id == NULL || action == NULL || transaction_hash == NULL)
+	if (policy_id == NULL || transaction_hash == NULL)
 	{
 		printf("\nERROR[%s]: Bad input prameter.\n", __FUNCTION__);
 		return ret;
@@ -271,7 +270,7 @@ PIP_error_e PIP_store_transaction(char* user_id, int user_id_len,
 
 	if (save_transaction)
 	{
-		save_transaction(dev_wallet, user_id, user_id_len, action, action_len, transaction_hash, transaction_hash_len);
+		save_transaction(dev_wallet, policy_id, policy_id_len, transaction_hash, transaction_hash_len);
 		ret = PIP_NO_ERROR;
 	}
 	else

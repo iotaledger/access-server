@@ -54,30 +54,24 @@
  *
  * @brief   Store trnasaction on RPI
  *
- * @param   user_id - User ID string
- * @param   user_id_len - Length of user ID string
- * @param   action - Action string
- * @param   action_len - Length of action string
+ * @param   policy_id - Policy ID string
+ * @param   policy_id_len - Length of policy ID string
  *
  * @return  TRUE - success, FALSE - fail
  */
-bool RPITRANSACTION_store(char* user_id, int user_id_len,
-							char* action, int action_len);
+bool RPITRANSACTION_store(char* policy_id, int policy_id_len);
 
 /**
  * @fn      RPITRANSACTION_store
  *
  * @brief   Store trnasaction on RPI
  *
- * @param   user_id - User ID string
- * @param   user_id_len - Length of user ID string
- * @param   action - Action string
- * @param   action_len - Length of action string
+ * @param   policy_id - Policy ID string
+ * @param   policy_id_len - Length of policy ID string
  * @param   is_verified - Transaction verified
  *
  * @return  TRUE - success, FALSE - fail
  */
-bool RPITRANSACTION_update_payment_status(char* user_id, int user_id_len,
-											char* action, int action_len, bool is_verified);
+bool RPITRANSACTION_update_payment_status(char* policy_id, int policy_id_len, bool is_verified);
 
 #endif //_RPI_TRANSACTION_H_

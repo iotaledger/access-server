@@ -82,8 +82,8 @@ typedef struct attribute_object
  * CALLBACKS
  ****************************************************************************/
 typedef bool (*fetch_fn)(char* uri, PIP_attribute_object_t* attribute_object);
-typedef bool (*save_transaction_fn)(wallet_ctx_t* wallet_ctx, char* user_id, int user_id_len,
-									char* action, int action_len, char* transaction_hash, int transaction_hash_len);
+typedef bool (*save_transaction_fn)(wallet_ctx_t* wallet_ctx, char* policy_id, int policy_id_len,
+									char* transaction_hash, int transaction_hash_len);
 
 /****************************************************************************
  * API FUNCTIONS
@@ -183,17 +183,14 @@ PIP_error_e PIP_get_data(char* uri, PIP_attribute_object_t* attribute);
  *
  * @brief   Store user's transaction to database
  *
- * @param   user_id - User ID string
- * @param   user_id_len - Length of user ID string
- * @param   action - Action string
- * @param   action_len - Length of action string
+ * @param   policy_id - Policy ID string
+ * @param   policy_id_len - Length of policy ID string
  * @param   transaction_hash - Transaction hash string
  * @param   transaction_hash_len - Length of transaction hash string
  *
  * @return  PIP_error_e error status
  */
-PIP_error_e PIP_store_transaction(char* user_id, int user_id_len,
-									char* action, int action_len,
+PIP_error_e PIP_store_transaction(char* policy_id, int policy_id_len,
 									char* transaction_hash, int transaction_hash_len);
 
 #endif /* _PIP_H_ */

@@ -473,6 +473,8 @@ static unsigned int doAuthWorkTiny(char **recvData)
         int user_id_index = -1;
         int action_index = -1;
         int transaction_hash_index = -1;
+        PAP_action_list_t *action_list = NULL;
+        PAP_action_list_t *temp = NULL;
 
         for (int i = 0; i < num_of_tokens; i++)
         {
@@ -490,9 +492,29 @@ static unsigned int doAuthWorkTiny(char **recvData)
             }
         }
 
-        PIP_store_transaction(*recvData + get_start_of_token(user_id_index), get_size_of_token(user_id_index),
-                                *recvData + get_start_of_token(action_index), get_size_of_token(action_index),
+        PAP_get_subjects_list_of_actions(*recvData + get_start_of_token(user_id_index), get_size_of_token(user_id_index), &action_list);
+
+        temp = action_list;
+        while (temp)
+        {
+            if (memcmp(temp->action, *recvData + get_start_of_token(action_index), get_size_of_token(action_index)) == 0)
+            {
+                PIP_store_transaction(temp->policy_ID_str, PAP_POL_ID_MAX_LEN * 2,
                                 *recvData + get_start_of_token(transaction_hash_index), get_size_of_token(transaction_hash_index));
+                break;
+            }
+            else
+            {
+                temp = temp->next;
+            }
+        }
+
+        while (action_list)
+        {
+            temp = action_list;
+            action_list = action_list->next;
+            free(temp);
+        }
     }
     else
     {
