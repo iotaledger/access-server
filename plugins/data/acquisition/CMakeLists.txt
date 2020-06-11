@@ -65,6 +65,7 @@ set(include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}/modbus)
 
 set(libs
+  -pthread
   json_parser
   pip
   vehicle_dataset

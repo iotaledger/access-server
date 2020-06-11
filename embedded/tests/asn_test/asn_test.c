@@ -63,7 +63,7 @@ int verify(unsigned char *key, int len)
 
 static asnSession_t session;
 
-int main()
+int main(int argc, char** argv)
 {
     int count = 0;
     int ret = 0;
@@ -107,7 +107,14 @@ int main()
 
     int auth = asnAuth_authenticate(&session);
 
-    asnAuthHelper_send_decision(1, &session, "{\"cmd\": \"get_all_users\"}", strlen("{\"cmd\": \"get_all_users\"}") + 1);
+    if (argc == 2)
+    {
+        asnAuthHelper_send_decision(1, &session, argv[1], strlen(argv[1]) + 1);
+    }
+    else
+    {
+        asnAuthHelper_send_decision(1, &session, "{\"cmd\": \"get_all_users\"}", strlen("{\"cmd\": \"get_all_users\"}") + 1);
+    }
 
     unsigned short length;
     asnAuth_receive(&session, (unsigned char**)&recvBuff, &length);

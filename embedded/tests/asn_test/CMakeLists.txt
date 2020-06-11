@@ -19,13 +19,15 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-set(target bc)
+set(target asn_test)
+
+set(sources
+  asn_test.c)
 
 set(libs
-  json_parser
-  vehicle_dataset
-  config_manager)
+  config_manager
+  asn)
 
-add_library(${target} bc_daemon.c)
+add_executable(${target} ${sources})
 target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(${target} PUBLIC ${libs})

@@ -19,33 +19,22 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-add_subdirectory(bc)
 add_subdirectory(config_manager)
 add_subdirectory(CpuGeneric/crypto)
 add_subdirectory(CpuGeneric/jsmn)
 add_subdirectory(CpuGeneric/libfastjson)
 add_subdirectory(include)
-add_subdirectory(modules/AWS_daemon)
+add_subdirectory(tests/asn_test)
 
 set(target main)
 
 set(libs
-  -pthread
-  -lcurl
   -lsqlite3
   json_parser
-  pep
-  pdp
-  asn
-  bc
-  data_acquisition_plugins
   vehicle_dataset
-  resolver
-  pap
   network
-  psdaemon
   legacy_modules
-  fastjson)
+  access_actor)
 
 add_executable(${target} main.c)
 target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

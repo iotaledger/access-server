@@ -29,6 +29,7 @@ set(sources
   json_interface.c)
 
 set(libs
+  -pthread
   config_manager)
 
 add_library(${target} ${sources})

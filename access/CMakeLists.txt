@@ -23,3 +23,17 @@ add_subdirectory(pdp)
 add_subdirectory(pip)
 add_subdirectory(pap)
 add_subdirectory(pep)
+
+set(target access_actor)
+
+set(libs
+  config_manager
+  pep
+  legacy_modules
+  fastjson
+  data_acquisition_plugins
+  storage_plugin)
+
+add_library(${target} access.c)
+target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(${target} PUBLIC ${libs})

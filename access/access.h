@@ -1,8 +1,8 @@
 /*
- * This file is part of the Frost distribution
- * (https://github.com/xainag/frost)
+ * This file is part of the IOTA Access Distribution
+ * (https://github.com/iotaledger/access)
  *
- * Copyright (c) 2019 XAIN AG.
+ * Copyright (c) 2020 IOTA Stiftung
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,18 +17,20 @@
  * limitations under the License.
  */
 
- /****************************************************************************
- * \project Decentralized Access Control
- * \file tcp_client.h
- * \brief
- * Communication with user
- *
- * @Author
- *
- * \notes
- *
- * \history
- * XX.YY.ZZZZ. Initial version.
- ****************************************************************************/
+#ifndef _ACCESS_H_
+#define _ACCESS_H_
 
-int tcp_client_send(char *msg, int msg_length, char *rec, int *rec_length, char *servip, int port);
+#include "dataset.h"
+#include "wallet.h"
+
+typedef void* Access_ctx_t;
+
+void Access_init(Access_ctx_t *access_context, wallet_ctx_t *device_wallet);
+
+void Access_start(Access_ctx_t access_context);
+
+void Access_deinit(Access_ctx_t access_context);
+
+void Access_get_vdstate(Access_ctx_t access_context, Dataset_state_t **vdstate);
+
+#endif
