@@ -51,6 +51,7 @@
 #include "globals_declarations.h"
 #include "timer.h"
 #include "storage.h"
+#include "transaction.h"
 #include "test_internal.h"
 
 #define MAX_CLIENT_NAME 32
@@ -111,6 +112,7 @@ int main(int argc, char** argv)
     printf("Program start\n\n");
     Storage_init();
     PEP_init(device_wallet);
+    TRANSACTION_init();
     TEST_POLICY_STORAGE(1)
 
     json_mutex = JSONInterface_get_mutex();

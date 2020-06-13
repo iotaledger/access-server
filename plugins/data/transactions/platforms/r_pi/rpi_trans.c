@@ -157,7 +157,7 @@ bool RPITRANSACTION_is_stored(char* policy_id)
 	f = fopen("../../plugins/data/transactions/platforms/r_pi/bill", "r");
 	if (f == NULL)
 	{
-		printf("\nERROR[%s]: Invalida path to file.\n", __FUNCTION__);
+		//Non of the transactions occured
 		return FALSE;
 	}
 
@@ -201,7 +201,7 @@ bool RPITRANSACTION_is_verified(char* policy_id, int policy_id_len)
 	f = fopen("../../plugins/data/transactions/platforms/r_pi/bill", "r");
 	if (f == NULL)
 	{
-		printf("\nERROR[%s]: Invalida path to file.\n", __FUNCTION__);
+		//Non of the transactions occured
 		return FALSE;
 	}
 

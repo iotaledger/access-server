@@ -45,7 +45,8 @@ set(libs
   network
   psdaemon
   legacy_modules
-  fastjson)
+  fastjson
+  data_transactions_plugins)
 
 add_executable(${target} main.c)
 target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

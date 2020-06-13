@@ -23,6 +23,7 @@ set(target storage_plugin)
 
 set(sources
   storage.c
+  test_internal.c
   platforms/r_pi/rpi_storage.c)
 
 set(include_dirs

@@ -179,7 +179,7 @@ PIP_error_e PIP_register_save_tr_callback(save_transaction_fn save_tr)
 
 	save_transaction = save_tr;
 
-	pthread_mutex_lock(&pip_mutex);
+	pthread_mutex_unlock(&pip_mutex);
 
 	return PIP_NO_ERROR;
 }
@@ -190,7 +190,7 @@ PIP_error_e PIP_unregister_save_tr_callback(void)
 
 	save_transaction = NULL;
 
-	pthread_mutex_lock(&pip_mutex);
+	pthread_mutex_unlock(&pip_mutex);
 
 	return PIP_NO_ERROR;
 }
@@ -208,7 +208,7 @@ PIP_error_e PIP_register_payment_state_callback(payment_status_fn trans_fn)
 
 	transaction_status = trans_fn;
 
-	pthread_mutex_lock(&pip_mutex);
+	pthread_mutex_unlock(&pip_mutex);
 
 	return PIP_NO_ERROR;
 }
@@ -219,7 +219,7 @@ PIP_error_e PIP_unregister_payment_state_callback(void)
 
 	transaction_status = NULL;
 
-	pthread_mutex_lock(&pip_mutex);
+	pthread_mutex_unlock(&pip_mutex);
 
 	return PIP_NO_ERROR;
 }
