@@ -345,15 +345,15 @@ static unsigned int calculate_decision(char **recvData, Network_actor_ctx_t_ *ct
 
         PAP_get_subjects_list_of_actions(*recvData + get_start_of_token(user_id_index), get_size_of_token(user_id_index), &action_list);
 
-        buffer_position = list_to_string(action_list, (char *)send_buffer);
-        Dlog_printf("\nResponse: %s\n", send_buffer);
+        buffer_position = list_to_string(action_list, (char *)ctx->send_buffer);
+        Dlog_printf("\nResponse: %s\n", ctx->send_buffer);
 
-        if(DAC_AUTH == 1)
+        if(ctx->DAC_AUTH == 1)
         {
             free(*recvData);
         }
 
-        *recvData = send_buffer;
+        *recvData = ctx->send_buffer;
 
         while (action_list)
         {
