@@ -1,6 +1,20 @@
 # Project Scope (Scope)
 [Scope]: #Scope
 
+- [Frontmatter](#frontmatter)
+- [License](#license)
+- [Language](#language)
+- [Versioning](#versioning)
+- [Hierarchy](#hierarchy)
+- [Summary](#summary)
+- [Motivation](#motivation)
+- [Product Introduction](#product-introduction)
+- [Stakeholders](#stakeholders)
+- [Guide-level explanation](#guide-level-explanation)
+- [Prior art](#prior-art)
+- [Unresolved questions](#unresolved-questions)
+- [Future possibilities](#future-possibilities)
+
 ## Frontmatter
 [frontmatter]: #frontmatter
 ```yaml
