@@ -21,8 +21,8 @@ $ cd ~
 $ git clone https://github.com/iotaledger/access.git
 $ cd access
 $ mkdir build; cd build
-$ cmake -DCMAKE_INSTALL_PREFIX=$PWD ..
-$ make -j8
+$ cmake .. -DCMAKE_INSTALL_PREFIX=$PWD/ext_install
+$ make -j4
 ```
 
 # Configuring Access Server
