@@ -1,8 +1,8 @@
 /*
- * This file is part of the Frost distribution
- * (https://github.com/xainag/frost)
+ * This file is part of the IOTA Access Distribution
+ * (https://github.com/iotaledger/access)
  *
- * Copyright (c) 2019 XAIN AG.
+ * Copyright (c) 2020 IOTA Stiftung
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,18 +17,11 @@
  * limitations under the License.
  */
 
- /****************************************************************************
- * \project Decentralized Access Control
- * \file tcp_client.h
- * \brief
- * Communication with user
- *
- * @Author
- *
- * \notes
- *
- * \history
- * XX.YY.ZZZZ. Initial version.
- ****************************************************************************/
+#ifndef _POLICY_LOADER_H_
+#define _POLICY_LOADER_H_
 
-int tcp_client_send(char *msg, int msg_length, char *rec, int *rec_length, char *servip, int port);
+void PolicyLoader_init();
+int PolicyLoader_start();
+int PolicyLoader_stop();
+
+#endif
