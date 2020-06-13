@@ -17,18 +17,11 @@
  * limitations under the License.
  */
 
- /****************************************************************************
- * \project Decentralized Access Control
- * \file tcp_client.h
- * \brief
- * Communication with user
- *
- * @Author
- *
- * \notes
- *
- * \history
- * XX.YY.ZZZZ. Initial version.
- ****************************************************************************/
+#ifndef _POLICY_UPDATER_H_
+#define _POLICY_UPDATER_H_
 
-int tcp_client_send(char *msg, int msg_length, char *rec, int *rec_length, char *servip, int port);
+void PolicyUpdater_init();
+int PolicyUpdater_start();
+int PolicyUpdater_stop();
+
+#endif /* _POLICY_UPDATER_H_ */

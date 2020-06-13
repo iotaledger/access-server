@@ -19,9 +19,9 @@
 
 /****************************************************************************
  * \project Decentralized Access Control
- * \file tcp_server.h
+ * \file network.h
  * \brief
- * Header for tcp_server module
+ * Header for network module
  *
  * @Author Djordje Golubovic
  *
@@ -31,12 +31,15 @@
  * 07.11.2019. Initial version.
  ****************************************************************************/
 
-#ifndef _TCP_SERVER_H_
-#define _TCP_SERVER_H_
+#ifndef _NETWORK_H_
+#define _NETWORK_H_
 
 #include "dataset.h"
 
-int TCPServer_start(int port, Dataset_state_t* state);
-void TCPServer_stop();
+typedef void* Network_actor_ctx_t;
+
+int Network_actor_init(Dataset_state_t *_vdstate, Network_actor_ctx_t* network_actor_context);
+int Network_actor_start(Network_actor_ctx_t network_actor_context);
+void Network_actor_stop(Network_actor_ctx_t network_actor_context);
 
 #endif

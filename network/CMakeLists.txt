@@ -20,6 +20,7 @@
 cmake_minimum_required(VERSION 3.11)
 
 add_subdirectory(asn)
+add_subdirectory(policy_updater)
 
 set(target network)
 
@@ -28,7 +29,8 @@ set(libs
   asn
   pep
   pip
-  storage_plugin)
+  storage_plugin
+  policy_updater)
 
 add_library(${target} network.c)
 target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

@@ -30,7 +30,9 @@ set(include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/platforms/r_pi)
 
-set(libs pap)
+set(libs
+  pap
+  legacy_modules)
 
 add_library(${target} ${sources})
 target_include_directories(${target} PUBLIC ${include_dirs})
