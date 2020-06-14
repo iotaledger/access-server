@@ -6,6 +6,13 @@
 Access-control framework on the <a href="https://www.iota.org/" target="_blank">IOTA Distributed Ledger</a>.
 </h2>
 
+<p align="center">
+  <a href="https://discord.iota.org/" style="text-decoration:none;"><img src="https://img.shields.io/badge/Discord-9cf.svg?logo=discord" alt="Discord"></a>
+    <a href="https://iota.stackexchange.com/" style="text-decoration:none;"><img src="https://img.shields.io/badge/StackExchange-9cf.svg?logo=stackexchange" alt="StackExchange"></a>
+    <a href="https://github.com/iotaledger/iota.c/blob/master/LICENSE" style="text-decoration:none;"><img src="https://img.shields.io/github/license/iotaledger/iota.c.svg" alt="Apache 2.0 license"></a>
+    <img src="https://github.com/iotaledger/access/workflows/C/C++%20CI/badge.svg" alt="C/C++ CI">
+</p>
+
 **IOTA Access** is a lightweight and highly flexible access-control framework tailored for resource-constrained settings, such as embedded devices and the infrastructure in which they are used.
 
 The framework is also expanded with relevant concepts, such as obligations and the delegation of access-control policies, to particularly address the needs of reliable and secure human-machine interactions in commercial settings of the IoT and mobility space.
