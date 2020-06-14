@@ -44,17 +44,7 @@ Development of the PoC is currently focused on [Raspbian Buster](https://www.ras
 2. Install dependencies:
 ```
 $ sudo apt-get update
-$ sudo apt-get install git python3-distutils libfastjson-dev libcurl4-gnutls-dev libsqlite3-dev libssl-dev pigpio
-```
-
-3. Download, build and install [`pigpio`](http://abyz.me.uk/rpi/pigpio/):
-```
-$ cd ~
-$ wget https://github.com/joan2937/pigpio/archive/master.zip
-$ unzip master.zip
-$ cd pigpio-master
-$ make
-$ sudo make install
+$ sudo apt-get install git python3-distutils libfastjson-dev libcurl4-gnutls-dev libssl-dev
 ```
 
 4. Clone and build IOTA Access:
