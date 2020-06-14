@@ -21,6 +21,27 @@ cmake_minimum_required(VERSION 3.11)
 
 set(target resolver)
 
+# fetch pigpio
+include(FetchContent)
+FetchContent_Declare(
+  pigpio
+  GIT_REPOSITORY https://github.com/joan2937/pigpio.git
+  GIT_TAG bb352d2000d8a4f38bab430927a85b7af4f70a01
+)
+
+if(${CMAKE_VERSION} VERSION_LESS 3.14)
+    macro(FetchContent_MakeAvailable NAME)
+        FetchContent_GetProperties(${NAME})
+        if(NOT ${NAME}_POPULATED)
+            FetchContent_Populate(${NAME})
+            add_subdirectory(${${NAME}_SOURCE_DIR} ${${NAME}_BINARY_DIR})
+        endif()
+    endmacro()
+endif()
+
+message(STATUS "Fetching pigpio")
+FetchContent_MakeAvailable(pigpio)
+
 set(sources
   resolver.c
   platform_interface/r_pi/relay_interface.c
@@ -30,7 +51,9 @@ set(sources
 set(include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/platform_interface/r_pi
-  ${CMAKE_CURRENT_SOURCE_DIR}/demos)
+  ${CMAKE_CURRENT_SOURCE_DIR}/demos
+  ${pigpio_SOURCE_DIR}
+)
 
 set(libs
   pep
