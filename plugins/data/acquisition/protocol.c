@@ -56,7 +56,7 @@ static wallet_ctx_t *dev_wallet;
  * CALLBACK FUNCTIONS
  ****************************************************************************/
 static acquire_fn callback_acquire = NULL;
-static payment_status_fn transaction_status == NULL;
+static payment_status_fn transaction_status = NULL;
 
 /****************************************************************************
  * LOCAL FUNCTIONS
@@ -104,33 +104,33 @@ static bool fetch_data(char* uri, PIP_attribute_object_t* attribute_object)
 
 	if (memcmp(type, "request.isPayed.type", strlen("request.isPayed.type")) == 0)
 	{
-		memcpy(attribute->type, "string", strlen("string"));
+		memcpy(attribute_object->type, "string", strlen("string"));
 		if (transaction_status != NULL)
 		{
-			int ret = transaction_status(pol_id, strlen(pol_id))
+			int ret = transaction_status(pol_id, strlen(pol_id));
 
 			if (ret == PROTOCOL_TRANSACTION_PAID_VERIFIED)
 			{
-				memcpy(attribute->value, "verified", strlen("verified"));
+				memcpy(attribute_object->value, "verified", strlen("verified"));
 			}
 			else if (ret == PROTOCOL_TRANSACTION_PAID)
 			{
-				memcpy(attribute->value, "paid", strlen("paid"));
+				memcpy(attribute_object->value, "paid", strlen("paid"));
 			}
 			else
 			{
-				memcpy(attribute->value, "not_paid", strlen("not_paid"));
+				memcpy(attribute_object->value, "not_paid", strlen("not_paid"));
 			}
 		}
 	}
 	else if (memcmp(type, "request.walletAddress.type", strlen("request.walletAddress.type")) == 0)
 	{
 		char addr_buf[PROTOCOL_WALLET_ADDR_LEN] = {0};
-		int index;
+		uint64_t index;
 		wallet_get_address(dev_wallet, addr_buf, &index);
 
-		memcpy(attribute->type, "string", strlen("string"));
-		memcpy(attribute->value, addr_buf, PROTOCOL_WALLET_ADDR_LEN);
+		memcpy(attribute_object->type, "string", strlen("string"));
+		memcpy(attribute_object->value, addr_buf, PROTOCOL_WALLET_ADDR_LEN);
 	}
 	else
 	{
@@ -181,7 +181,7 @@ void PROTOCOL_register_callback(acquire_fn acquire)
 	callback_acquire = acquire;
 }
 
-void PROTOCOL_unregister_callback()
+void PROTOCOL_unregister_callback(void)
 {
 	callback_acquire = NULL;
 }
@@ -191,7 +191,7 @@ void PROTOCOL_register_payment_state_callback(payment_status_fn trans_fn)
 	transaction_status = trans_fn;
 }
 
-void PROTOCOL_unregister_payment_state_callback(void);
+void PROTOCOL_unregister_payment_state_callback(void)
 {
 	transaction_status = NULL;
 }

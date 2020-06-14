@@ -168,8 +168,7 @@ static void init_ds_interface(Dataset_state_t* vdstate)
     CanReceiver_deinit();
     // Re-init receiver with new dataset
 #endif
-
-    Demo01Plugin_initializer(NULL);
+    
     vdstate->options = &VehicleDatasetDemo01_options[0];
     Dataset_init(vdstate);
     CanReceiver_init(vdstate->dataset, JSONInterface_get_mutex());
@@ -182,7 +181,6 @@ static void init_ds_interface_tcp(Dataset_state_t* vdstate)
     // Re-init receiver with new dataset
 #endif
 
-    Demo01Plugin_initializer_tcp(NULL);
     vdstate->options = &VehicleDatasetDemo01_options[0];
     Dataset_init(vdstate);
     CanReceiver_init(vdstate->dataset, JSONInterface_get_mutex());

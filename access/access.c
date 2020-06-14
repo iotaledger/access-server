@@ -33,6 +33,10 @@
 #include "modbus_receiver.h"
 #include "storage.h"
 #include "protocol.h"
+#include "transaction.h"
+#include "resolver.h"
+#include "demo_resolver_01.h"
+#include "demo_resolver_02.h"
 #include "timer.h"
 
 #define MAX_CLIENT_NAME 32

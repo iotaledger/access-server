@@ -80,7 +80,6 @@ static void init_cb(Dataset_state_t* vdstate)
     // Re-init receiver with new dataset
 #endif
 
-    Demo02Plugin_initializer(NULL);
     vdstate->options = &VehicleDatasetDemo02_options[0];
     Dataset_init(vdstate);
     CanopenReceiver_init(vdstate->dataset, JSONInterface_get_mutex());
@@ -97,7 +96,7 @@ static void term_cb(Dataset_state_t* vdstate)
     CanopenReceiver_deinit();
 }
 
-void Demo02Plugin_initializer(resolver_plugin_t* action_set)
+void Demo02Plugin_initializer(resolver_plugin_t* action_set, wallet_ctx_t* wallet_ctx)
 {
     if (action_set == NULL && g_action_set == NULL)
     {

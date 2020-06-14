@@ -39,6 +39,7 @@
 #include <string.h>
 #include <pthread.h>
 #include "transaction.h"
+#include "protocol.h"
 #ifdef USE_RPI
 #include "rpi_trans.h"
 #endif
@@ -92,7 +93,7 @@ static void transaction_confirmation(uint32_t time, bool is_confirmed, pthread_t
 	service[i].transaction_confirmed = TRUE;
 }
 
-static TRANSACTION_payment_state_e recover_transaction(char* policy_id, int policy_id_len)
+static int recover_transaction(char* policy_id, int policy_id_len)
 {
 	//Check input parameters
 	if (policy_id == NULL)
@@ -226,7 +227,7 @@ bool TRANSACTION_store_transaction(char* policy_id, int policy_id_len,
 			return FALSE;
 		}
 
-		service[i].service = confirmation_service_start(wallet_ctx, transaction_hash, TRANS_INTERVAL_S,
+		service[i].service = confirmation_service_start(dev_wallet, transaction_hash, TRANS_INTERVAL_S,
 															TRANS_TIMEOUT_S, transaction_confirmation);
 		service[i].policy_id = malloc(policy_id_len * sizeof(char));
 		service[i].policy_id_len = policy_id_len;

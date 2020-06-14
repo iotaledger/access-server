@@ -50,6 +50,8 @@
 #define PEP_POL_ID_SIZE 32
 #define PEP_ACTION_LEN 15
 #define PEP_IOTA_ADDR_LEN 81
+#define PEP_POL_ID_HEX_LEN 32
+#define PEP_POL_ID_STR_LEN 64
 
 #define PEP_ASCII_SPACE 32
 #define PEP_ASCII_TAB 9
@@ -62,7 +64,6 @@
  * GLOBAL VARIABLES
  ****************************************************************************/
 static pthread_mutex_t pep_mutex;
-static wallet_ctx_t* dev_wallet = NULL;
 
 /****************************************************************************
  * LOCAL FUNCTIONS
@@ -135,8 +136,8 @@ static int append_action_item_to_str(char *str, int pos, PAP_action_list_t *acti
     buffer_position += strlen("\"policy_id\":\"");
 
     // add "policy_id" value
-    hex_to_str(action_item->policy_ID_str, str + buffer_position, POL_ID_HEX_LEN);
-    buffer_position += POL_ID_STR_LEN;
+    hex_to_str(action_item->policy_ID_str, str + buffer_position, PEP_POL_ID_HEX_LEN);
+    buffer_position += PEP_POL_ID_STR_LEN;
     str[buffer_position++] = '\"';
 
     // add "action"

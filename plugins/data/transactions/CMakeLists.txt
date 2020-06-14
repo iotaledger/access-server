@@ -29,7 +29,9 @@ set(include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/platforms/r_pi)
 
-set(libs access_wallet)
+set(libs
+  access_wallet
+  data_acquisition_plugins)
 
 add_library(${target} ${sources})
 target_include_directories(${target} PUBLIC ${include_dirs})

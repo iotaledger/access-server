@@ -35,6 +35,7 @@ set(include_dirs
 set(libs
   pep
   data_acquisition_plugins
+  data_transactions_plugins
   pap
   pigpio)
 
