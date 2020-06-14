@@ -37,7 +37,7 @@
 /****************************************************************************
  * INCLUDES
  ****************************************************************************/
-#include "wallet.h"
+#include "pap.h"
 
 /****************************************************************************
  * MACROS
@@ -54,6 +54,10 @@
 #define PDP_ERROR_RET    (666)
 
 #define PDP_OBLIGATION_LEN (15)
+
+/* If any hash function, which provides hashes longer than 256 bits, is to be used,
+this will have to be adjusted accordingly. */
+#define PDP_POL_ID_MAX_LEN 32
 
 /****************************************************************************
  * ENUMERATIONS
@@ -102,12 +106,15 @@ typedef struct attribute_value
 
 typedef struct action
 {
+	char pol_id_str[2 * PDP_POL_ID_MAX_LEN + 1];
 	unsigned long start_time;
 	unsigned long stop_time;
 	unsigned long balance;
 	char* wallet_address;
-	wallet_ctx_t* device_wallet_context;
+	char* transaction_hash;
+	int transaction_hash_len;
 	char* value;
+	PAP_action_list_t* action_list;
 } PDP_action_t;
 
 /****************************************************************************
@@ -118,11 +125,11 @@ typedef struct action
  *
  * @brief   Initialize module
  *
- * @param   wallet_ctx - wallet context
+ * @param   void
  *
  * @return  TRUE on success, FALSE on failure
  */
-bool PDP_init(wallet_ctx_t* wallet_ctx);
+bool PDP_init(void);
 
 /**
  * @fn      PDP_term

@@ -46,7 +46,6 @@
 #include "json_parser.h"
 #include "Dlog.h"
 #include "pip.h"
-#include "pap.h"
 
 /****************************************************************************
  * MACROS
@@ -55,10 +54,8 @@
 #define PDP_DATA_TYPE_SIZE 21
 #define PDP_STRTOUL_BASE 10
 #define PDP_MAX_STR_LEN 256
-
-/* If any hash function, which provides hashes longer than 256 bits, is to be used,
-this will have to be adjusted accordingly. */
-#define PDP_POL_ID_MAX_LEN 32
+#define PDP_USER_LEN 128
+#define PDP_WALLET_ADDR_LEN 81
 
 /****************************************************************************
  * LOCAL FUNCTIONS DECLARATION
@@ -614,17 +611,17 @@ static int resolve_obligation(char *policy_object, char *policy_id, int obl_posi
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
-bool PDP_init(wallet_ctx_t* wallet_ctx)
+bool PDP_init()
 {
 	//Initialize PAP
-	if (PAP_init(wallet_ctx) == PAP_ERROR)
+	if (PAP_init() == PAP_ERROR)
 	{
 		printf("\nERROR[%s]: PAP initialization failed.\n", __FUNCTION__);
 		return FALSE;
 	}
 
 	//Initialize PIP
-	if (PIP_init(wallet_ctx) == PIP_ERROR)
+	if (PIP_init() == PIP_ERROR)
 	{
 		printf("\nERROR[%s]: PIP initialization failed.\n", __FUNCTION__);
 		return FALSE;
@@ -655,11 +652,13 @@ bool PDP_term(void)
 //TODO: obligations should be linked list of the elements of the 'obligation_s' structure type
 PDP_decision_e PDP_calculate_decision(char *request_norm, char *obligation, PDP_action_t *action)
 {
-	char *policy_id = NULL;
+	char user_str[PDP_USER_LEN] = {0};
 	char *policy_object = NULL;
 	int request_policy_id = -1;
 	int request_balance = -1;
 	int request_wallet_addr = -1;
+	int user = -1;
+	int tr_hash = -1;
 	int size = -1;
 	int pol_obj_len = 0;
 	PDP_decision_e ret = PDP_ERROR;
@@ -677,20 +676,14 @@ PDP_decision_e PDP_calculate_decision(char *request_norm, char *obligation, PDP_
 	request_policy_id = json_get_value(request_norm, 0, "policy_id");
 	size = get_size_of_token(request_policy_id);
 
-	policy_id = malloc(size * sizeof(char));
-	memcpy(policy_id, request_norm + get_start_of_token(request_policy_id), size * sizeof(char));
+	memcpy(action->pol_id_str, request_norm + get_start_of_token(request_policy_id), size * sizeof(char));
 
 	//Get pol. object size and allocate policy object
-	if (PAP_get_policy_obj_len(policy_id, size, &pol_obj_len) == PAP_ERROR)
+	if (PAP_get_policy_obj_len(action->pol_id_str, size, &pol_obj_len) == PAP_ERROR)
 	{
 		Dlog_printf("\nERROR[%s]: Could not get the policy object length.\n", __FUNCTION__);
-		free(policy_id);
 		return PDP_ERROR;
 	}
-
-	policy_object = malloc(pol_obj_len * sizeof(char));
-
-	policy.policy_object.policy_object = policy_object;
 
 	//Check if any wallet action is requested
 	request_balance = json_get_value(request_norm, 0, "balance");
@@ -705,11 +698,29 @@ PDP_decision_e PDP_calculate_decision(char *request_norm, char *obligation, PDP_
 		memcpy(action->wallet_address, request_norm + get_start_of_token(request_wallet_addr + 1), get_size_of_token(request_wallet_addr + 1));
 	}
 
+	//Check if user is given in request
+	user = json_get_value(request_norm, 0, "user");
+	if (user != -1)
+	{
+		memcpy(user_str, request_norm + get_start_of_token(user + 1), get_size_of_token(user + 1));
+	}
+
+	//Check if transaction hash is given in request
+	tr_hash = json_get_value(request_norm, 0, "transaction_hash");
+	if (tr_hash != -1)
+	{
+		memcpy(action->transaction_hash , request_norm + get_start_of_token(tr_hash + 1), get_size_of_token(tr_hash + 1));
+		action->transaction_hash_len = get_size_of_token(tr_hash + 1);
+	}
+
+	policy_object = malloc(pol_obj_len * sizeof(char));
+
+	policy.policy_object.policy_object = policy_object;
+
 	//Get policy from PAP
-	if (PAP_get_policy(policy_id, size, &policy) == PAP_ERROR)
+	if (PAP_get_policy(action->pol_id_str, size, &policy) == PAP_ERROR)
 	{
 		Dlog_printf("\nERROR[%s]: Could not get the policy.\n", __FUNCTION__);
-		free(policy_id);
 		free(policy_object);
 		return PDP_ERROR;
 	}
@@ -743,8 +754,8 @@ PDP_decision_e PDP_calculate_decision(char *request_norm, char *obligation, PDP_
 	}
 
 	//Resolve attributes
-	int pol_goc = resolve_attribute(policy.policy_object.policy_object, policy_id, policy_goc);
-	int pol_doc = resolve_attribute(policy.policy_object.policy_object, policy_id, policy_doc);
+	int pol_goc = resolve_attribute(policy.policy_object.policy_object, action->pol_id_str, policy_goc);
+	int pol_doc = resolve_attribute(policy.policy_object.policy_object, action->pol_id_str, policy_doc);
 
 	//Calculate decision
 	ret = pol_goc + 2 * pol_doc;  // => (0, 1, 2, 3) <=> (gap, grant, deny, conflict)
@@ -755,20 +766,57 @@ PDP_decision_e PDP_calculate_decision(char *request_norm, char *obligation, PDP_
 		//FIXME: Should action be taken for deny case also?
 		int number_of_tokens = get_token_num();
 		get_action(action->value, policy.policy_object.policy_object, number_of_tokens);
+		if (memcmp(action->value, "get_actions", strlen("get_actions")))
+		{
+			char uri[PDP_MAX_STR_LEN] = {0};
+			PAP_action_list_t *action_elem = NULL;
+			PIP_attribute_object_t attribute;
+
+			//Get action list
+			PAP_get_subjects_list_of_actions(user_str, strlen(user_str), &action->action_list);
+
+			//Fill is payed value
+			action_elem = action->action_list;
+			while (action_elem)
+			{
+				memset(&attribute, 0, sizeof(PIP_attribute_object_t));
+				sprintf(uri, "iota:%s/request.isPayed.type?request.isPayed.value", action_elem->policy_ID_str);
+				PIP_get_data(uri, &attribute);
+				if (memcmp(attribute.value, "verified", strlen("verified")) == 0)
+				{
+					action_elem->is_available.is_payed = PAP_PAYED_VERIFIED;
+				}
+				else if (memcmp(attribute.value, "paid", strlen("paid")) == 0)
+				{
+					action_elem->is_available.is_payed = PAP_PAYED_PENDING;
+				}
+				else
+				{
+					action_elem->is_available.is_payed = PAP_NOT_PAYED;
+				}
+
+				memset(&attribute, 0, sizeof(PIP_attribute_object_t));
+				sprintf(uri, "iota:%s/request.walletAddress.type?request.walletAddress.value", action_elem->policy_ID_str);
+				PIP_get_data(uri, &attribute);
+				memcpy(action_elem->is_available.wallet_address, attribute.value, PDP_WALLET_ADDR_LEN);
+
+				action_elem = action_elem->next;
+			}
+		}
 		action->start_time = 0;
 		action->stop_time = 0;
 		get_time_from_attr(policy.policy_object.policy_object, policy_goc, UNDEFINED, &(action->start_time), &(action->stop_time));
 		
 		if(policy_gobl >= 0)
 		{
-			resolve_obligation(policy.policy_object.policy_object, policy_id, policy_gobl, obligation);
+			resolve_obligation(policy.policy_object.policy_object, action->pol_id_str, policy_gobl, obligation);
 		}
 	}
 	else if(ret == PDP_DENY)
 	{
 		if(policy_dobl >= 0)
 		{
-			resolve_obligation(policy.policy_object.policy_object, policy_id, policy_dobl, obligation);
+			resolve_obligation(policy.policy_object.policy_object, action->pol_id_str, policy_dobl, obligation);
 		}
 	}
 
@@ -776,7 +824,6 @@ PDP_decision_e PDP_calculate_decision(char *request_norm, char *obligation, PDP_
 	Dlog_printf("\nPOLICY DOC RESOLVED: %d", pol_doc);
 	Dlog_printf("\nPOLICY RESOLVED: %d\n", ret);
 
-	free(policy_id);
 	free(policy_object);
 	return ret;
 }

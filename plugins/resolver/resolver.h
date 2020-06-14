@@ -48,17 +48,20 @@
 #define RES_MAX_STR_SIZE 256
 #define RES_MAX_RESOLVER_ACTIONS 10
 #define RES_ACTION_NAME_SIZE 16
+#define RES_POL_ID_STR_LEN 64
 
 /****************************************************************************
  * TYPES & CALLBACKS
  ****************************************************************************/
 typedef struct action
 {
+	char pol_id_str[RES_POL_ID_STR_LEN + 1];
 	unsigned long start_time;
 	unsigned long stop_time;
 	unsigned long balance;
 	char* wallet_address;
-	wallet_ctx_t* device_wallet_context;
+	char* transaction_hash;
+	int transaction_hash_len;
 	char* value;
 } resolver_action_data_t;
 
@@ -75,7 +78,7 @@ typedef struct
     void (*term_ds_interface_cb)(Dataset_state_t*);
 } resolver_plugin_t;
 
-typedef void (*resolver_plugin_initializer_t)(resolver_plugin_t*);
+typedef void (*resolver_plugin_initializer_t)(resolver_plugin_t*, wallet_ctx_t*);
 typedef void (*resolver_plugin_terminizer_t)(resolver_plugin_t*);
 
 /****************************************************************************
@@ -87,7 +90,7 @@ typedef void (*resolver_plugin_terminizer_t)(resolver_plugin_t*);
  * @brief   Initialize Resolver module
  *
  */
-void Resolver_init(resolver_plugin_initializer_t initializer, Dataset_state_t *dstate);
+void Resolver_init(resolver_plugin_initializer_t initializer, Dataset_state_t *dstate, wallet_ctx_t* wallet_ctx);
 
 /**
  * @fn  void Resolver_term(resolver_plugin_terminizer_t terminizer)

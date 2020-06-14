@@ -45,7 +45,6 @@
 #include "storage.h"
 #include "utils_string.h"
 #include "pap.h"
-#include "pip.h"
 #include "globals_declarations.h"
 #include "policy_updater.h"
 #include "config_manager.h"
@@ -207,93 +206,9 @@ static int get_server_state(Network_actor_ctx_t_ *ctx)
     return ctx->state;
 }
 
-static int append_action_item_to_str(char *str, int pos, PAP_action_list_t *action_item)
-{
-    if(action_item == NULL)
-    {
-        return 0;
-    }
-    else if(action_item->policy_ID_str == NULL)
-    {
-        return 0;
-    }
-
-    int buffer_position = pos;
-
-    if(buffer_position != 1)
-    {
-        str[buffer_position++] = ',';
-    }
-
-    str[buffer_position++] = '{';
-
-    // add "policy_id"
-    memcpy(str + buffer_position, "\"policy_id\":\"", strlen("\"policy_id\":\""));
-    buffer_position += strlen("\"policy_id\":\"");
-
-    // add "policy_id" value
-    hex_to_str(action_item->policy_ID_str, str + buffer_position, POL_ID_HEX_LEN);
-    buffer_position += POL_ID_STR_LEN;
-    str[buffer_position++] = '\"';
-
-    // add "action"
-    memcpy(str + buffer_position, ",\"action\":\"", strlen(",\"action\":\""));
-    buffer_position += strlen(",\"action\":\"");
-
-    // add "action" value
-    memcpy(str + buffer_position, action_item->action, strlen(action_item->action));
-    buffer_position += strlen(action_item->action);
-    str[buffer_position++] = '\"';
-
-    // check if "cost" field should be added (add it if policy is not paid)
-    if (action_item->is_available.is_payed == PAP_NOT_PAYED)
-    {
-        // add "cost"
-        memcpy(str + buffer_position, ",\"cost\":\"", strlen(",\"cost\":\""));
-        buffer_position += strlen(",\"cost\":\"");
-
-        // add "cost" value
-        memcpy(str + buffer_position, action_item->is_available.cost, strlen(action_item->is_available.cost));
-        buffer_position += strlen(action_item->is_available.cost);
-        str[buffer_position++] = '\"';
-
-        // add wallet address
-        memcpy(str + buffer_position, ",\"wallet address\":\"", strlen(",\"wallet address\":\""));
-        buffer_position += strlen(",\"wallet address\":\"");
-
-        // add wallet address value
-        memcpy(str + buffer_position, action_item->is_available.wallet_address, PAP_WALLET_ADDR_LEN);
-        buffer_position += PAP_WALLET_ADDR_LEN;
-        str[buffer_position++] = '\"';
-    }
-
-    str[buffer_position++] = '}';
-
-    return buffer_position - pos;
-}
-
-static int list_to_string(PAP_action_list_t *action_list, char *output_str)
-{
-    output_str[0] = '[';
-    int buffer_position = 1;
-    PAP_action_list_t *action_list_temp = action_list;
-
-    while(action_list_temp != NULL)
-    {
-        buffer_position += append_action_item_to_str(output_str, buffer_position, action_list_temp);
-        action_list_temp = action_list_temp->next;
-    }
-
-    output_str[buffer_position++] = ']';
-    output_str[buffer_position++] = '\0';
-
-    return buffer_position;
-}
-
 static unsigned int calculate_decision(char **recvData, Network_actor_ctx_t_ *ctx)
 {
     int request_code = -1;
-    int decision = -1;
     unsigned int buffer_position = 0;
 
     char grant[] = "{\"response\":\"access granted\"}";
@@ -306,9 +221,11 @@ static unsigned int calculate_decision(char **recvData, Network_actor_ctx_t_ *ct
 
     if(request_code == COMMAND_RESOLVE)
     {
-        decision = PEP_request_access(*recvData);
+        char decision[BUF_LEN] = {0};
+        //@TODO: Should this be moved to access actor? Network should just send cb here to notify request.
+        PEP_request_access(*recvData, (void*)decision);
 
-        if(decision == 1)
+        if(memcmp(decision, "grant", strlen("grant")))
         {
             msg = grant;
         }
@@ -328,25 +245,10 @@ static unsigned int calculate_decision(char **recvData, Network_actor_ctx_t_ *ct
     }
     else if (request_code == COMMAND_GET_POL_LIST)
     {
-        PAP_action_list_t *action_list = NULL;
-        PAP_action_list_t *temp = NULL;
+        //@TODO: Should this be moved to access actor? Network should just send cb here to notify request.
+        PEP_request_access(*recvData, (void*)ctx->send_buffer);
 
-        // index of "user_id" token
-        int user_id_index = 0;
-
-        for (int i = 0; i < num_of_tokens; i++)
-        {
-            if (memcmp(*recvData + get_start_of_token(i), "user_id", strlen("user_id")) == 0)
-            {
-                user_id_index = i + 1;
-                break;
-            }
-        }
-
-        PAP_get_subjects_list_of_actions(*recvData + get_start_of_token(user_id_index), get_size_of_token(user_id_index), &action_list);
-
-        buffer_position = list_to_string(action_list, (char *)ctx->send_buffer);
-        Dlog_printf("\nResponse: %s\n", ctx->send_buffer);
+        buffer_position = strlen(ctx->send_buffer);
 
         if(ctx->DAC_AUTH == 1)
         {
@@ -354,13 +256,6 @@ static unsigned int calculate_decision(char **recvData, Network_actor_ctx_t_ *ct
         }
 
         *recvData = ctx->send_buffer;
-
-        while (action_list)
-        {
-            temp = action_list;
-            action_list = action_list->next;
-            free(temp);
-        }
     }
     else if (request_code == COMMAND_ENABLE_POLICY)
     {
@@ -509,54 +404,6 @@ static unsigned int calculate_decision(char **recvData, Network_actor_ctx_t_ *ct
         PAP_user_management_action(PAP_USERMNG_CLR_ALL_USR, ctx->send_buffer);
         *recvData = ctx->send_buffer;
         buffer_position = strlen(ctx->send_buffer);
-    }
-    else if (request_code == COMMAND_NOTIFY_TRANSACTION)
-    {
-        int user_id_index = -1;
-        int action_index = -1;
-        int transaction_hash_index = -1;
-        PAP_action_list_t *action_list = NULL;
-        PAP_action_list_t *temp = NULL;
-
-        for (int i = 0; i < num_of_tokens; i++)
-        {
-            if (memcmp(*recvData + get_start_of_token(i), "user_id", strlen("user_id")) == 0)
-            {
-                user_id_index = i + 1;
-            }
-            else if (memcmp(*recvData + get_start_of_token(i), "action", strlen("action")) == 0)
-            {
-                action_index = i + 1;
-            }
-            else if (memcmp(*recvData + get_start_of_token(i), "transaction_hash", strlen("transaction_hash")) == 0)
-            {
-                transaction_hash_index = i + 1;
-            }
-        }
-
-        PAP_get_subjects_list_of_actions(*recvData + get_start_of_token(user_id_index), get_size_of_token(user_id_index), &action_list);
-
-        temp = action_list;
-        while (temp)
-        {
-            if (memcmp(temp->action, *recvData + get_start_of_token(action_index), get_size_of_token(action_index)) == 0)
-            {
-                PIP_store_transaction(temp->policy_ID_str, PAP_POL_ID_MAX_LEN * 2,
-                                *recvData + get_start_of_token(transaction_hash_index), get_size_of_token(transaction_hash_index));
-                break;
-            }
-            else
-            {
-                temp = temp->next;
-            }
-        }
-
-        while (action_list)
-        {
-            temp = action_list;
-            action_list = action_list->next;
-            free(temp);
-        }
     }
     else
     {

@@ -44,10 +44,12 @@
 #include "can_receiver.h"
 #include "json_interface.h"
 #include "config_manager.h"
+#include "transaction.h"
 
 #define ADDR_SIZE 128
 
 static char relayboard_addr[ADDR_SIZE] = "127.0.0.1";
+static wallet_ctx_t *dev_wallet;
 
 void Demo01Plugin_set_relayboard_addr(const char* addr)
 {
@@ -78,10 +80,17 @@ static int demo01_open_trunk(resolver_action_data_t *action, int should_log)
     return 0;
 }
 
-static int demo_01_transfer_tokens(resolver_action_data_t *action, int should_log)
+static int demo01_transfer_tokens(resolver_action_data_t *action, int should_log)
 {
     char bundle[81];
-    wallet_send(action->device_wallet_context, action->wallet_address, action->balance, NULL, bundle);
+    wallet_send(dev_wallet, action->wallet_address, action->balance, NULL, bundle);
+    return 0;
+}
+
+static int demo01_store_transaction(resolver_action_data_t *action, int should_log)
+{
+    TRANSACTION_store_transaction(action->pol_id_str, RES_POL_ID_STR_LEN,
+									action->transaction_hash, action->transaction_hash_len);
     return 0;
 }
 
@@ -196,14 +205,17 @@ static void term_ds_interface(Dataset_state_t* vdstate)
     Dataset_deinit(vdstate);
 }
 
-void Demo01Plugin_initializer(resolver_plugin_t* action_set)
+void Demo01Plugin_initializer(resolver_plugin_t* action_set, wallet_ctx_t* wallet_ctx)
 {
     int cfg_status = ConfigManager_get_option_string("demo01plugin", "relayboard_address", relayboard_addr, ADDR_SIZE);
 
-    if (g_action_set == NULL && action_set == NULL)
+    if (g_action_set == NULL && action_set == NULL && wallet_ctx == NULL)
     {
         return;
     }
+
+    //Set wallet
+    dev_wallet = wallet_ctx;
 
     if (action_set != NULL)
     {
@@ -213,25 +225,30 @@ void Demo01Plugin_initializer(resolver_plugin_t* action_set)
     g_action_set->actions[1] = demo01_car_lock;
     g_action_set->actions[2] = demo01_open_trunk;
     g_action_set->actions[3] = demo01_start_engine;
-    g_action_set->actions[4] = demo_01_transfer_tokens;
+    g_action_set->actions[4] = demo01_transfer_tokens;
+    g_action_set->actions[5] = demo01_store_transaction;
     strncpy(g_action_set->action_names[0], "open_door", RES_ACTION_NAME_SIZE);
     strncpy(g_action_set->action_names[1], "close_door", RES_ACTION_NAME_SIZE);
     strncpy(g_action_set->action_names[2], "open_trunk", RES_ACTION_NAME_SIZE);
     strncpy(g_action_set->action_names[3], "start_engine", RES_ACTION_NAME_SIZE);
     strncpy(g_action_set->action_names[4], "transfer_tokens", RES_ACTION_NAME_SIZE);
-    g_action_set->count = 5;
+    strncpy(g_action_set->action_names[5], "store_transaction", RES_ACTION_NAME_SIZE);
+    g_action_set->count = 6;
     g_action_set->init_ds_interface_cb = init_ds_interface;
     g_action_set->stop_ds_interface_cb = stop_ds_interface;
     g_action_set->start_ds_interface_cb = start_ds_interface;
     g_action_set->term_ds_interface_cb = term_ds_interface;
 }
 
-void Demo01Plugin_initializer_tcp(resolver_plugin_t* action_set)
+void Demo01Plugin_initializer_tcp(resolver_plugin_t* action_set, wallet_ctx_t* wallet_ctx)
 {
-    if (g_action_set == NULL && action_set == NULL)
+    if (g_action_set == NULL && action_set == NULL && wallet_ctx == NULL)
     {
         return;
     }
+
+    //Set wallet
+    dev_wallet = wallet_ctx;
 
     if (action_set != NULL)
     {
@@ -241,13 +258,15 @@ void Demo01Plugin_initializer_tcp(resolver_plugin_t* action_set)
     g_action_set->actions[1] = demo01_tcp_car_lock;
     g_action_set->actions[2] = demo01_tcp_open_trunk;
     g_action_set->actions[3] = demo01_tcp_start_engine;
-    g_action_set->actions[4] = demo_01_transfer_tokens;
+    g_action_set->actions[4] = demo01_transfer_tokens;
+    g_action_set->actions[5] = demo01_store_transaction;
     strncpy(g_action_set->action_names[0], "open_door", RES_ACTION_NAME_SIZE);
     strncpy(g_action_set->action_names[1], "close_door", RES_ACTION_NAME_SIZE);
     strncpy(g_action_set->action_names[2], "open_trunk", RES_ACTION_NAME_SIZE);
     strncpy(g_action_set->action_names[3], "start_engine", RES_ACTION_NAME_SIZE);
     strncpy(g_action_set->action_names[4], "transfer_tokens", RES_ACTION_NAME_SIZE);
-    g_action_set->count = 5;
+    strncpy(g_action_set->action_names[5], "store_transaction", RES_ACTION_NAME_SIZE);
+    g_action_set->count = 6;
     g_action_set->init_ds_interface_cb = init_ds_interface_tcp;
     g_action_set->stop_ds_interface_cb = stop_ds_interface;
     g_action_set->start_ds_interface_cb = start_ds_interface;

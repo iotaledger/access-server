@@ -38,7 +38,6 @@
 #include <stdint.h>
 #include <stdarg.h>
 #include "user.h"
-#include "wallet.h"
 
 /****************************************************************************
  * MACROS
@@ -159,7 +158,6 @@ typedef bool (*has_fn)(char* policy_id);
 typedef bool (*del_fn)(char* policy_id);
 typedef bool (*get_pol_obj_len_fn)(char* policy_id, int *pol_obj_len);
 typedef bool (*get_all_fn)(PAP_policy_id_list_t **pol_list_head); //List acquired here, must be freed by the caller
-typedef PAP_payment_state_e (*transaction_status_fn)(char* policy_id, int pol_id_len);
 #if PAP_STORAGE_TEST_ACIVE
 typedef void (*get_pk)(char* pk);
 #endif
@@ -172,11 +170,11 @@ typedef void (*get_pk)(char* pk);
  *
  * @brief   Initialize module
  *
- * @param   wallet_ctx - wallet context
+ * @param   void
  *
  * @return  PAP_error_e error status
  */
-PAP_error_e PAP_init(wallet_ctx_t* wallet_ctx);
+PAP_error_e PAP_init(void);
 
 /**
  * @fn      PAP_term
@@ -198,7 +196,7 @@ PAP_error_e PAP_term(void);
  * @param   get - Callback for reading policy data from storage
  * @param   has - Callback for checking if the policy is in the storage
  * @param   del - Callback for deleting policy data from the storage
- * @param   get_pol_obj_len - Callback for getting stored policy's pol. object len
+ * @param   get_pol_obj_len - Callback for getting stored policy's object length
  * @param   get_all - Callback for getting all stored policy IDs
  *
  * @return  PAP_error_e error status
@@ -215,28 +213,6 @@ PAP_error_e PAP_register_callbacks(put_fn put, get_fn get, has_fn has, del_fn de
  * @return  PAP_error_e error status
  */
 PAP_error_e PAP_unregister_callbacks(void);
-
-/**
- * @fn      PAP_register_payment_state_callback
- *
- * @brief   Register callback for acquiring payment status
- *
- * @param   trans_fn - Callback for checking payment status
- *
- * @return  PAP_error_e error status
- */
-PAP_error_e PAP_register_payment_state_callback(transaction_status_fn trans_fn);
-
-/**
- * @fn      PAP_unregister_payment_state_callback
- *
- * @brief   Unregister callback for acquiring payment status
- *
- * @param   void
- *
- * @return  PAP_error_e error status
- */
-PAP_error_e PAP_unregister_payment_state_callback(void);
 
 /**
  * @fn      PAP_add_policy

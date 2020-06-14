@@ -110,6 +110,89 @@ static int normalize_request(char *request, int request_len, char **request_norm
 	return charCnt;
 }
 
+static int append_action_item_to_str(char *str, int pos, PAP_action_list_t *action_item)
+{
+    if(action_item == NULL)
+    {
+        return 0;
+    }
+    else if(action_item->policy_ID_str == NULL)
+    {
+        return 0;
+    }
+
+    int buffer_position = pos;
+
+    if(buffer_position != 1)
+    {
+        str[buffer_position++] = ',';
+    }
+
+    str[buffer_position++] = '{';
+
+    // add "policy_id"
+    memcpy(str + buffer_position, "\"policy_id\":\"", strlen("\"policy_id\":\""));
+    buffer_position += strlen("\"policy_id\":\"");
+
+    // add "policy_id" value
+    hex_to_str(action_item->policy_ID_str, str + buffer_position, POL_ID_HEX_LEN);
+    buffer_position += POL_ID_STR_LEN;
+    str[buffer_position++] = '\"';
+
+    // add "action"
+    memcpy(str + buffer_position, ",\"action\":\"", strlen(",\"action\":\""));
+    buffer_position += strlen(",\"action\":\"");
+
+    // add "action" value
+    memcpy(str + buffer_position, action_item->action, strlen(action_item->action));
+    buffer_position += strlen(action_item->action);
+    str[buffer_position++] = '\"';
+
+    // check if "cost" field should be added (add it if policy is not paid)
+    if (action_item->is_available.is_payed == PAP_NOT_PAYED)
+    {
+        // add "cost"
+        memcpy(str + buffer_position, ",\"cost\":\"", strlen(",\"cost\":\""));
+        buffer_position += strlen(",\"cost\":\"");
+
+        // add "cost" value
+        memcpy(str + buffer_position, action_item->is_available.cost, strlen(action_item->is_available.cost));
+        buffer_position += strlen(action_item->is_available.cost);
+        str[buffer_position++] = '\"';
+
+        // add wallet address
+        memcpy(str + buffer_position, ",\"wallet address\":\"", strlen(",\"wallet address\":\""));
+        buffer_position += strlen(",\"wallet address\":\"");
+
+        // add wallet address value
+        memcpy(str + buffer_position, action_item->is_available.wallet_address, PAP_WALLET_ADDR_LEN);
+        buffer_position += PAP_WALLET_ADDR_LEN;
+        str[buffer_position++] = '\"';
+    }
+
+    str[buffer_position++] = '}';
+
+    return buffer_position - pos;
+}
+
+static int list_to_string(PAP_action_list_t *action_list, char *output_str)
+{
+    output_str[0] = '[';
+    int buffer_position = 1;
+    PAP_action_list_t *action_list_temp = action_list;
+
+    while(action_list_temp != NULL)
+    {
+        buffer_position += append_action_item_to_str(output_str, buffer_position, action_list_temp);
+        action_list_temp = action_list_temp->next;
+    }
+
+    output_str[buffer_position++] = ']';
+    output_str[buffer_position++] = '\0';
+
+    return buffer_position;
+}
+
 /****************************************************************************
  * CALLBACK FUNCTIONS
  ****************************************************************************/
@@ -118,11 +201,8 @@ static resolver_fn callback_resolver = NULL;
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
-bool PEP_init(wallet_ctx_t* wallet_ctx)
+bool PEP_init()
 {
-	//Set wallet
-	dev_wallet = wallet_ctx;
-
 	//Initialize mutex
 	if (pthread_mutex_init(&pep_mutex, NULL) != 0)
 	{
@@ -131,7 +211,7 @@ bool PEP_init(wallet_ctx_t* wallet_ctx)
 	}
 
 	//Initialize PDP module
-	if (PDP_init(dev_wallet) == FALSE)
+	if (PDP_init() == FALSE)
 	{
 		printf("\nERROR[%s]: PDP init failed.\n", __FUNCTION__);
 		return FALSE;
@@ -142,9 +222,6 @@ bool PEP_init(wallet_ctx_t* wallet_ctx)
 
 bool PEP_term(void)
 {
-	//Clear wallet
-	dev_wallet = NULL;
-
 	//Destroy mutex
 	pthread_mutex_destroy(&pep_mutex);
 
@@ -196,7 +273,7 @@ bool PEP_unregister_callback(void)
 	return TRUE;
 }
 
-bool PEP_request_access(char *request)
+bool PEP_request_access(char *request, void *response)
 {
 	char action_value[PEP_ACTION_LEN];
 	//TODO: obligations should be linked list of the elements of the 'obligation_s' structure type
@@ -207,7 +284,7 @@ bool PEP_request_access(char *request)
 	PDP_decision_e ret = PDP_ERROR;
 
 	//Check input parameter
-	if (request == NULL)
+	if (request == NULL || response == NULL)
 	{
 		printf("\n\nERROR[%s]: Invalid input parameter.\n\n",__FUNCTION__);
 		return FALSE;
@@ -219,7 +296,6 @@ bool PEP_request_access(char *request)
 
 	action.value = action_value;
 	action.wallet_address = tangle_address;
-	action.device_wallet_context = dev_wallet;
 
 	//Get normalized request
 	if (normalize_request(request, strlen(request), &norm_request) == 0)
@@ -232,18 +308,36 @@ bool PEP_request_access(char *request)
 	//Calculate decision and get action + obligation
 	ret = PDP_calculate_decision(norm_request, obligation, &action);
 
-	//Resolver callback
-	if (callback_resolver != NULL)
+	if (memcmp(action.value, "get_actions", strlen("get_actions")))
 	{
-		callback_resolver(obligation, (void*)&action);
+		PAP_action_list_t *temp = NULL;
+
+		list_to_string(action.action_list, (char *)response);
+
+		while (action.action_list)
+		{
+			temp = action.action_list;
+			action.action_list = action.action_list->next;
+			free(temp);
+		}
 	}
 	else
 	{
-		printf("\n\nERROR[%s]: Callback is not regostered.\n\n",__FUNCTION__);
-		ret = PDP_ERROR;
+		//Resolver callback
+		if (callback_resolver != NULL)
+		{
+			callback_resolver(obligation, (void*)&action);
+		}
+		else
+		{
+			printf("\n\nERROR[%s]: Callback is not regostered.\n\n",__FUNCTION__);
+			ret = FALSE;
+		}
+
+		ret == PDP_GRANT ? memcpy(response, "grant", strlen("grant")) : memcpy(response, "deny", strlen("deny"));
 	}
 
 	free(norm_request);
 	pthread_mutex_unlock(&pep_mutex);
-	return ret == PDP_GRANT ? TRUE : FALSE;
+	return TRUE;
 }

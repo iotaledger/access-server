@@ -36,8 +36,7 @@
 /****************************************************************************
  * INCLUDES
  ****************************************************************************/
-#include "pip.h"
-#include "pap.h"
+#include "wallet.h"
 
 /****************************************************************************
  * MACROS
@@ -54,6 +53,16 @@
 
 //Set R-Pi as used platform
 #define USE_RPI 1
+
+/****************************************************************************
+ * ENUMERATIONS
+ ****************************************************************************/
+typedef enum
+{
+	TRANS_NOT_PAYED,
+	TRANS_PAYED,
+	TRANS_PAYED_VERIFIED
+} TRANSACTION_payment_state_e;
 
 /****************************************************************************
  * TYPES
@@ -74,11 +83,11 @@ typedef struct serv_confirm
  *
  * @brief   Initialize module
  *
- * @param   void
+ * @param   wallet_ctx - Device wallet
  *
  * @return  void
  */
-void TRANSACTION_init(void);
+void TRANSACTION_init(wallet_ctx_t* wallet_ctx);
 
 /**
  * @fn      TRANSACTION_term
@@ -90,5 +99,20 @@ void TRANSACTION_init(void);
  * @return  void
  */
 void TRANSACTION_term(void);
+
+/**
+ * @fn      TRANSACTION_store_transaction
+ *
+ * @brief   Save transaction info
+ *
+ * @param   policy_id - Policy ID string
+ * @param   policy_id_len - Length of policy ID string
+ * @param   transaction_hash - Transaction hasn string
+ * @param   transaction_hash_len - Transaction hasn string length
+ *
+ * @return  TRUE - success, FALSE - fail
+ */
+bool TRANSACTION_store_transaction(char* policy_id, int policy_id_len,
+									char* transaction_hash, int transaction_hash_len);
 
 #endif //_TRANSACTION_H_

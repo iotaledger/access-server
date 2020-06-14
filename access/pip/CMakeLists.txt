@@ -20,7 +20,5 @@
 cmake_minimum_required(VERSION 3.11)
 
 set(target pip)
-set(libs access_wallet)
 add_library(${target} pip.c)
 target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(${target} PUBLIC ${libs})

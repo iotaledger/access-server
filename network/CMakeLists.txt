@@ -28,7 +28,6 @@ set(libs
   json_parser
   asn
   pep
-  pip
   storage_plugin
   policy_updater)
 

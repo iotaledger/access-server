@@ -35,11 +35,6 @@
 #define _PIP_H_
 
 /****************************************************************************
- * INCLUDE
- ****************************************************************************/
-#include "wallet.h"
-
-/****************************************************************************
  * MACROS
  ****************************************************************************/
 #ifndef bool
@@ -82,9 +77,6 @@ typedef struct attribute_object
  * CALLBACKS
  ****************************************************************************/
 typedef bool (*fetch_fn)(char* uri, PIP_attribute_object_t* attribute_object);
-typedef bool (*save_transaction_fn)(wallet_ctx_t* wallet_ctx, char* policy_id, int policy_id_len,
-									char* transaction_hash, int transaction_hash_len);
-typedef int (*payment_status_fn)(char* policy_id, int policy_id_len);
 
 /****************************************************************************
  * API FUNCTIONS
@@ -94,11 +86,11 @@ typedef int (*payment_status_fn)(char* policy_id, int policy_id_len);
  *
  * @brief   Initialize module
  *
- * @param   wallet_ctx - Wallet context
+ * @param   void
  *
  * @return  PIP_error_e error status
  */
-PIP_error_e PIP_init(wallet_ctx_t* wallet_ctx);
+PIP_error_e PIP_init(void);
 
 /**
  * @fn      PIP_term
@@ -112,7 +104,7 @@ PIP_error_e PIP_init(wallet_ctx_t* wallet_ctx);
 PIP_error_e PIP_term(void);
 
 /**
- * @fn      PIP_register_fetch_callback
+ * @fn      PIP_register_callback
  *
  * @brief   Register callback for authority
  *
@@ -121,10 +113,10 @@ PIP_error_e PIP_term(void);
  *
  * @return  PIP_error_e error status
  */
-PIP_error_e PIP_register_fetch_callback(PIP_authorities_e authority, fetch_fn fetch);
+PIP_error_e PIP_register_callback(PIP_authorities_e authority, fetch_fn fetch);
 
 /**
- * @fn      PIP_unregister_fetch_callback
+ * @fn      PIP_unregister_callback
  *
  * @brief   Unregister callback for authority
  *
@@ -132,10 +124,10 @@ PIP_error_e PIP_register_fetch_callback(PIP_authorities_e authority, fetch_fn fe
  *
  * @return  PIP_error_e error status
  */
-PIP_error_e PIP_unregister_fetch_callback(PIP_authorities_e authority);
+PIP_error_e PIP_unregister_callback(PIP_authorities_e authority);
 
 /**
- * @fn      PIP_unregister_all_fetch_callbacks
+ * @fn      PIP_unregister_all_callbacks
  *
  * @brief   Unregister callbacka for every authority
  *
@@ -143,51 +135,7 @@ PIP_error_e PIP_unregister_fetch_callback(PIP_authorities_e authority);
  *
  * @return  PIP_error_e error status
  */
-PIP_error_e PIP_unregister_all_fetch_callbacks(void);
-
-/**
- * @fn      PIP_register_save_tr_callback
- *
- * @brief   Register callback for saving transaction
- *
- * @param   save_tr - Callback to register
- *
- * @return  PIP_error_e error status
- */
-PIP_error_e PIP_register_save_tr_callback(save_transaction_fn save_tr);
-
-/**
- * @fn      PIP_unregister_save_tr_callback
- *
- * @brief   Unregister callback for saving transaction
- *
- * @param   void
- *
- * @return  PIP_error_e error status
- */
-PIP_error_e PIP_unregister_save_tr_callback(void);
-
-/**
- * @fn      PIP_register_payment_state_callback
- *
- * @brief   Register callback for acquiring payment status
- *
- * @param   trans_fn - Callback for checking payment status
- *
- * @return  PIP_error_e error status
- */
-PIP_error_e PIP_register_payment_state_callback(payment_status_fn trans_fn);
-
-/**
- * @fn      PIP_unregister_payment_state_callback
- *
- * @brief   Unregister callback for acquiring payment status
- *
- * @param   void
- *
- * @return  PIP_error_e error status
- */
-PIP_error_e PIP_unregister_payment_state_callback(void);
+PIP_error_e PIP_unregister_all_callbacks(void);
 
 /**
  * @fn      PIP_get_data
@@ -200,20 +148,5 @@ PIP_error_e PIP_unregister_payment_state_callback(void);
  * @return  PIP_error_e error status
  */
 PIP_error_e PIP_get_data(char* uri, PIP_attribute_object_t* attribute);
-
-/**
- * @fn      PIP_store_transaction
- *
- * @brief   Store user's transaction to database
- *
- * @param   policy_id - Policy ID string
- * @param   policy_id_len - Length of policy ID string
- * @param   transaction_hash - Transaction hash string
- * @param   transaction_hash_len - Length of transaction hash string
- *
- * @return  PIP_error_e error status
- */
-PIP_error_e PIP_store_transaction(char* policy_id, int policy_id_len,
-									char* transaction_hash, int transaction_hash_len);
 
 #endif /* _PIP_H_ */
