@@ -93,7 +93,10 @@ int main(int argc, char** argv)
     {
         int read_bytes = fread(&policy_data[policy_data_len], 1, FREAD_CHUNK, fp);
         policy_data_len += read_bytes;
-        if (policy_data_len >= 4096) break;
+        if (policy_data_len >= 4096)
+        {
+            break;
+        }
     }
 
     // Validate

@@ -175,7 +175,7 @@ static bool pep_request(char *obligation, void *action)
     }
     
     //TODO: only "log_event" obligation is supported currently
-    if(0 == memcmp(obligation, "log_event", strlen("log_event")))
+    if (0 == memcmp(obligation, "log_event", strlen("log_event")))
     {
         should_log = TRUE;
     }

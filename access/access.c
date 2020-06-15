@@ -40,7 +40,8 @@
 #define CONFIG_CLIENT_CANOPEN01 "canopen01"
 #define CONFIG_CLIENT_OBDII "obdii"
 
-typedef struct {
+typedef struct
+{
     int using_can;
     int using_gps;
     int using_obdii;
@@ -138,7 +139,9 @@ void Access_deinit(Access_ctx_t access_context)
 
     JSONInterface_deinit();
     if (ctx->vdstate.dataset != 0)
+    {
         Dataset_deinit(&ctx->vdstate);
+    }
 
     Timer_deinit();
 }

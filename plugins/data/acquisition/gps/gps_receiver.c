@@ -65,7 +65,8 @@ static fjson_object* gps_json_filler()
 
 // !GPS data stuff
 
-typedef struct {
+typedef struct
+{
     char portname[GPS_PORTNAME_LEN];
     fjson_object* fj_root;
     pthread_mutex_t *json_mutex;
@@ -211,7 +212,7 @@ static void *gps_thread_loop(void *ptr)
             buffer[length] = '\0';
             char *token = strtok(buffer, "\n\r");
             int loc_idx = 0;
-            while(token)
+            while (token)
             {
                 if (token[0] == '$' || token[0] == '!')
                 {

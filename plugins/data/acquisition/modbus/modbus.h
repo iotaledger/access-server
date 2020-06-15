@@ -38,7 +38,8 @@
 
 #define MODBUS_DEV_NAME_LEN 128
 
-typedef struct {
+typedef struct
+{
     char device_name[MODBUS_DEV_NAME_LEN];
     int fd;
 } Modbus_t;

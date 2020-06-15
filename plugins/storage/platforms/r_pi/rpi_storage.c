@@ -194,7 +194,7 @@ bool RPI_check_if_stored_policy(char* policy_id)
 	sprintf(pol_path, "../plugins/storage/platforms/r_pi/policies/%s.txt", pol_id_str);
 
 	//Check file existance
-	if(access(pol_path, F_OK) != RPI_ACCESS_ERR)
+	if (access(pol_path, F_OK) != RPI_ACCESS_ERR)
 	{
 		//File exists
 		return TRUE;

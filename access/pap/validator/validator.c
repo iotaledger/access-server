@@ -477,8 +477,8 @@ static int check_gocdoc_object(jsmntok_t* tokens, int obj_idx, int max_idx, cons
         for (int j = next_object_index; j < max_idx; j++)
         {
             if (strncmp(&policy_data[tokens[j].start], "attribute_list", strlen("attribute_list")) == 0 &&
-                    tokens[j].size == 1 &&
-                    tokens[j + 1].type == JSMN_ARRAY)
+                        tokens[j].size == 1 &&
+                        tokens[j + 1].type == JSMN_ARRAY)
             {
                 // check attribute list array recursively
                 if (check_gocdoc_object(tokens, j + 2, Parser_end_of_current_idx(tokens, j, max_idx), policy_data) == (DG_HAS_ATTLIST | DG_HAS_OPP))
@@ -501,8 +501,8 @@ static int check_gocdoc_object(jsmntok_t* tokens, int obj_idx, int max_idx, cons
                 }
             }
             else if (strncmp(&policy_data[tokens[j].start], "operation", strlen("operation")) == 0 &&
-                    tokens[j].size == 1 &&
-                    tokens[j + 1].type == JSMN_STRING)
+                             tokens[j].size == 1 &&
+                             tokens[j + 1].type == JSMN_STRING)
             {
                 ret |= DG_HAS_OPP;
 
@@ -668,9 +668,9 @@ void Validator_check(const char* policy_data, Validator_report_t* report)
 
                 // Check that token is a key, next token is value token and it is of correct type
                 if (strncmp(&policy_data[tokens[i].start], "cost", strlen("cost")) == 0 &&
-                        tokens[i].size == 1 &&
-                        tokens[i + 1].size == 0 &&
-                        tokens[i + 1].type == JSMN_STRING)
+                            tokens[i].size == 1 &&
+                            tokens[i + 1].size == 0 &&
+                            tokens[i + 1].type == JSMN_STRING)
                 {
                     char cost_s[COST_STR_SIZE];
                     memcpy(cost_s, &policy_data[tokens[i + 1].start], COST_STR_SIZE * sizeof(char));
@@ -690,9 +690,9 @@ void Validator_check(const char* policy_data, Validator_report_t* report)
                     }
                 }
                 else if (strncmp(&policy_data[tokens[i].start], "hash_function", strlen("hash_function")) == 0 &&
-                        tokens[i].size == 1 &&
-                        tokens[i + 1].size == 0 &&
-                        tokens[i + 1].type == JSMN_STRING)
+                         tokens[i].size == 1 &&
+                         tokens[i + 1].size == 0 &&
+                         tokens[i + 1].type == JSMN_STRING)
                 {
                     char hash_fn_s[tokens[i + 1].end - tokens[i + 1].start];
                     memcpy(hash_fn_s, &policy_data[tokens[i + 1].start], (tokens[i + 1].end - tokens[i + 1].start) * sizeof(char));
@@ -710,9 +710,9 @@ void Validator_check(const char* policy_data, Validator_report_t* report)
                     }
                 }
                 else if (strncmp(&policy_data[tokens[i].start], "policy_id", strlen("policy_id")) == 0 &&
-                        tokens[i].size == 1 &&
-                        tokens[i+1].size == 0 &&
-                        tokens[i+1].type == JSMN_STRING)
+                         tokens[i].size == 1 &&
+                         tokens[i+1].size == 0 &&
+                         tokens[i+1].type == JSMN_STRING)
                 {
                     // @TODO check if value token is in valid range, type, etc
                     found_everyone |= FL_HAS_POLID;
@@ -725,8 +725,8 @@ void Validator_check(const char* policy_data, Validator_report_t* report)
                     }
                 }
                 else if (strncmp(&policy_data[tokens[i].start], "policy_object", strlen("policy_object")) == 0 &&
-                        tokens[i].size == 1 &&
-                        tokens[i+1].type == JSMN_OBJECT)
+                         tokens[i].size == 1 &&
+                         tokens[i+1].type == JSMN_OBJECT)
                 {
                     found_everyone |= FL_HAS_POLOB;
                     policy_object_idx = i;
@@ -750,7 +750,7 @@ void Validator_check(const char* policy_data, Validator_report_t* report)
             {
                 // policy_object top level tokens
                 if (tokens[policy_object_idx + 1].type != JSMN_OBJECT ||
-                        tokens[policy_object_idx + 1].size < POL_OBJC_MIN_MEMBERS)
+                    tokens[policy_object_idx + 1].size < POL_OBJC_MIN_MEMBERS)
                 {
                     proper_format = 0;
                 }
@@ -767,16 +767,16 @@ void Validator_check(const char* policy_data, Validator_report_t* report)
                     for (int i = policy_object_idx; i < policy_object_end_idx; i++)
                     {
                         if (strncmp(&policy_data[tokens[i].start], "policy_doc", strlen("policy_doc")) == 0 &&
-                                tokens[i].size == 1 &&
-                                tokens[i + 1].type == JSMN_OBJECT)
+                                    tokens[i].size == 1 &&
+                                    tokens[i + 1].type == JSMN_OBJECT)
                         {
                             found_doc_goc |= DG_HAS_DOC;
 
                             check_doc |= check_gocdoc_object(tokens, i + 2, Parser_end_of_current_idx(tokens, i + 1, policy_object_end_idx), policy_data);
                         }
                         else if (strncmp(&policy_data[tokens[i].start], "policy_goc", strlen("policy_goc")) == 0 &&
-                                tokens[i].size == 1 &&
-                                tokens[i + 1].type == JSMN_OBJECT)
+                                 tokens[i].size == 1 &&
+                                 tokens[i + 1].type == JSMN_OBJECT)
                         {
                             found_doc_goc |= DG_HAS_GOC;
 

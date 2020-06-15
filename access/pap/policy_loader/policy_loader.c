@@ -179,7 +179,8 @@ static int parse_policy_updater_response(char **start_p, char **end_p, char *end
         return 1; // End
     }
 
-    do {
+    do
+    {
         ret = search_key_word(start_p, end_p, end_all_p);
         if (ret)
         {
@@ -251,11 +252,11 @@ static int parse_policy(const char *p_policy, char *policy_buff, size_t *o_polic
         return 0;
     }
 
-    if(memcmp(p_policy + t[1].start, "error", strlen("error")) == 0)
+    if (memcmp(p_policy + t[1].start, "error", strlen("error")) == 0)
     {
         Dlog_printf("\nPolicy not found!");
     }
-    else if(memcmp(p_policy + t[1].start, "policy", strlen("policy")) == 0)
+    else if (memcmp(p_policy + t[1].start, "policy", strlen("policy")) == 0)
     {
         for (int i = 0; i<r; i++)
         {
@@ -318,13 +319,13 @@ static void parse_policy_service_list()
 {
     int policy_list = json_parser_init(g_policy_list);
 
-    if(policy_list > 0)
+    if (policy_list > 0)
     {
         int response = json_get_value(g_policy_list, 0, "response");
-        if(response != -1)
+        if (response != -1)
         {
             int response_type = get_token_type(response);
-            if(response_type == POLICY_LOADER_POL_RESPONSE_TYPE_ARRAY)
+            if (response_type == POLICY_LOADER_POL_RESPONSE_TYPE_ARRAY)
             {
                 //should resolve policyID list
                 num_of_policies = get_array_size(POLICY_LOADER_ARRAY_TOK_IDX);
@@ -333,9 +334,9 @@ static void parse_policy_service_list()
                 memcpy(g_policy_store_version, g_policy_list + get_start_of_token(ps_id), POLICY_LOADER_STR_LEN - 1);
                 memcpy(g_policy_store_version + (POLICY_LOADER_STR_LEN - 1), "\0", 1);
             }
-            else if(response_type == POLICY_LOADER_POL_RESPONSE_TYPE_STRING)
+            else if (response_type == POLICY_LOADER_POL_RESPONSE_TYPE_STRING)
             {
-                if(memcmp(g_policy_list + get_start_of_token(response), "ok", strlen("ok")) == 0)
+                if (memcmp(g_policy_list + get_start_of_token(response), "ok", strlen("ok")) == 0)
                 {
                     Dlog_printf("\nPolicy store up to date");
                 }
@@ -368,7 +369,7 @@ static unsigned int fsm_get_policy_list_done(void)
 
     g_fsm_try_counter++;
     //TODO: policy list received
-    if(g_new_policy_list)
+    if (g_new_policy_list)
     {
         g_fsm_try_counter = 0;
         g_new_policy_list = 0;
@@ -379,7 +380,7 @@ static unsigned int fsm_get_policy_list_done(void)
     }
     else
     {
-        if(g_fsm_try_counter < POLICY_LOADER_MAX_GET_TRY)
+        if (g_fsm_try_counter < POLICY_LOADER_MAX_GET_TRY)
         {
             ret = POLICY_LOADER_GET_PL_DONE;
         }
@@ -400,7 +401,7 @@ static unsigned int receive_policies(void)
     char *policy_buff = NULL;
     int policy_len = 0;
     int status = 0;
-    while(num_of_policies > 0)
+    while (num_of_policies > 0)
     {
         int current_policy = num_of_policies - 1;
 
@@ -490,7 +491,7 @@ int PolicyLoader_stop()
 static void *policy_loader_thread_function(void *arg)
 {
     int period_counter = 0;
-    while(!g_end)
+    while (!g_end)
     {
         if (period_counter++ == (5000000 / g_task_sleep_time) || (5000000 / g_task_sleep_time) == 0) // 5 seconds
         {

@@ -39,7 +39,8 @@
 #define CANOPEN_SDO_NAME_LEN 64
 #define CANOPEN_SDO_UNIT_LEN 32
 
-typedef struct {
+typedef struct
+{
     int index;
     char name[CANOPEN_SDO_NAME_LEN];
     char unit[CANOPEN_SDO_UNIT_LEN];
@@ -53,7 +54,8 @@ typedef struct {
 #define CANOPEN_SDO_DATA_TYPE_INT 1
 #define CANOPEN_SDO_DATA_TYPE_FLOAT 2
 
-typedef struct {
+typedef struct
+{
     double value;
     char unit[CANOPEN_SDO_UNIT_LEN];
     char name[CANOPEN_SDO_NAME_LEN];

@@ -36,7 +36,8 @@
 
 #include <pthread.h>
 
-typedef enum {
+typedef enum
+{
 	GPS_NO_ERROR = 0,
 	GPS_ERROR = -1,
 	GPS_ERROR_START = -2

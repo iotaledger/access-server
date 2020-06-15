@@ -48,7 +48,8 @@
 extern char VehicleDatasetDemo01_options[];
 extern char VehicleDatasetDemo02_options[];
 
-typedef struct {
+typedef struct
+{
 	uint8_t DoorDrvrSts;
 	uint8_t DoorDrvrReSts;
 	uint8_t VehMtnStSafe;
@@ -85,7 +86,8 @@ typedef struct {
 	uint8_t CluPedlRat;
 } can01_vehicle_dataset_t;
 
-typedef struct {
+typedef struct
+{
     uint8_t bms_bat_voltage;
     uint8_t analogue_brake_full_voltage;
     uint8_t analogue_brake_off_voltage;

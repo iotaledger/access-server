@@ -44,7 +44,8 @@
 #define OBDII_TX_ID 0x7E0
 #define OBDII_RX_ID 0x7E8
 
-typedef struct {
+typedef struct
+{
     char portname[OBDII_PORTNAME_LEN];
     fjson_object* fj_root;
     pthread_mutex_t *json_mutex;
@@ -63,7 +64,8 @@ static fjson_object* obdii_json_filler()
 
 void ObdiiReceiver_init(const char* portname, pthread_mutex_t *json_mutex)
 {
-    if (OBDIIOpenSocket(&s, portname, OBDII_TX_ID, OBDII_RX_ID, 0) < 0) {
+    if (OBDIIOpenSocket(&s, portname, OBDII_TX_ID, OBDII_RX_ID, 0) < 0)
+    {
         printf("Error opening socket: %s\n", strerror(errno));
         exit(EXIT_FAILURE);
     }
@@ -82,12 +84,13 @@ static pthread_t obdii_thread = 0;
 
 static void *obdii_thread_loop(void *ptr)
 {
-    while(end_thread == 0) {}
+    while (end_thread == 0) {}
 }
 
 int ObdiiReceiver_start()
 {
-    if (pthread_create(&obdii_thread, NULL, obdii_thread_loop, (void*)&targs)){
+    if (pthread_create(&obdii_thread, NULL, obdii_thread_loop, (void*)&targs))
+    {
         fprintf(stderr, "Error creating OBDII thread\n");
         return OBDII_ERROR;
     }

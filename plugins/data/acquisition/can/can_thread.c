@@ -53,7 +53,8 @@ static void *can_thread(void *ptr)
 
 int CanThread_start(CanThread_instance_t* inst)
 {
-    if (pthread_create(&inst->thread, NULL, can_thread, inst)){
+    if (pthread_create(&inst->thread, NULL, can_thread, inst))
+    {
         fprintf(stderr, "Error creating CAN reader thread\n");
         return 1;
     }
@@ -63,7 +64,8 @@ int CanThread_start(CanThread_instance_t* inst)
 int CanThread_stop(CanThread_instance_t* inst)
 {
     CAN_end_loop(&inst->can_connection);
-    if (pthread_join(inst->thread, NULL)){
+    if (pthread_join(inst->thread, NULL))
+    {
         fprintf(stderr, "Error joining can reader thread\n");
         return 1;
     }

@@ -41,7 +41,8 @@
 
 #include "lib.h"
 
-typedef enum {
+typedef enum
+{
     CAN_OPEN_NO_ERROR = 0,
     CAN_OPEN_CONNECTION_ERROR = -1,
     CAN_OPEN_SOCKET_ERROR = -2,
@@ -49,25 +50,29 @@ typedef enum {
     CAN_OPEN_BIND_ERROR = -4
 } CAN_open_error_e;
 
-typedef enum {
+typedef enum
+{
     CAN_SEND_NO_ERROR = 0,
     CAN_SEND_FRAME_DATA_ERROR = -1,
     CAN_SEND_WRITE_ERROR = -2
 } CAN_send_frame_error_e;
 
-typedef enum {
+typedef enum
+{
     CAN_READ_NO_ERROR = 0,
     CAN_READ_CONNECTION_ERROR = -1,
     CAN_READ_RECEIVE_ERROR = -2,
     CAN_READ_INCOMPLETE_ERROR = -3
 } CAN_read_error_e;
 
-typedef enum {
+typedef enum
+{
     CAN_CLOSE_NO_ERROR = 0,
     CAN_CLOSE_ERROR = -1
 } CAN_close_error_e;
 
-typedef struct {
+typedef struct
+{
     int sock;
     struct sockaddr_can addr;
     struct ifreq ifr;

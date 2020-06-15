@@ -50,7 +50,8 @@
 #define MODBUS_RPM_REGADDR 0x107
 #define MODBUS_THROTTLE_VOLTAGE_REGADDR 0x010e
 
-typedef struct {
+typedef struct
+{
     char serial_device[MODBUS_SERIAL_DEV_LEN];
     fjson_object* fj_root;
     pthread_mutex_t *json_mutex;

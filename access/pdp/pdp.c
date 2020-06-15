@@ -74,27 +74,45 @@ static PDP_operation_e get_operation_new(const char *operation, int size)
 
 	if (size == 2)
 	{
-		if(memcmp("or", operation, size) == 0)
+		if (memcmp("or", operation, size) == 0)
+		{
 			ret = OR;
-		else if(memcmp("eq", operation, size) == 0)
+		}
+		else if (memcmp("eq", operation, size) == 0)
+		{
 			ret = EQ;
+		}
 		else if (memcmp("lt", operation, size) == 0)
+		{
 			ret = LT;
+		}
 		else if (memcmp("gt", operation, size) == 0)
+		{
 			ret = GT;
+		}
 		else if (memcmp("if", operation, size) == 0)
+		{
 			ret = IF;
+		}
 	}
 	else if (size == 3)
 	{
-		if(memcmp("and", operation, size) == 0)
+		if (memcmp("and", operation, size) == 0)
+		{
 			ret = AND;
-		else if(memcmp("not", operation, size) == 0)
+		}
+		else if (memcmp("not", operation, size) == 0)
+		{
 			ret = NOT;
-		else if(memcmp("leq", operation, size) == 0)
+		}
+		else if (memcmp("leq", operation, size) == 0)
+		{
 			ret = LEQ;
-		else if(memcmp("geq", operation, size) == 0)
+		}
+		else if (memcmp("geq", operation, size) == 0)
+		{
 			ret = GEQ;
+		}
 	}
 
 	return ret;
@@ -117,7 +135,7 @@ static int and(char *policy_object, char *policy_id, int attribute_list)
 
 		res = resolve_attribute(policy_object, policy_id, attribute_list + attribute);
 
-		if(res != FALSE)
+		if (res != FALSE)
 		{
 			decision = decision && res;
 		}
@@ -148,7 +166,7 @@ static int or(char *policy_object, char *policy_id, int attribute_list)
 
 		res = resolve_attribute(policy_object, policy_id, attribute_list + attribute);
 
-		if(res != FALSE)
+		if (res != FALSE)
 		{
 			decision = decision || res;
 		}
@@ -208,8 +226,8 @@ static int resolve_condition(char *policy_object, char* policy_id, int attribute
 		{
 			case EQ:
 			{
-				if(((size_of_type1 == size_of_type2) && (strncasecmp(policy_object + get_start_of_token(type1), attribute.type, size_of_type1) == 0 )) &&
-						((size_of_value1 == size_of_value2) && (strncasecmp(policy_object + get_start_of_token(value1), attribute.value, size_of_value1) == 0 )))
+				if (((size_of_type1 == size_of_type2) && (strncasecmp(policy_object + get_start_of_token(type1), attribute.type, size_of_type1) == 0 )) &&
+					((size_of_value1 == size_of_value2) && (strncasecmp(policy_object + get_start_of_token(value1), attribute.value, size_of_value1) == 0 )))
 				{
 					ret = TRUE;
 				}
@@ -221,13 +239,13 @@ static int resolve_condition(char *policy_object, char* policy_id, int attribute
 			}
 			case LEQ:
 			{
-				if(((size_of_type1 == size_of_type2) && (strncasecmp(policy_object + get_start_of_token(type1), attribute.type, size_of_type1) == 0 )))
+				if (((size_of_type1 == size_of_type2) && (strncasecmp(policy_object + get_start_of_token(type1), attribute.type, size_of_type1) == 0 )))
 				{
-					if(size_of_value1 < size_of_value2)
+					if (size_of_value1 < size_of_value2)
 					{
 						ret = TRUE;
 					}
-					else if((size_of_value1 == size_of_value2) && strncasecmp(policy_object + get_start_of_token(value1), attribute.value, size_of_value1) <= 0 )
+					else if ((size_of_value1 == size_of_value2) && strncasecmp(policy_object + get_start_of_token(value1), attribute.value, size_of_value1) <= 0 )
 					{
 						ret = TRUE;
 					}
@@ -236,13 +254,13 @@ static int resolve_condition(char *policy_object, char* policy_id, int attribute
 			}
 			case LT:
 			{
-				if(((size_of_type1 == size_of_type2) && (strncasecmp(policy_object + get_start_of_token(type1), attribute.type, size_of_type1) == 0 )))
+				if (((size_of_type1 == size_of_type2) && (strncasecmp(policy_object + get_start_of_token(type1), attribute.type, size_of_type1) == 0 )))
 				{
-					if(size_of_value1 < size_of_value2)
+					if (size_of_value1 < size_of_value2)
 					{
 						ret = TRUE;
 					}
-					else if((size_of_value1 == size_of_value2) && strncasecmp(policy_object + get_start_of_token(value1), attribute.value, size_of_value1) < 0 )
+					else if ((size_of_value1 == size_of_value2) && strncasecmp(policy_object + get_start_of_token(value1), attribute.value, size_of_value1) < 0 )
 					{
 						ret = TRUE;
 					}
@@ -251,13 +269,13 @@ static int resolve_condition(char *policy_object, char* policy_id, int attribute
 			}
 			case GEQ:
 			{
-				if(((size_of_type1 == size_of_type2) && (strncasecmp(policy_object + get_start_of_token(type1), attribute.type, size_of_type1) == 0 )))
+				if (((size_of_type1 == size_of_type2) && (strncasecmp(policy_object + get_start_of_token(type1), attribute.type, size_of_type1) == 0 )))
 				{
-					if(size_of_value1 > size_of_value2)
+					if (size_of_value1 > size_of_value2)
 					{
 						ret = TRUE;
 					}
-					else if((size_of_value1 == size_of_value2) && strncasecmp(policy_object + get_start_of_token(value1), attribute.value, size_of_value1) >= 0 )
+					else if ((size_of_value1 == size_of_value2) && strncasecmp(policy_object + get_start_of_token(value1), attribute.value, size_of_value1) >= 0 )
 					{
 						ret = TRUE;
 					}
@@ -266,13 +284,13 @@ static int resolve_condition(char *policy_object, char* policy_id, int attribute
 			}
 			case GT:
 			{
-				if(((size_of_type1 == size_of_type2) && (strncasecmp(policy_object + get_start_of_token(type1), attribute.type, size_of_type1) == 0 )))
+				if (((size_of_type1 == size_of_type2) && (strncasecmp(policy_object + get_start_of_token(type1), attribute.type, size_of_type1) == 0 )))
 				{
-					if(size_of_value1 > size_of_value2)
+					if (size_of_value1 > size_of_value2)
 					{
 						ret = TRUE;
 					}
-					else if((size_of_value1 == size_of_value2) && strncasecmp(policy_object + get_start_of_token(value1), attribute.value, size_of_value1) > 0 )
+					else if ((size_of_value1 == size_of_value2) && strncasecmp(policy_object + get_start_of_token(value1), attribute.value, size_of_value1) > 0 )
 					{
 						ret = TRUE;
 					}
@@ -289,13 +307,13 @@ static int resolve_condition(char *policy_object, char* policy_id, int attribute
 
 static void get_time_from_attr(char *policy_object, int atribute_position, PDP_operation_e attr_operation, unsigned long *start_time, unsigned long *end_time)
 {
-	if(policy_object == NULL)
+	if (policy_object == NULL)
 	{
 		Dlog_printf("\n\nERROR[%s]: Wrong input parameters\n\n", __FUNCTION__);
 		return;
 	}
 
-	if(start_time == NULL || end_time == NULL)
+	if (start_time == NULL || end_time == NULL)
 	{
 		// Not an error. Sometimes, time is not needed
 		return;
@@ -308,19 +326,19 @@ static void get_time_from_attr(char *policy_object, int atribute_position, PDP_o
 	int i = 0;
 	PDP_operation_e opt;
 
-	if((operation != -1) && (get_start_of_token(operation) < get_end_of_token(atribute_position)))// Check only operations within this json object
+	if ((operation != -1) && (get_start_of_token(operation) < get_end_of_token(atribute_position)))// Check only operations within this json object
 	{
 		attribute_list = json_get_token_index_from_pos(policy_object, atribute_position, "attribute_list");
 
 		// Check if operation is listed before or after attribure list
-		if(attribute_list >= 0 && operation > attribute_list)
+		if (attribute_list >= 0 && operation > attribute_list)
 		{
 			// If attribute list is listed first, get operation given after att. list
 
 			int number_of_tokens = get_token_num();
 			int tok_cnt = attribute_list;
 
-			while((get_end_of_token(attribute_list) > get_start_of_token(operation)) && (tok_cnt <= number_of_tokens) && (tok_cnt >= 0))
+			while ((get_end_of_token(attribute_list) > get_start_of_token(operation)) && (tok_cnt <= number_of_tokens) && (tok_cnt >= 0))
 			{
 				operation = json_get_token_index_from_pos(policy_object, tok_cnt, "operation");
 				tok_cnt = operation;
@@ -333,7 +351,7 @@ static void get_time_from_attr(char *policy_object, int atribute_position, PDP_o
 		opt = get_operation_new(policy_object + operation_start, operation_end - operation_start);
 
 		i = 0;
-		while(i < get_array_size(attribute_list))
+		while (i < get_array_size(attribute_list))
 		{
 			get_time_from_attr(policy_object, get_array_member(attribute_list, i), opt, start_time, end_time);
 			i++;
@@ -342,12 +360,12 @@ static void get_time_from_attr(char *policy_object, int atribute_position, PDP_o
 	else
 	{
 		int type = json_get_token_index_from_pos(policy_object, atribute_position, "type");
-		if((type != -1) && (get_start_of_token(type) < get_end_of_token(atribute_position)))// Check only type within this json object
+		if ((type != -1) && (get_start_of_token(type) < get_end_of_token(atribute_position)))// Check only type within this json object
 		{
 			int start = get_start_of_token(type);
 			int size_of_type = get_size_of_token(type);
 
-			if((size_of_type == strlen("time")) && (strncasecmp(policy_object + start, "time", strlen("time")) == 0))
+			if ((size_of_type == strlen("time")) && (strncasecmp(policy_object + start, "time", strlen("time")) == 0))
 			{
 				int value = json_get_token_index_from_pos(policy_object, atribute_position, "value");
 				int start_of_value = get_start_of_token(value);
@@ -356,7 +374,7 @@ static void get_time_from_attr(char *policy_object, int atribute_position, PDP_o
 				memcpy(val_str, policy_object + start_of_value, size_of_value);
 				val_str[size_of_value] = '\0';
 
-				switch(attr_operation)
+				switch (attr_operation)
 				{
 					case EQ:
 					{
@@ -407,19 +425,19 @@ static int resolve_attribute(char *policy_object, char *policy_id, int atribute_
 
 	int attribute_list = -1;
 
-	if((operation != -1) && (get_start_of_token(operation) < get_end_of_token(atribute_position)))// Check only operations within this json object
+	if ((operation != -1) && (get_start_of_token(operation) < get_end_of_token(atribute_position)))// Check only operations within this json object
 	{
 		attribute_list = json_get_token_index_from_pos(policy_object, atribute_position, "attribute_list");
 
 		// Check if operation is listed before or after attribure list
-		if(attribute_list >= 0 && operation > attribute_list)
+		if (attribute_list >= 0 && operation > attribute_list)
 		{
 			// If attribute list is listed first, get operation given after att. list
 
 			int number_of_tokens = get_token_num();
 			int tok_cnt = attribute_list;
 
-			while((get_end_of_token(attribute_list) > get_start_of_token(operation)) && (tok_cnt <= number_of_tokens) && (tok_cnt >= 0))
+			while ((get_end_of_token(attribute_list) > get_start_of_token(operation)) && (tok_cnt <= number_of_tokens) && (tok_cnt >= 0))
 			{
 				operation = json_get_token_index_from_pos(policy_object, tok_cnt, "operation");
 				tok_cnt = operation;
@@ -431,7 +449,7 @@ static int resolve_attribute(char *policy_object, char *policy_id, int atribute_
 
 		opt = get_operation_new(policy_object + operation_start, operation_end - operation_start);
 
-		switch(opt)
+		switch (opt)
 		{
 			case OR:
 			{
@@ -478,17 +496,17 @@ static int resolve_attribute(char *policy_object, char *policy_id, int atribute_
 	else
 	{
 		int type = json_get_token_index_from_pos(policy_object, atribute_position, "type");
-		if((type != -1) && (get_start_of_token(type) < get_end_of_token(atribute_position)))// Check only type within this json object
+		if ((type != -1) && (get_start_of_token(type) < get_end_of_token(atribute_position)))// Check only type within this json object
 		{
 			int start = get_start_of_token(type);
 			int size_of_type = get_size_of_token(type);
 
-			if((size_of_type == strlen("boolean")) && (strncasecmp(policy_object + start, "boolean", strlen("boolean")) == 0))
+			if ((size_of_type == strlen("boolean")) && (strncasecmp(policy_object + start, "boolean", strlen("boolean")) == 0))
 			{
 				int value = json_get_token_index_from_pos(policy_object, atribute_position, "value");
 				int start_of_value = get_start_of_token(value);
 				int size_of_value = get_size_of_token(value);
-				if((size_of_value >= strlen("true")) && (memcmp(policy_object + start_of_value, "true", strlen("true")) == 0))
+				if ((size_of_value >= strlen("true")) && (memcmp(policy_object + start_of_value, "true", strlen("true")) == 0))
 				{
 					ret = TRUE;
 				}
@@ -508,24 +526,24 @@ static int get_obligation(char *policy_object, int obl_position, char *obligatio
 	int ret = PDP_ERROR_RET;
 	
 	int type = json_get_token_index_from_pos(policy_object, obl_position, "type");
-	if((type != -1) && (get_start_of_token(type) < get_end_of_token(obl_position)))// Check only type within this json object
+	if ((type != -1) && (get_start_of_token(type) < get_end_of_token(obl_position)))// Check only type within this json object
 	{
 		int start = get_start_of_token(type);
 		int size_of_type = get_size_of_token(type);
 
-		if((size_of_type == strlen("obligation")) &&
-		(!strncasecmp(policy_object + start, "obligation", strlen("obligation"))))
+		if ((size_of_type == strlen("obligation")) &&
+			(!strncasecmp(policy_object + start, "obligation", strlen("obligation"))))
 		{
 			int value = json_get_token_index_from_pos(policy_object, obl_position, "value");
 			int start_of_value = get_start_of_token(value);
 			int size_of_value = get_size_of_token(value);
 
-			if(size_of_value > PDP_OBLIGATION_LEN)
+			if (size_of_value > PDP_OBLIGATION_LEN)
 			{
 				size_of_value = PDP_OBLIGATION_LEN;
 			}
 			
-			if(value >= 0)
+			if (value >= 0)
 			{
 				memcpy(obligation, policy_object + start_of_value, size_of_value);
 				ret = value;
@@ -547,7 +565,7 @@ static int resolve_obligation(char *policy_object, char *policy_id, int obl_posi
 	int obl_value = -1;
 	PDP_operation_e opt;
 	
-	if(policy_object == NULL || obligation == NULL)
+	if (policy_object == NULL || obligation == NULL)
 	{
 		Dlog_printf("\n\nERROR[%s]: Wrong input parameters\n\n",__FUNCTION__);
 		return ret;
@@ -561,20 +579,20 @@ static int resolve_obligation(char *policy_object, char *policy_id, int obl_posi
 	obl_value = json_get_token_index_from_pos(policy_object, obl_position, "obligations");
 	
 	// In case of IF operation, multiple obligations are available
-	if((attribute_list >= 0) &&
+	if ((attribute_list >= 0) &&
 		(get_start_of_token(attribute_list) < get_end_of_token(obl_position)) &&
 		(operation >= 0) &&
 		(get_start_of_token(operation) < get_end_of_token(obl_position)))
 	{
 		// Check if operation is listed before or after attribure list
-		if(operation > attribute_list)
+		if (operation > attribute_list)
 		{
 			// If attribute list is listed first, get operation given after att. list
 			
 			int number_of_tokens = get_token_num();
 			int tok_cnt = attribute_list;
 			
-			while((get_end_of_token(attribute_list) > get_start_of_token(operation)) && (tok_cnt <= number_of_tokens) && (tok_cnt >= 0))
+			while ((get_end_of_token(attribute_list) > get_start_of_token(operation)) && (tok_cnt <= number_of_tokens) && (tok_cnt >= 0))
 			{
 				operation = json_get_token_index_from_pos(policy_object, tok_cnt, "operation");
 				tok_cnt = operation;
@@ -587,10 +605,10 @@ static int resolve_obligation(char *policy_object, char *policy_id, int obl_posi
 		opt = get_operation_new(policy_object + operation_start, operation_end - operation_start);
 
 		//TODO: For now, only IF operation is supported
-		switch(opt)
+		switch (opt)
 		{
 			case IF:
-				if(!resolve_attribute(policy_object, policy_id, attribute_list))
+				if (!resolve_attribute(policy_object, policy_id, attribute_list))
 				{
 					// Take second obligation if condition is false (else branch)
 					obl_value = json_get_token_index_from_pos(policy_object, obl_value + 1, "obligations");
@@ -603,7 +621,7 @@ static int resolve_obligation(char *policy_object, char *policy_id, int obl_posi
 		}
 	}
 	
-	if(obl_value >= 0)
+	if (obl_value >= 0)
 	{
 		ret = get_obligation(policy_object, obl_value, obligation);
 	}
@@ -664,7 +682,7 @@ PDP_decision_e PDP_calculate_decision(char *request_norm, char *obligation, PDP_
 	PAP_policy_t policy;
 
 	//Check input parameters
-	if(request_norm == NULL || obligation == NULL || action == NULL || action->value == NULL)
+	if (request_norm == NULL || obligation == NULL || action == NULL || action->value == NULL)
 	{
 		Dlog_printf("\n\nERROR[%s]: Invalid input parameters\n\n",__FUNCTION__);
 		return ret;
@@ -707,22 +725,22 @@ PDP_decision_e PDP_calculate_decision(char *request_norm, char *obligation, PDP_
 	int policy_gobl = json_get_token_index(policy.policy_object.policy_object, "obligation_grant");
 	int policy_dobl = json_get_token_index(policy.policy_object.policy_object, "obligation_deny");
 
-	if(policy_goc == -1)
+	if (policy_goc == -1)
 	{
 		Dlog_printf("\nPOLICY policy_goc IS NULL\n");
 	}
 
-	if(policy_doc == -1)
+	if (policy_doc == -1)
 	{
 		Dlog_printf("\nPOLICY policy_doc IS NULL\n");
 	}
 	
-	if(policy_gobl == -1)
+	if (policy_gobl == -1)
 	{
 		Dlog_printf("\nOBLIGATION obligation_grant IS NULL\n");
 	}
 
-	if(policy_dobl == -1)
+	if (policy_dobl == -1)
 	{
 		Dlog_printf("\nOBLIGATION obligation_deny IS NULL\n");
 	}
@@ -734,7 +752,7 @@ PDP_decision_e PDP_calculate_decision(char *request_norm, char *obligation, PDP_
 	//Calculate decision
 	ret = pol_goc + 2 * pol_doc;  // => (0, 1, 2, 3) <=> (gap, grant, deny, conflict)
 	
-	if(ret == PDP_GRANT)
+	if (ret == PDP_GRANT)
 	{
 		//Get action
 		//FIXME: Should action be taken for deny case also?
@@ -744,14 +762,14 @@ PDP_decision_e PDP_calculate_decision(char *request_norm, char *obligation, PDP_
 		action->stop_time = 0;
 		get_time_from_attr(policy.policy_object.policy_object, policy_goc, UNDEFINED, &(action->start_time), &(action->stop_time));
 		
-		if(policy_gobl >= 0)
+		if (policy_gobl >= 0)
 		{
 			resolve_obligation(policy.policy_object.policy_object, policy_id, policy_gobl, obligation);
 		}
 	}
-	else if(ret == PDP_DENY)
+	else if (ret == PDP_DENY)
 	{
-		if(policy_dobl >= 0)
+		if (policy_dobl >= 0)
 		{
 			resolve_obligation(policy.policy_object.policy_object, policy_id, policy_dobl, obligation);
 		}

@@ -38,7 +38,8 @@
 
 #define CAN_BUS_LEN 64
 
-typedef struct {
+typedef struct
+{
     char can_bus_name[CAN_BUS_LEN];
     CAN_t can_connection;
     pthread_t thread;

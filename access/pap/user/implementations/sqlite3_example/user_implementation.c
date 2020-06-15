@@ -95,7 +95,7 @@ static int table_exists()
     char* errMsg;
     int rc = sqlite3_exec(users_db, "SELECT name FROM sqlite_master WHERE type='table' AND name='users';", count_cb, &check, &errMsg);
 
-    if(rc != SQLITE_OK)
+    if (rc != SQLITE_OK)
     {
         fprintf(stderr, "SQL error: %s\n", errMsg);
         sqlite3_free(errMsg);
@@ -111,7 +111,7 @@ static int query_helper(const char* query, int (*cb)(void*,int,char**,char**), v
     int rc;
     rc = sqlite3_exec(users_db, query, cb, data, &errMsg);
 
-    if(rc != SQLITE_OK)
+    if (rc != SQLITE_OK)
     {
         fprintf(stderr, "SQL error: %s\n", errMsg);
         sqlite3_free(errMsg);
@@ -154,7 +154,7 @@ static int init_table()
     int rc;
     rc = query_helper("CREATE TABLE users (username TEXT PRIMARY KEY, firstName TEXT, lastName TEXT, publicId TEXT, userId TEXT);", count_cb, NULL);
 
-    if(rc != 0)
+    if (rc != 0)
     {
         return -1;
     }
