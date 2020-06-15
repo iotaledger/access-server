@@ -193,9 +193,9 @@ static bool pep_request(char *obligation, void *action)
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
-void Resolver_init(resolver_plugin_initializer_t initializer, Dataset_state_t *dstate, wallet_ctx_t* wallet_ctx)
+void Resolver_init(resolver_plugin_initializer_t initializer, Dataset_state_t *dstate, void *options)
 {
-    initializer(&resolver_action_set, wallet_ctx);
+    initializer(&resolver_action_set, options);
     g_dstate = dstate;
 
     PEP_register_callback((resolver_fn) pep_request);

@@ -41,7 +41,7 @@
 #include "transaction.h"
 #include "wallet.h"
 
-static wallet_ctx_t dev_wallet = NULL;
+static wallet_ctx_t* dev_wallet = NULL;
 
 static int demo_wallet_transfer_tokens(resolver_action_data_t *action, int should_log)
 {

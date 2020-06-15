@@ -43,6 +43,7 @@
 #include <stdlib.h>
 #include "pep.h"
 #include "pdp.h"
+#include "utils_string.h"
 
 /****************************************************************************
  * MACROS
