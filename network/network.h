@@ -38,7 +38,7 @@
 
 typedef void* Network_ctx_t;
 
-int Network_init(Dataset_state_t *_vdstate, Network_ctx_t* network_context);
+int Network_init(Dataset_state_t *_ddstate, Network_ctx_t* network_context);
 int Network_start(Network_ctx_t network_context);
 void Network_stop(Network_ctx_t network_context);
 

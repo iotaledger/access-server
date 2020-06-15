@@ -91,12 +91,12 @@ typedef struct {
     int listenfd;
     int connfd;
 
-    Dataset_state_t* vdstate;
+    Dataset_state_t* ddstate;
 } Network_ctx_t_;
 
 static void *network_thread_function(void *ptr);
 
-int Network_init(Dataset_state_t *_vdstate, Network_ctx_t* network_context)
+int Network_init(Dataset_state_t *_ddstate, Network_ctx_t* network_context)
 {
     Network_ctx_t_ *ctx = malloc(sizeof(Network_ctx_t_));
 
@@ -116,7 +116,7 @@ int Network_init(Dataset_state_t *_vdstate, Network_ctx_t* network_context)
     ctx->end = 0;
     ctx->listenfd = 0;
     ctx->connfd = 0;
-    ctx->vdstate = _vdstate;
+    ctx->ddstate = _ddstate;
 
     PolicyUpdater_init();
 
@@ -417,7 +417,7 @@ static unsigned int calculate_decision(char **recvData, Network_ctx_t_ *ctx)
         }
         else
         {
-            Dataset_from_json(ctx->vdstate, *recvData + get_token_at(arr_start).start, get_token_at(arr_start).end - get_token_at(arr_start).start);
+            Dataset_from_json(ctx->ddstate, *recvData + get_token_at(arr_start).start, get_token_at(arr_start).end - get_token_at(arr_start).start);
             memcpy(ctx->send_buffer, grant, strlen(grant));
             buffer_position = strlen(grant);
         }
@@ -425,7 +425,7 @@ static unsigned int calculate_decision(char **recvData, Network_ctx_t_ *ctx)
     }
     else if (request_code == COMMAND_GET_DATASET)
     {
-        buffer_position = Dataset_to_json(ctx->vdstate, (char *)ctx->send_buffer);
+        buffer_position = Dataset_to_json(ctx->ddstate, (char *)ctx->send_buffer);
         *recvData = ctx->send_buffer;
     }
     else if (request_code == COMMAND_GET_USER_OBJ)

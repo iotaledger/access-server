@@ -57,7 +57,7 @@ static wallet_ctx_t *device_wallet;
 
 int main(int argc, char** argv)
 {
-    Dataset_state_t *vdstate;
+    Dataset_state_t *ddstate;
 
     signal(SIGINT, signal_handler);
     sigaction(SIGPIPE, &(struct sigaction){SIG_IGN}, NULL);
@@ -70,9 +70,9 @@ int main(int argc, char** argv)
     device_wallet = wallet_create(NODE_URL, NODE_PORT, NULL, NODE_DEPTH, NODE_MWM, WALLET_SEED);
 
     Access_init(&access_context, device_wallet);
-    Access_get_vdstate(access_context, &vdstate);
+    Access_get_ddstate(access_context, &ddstate);
 
-    Network_init(vdstate, &network_context);
+    Network_init(ddstate, &network_context);
 
     Access_start(access_context);
     if (Network_start(network_context) != 0)
