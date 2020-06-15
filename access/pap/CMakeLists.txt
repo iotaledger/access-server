@@ -29,18 +29,22 @@ set(sources
   user/user.c
   user/implementations/${user_management_implementation}/user_implementation.c
   validator/parser.c
-  validator/validator.c)
+  validator/validator.c
+  policy_loader/policy_loader.c)
 
 set(include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/validator
   ${CMAKE_CURRENT_SOURCE_DIR}/user
-  ${CMAKE_CURRENT_SOURCE_DIR}/user/implementations/${user_management_implementation})
+  ${CMAKE_CURRENT_SOURCE_DIR}/user/implementations/${user_management_implementation}
+  ${CMAKE_CURRENT_SOURCE_DIR}/policy_loader)
 
 set(libs
   json_parser
   cryptography
-  config_manager)
+  config_manager
+  policy_updater
+  legacy_modules)
 
 add_library(${target} ${sources})
 target_include_directories(${target} PUBLIC ${include_dirs})

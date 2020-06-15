@@ -22,7 +22,6 @@ cmake_minimum_required(VERSION 3.11)
 set(target legacy_modules)
 
 set(sources
-  tcp_client.c
   utils_string.c
   time_manager.c
   timer.c
