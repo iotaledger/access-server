@@ -61,7 +61,7 @@ add_subdirectory(network)
 add_subdirectory(plugins)
 add_subdirectory(wallet)
 add_subdirectory(utils)
-add_subdirectory(tests/asn_test)
+add_subdirectory(tests)
 
 set(target main)
 
