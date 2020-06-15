@@ -57,11 +57,11 @@ FetchContent_MakeAvailable(sqlite3)
 include_directories(utils/misc plugins/data/dataset)
 
 add_subdirectory(access)
-add_subdirectory(embedded)
 add_subdirectory(network)
 add_subdirectory(plugins)
 add_subdirectory(wallet)
 add_subdirectory(utils)
+add_subdirectory(tests/asn_test)
 
 set(target main)
 
