@@ -29,7 +29,7 @@ add_subdirectory(tests/asn_test)
 set(target main)
 
 set(libs
-  -lsqlite3
+  sqlite3
   json_parser
   vehicle_dataset
   network
