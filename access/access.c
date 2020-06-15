@@ -24,6 +24,7 @@
 
 #include "config_manager.h"
 #include "pep.h"
+#include "policy_loader.h"
 #include "json_interface.h"
 
 #include "can_receiver.h"
@@ -122,6 +123,8 @@ void Access_start(Access_ctx_t access_context)
 {
     Access_ctx_t_ *ctx = (Access_ctx_t_*)access_context;
 
+    PolicyLoader_start();
+
     if (ctx->using_modbus == 1) ModbusReceiver_start();
     if (ctx->using_can == 1) CanReceiver_start();
     if (ctx->using_gps == 1) GpsReceiver_start();
@@ -136,6 +139,8 @@ void Access_deinit(Access_ctx_t access_context)
     if (ctx->using_gps == 1) GpsReceiver_end();
     if (ctx->using_can == 1) CanReceiver_deinit();
     if (ctx->using_modbus == 1) ModbusReceiver_stop();
+
+    PolicyLoader_stop();
 
     JSONInterface_deinit();
     if (ctx->vdstate.dataset != 0)

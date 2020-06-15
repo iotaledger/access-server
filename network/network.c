@@ -130,8 +130,6 @@ int Network_actor_start(Network_actor_ctx_t network_actor_context)
 {
     Network_actor_ctx_t_ *ctx = (Network_actor_ctx_t_*)network_actor_context;
 
-    PolicyUpdater_start();
-
     struct sockaddr_in serv_addr;
     char read_buffer[READ_BUFF_LEN];
 
