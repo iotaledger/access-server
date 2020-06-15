@@ -37,9 +37,13 @@ set(include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}/validator
   ${CMAKE_CURRENT_SOURCE_DIR}/user
   ${CMAKE_CURRENT_SOURCE_DIR}/user/implementations/${user_management_implementation}
-  ${CMAKE_CURRENT_SOURCE_DIR}/policy_loader)
+  ${CMAKE_CURRENT_SOURCE_DIR}/policy_loader
+  ${sqlite3_SOURCE_DIR}
+)
 
 set(libs
+  fastjson
+  sqlite3
   json_parser
   cryptography
   config_manager

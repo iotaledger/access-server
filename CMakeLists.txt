@@ -21,6 +21,38 @@ cmake_minimum_required(VERSION 3.11)
 
 project(Access)
 
+# fetch pigpio
+include(FetchContent)
+FetchContent_Declare(
+  pigpio
+  GIT_REPOSITORY https://github.com/joan2937/pigpio.git
+  GIT_TAG bb352d2000d8a4f38bab430927a85b7af4f70a01
+)
+
+# fetch sqlite-amalgamation
+include(FetchContent)
+FetchContent_Declare(
+  sqlite3
+  GIT_REPOSITORY https://github.com/azadkuh/sqlite-amalgamation.git
+  GIT_TAG 9be05e13408dd8cf8dafe8f11b1700a28194e07e
+)
+
+if(${CMAKE_VERSION} VERSION_LESS 3.14)
+    macro(FetchContent_MakeAvailable NAME)
+        FetchContent_GetProperties(${NAME})
+        if(NOT ${NAME}_POPULATED)
+            FetchContent_Populate(${NAME})
+            add_subdirectory(${${NAME}_SOURCE_DIR} ${${NAME}_BINARY_DIR})
+        endif()
+    endmacro()
+endif()
+
+message(STATUS "Fetching pigpio")
+FetchContent_MakeAvailable(pigpio)
+
+message(STATUS "Fetching sqlite3")
+FetchContent_MakeAvailable(sqlite3)
+
 # Global includes
 include_directories(embedded/include plugins/data/dataset)
 

@@ -30,7 +30,9 @@ set(sources
 set(include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/platform_interface/r_pi
-  ${CMAKE_CURRENT_SOURCE_DIR}/demos)
+  ${CMAKE_CURRENT_SOURCE_DIR}/demos
+  ${pigpio_SOURCE_DIR}
+)
 
 set(libs
   pep
