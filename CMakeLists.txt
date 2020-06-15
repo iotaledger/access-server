@@ -62,3 +62,17 @@ add_subdirectory(network)
 add_subdirectory(plugins)
 add_subdirectory(wallet)
 add_subdirectory(utils)
+
+set(target main)
+
+set(libs
+  -lsqlite3
+  json_parser
+  vehicle_dataset
+  network
+  legacy_modules
+  access_actor)
+
+add_executable(${target} main.c)
+target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(${target} PUBLIC ${libs})
