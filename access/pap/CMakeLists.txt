@@ -21,27 +21,6 @@ cmake_minimum_required(VERSION 3.11)
 
 set(target pap)
 
-# fetch sqlite-amalgamation
-include(FetchContent)
-FetchContent_Declare(
-  sqlite3
-  GIT_REPOSITORY https://github.com/azadkuh/sqlite-amalgamation.git
-  GIT_TAG 9be05e13408dd8cf8dafe8f11b1700a28194e07e
-)
-
-if(${CMAKE_VERSION} VERSION_LESS 3.14)
-    macro(FetchContent_MakeAvailable NAME)
-        FetchContent_GetProperties(${NAME})
-        if(NOT ${NAME}_POPULATED)
-            FetchContent_Populate(${NAME})
-            add_subdirectory(${${NAME}_SOURCE_DIR} ${${NAME}_BINARY_DIR})
-        endif()
-    endmacro()
-endif()
-
-message(STATUS "Fetching sqlite3")
-FetchContent_MakeAvailable(sqlite3)
-
 set(user_management_implementation sqlite3_example CACHE STRING
   "User management implementation choice")
 
