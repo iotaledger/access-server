@@ -96,7 +96,7 @@ static void term_cb(Dataset_state_t* vdstate)
     CanopenReceiver_deinit();
 }
 
-void Demo02Plugin_initializer(resolver_plugin_t* action_set, wallet_ctx_t* wallet_ctx)
+void Demo02Plugin_initializer(resolver_plugin_t* action_set, void* options)
 {
     if (action_set == NULL && g_action_set == NULL)
     {

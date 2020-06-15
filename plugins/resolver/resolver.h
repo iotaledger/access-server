@@ -78,7 +78,7 @@ typedef struct
     void (*term_ds_interface_cb)(Dataset_state_t*);
 } resolver_plugin_t;
 
-typedef void (*resolver_plugin_initializer_t)(resolver_plugin_t*, wallet_ctx_t*);
+typedef void (*resolver_plugin_initializer_t)(resolver_plugin_t*, void*);
 typedef void (*resolver_plugin_terminizer_t)(resolver_plugin_t*);
 
 /****************************************************************************
@@ -90,7 +90,7 @@ typedef void (*resolver_plugin_terminizer_t)(resolver_plugin_t*);
  * @brief   Initialize Resolver module
  *
  */
-void Resolver_init(resolver_plugin_initializer_t initializer, Dataset_state_t *dstate, wallet_ctx_t* wallet_ctx);
+void Resolver_init(resolver_plugin_initializer_t initializer, Dataset_state_t *dstate, void* options);
 
 /**
  * @fn  void Resolver_term(resolver_plugin_terminizer_t terminizer)
