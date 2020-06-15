@@ -54,7 +54,7 @@ message(STATUS "Fetching sqlite3")
 FetchContent_MakeAvailable(sqlite3)
 
 # Global includes
-include_directories(embedded/include plugins/data/dataset)
+include_directories(utils/misc plugins/data/dataset)
 
 add_subdirectory(access)
 add_subdirectory(embedded)
@@ -70,7 +70,7 @@ set(libs
   json_parser
   vehicle_dataset
   network
-  legacy_modules
+  misc
   access_actor)
 
 add_executable(${target} main.c)

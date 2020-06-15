@@ -24,3 +24,5 @@ add_subdirectory(json_parser)
 add_subdirectory(crypto)
 add_subdirectory(libfastjson)
 add_subdirectory(config_manager)
+add_subdirectory(misc)
+

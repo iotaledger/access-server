@@ -29,7 +29,7 @@ set(target access_actor)
 set(libs
   config_manager
   pep
-  legacy_modules
+  misc
   fastjson
   data_acquisition_plugins
   storage_plugin)
