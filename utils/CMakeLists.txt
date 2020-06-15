@@ -20,6 +20,6 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-add_subdirectory(jsmn)
+add_subdirectory(json_parser)
 add_subdirectory(crypto)
 add_subdirectory(libfastjson)
