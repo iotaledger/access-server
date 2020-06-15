@@ -19,6 +19,5 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-add_subdirectory(config_manager)
 add_subdirectory(include)
 add_subdirectory(tests/asn_test)
