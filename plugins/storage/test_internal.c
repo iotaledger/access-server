@@ -143,7 +143,7 @@ bool TEST_policy_storage()
 #endif
 
     //Load test policy to a buffer
-    f = fopen("../access/pap/validator/policies_test_set/policy_no1_ok.json", "r");
+    f = fopen("../../access/pap/validator/policies_test_set/policy_no1_ok.json", "r");
     if (f == NULL)
     {
         printf("\nSTORAGE TEST FAILED - policy policy_no1_ok.json not available at acess/pap/validator/policies_test_set\n");

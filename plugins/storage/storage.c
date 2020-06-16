@@ -40,6 +40,7 @@
 #include <string.h>
 #include "storage.h"
 #include "pap.h"
+#include "utils_string.h"
 #ifdef USE_RPI
 #include "rpi_storage.h"
 #endif
@@ -91,7 +92,7 @@ bool store_policy(char* policy_id, PAP_policy_object_t policy_object, PAP_policy
 
     //Call function for storing policy on used platform
 #ifdef USE_RPI
-    return RPI_store_policy(policy_id, policy_object.policy_object, policy_object.policy_object_size,
+    return RPI_store_policy(policy_id, policy_object.policy_object, policy_object.policy_object_size, policy_object.cost,
                             policy_id_signature.signature, policy_id_signature.public_key, sign_algorithm, hash_function);
 #else
     //TODO: Support for other platforms will be added here
@@ -112,8 +113,9 @@ bool acquire_policy(char* policy_id, PAP_policy_object_t* policy_object, PAP_pol
 
     //Call function for storing policy on used platform
 #ifdef USE_RPI
-    if (RPI_acquire_policy(policy_id, policy_object->policy_object, &(policy_object->policy_object_size), policy_id_signature->signature,
-                           policy_id_signature->public_key, sign_algorithm, hash_function) == FALSE)
+    if (RPI_acquire_policy(policy_id, policy_object->policy_object, &(policy_object->policy_object_size), policy_object->cost,
+                           policy_id_signature->signature, policy_id_signature->public_key, sign_algorithm, 
+                           hash_function) == FALSE)
     {
         printf("\nERROR[%s]: Could not acquire policy from R-Pi.\n", __FUNCTION__);
         return FALSE;
@@ -179,13 +181,103 @@ bool flush_policy(char* policy_id)
 #endif
 }
 
+bool acquire_pol_obj_len(char* policy_id, int* pol_obj_len)
+{
+    //Check input parameter
+    if (policy_id == NULL || pol_obj_len == NULL)
+    {
+        printf("\nERROR[%s]: Bad input parameter.\n", __FUNCTION__);
+        return FALSE;
+    }
+
+    //Call function for geting if policy object length
+#ifdef USE_RPI
+    *pol_obj_len = RPI_get_pol_obj_len(policy_id);
+#else
+    //TODO: Support for other platforms will be added here
+#endif
+
+    return TRUE;
+}
+
+//List must be freed bu the user
+bool acquire_all_policies(PAP_policy_id_list_t **pol_list_head)
+{
+    //Call function for acquring all policies
+#ifdef USE_RPI
+    char pol_id_hex[PAP_POL_ID_MAX_LEN] = {0};
+    char *pol_id_buff = NULL;
+    char *tok = NULL;
+    int pol_id_buff_len = 0;
+    PAP_policy_id_list_t *temp = NULL;
+    FILE *f;
+
+    f = fopen(RPI_get_stored_pol_info_file(), "r");
+    if (f == NULL)
+    {
+        printf("\nERROR[%s]: No stored policies info file.\n", __FUNCTION__);
+        return FALSE;
+    }
+
+    fseek(f, 0L, SEEK_END);
+    pol_id_buff_len = ftell(f);
+    fseek(f, 0L, SEEK_SET);
+
+    pol_id_buff = malloc(pol_id_buff_len * sizeof(char));
+
+    fread(pol_id_buff, pol_id_buff_len, 1, f);
+
+    fclose(f);
+
+    tok = strtok(pol_id_buff, "|");
+    while (tok)
+    {
+        PAP_policy_id_list_t *elem = malloc(sizeof(PAP_policy_id_list_t));
+        memset(elem, 0, sizeof(PAP_policy_id_list_t));
+        memset(pol_id_hex, 0, PAP_POL_ID_MAX_LEN);
+
+        if (str_to_hex(tok, pol_id_hex, PAP_POL_ID_MAX_LEN * 2) != UTILS_STRING_SUCCESS)
+        {
+            printf("\nERROR[%s]: Could not convert string to hex value.\n", __FUNCTION__);
+            return FALSE;
+        }
+
+        memcpy(elem->policy_ID, pol_id_hex, PAP_POL_ID_MAX_LEN);
+
+        if (*pol_list_head == NULL)
+        {
+            *pol_list_head = elem;
+        }
+        else
+        {
+            temp = *pol_list_head;
+            while (temp->next != NULL)
+            {
+                temp = temp->next;
+            }
+
+            temp->next = elem;
+        }
+
+        tok = strtok(NULL, "|");
+    }
+
+    free(pol_id_buff);
+#else
+    //TODO: Support for other platforms will be added here
+#endif
+
+    return TRUE;
+}
+
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
 STORAGE_error_t Storage_init(void)
 {
     //Register PAP callback
-    if (PAP_register_callbacks(store_policy, acquire_policy, check_if_stored_policy, flush_policy) == PAP_ERROR)
+    if (PAP_register_callbacks(store_policy, acquire_policy, check_if_stored_policy,
+                               flush_policy, acquire_pol_obj_len, acquire_all_policies) == PAP_ERROR)
     {
         printf("\nERROR[%s]: Error registering PAP callbacks.\n", __FUNCTION__);
         return STORAGE_ERROR;

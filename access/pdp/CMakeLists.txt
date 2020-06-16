@@ -26,7 +26,6 @@ set(sources pdp.c)
 set(include_dirs ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(libs
-  access_wallet
   json_parser
   pip
   pap)

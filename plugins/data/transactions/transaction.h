@@ -19,19 +19,19 @@
 
 /****************************************************************************
  * \project Decentralized Access Control
- * \file protocol.h
+ * \file transaction.h
  * \brief
- * Implementation of data acquisition wrapper for different com. interfaces
+ * Implementation of API for transactions storage
  *
  * @Author Strahinja Golic
  *
  * \notes
  *
  * \history
- * 18.05.2020. Initial version.
+ * 10.06.2020. Initial version.
  ****************************************************************************/
-#ifndef __PROTOCOL_H__
-#define __PROTOCOL_H__
+#ifndef _TRANSACTION_H_
+#define _TRANSACTION_H_
 
 /****************************************************************************
  * INCLUDES
@@ -51,81 +51,68 @@
 #define FALSE 0
 #endif
 
-#define PROTOCOL_MAX_STR_LEN 256
+//Set R-Pi as used platform
+#define USE_RPI 1
 
 /****************************************************************************
- * CALLBACKS
+ * ENUMERATIONS
  ****************************************************************************/
-typedef int (*acquire_fn)(char* requested_type, char* requested_value, char* type_buff, char* value_buff);
-typedef int (*payment_status_fn)(char* policy_id, int policy_id_len);
+typedef enum
+{
+    TRANS_NOT_PAYED,
+    TRANS_PAYED,
+    TRANS_PAYED_VERIFIED
+} TRANSACTION_payment_state_e;
+
+/****************************************************************************
+ * TYPES
+ ****************************************************************************/
+typedef struct serv_confirm
+{
+    confirmation_service_t *service;
+    char* policy_id;
+    int policy_id_len;
+    bool transaction_confirmed;
+} TRANSACTION_serv_confirm_t;
 
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
 /**
- * @fn      PROTOCOL_init
+ * @fn      TRANSACTION_init
  *
  * @brief   Initialize module
  *
  * @param   wallet_ctx - Device wallet
  *
- * @return  TRUE - success, FALSE - fail
+ * @return  void
  */
-bool PROTOCOL_init(wallet_ctx_t* wallet_ctx);
+void TRANSACTION_init(wallet_ctx_t* wallet_ctx);
 
 /**
- * @fn      PROTOCOL_term
+ * @fn      TRANSACTION_term
  *
  * @brief   Terminate module
  *
  * @param   void
  *
+ * @return  void
+ */
+void TRANSACTION_term(void);
+
+/**
+ * @fn      TRANSACTION_store_transaction
+ *
+ * @brief   Save transaction info
+ *
+ * @param   policy_id - Policy ID string
+ * @param   policy_id_len - Length of policy ID string
+ * @param   transaction_hash - Transaction hasn string
+ * @param   transaction_hash_len - Transaction hasn string length
+ *
  * @return  TRUE - success, FALSE - fail
  */
-bool PROTOCOL_term(void);
+bool TRANSACTION_store_transaction(char* policy_id, int policy_id_len,
+                                   char* transaction_hash, int transaction_hash_len);
 
-/**
- * @fn      PROTOCOL_register_callback
- *
- * @brief   Register callback for different communication protocols
- *
- * @param   acquire - Callback to register
- *
- * @return  void
- */
-void PROTOCOL_register_callback(acquire_fn acquire);
-
-/**
- * @fn      PROTOCOL_unregister_callback
- *
- * @brief   Unregister callback for different communication protocols
- *
- * @param   void
- *
- * @return  void
- */
-void PROTOCOL_unregister_callback();
-
-/**
- * @fn      PROTOCOL_register_payment_state_callback
- *
- * @brief   Register callback for acquiring payment status
- *
- * @param   trans_fn - Callback for checking payment status
- *
- * @return  void
- */
-void PROTOCOL_register_payment_state_callback(payment_status_fn trans_fn);
-
-/**
- * @fn      PROTOCOL_unregister_payment_state_callback
- *
- * @brief   Unregister callback for acquiring payment status
- *
- * @param   void
- *
- * @return  void
- */
-void PROTOCOL_unregister_payment_state_callback(void);
-
-#endif //__PROTOCOL_H__
+#endif //_TRANSACTION_H_

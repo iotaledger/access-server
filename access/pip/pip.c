@@ -152,7 +152,7 @@ PIP_error_e PIP_unregister_all_callbacks(void)
 PIP_error_e PIP_get_data(char* uri, PIP_attribute_object_t* attribute)
 {
     char delimiter[PIP_DELIMITER_LEN] = ":";
-    char temp[PIP_MAX_STR_LEN];
+    char temp[PIP_MAX_STR_LEN] = {0};
     char *ptr = NULL;
     PIP_authorities_e authority;
 
@@ -167,9 +167,9 @@ PIP_error_e PIP_get_data(char* uri, PIP_attribute_object_t* attribute)
     }
 
     /* 
-    URI format looks like: authority:policy_id/type?value
-    By parssing URI, authority can be obtained	
-    */
+        URI format looks like: authority:policy_id/type?value
+        By parssing URI, authority can be obtained	
+        */
     if (strlen(uri) > PIP_MAX_STR_LEN)
     {
         printf("\nERROR[%s]: URI too long.\n", __FUNCTION__);

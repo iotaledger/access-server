@@ -32,6 +32,8 @@ set(libs
   legacy_modules
   fastjson
   data_acquisition_plugins
+  data_transactions_plugins
+  resolver
   storage_plugin)
 
 add_library(${target} access.c)

@@ -35,11 +35,6 @@
 #define PEP_H
 
 /****************************************************************************
- * INCLUDES
- * **************************************************************************/
-#include "wallet.h"
-
-/****************************************************************************
  * MACROS
  ****************************************************************************/
 #ifndef bool
@@ -66,11 +61,11 @@ typedef bool (*resolver_fn)(char* obligation, void* action);
  *
  * @brief   Initialize module
  *
- * @param   wallet_ctx - Context of the device's wallet
+ * @param   void
  *
  * @return  TRUE on success, FALSE on failure
  */
-bool PEP_init(wallet_ctx_t* wallet_ctx);
+bool PEP_init(void);
 
 /**
  * @fn      PEP_term
@@ -111,9 +106,10 @@ bool PEP_unregister_callback(void);
  * @brief   Function that computes decision for PEP
  *
  * @param   request         request JSON containing request uri and request object
+ * @param   response        response to action
  *
- * @return  DENY (0), GRANT (1)
+ * @return  Fail (0), Success (1)
  */
-bool PEP_request_access(char *request);
+bool PEP_request_access(char *request, void *response);
 
 #endif

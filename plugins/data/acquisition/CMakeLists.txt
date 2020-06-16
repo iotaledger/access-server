@@ -68,6 +68,7 @@ set(libs
   -pthread
   json_parser
   pip
+  access_wallet
   vehicle_dataset
   config_manager)
 

@@ -57,7 +57,7 @@ typedef struct {
   balance_cb cb;                 /*!< callback when balance meet the threshold */
 } balance_service_t;
 
-typedef void (*confirmed_cb)(uint32_t time);
+typedef void (*confirmed_cb)(uint32_t time, bool is_confirmed, pthread_t thread_id);
 typedef struct {
   char tx[NUM_TRYTES_HASH];   /*!< a tx hash for monitoring*/
   pthread_mutex_t mutex_lock; /*!< locker */

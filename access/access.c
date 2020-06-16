@@ -33,6 +33,12 @@
 #include "obdii_receiver.h"
 #include "modbus_receiver.h"
 #include "storage.h"
+#include "protocol.h"
+#include "transaction.h"
+#include "resolver.h"
+#include "demo_resolver_01.h"
+#include "demo_resolver_02.h"
+#include "demo_resolver_wallet.h"
 #include "timer.h"
 
 #define MAX_CLIENT_NAME 32
@@ -69,15 +75,16 @@ void Access_init(Access_ctx_t *access_context, wallet_ctx_t *device_wallet)
     Timer_init();
     Storage_init();
 
-    PolicyLoader_init();
-    PEP_init(device_wallet);
+    PEP_init();
+    PROTOCOL_init(device_wallet);
+    TRANSACTION_init(device_wallet);
 
     ctx->json_mutex = JSONInterface_get_mutex();
 
     if (strncmp(ctx->client_name, CONFIG_CLIENT_CAN01, strlen(CONFIG_CLIENT_CAN01)) == 0)
     {
+        Resolver_init(DemoWalletPlugin_initializer, &ctx->vdstate, (void*)device_wallet);
 #ifdef TINY_EMBEDDED
-        Resolver_init(Demo01Plugin_initializer, &ctx->vdstate);
         ctx->vdstate.options = &VehicleDatasetDemo01_options[0];
         ctx->vdstate.dataset = malloc(sizeof(can01_vehicle_dataset_t));
         Dataset_init(&ctx->vdstate);
@@ -91,8 +98,8 @@ void Access_init(Access_ctx_t *access_context, wallet_ctx_t *device_wallet)
     }
     else if (strncmp(ctx->client_name, CONFIG_CLIENT_CANOPEN01, strlen(CONFIG_CLIENT_CANOPEN01)) == 0)
     {
+        Resolver_init(DemoWalletPlugin_initializer, &ctx->vdstate, (void*)device_wallet);
 #ifdef TINY_EMBEDDED
-        Resolver_init(Demo02Plugin_initializer, &ctx->vdstate);
         ctx->vdstate.options = &VehicleDatasetDemo02_options[0];
         ctx->vdstate.dataset = malloc(sizeof(canopen01_vehicle_dataset_t));
         Dataset_init(&ctx->vdstate);

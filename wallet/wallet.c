@@ -349,7 +349,7 @@ static void *confirmation_service(void *arg) {
   }
 
   if (serv->cb) {
-    serv->cb(time);
+    serv->cb(time, is_confirmed, serv->thread_id);
   }
   printf("[%ld] confirmation service terminating\n", pthread_self());
 }
