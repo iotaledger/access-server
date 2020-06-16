@@ -53,19 +53,19 @@ typedef enum
     OP_GEQ,
     OP_LTE,
     OP_GTE,
-	OP_AND,
-	OP_OR,
+    OP_AND,
+    OP_OR,
     OP_UNKNOWN
-} Parser_operations_e;
+} parser_operations_e;
 
 /***************************************************************************
  * FUNCTION DECLARATIONS
 ****************************************************************************/
 
-int Parser_next_key_sibling_idx(jsmntok_t* _tokens, int cur_idx, int max_idx);
-int Parser_next_object_sibling_idx(jsmntok_t* _tokens, int cur_idx, int max_idx);
-int Parser_end_of_current_idx(jsmntok_t* _tokens, int cur_idx, int max_idx);
-int Parser_object_parent_idx(jsmntok_t* _tokens, int cur_idx);
-Parser_operations_e Parser_get_op(char *str, int len);
+int parser_next_key_sibling_idx(jsmntok_t* _tokens, int cur_idx, int max_idx);
+int parser_next_object_sibling_idx(jsmntok_t* _tokens, int cur_idx, int max_idx);
+int parser_end_of_current_idx(jsmntok_t* _tokens, int cur_idx, int max_idx);
+int parser_object_parent_idx(jsmntok_t* _tokens, int cur_idx);
+parser_operations_e parser_get_op(char *str, int len);
 
 #endif

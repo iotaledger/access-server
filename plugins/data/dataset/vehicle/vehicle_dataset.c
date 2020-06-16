@@ -40,7 +40,7 @@
 #define TOK_NUM_MAX 256
 #define TOKNAME_LEN 128
 
-char VehicleDatasetDemo01_options[] =
+char vehicledatasetdemo01_options[] =
     "DoorDrvrReSts"
     "|DoorDrvrSts"
     "|VehMtnStSafe"
@@ -76,7 +76,7 @@ char VehicleDatasetDemo01_options[] =
     "|DrvrPrpsnTqReq"
     "|CluPedlRat";
 
-char VehicleDatasetDemo02_options[] =
+char vehicledatasetdemo02_options[] =
     "bms_bat_voltage"
     "|analogue_brake_full_voltage"
     "|analogue_brake_off_voltage"
@@ -97,7 +97,7 @@ char VehicleDatasetDemo02_options[] =
     "|trip_meter"
     "|remote_throttle_voltage";
 
-static int set_token(VehicleDataset_state_t *state, const char* name, int val)
+static int set_token(vehicledataset_state_t *state, const char* name, int val)
 {
     for (int i=0; i<state->options_count; i++)
     {
@@ -111,7 +111,7 @@ static int set_token(VehicleDataset_state_t *state, const char* name, int val)
     return -1;
 }
 
-void VehicleDataset_init(VehicleDataset_state_t *state)
+void vehicledataset_init(vehicledataset_state_t *state)
 {
     unsigned char* dataset = (unsigned char*)state->dataset;
     if (state->options_count != 0)
@@ -154,13 +154,13 @@ void VehicleDataset_init(VehicleDataset_state_t *state)
     }
 }
 
-void VehicleDataset_deinit(VehicleDataset_state_t *state)
+void vehicledataset_deinit(vehicledataset_state_t *state)
 {
     free(state->dataset);
     free(state->tokens);
 }
 
-void VehicleDataset_from_json(VehicleDataset_state_t *state, const char* json, size_t json_len)
+void vehicledataset_from_json(vehicledataset_state_t *state, const char* json, size_t json_len)
 {
     int num_of_tokens = -1;
     jsmn_parser parser;
@@ -195,7 +195,7 @@ void VehicleDataset_from_json(VehicleDataset_state_t *state, const char* json, s
 
     arr_len = tokens[arr_index].size;
 
-    VehicleDataset_init(state);
+    vehicledataset_init(state);
 
     if (arr_len == 0)
     {
@@ -219,7 +219,7 @@ void VehicleDataset_from_json(VehicleDataset_state_t *state, const char* json, s
     }
 }
 
-int VehicleDataset_to_json(VehicleDataset_state_t *state, char* json)
+int vehicledataset_to_json(vehicledataset_state_t *state, char* json)
 {
     fjson_object* arr = fjson_object_new_array();
     unsigned char *dataset_uint8 = (unsigned char*)state->dataset;
@@ -237,7 +237,7 @@ int VehicleDataset_to_json(VehicleDataset_state_t *state, char* json)
     return retval;
 }
 
-int VehicleDataset_checked_count(VehicleDataset_state_t *state)
+int vehicledataset_checked_count(vehicledataset_state_t *state)
 {
     unsigned char *vd_options_uint8 = (unsigned char*)state->dataset;
     int count = 0;

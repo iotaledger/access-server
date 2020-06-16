@@ -20,12 +20,12 @@
 #ifndef _USER_IMPLEMENTATION_H_
 #define _USER_IMPLEMENTATION_H_
 
-int UserImplementation_init_cb();
-void UserImplementation_deinit_cb();
-void UserImplementation_get_all_cb(char* response);
-void UserImplementation_get_obj_cb(const char* username, char* user_object);
-void UserImplementation_put_obj_cb(const char* user_object, char* json_response);
-void UserImplementation_get_user_id_cb(const char* username, char* json_string);
-void UserImplementation_clear_all_cb(char* response);
+int userimplementation_init_cb();
+void userimplementation_deinit_cb();
+void userimplementation_get_all_cb(char* response);
+void userimplementation_get_obj_cb(const char* username, char* user_object);
+void userimplementation_put_obj_cb(const char* user_object, char* json_response);
+void userimplementation_get_user_id_cb(const char* username, char* json_string);
+void userimplementation_clear_all_cb(char* response);
 
 #endif

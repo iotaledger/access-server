@@ -57,7 +57,7 @@ typedef bool (*resolver_fn)(char* obligation, void* action);
  ****************************************************************************/
 
 /**
- * @fn      PEP_init
+ * @fn      pep_init
  *
  * @brief   Initialize module
  *
@@ -65,10 +65,10 @@ typedef bool (*resolver_fn)(char* obligation, void* action);
  *
  * @return  TRUE on success, FALSE on failure
  */
-bool PEP_init(void);
+bool pep_init(void);
 
 /**
- * @fn      PEP_term
+ * @fn      pep_term
  *
  * @brief   Terminate module
  *
@@ -76,7 +76,7 @@ bool PEP_init(void);
  *
  * @return  TRUE on success, FALSE on failure
  */
-bool PEP_term(void);
+bool pep_term(void);
 
 /**
  * @fn      PEP_register_callback
@@ -87,10 +87,10 @@ bool PEP_term(void);
  *
  * @return  TRUE on success, FALSE on failure
  */
-bool PEP_register_callback(resolver_fn resolver);
+bool pep_register_callback(resolver_fn resolver);
 
 /**
- * @fn      PEP_unregister_callback
+ * @fn      pep_unregister_callback
  *
  * @brief   Unregister resolver callback
  *
@@ -98,7 +98,7 @@ bool PEP_register_callback(resolver_fn resolver);
  *
  * @return  TRUE on success, FALSE on failure
  */
-bool PEP_unregister_callback(void);
+bool pep_unregister_callback(void);
 
 /**
  * @fn      int pep_request_access(JSON_Value *request)
@@ -110,6 +110,6 @@ bool PEP_unregister_callback(void);
  *
  * @return  Fail (0), Success (1)
  */
-bool PEP_request_access(char *request, void *response);
+bool pep_request_access(char *request, void *response);
 
 #endif

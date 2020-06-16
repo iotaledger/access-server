@@ -50,14 +50,15 @@
 #define MODBUS_RPM_REGADDR 0x107
 #define MODBUS_THROTTLE_VOLTAGE_REGADDR 0x010e
 
-typedef struct {
+typedef struct
+{
     char serial_device[MODBUS_SERIAL_DEV_LEN];
     fjson_object* fj_root;
     pthread_mutex_t *json_mutex;
-    Modbus_t modbus;
-} ModbusReceiver_thread_args_t;
+    modbus_t modbus;
+} modbusreceiver_thread_args_t;
 
-static ModbusReceiver_thread_args_t targs;
+static modbusreceiver_thread_args_t targs;
 static canopen01_vehicle_dataset_t *wanted_signals;
 
 // modbus data stuff
@@ -121,7 +122,7 @@ static fjson_object* modbus_json_filler()
 // !modbus data stuff
 
 
-void ModbusReceiver_init(canopen01_vehicle_dataset_t *dataset,
+void modbusreceiver_init(canopen01_vehicle_dataset_t *dataset,
                          pthread_mutex_t *json_mutex)
 {
     char buff[MODBUS_BUFF_LEN] = {0};
@@ -134,7 +135,7 @@ void ModbusReceiver_init(canopen01_vehicle_dataset_t *dataset,
     targs.json_mutex = json_mutex;
     wanted_signals = dataset;
 
-    Modbus_init(&targs.modbus, targs.serial_device);
+    modbus_init(&targs.modbus, targs.serial_device);
 }
 
 static int end_thread = 0;
@@ -142,32 +143,32 @@ static pthread_t thread = 0;
 
 static void *thread_loop(void *ptr)
 {
-    ModbusReceiver_thread_args_t* targs = (ModbusReceiver_thread_args_t*)ptr;
+    modbusreceiver_thread_args_t* targs = (modbusreceiver_thread_args_t*)ptr;
 
     while (end_thread == 0)
     {
         uint16_t data = -1;
         if (wanted_signals->motor_rpm == 1)
         {
-            Modbus_read_registers(&targs->modbus, 1, MODBUS_RPM_REGADDR, 1, &data);
+            modbus_read_registers(&targs->modbus, 1, MODBUS_RPM_REGADDR, 1, &data);
             fjson_object_object_add(fj_obj_motor_rpm, "value", fjson_object_new_double((double)data));
         }
 
         if (wanted_signals->brake_1_voltage == 1)
         {
-            Modbus_read_registers(&targs->modbus, 1, MODBUS_BRAKE_1_VOLTAGE_REGADDR, 1, &data);
+            modbus_read_registers(&targs->modbus, 1, MODBUS_BRAKE_1_VOLTAGE_REGADDR, 1, &data);
             fjson_object_object_add(fj_obj_brake_1_voltage, "value", fjson_object_new_double((double)data / MODBUS_DATA_RESOLUTION));
         }
 
         if (wanted_signals->brake_2_voltage == 1)
         {
-            Modbus_read_registers(&targs->modbus, 1, MODBUS_BRAKE_2_VOLTAGE_REGADDR, 1, &data);
+            modbus_read_registers(&targs->modbus, 1, MODBUS_BRAKE_2_VOLTAGE_REGADDR, 1, &data);
             fjson_object_object_add(fj_obj_brake_2_voltage, "value", fjson_object_new_double((double)data / MODBUS_DATA_RESOLUTION));
         }
 
         if (wanted_signals->throttle_voltage == 1)
         {
-            Modbus_read_registers(&targs->modbus, 1, MODBUS_THROTTLE_VOLTAGE_REGADDR, 1, &data);
+            modbus_read_registers(&targs->modbus, 1, MODBUS_THROTTLE_VOLTAGE_REGADDR, 1, &data);
             fjson_object_object_add(fj_obj_throttle_voltage, "value", fjson_object_new_double((double)data / MODBUS_DATA_RESOLUTION));
         }
 
@@ -176,7 +177,7 @@ static void *thread_loop(void *ptr)
     }
 }
 
-int ModbusReceiver_start()
+int modbusreceiver_start()
 {
     if (pthread_create(&thread, NULL, thread_loop, (void*)&targs))
     {
@@ -187,9 +188,9 @@ int ModbusReceiver_start()
     return 0;
 }
 
-void ModbusReceiver_stop()
+void modbusreceiver_stop()
 {
     end_thread = 1;
     pthread_join(thread, NULL);
-    Modbus_deinit(&targs.modbus);
+    modbus_deinit(&targs.modbus);
 }

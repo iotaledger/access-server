@@ -84,7 +84,7 @@ static int n = 0; // number of tokens
  *           CR_NOT_SUPPORTED - not supported type
  *           CR_BAD_ARG - bad argument
  */
-Validator_check_res_e check_eq(void *val1, void *val2, Validator_cmp_types_e type)
+validator_check_res_e check_eq(void *val1, void *val2, validator_cmp_types_e type)
 {
     char *tok;
     int *int_val_1;
@@ -174,7 +174,7 @@ Validator_check_res_e check_eq(void *val1, void *val2, Validator_cmp_types_e typ
  *           CR_NOT_SUPPORTED - not supported type
  *           CR_BAD_ARG - bad argument
  */
-Validator_check_res_e check_leq(void *val1, void *val2, Validator_cmp_types_e type)
+validator_check_res_e check_leq(void *val1, void *val2, validator_cmp_types_e type)
 {
     char *tok;
     int *int_val_1;
@@ -248,7 +248,7 @@ Validator_check_res_e check_leq(void *val1, void *val2, Validator_cmp_types_e ty
  *           CR_NOT_SUPPORTED - not supported type
  *           CR_BAD_ARG - bad argument
  */
-Validator_check_res_e check_geq(void *val1, void *val2, Validator_cmp_types_e type)
+validator_check_res_e check_geq(void *val1, void *val2, validator_cmp_types_e type)
 {
     char *tok;
     int *int_val_1;
@@ -322,7 +322,7 @@ Validator_check_res_e check_geq(void *val1, void *val2, Validator_cmp_types_e ty
  *           CR_NOT_SUPPORTED - not supported type
  *           CR_BAD_ARG - bad argument
  */
-Validator_check_res_e check_lte(void *val1, void *val2, Validator_cmp_types_e type)
+validator_check_res_e check_lte(void *val1, void *val2, validator_cmp_types_e type)
 {
     char *tok;
     int *int_val_1;
@@ -396,7 +396,7 @@ Validator_check_res_e check_lte(void *val1, void *val2, Validator_cmp_types_e ty
  *           CR_NOT_SUPPORTED - not supported type
  *           CR_BAD_ARG - bad argument
  */
-Validator_check_res_e check_gte(void *val1, void *val2, Validator_cmp_types_e type)
+validator_check_res_e check_gte(void *val1, void *val2, validator_cmp_types_e type)
 {
     char *tok;
     int *int_val_1;
@@ -468,7 +468,7 @@ Validator_check_res_e check_gte(void *val1, void *val2, Validator_cmp_types_e ty
  */
 static int check_gocdoc_object(jsmntok_t* tokens, int obj_idx, int max_idx, const char* policy_data)
 {
-    Validator_policy_docgoc_level_e ret = DG_HAS_NONE;
+    validator_policy_docgoc_level_e ret = DG_HAS_NONE;
 
     int next_object_index = obj_idx;
 
@@ -477,11 +477,11 @@ static int check_gocdoc_object(jsmntok_t* tokens, int obj_idx, int max_idx, cons
         for (int j = next_object_index; j < max_idx; j++)
         {
             if (strncmp(&policy_data[tokens[j].start], "attribute_list", strlen("attribute_list")) == 0 &&
-                    tokens[j].size == 1 &&
-                    tokens[j + 1].type == JSMN_ARRAY)
+                        tokens[j].size == 1 &&
+                        tokens[j + 1].type == JSMN_ARRAY)
             {
                 // check attribute list array recursively
-                if (check_gocdoc_object(tokens, j + 2, Parser_end_of_current_idx(tokens, j, max_idx), policy_data) == (DG_HAS_ATTLIST | DG_HAS_OPP))
+                if (check_gocdoc_object(tokens, j + 2, parser_end_of_current_idx(tokens, j, max_idx), policy_data) == (DG_HAS_ATTLIST | DG_HAS_OPP))
                 {
                     // return DG_HAS_ATTLIST flag only if child objects are correct
                     ret |= DG_HAS_ATTLIST;
@@ -493,7 +493,7 @@ static int check_gocdoc_object(jsmntok_t* tokens, int obj_idx, int max_idx, cons
                 }
 
                 // jump to next same-level token
-                int next_idx = Parser_next_key_sibling_idx(tokens, j, max_idx);
+                int next_idx = parser_next_key_sibling_idx(tokens, j, max_idx);
                 j = next_idx - 1;
                 if (next_idx < 0)
                 {
@@ -501,13 +501,13 @@ static int check_gocdoc_object(jsmntok_t* tokens, int obj_idx, int max_idx, cons
                 }
             }
             else if (strncmp(&policy_data[tokens[j].start], "operation", strlen("operation")) == 0 &&
-                    tokens[j].size == 1 &&
-                    tokens[j + 1].type == JSMN_STRING)
+                             tokens[j].size == 1 &&
+                             tokens[j + 1].type == JSMN_STRING)
             {
                 ret |= DG_HAS_OPP;
 
                 // jump to next same-level token
-                int next_idx = Parser_next_key_sibling_idx(tokens, j, max_idx);
+                int next_idx = parser_next_key_sibling_idx(tokens, j, max_idx);
                 j = next_idx - 1;
                 if (next_idx < 0)
                 {
@@ -530,7 +530,7 @@ static int check_gocdoc_object(jsmntok_t* tokens, int obj_idx, int max_idx, cons
                 {
                     bool found = FALSE;
 
-                    for (int j = next_bot_level_object_index; j <= Parser_end_of_current_idx(tokens, next_bot_level_object_index, max_idx); j++)
+                    for (int j = next_bot_level_object_index; j <= parser_end_of_current_idx(tokens, next_bot_level_object_index, max_idx); j++)
                     {
                         if (strncmp(&policy_data[tokens[j].start], "type", strlen("type")) == 0 &&
                             strncmp(&policy_data[tokens[j + 2].start], "value", strlen("value")) == 0)
@@ -539,12 +539,12 @@ static int check_gocdoc_object(jsmntok_t* tokens, int obj_idx, int max_idx, cons
                             if (strncasecmp(&policy_data[tokens[j + 1].start], "time", strlen("time")) == 0)
                             {
                                 // check if it is start or end time
-                                int att_list_idx = Parser_object_parent_idx(tokens, next_bot_level_object_index) - 1;
-                                int operation_idx = Parser_next_key_sibling_idx(tokens, att_list_idx, Parser_end_of_current_idx(tokens, att_list_idx, n) + 2);
+                                int att_list_idx = parser_object_parent_idx(tokens, next_bot_level_object_index) - 1;
+                                int operation_idx = parser_next_key_sibling_idx(tokens, att_list_idx, parser_end_of_current_idx(tokens, att_list_idx, n) + 2);
                                 int op_len = tokens[operation_idx + 1].end - tokens[operation_idx + 1].start;
                                 char operation_val[op_len];
                                 memcpy(operation_val, &policy_data[tokens[operation_idx + 1].start], op_len);
-                                Parser_operations_e op = Parser_get_op(operation_val, op_len);
+                                parser_operations_e op = parser_get_op(operation_val, op_len);
 
                                 // if operation is LTE or LEQ, time is end-time
                                 if (op == OP_LTE || op == OP_LEQ)
@@ -581,7 +581,7 @@ static int check_gocdoc_object(jsmntok_t* tokens, int obj_idx, int max_idx, cons
                         break;
                     }
 
-                    next_bot_level_object_index = Parser_next_object_sibling_idx(tokens, next_bot_level_object_index, max_idx);
+                    next_bot_level_object_index = parser_next_object_sibling_idx(tokens, next_bot_level_object_index, max_idx);
                 }
             }
             else
@@ -595,7 +595,7 @@ static int check_gocdoc_object(jsmntok_t* tokens, int obj_idx, int max_idx, cons
             }
         }
 
-        next_object_index = Parser_next_object_sibling_idx(tokens, next_object_index, max_idx);
+        next_object_index = parser_next_object_sibling_idx(tokens, next_object_index, max_idx);
     }
 
     return ret;
@@ -608,11 +608,11 @@ static int check_gocdoc_object(jsmntok_t* tokens, int obj_idx, int max_idx, cons
  *              report - validation report
  *  Returns: void
  */
-void Validator_check(const char* policy_data, Validator_report_t* report)
+void validator_check(const char* policy_data, validator_report_t* report)
 {
     jsmn_parser parser;
     jsmn_init(&parser);
-    memset(report, 0, sizeof(Validator_report_t));
+    memset(report, 0, sizeof(validator_report_t));
 
     jsmntok_t tokens[VALIDATOR_MAX_TOKENS];
     n = jsmn_parse(&parser, policy_data, strlen(policy_data), tokens, VALIDATOR_MAX_TOKENS);
@@ -658,7 +658,7 @@ void Validator_check(const char* policy_data, Validator_report_t* report)
             // Second level tokens
             int policy_object_idx = -1;
             int policy_object_end_idx = -1;
-            Validator_policy_first_level_e found_everyone = FL_HAS_NONE;
+            validator_policy_first_level_e found_everyone = FL_HAS_NONE;
             for (int i = 2; i < n; i++)
             {
                 if (tokens[i].size != 1)
@@ -668,9 +668,9 @@ void Validator_check(const char* policy_data, Validator_report_t* report)
 
                 // Check that token is a key, next token is value token and it is of correct type
                 if (strncmp(&policy_data[tokens[i].start], "cost", strlen("cost")) == 0 &&
-                        tokens[i].size == 1 &&
-                        tokens[i + 1].size == 0 &&
-                        tokens[i + 1].type == JSMN_STRING)
+                            tokens[i].size == 1 &&
+                            tokens[i + 1].size == 0 &&
+                            tokens[i + 1].type == JSMN_STRING)
                 {
                     char cost_s[COST_STR_SIZE];
                     memcpy(cost_s, &policy_data[tokens[i + 1].start], COST_STR_SIZE * sizeof(char));
@@ -682,7 +682,7 @@ void Validator_check(const char* policy_data, Validator_report_t* report)
                         found_everyone |= FL_HAS_COST;
                     }
 
-                    int next_idx = Parser_next_key_sibling_idx(tokens, i, n);
+                    int next_idx = parser_next_key_sibling_idx(tokens, i, n);
                     i = next_idx - 1;
                     if (next_idx < 0)
                     {
@@ -690,9 +690,9 @@ void Validator_check(const char* policy_data, Validator_report_t* report)
                     }
                 }
                 else if (strncmp(&policy_data[tokens[i].start], "hash_function", strlen("hash_function")) == 0 &&
-                        tokens[i].size == 1 &&
-                        tokens[i + 1].size == 0 &&
-                        tokens[i + 1].type == JSMN_STRING)
+                         tokens[i].size == 1 &&
+                         tokens[i + 1].size == 0 &&
+                         tokens[i + 1].type == JSMN_STRING)
                 {
                     char hash_fn_s[tokens[i + 1].end - tokens[i + 1].start];
                     memcpy(hash_fn_s, &policy_data[tokens[i + 1].start], (tokens[i + 1].end - tokens[i + 1].start) * sizeof(char));
@@ -702,7 +702,7 @@ void Validator_check(const char* policy_data, Validator_report_t* report)
                         found_everyone |= FL_HAS_HASH;
                     }
 
-                    int next_idx = Parser_next_key_sibling_idx(tokens, i, n);
+                    int next_idx = parser_next_key_sibling_idx(tokens, i, n);
                     i = next_idx - 1;
                     if (next_idx < 0)
                     {
@@ -710,14 +710,14 @@ void Validator_check(const char* policy_data, Validator_report_t* report)
                     }
                 }
                 else if (strncmp(&policy_data[tokens[i].start], "policy_id", strlen("policy_id")) == 0 &&
-                        tokens[i].size == 1 &&
-                        tokens[i+1].size == 0 &&
-                        tokens[i+1].type == JSMN_STRING)
+                         tokens[i].size == 1 &&
+                         tokens[i+1].size == 0 &&
+                         tokens[i+1].type == JSMN_STRING)
                 {
                     // @TODO check if value token is in valid range, type, etc
                     found_everyone |= FL_HAS_POLID;
 
-                    int next_idx = Parser_next_key_sibling_idx(tokens, i, n);
+                    int next_idx = parser_next_key_sibling_idx(tokens, i, n);
                     i = next_idx - 1;
                     if (next_idx < 0)
                     {
@@ -725,15 +725,15 @@ void Validator_check(const char* policy_data, Validator_report_t* report)
                     }
                 }
                 else if (strncmp(&policy_data[tokens[i].start], "policy_object", strlen("policy_object")) == 0 &&
-                        tokens[i].size == 1 &&
-                        tokens[i+1].type == JSMN_OBJECT)
+                         tokens[i].size == 1 &&
+                         tokens[i+1].type == JSMN_OBJECT)
                 {
                     found_everyone |= FL_HAS_POLOB;
                     policy_object_idx = i;
 
                     int next_idx = -1;
-                    policy_object_end_idx = Parser_end_of_current_idx(tokens, i, n);
-                    next_idx = Parser_next_key_sibling_idx(tokens, i, n);
+                    policy_object_end_idx = parser_end_of_current_idx(tokens, i, n);
+                    next_idx = parser_next_key_sibling_idx(tokens, i, n);
                     i = next_idx - 1;
                     if (next_idx < 0)
                     {
@@ -750,15 +750,15 @@ void Validator_check(const char* policy_data, Validator_report_t* report)
             {
                 // policy_object top level tokens
                 if (tokens[policy_object_idx + 1].type != JSMN_OBJECT ||
-                        tokens[policy_object_idx + 1].size < POL_OBJC_MIN_MEMBERS)
+                    tokens[policy_object_idx + 1].size < POL_OBJC_MIN_MEMBERS)
                 {
                     proper_format = 0;
                 }
                 else
                 {
-                    Validator_policy_docgoc_level_e check_doc = DG_HAS_NONE;
-                    Validator_policy_docgoc_level_e check_goc = DG_HAS_NONE;
-                    Validator_policy_docgoc_level_e found_doc_goc = DG_HAS_NONE;
+                    validator_policy_docgoc_level_e check_doc = DG_HAS_NONE;
+                    validator_policy_docgoc_level_e check_goc = DG_HAS_NONE;
+                    validator_policy_docgoc_level_e found_doc_goc = DG_HAS_NONE;
 
                     /* policy_goc or policy_doc must contain keys "attribute_list" and "operation"
                        attribute_list value may be one of two types of arrays:
@@ -767,16 +767,16 @@ void Validator_check(const char* policy_data, Validator_report_t* report)
                     for (int i = policy_object_idx; i < policy_object_end_idx; i++)
                     {
                         if (strncmp(&policy_data[tokens[i].start], "policy_doc", strlen("policy_doc")) == 0 &&
-                                tokens[i].size == 1 &&
-                                tokens[i + 1].type == JSMN_OBJECT)
+                                    tokens[i].size == 1 &&
+                                    tokens[i + 1].type == JSMN_OBJECT)
                         {
                             found_doc_goc |= DG_HAS_DOC;
 
-                            check_doc |= check_gocdoc_object(tokens, i + 2, Parser_end_of_current_idx(tokens, i + 1, policy_object_end_idx), policy_data);
+                            check_doc |= check_gocdoc_object(tokens, i + 2, parser_end_of_current_idx(tokens, i + 1, policy_object_end_idx), policy_data);
                         }
                         else if (strncmp(&policy_data[tokens[i].start], "policy_goc", strlen("policy_goc")) == 0 &&
-                                tokens[i].size == 1 &&
-                                tokens[i + 1].type == JSMN_OBJECT)
+                                 tokens[i].size == 1 &&
+                                 tokens[i + 1].type == JSMN_OBJECT)
                         {
                             found_doc_goc |= DG_HAS_GOC;
 

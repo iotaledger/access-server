@@ -53,7 +53,7 @@
  *              max_idx - maximum index
  *  Returns: ID of the next sibling token
  */
-int Parser_next_key_sibling_idx(jsmntok_t* _tokens, int cur_idx, int max_idx)
+int parser_next_key_sibling_idx(jsmntok_t* _tokens, int cur_idx, int max_idx)
 {
     int next_idx = -1;
 
@@ -80,7 +80,7 @@ int Parser_next_key_sibling_idx(jsmntok_t* _tokens, int cur_idx, int max_idx)
  *              max_idx - maximum index
  *  Returns: ID of the next sibling token
  */
-int Parser_next_object_sibling_idx(jsmntok_t* _tokens, int cur_idx, int max_idx)
+int parser_next_object_sibling_idx(jsmntok_t* _tokens, int cur_idx, int max_idx)
 {
     int next_idx = -1;
 
@@ -106,7 +106,7 @@ int Parser_next_object_sibling_idx(jsmntok_t* _tokens, int cur_idx, int max_idx)
  *              max_idx - maximum index
  *  Returns: End position of the token
  */
-int Parser_end_of_current_idx(jsmntok_t* _tokens, int cur_idx, int max_idx)
+int parser_end_of_current_idx(jsmntok_t* _tokens, int cur_idx, int max_idx)
 {
     int end_of_current = -1;
 
@@ -131,7 +131,7 @@ int Parser_end_of_current_idx(jsmntok_t* _tokens, int cur_idx, int max_idx)
  *              cur_idx - current object index
  *  Returns: Position of the parent token
  */
-int Parser_object_parent_idx(jsmntok_t* _tokens, int cur_idx)
+int parser_object_parent_idx(jsmntok_t* _tokens, int cur_idx)
 {
     int parent = -1;
 
@@ -148,7 +148,7 @@ int Parser_object_parent_idx(jsmntok_t* _tokens, int cur_idx)
             else if (_tokens[i].type == JSMN_OBJECT)
             {
                 // object can be another object's parent, just check if they are not siblings
-                int siblings = Parser_next_object_sibling_idx(_tokens, i, cur_idx + 1);
+                int siblings = parser_next_object_sibling_idx(_tokens, i, cur_idx + 1);
                 while (siblings >= 0)
                 {
                     if (siblings == cur_idx)
@@ -158,7 +158,7 @@ int Parser_object_parent_idx(jsmntok_t* _tokens, int cur_idx)
                     }
                     else
                     {
-                        siblings = Parser_next_object_sibling_idx(_tokens, siblings, cur_idx + 1);
+                        siblings = parser_next_object_sibling_idx(_tokens, siblings, cur_idx + 1);
                     }
                 }
 
@@ -181,7 +181,7 @@ int Parser_object_parent_idx(jsmntok_t* _tokens, int cur_idx)
  *              len - string length
  *  Returns: operation
  */
-Parser_operations_e Parser_get_op(char *str, int len)
+parser_operations_e parser_get_op(char *str, int len)
 {
     if (str == NULL || len == 0)
     {

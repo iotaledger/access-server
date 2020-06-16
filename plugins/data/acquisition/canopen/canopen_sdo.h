@@ -39,7 +39,8 @@
 #define CANOPEN_SDO_NAME_LEN 64
 #define CANOPEN_SDO_UNIT_LEN 32
 
-typedef struct {
+typedef struct
+{
     int index;
     char name[CANOPEN_SDO_NAME_LEN];
     char unit[CANOPEN_SDO_UNIT_LEN];
@@ -47,18 +48,19 @@ typedef struct {
     float offset;
     int min;
     int max;
-} CanopenSdo_SDO_object_t;
+} canopensdo_sdo_object_t;
 
 #define CANOPEN_SDO_DATA_TYPE_NONE 0
 #define CANOPEN_SDO_DATA_TYPE_INT 1
 #define CANOPEN_SDO_DATA_TYPE_FLOAT 2
 
-typedef struct {
+typedef struct
+{
     double value;
     char unit[CANOPEN_SDO_UNIT_LEN];
     char name[CANOPEN_SDO_NAME_LEN];
     int type;
-} CanopenSdo_parsed_data_t;
+} canopensdo_parsed_data_t;
 
 #define CANOPEN_SDO_BMS_BAT_VOLTAGE_IDX 0x200136
 #define CANOPEN_SDO_ANALOGUE_BRAKE_FULL_VOLTAGE_IDX 0x200318
@@ -86,10 +88,10 @@ typedef struct {
 #define CANOPEN_SDO_TPDO0_MAPPING4_IDX 0x1a0004
 
 
-void CanopenSdo_init();
-void CanopenSdo_deinit();
+void canopensdo_init();
+void canopensdo_deinit();
 
-CanopenSdo_SDO_object_t* CanopenSdo_get(int index);
-void CanopenSdo_parse(int index, uint64_t data, CanopenSdo_parsed_data_t* parsed_data);
+canopensdo_sdo_object_t* canopensdo_get(int index);
+void canopensdo_parse(int index, uint64_t data, canopensdo_parsed_data_t* parsed_data);
 
 #endif

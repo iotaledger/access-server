@@ -55,98 +55,98 @@
  ****************************************************************************/
 typedef enum
 {
-	PIP_NO_ERROR,
-	PIP_ERROR
-} PIP_error_e;
+    PIP_NO_ERROR,
+    PIP_ERROR
+} pip_error_e;
 
 typedef enum
 {
-	PIP_IOTA = 0
-} PIP_authorities_e;
+    PIP_IOTA = 0
+} pip_authorities_e;
 
 /****************************************************************************
  * TYPES
  ****************************************************************************/
 typedef struct attribute_object
 {
-	char type[PIP_MAX_STR_LEN];
-	char value[PIP_MAX_STR_LEN];
-} PIP_attribute_object_t;
+    char type[PIP_MAX_STR_LEN];
+    char value[PIP_MAX_STR_LEN];
+} pip_attribute_object_t;
 
 /****************************************************************************
  * CALLBACKS
  ****************************************************************************/
-typedef bool (*fetch_fn)(char* uri, PIP_attribute_object_t* attribute_object);
+typedef bool (*fetch_fn)(char* uri, pip_attribute_object_t* attribute_object);
 
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
 /**
- * @fn      PIP_init
+ * @fn      pip_init
  *
  * @brief   Initialize module
  *
  * @param   void
  *
- * @return  PIP_error_e error status
+ * @return  pip_error_e error status
  */
-PIP_error_e PIP_init(void);
+pip_error_e pip_init(void);
 
 /**
- * @fn      PIP_term
+ * @fn      pip_term
  *
  * @brief   Terminate module
  *
  * @param   void
  *
- * @return  PIP_error_e error status
+ * @return  pip_error_e error status
  */
-PIP_error_e PIP_term(void);
+pip_error_e pip_term(void);
 
 /**
- * @fn      PIP_register_callback
+ * @fn      pip_register_callback
  *
  * @brief   Register callback for authority
  *
  * @param   authority - Authority which needs to register callback
  * @param   fetch - Callback to register
  *
- * @return  PIP_error_e error status
+ * @return  pip_error_e error status
  */
-PIP_error_e PIP_register_callback(PIP_authorities_e authority, fetch_fn fetch);
+pip_error_e pip_register_callback(pip_authorities_e authority, fetch_fn fetch);
 
 /**
- * @fn      PIP_unregister_callback
+ * @fn      pip_unregister_callback
  *
  * @brief   Unregister callback for authority
  *
  * @param   authority - Authority which needs to unregister callback
  *
- * @return  PIP_error_e error status
+ * @return  pip_error_e error status
  */
-PIP_error_e PIP_unregister_callback(PIP_authorities_e authority);
+pip_error_e pip_unregister_callback(pip_authorities_e authority);
 
 /**
- * @fn      PIP_unregister_all_callbacks
+ * @fn      pip_unregister_all_callbacks
  *
  * @brief   Unregister callbacka for every authority
  *
  * @param   void
  *
- * @return  PIP_error_e error status
+ * @return  pip_error_e error status
  */
-PIP_error_e PIP_unregister_all_callbacks(void);
+pip_error_e pip_unregister_all_callbacks(void);
 
 /**
- * @fn      PIP_get_data
+ * @fn      pip_get_data
  *
  * @brief   Get attributes from plugins
  *
  * @param   uri - Request to perform
  * @param   attribute - Fetched attribute
  *
- * @return  PIP_error_e error status
+ * @return  pip_error_e error status
  */
-PIP_error_e PIP_get_data(char* uri, PIP_attribute_object_t* attribute);
+pip_error_e pip_get_data(char* uri, pip_attribute_object_t* attribute);
 
 #endif /* _PIP_H_ */

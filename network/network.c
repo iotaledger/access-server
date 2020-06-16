@@ -92,12 +92,12 @@ typedef struct {
     int listenfd;
     int connfd;
 
-    Dataset_state_t* ddstate;
+    dataset_state_t* ddstate;
 } Network_ctx_t_;
 
 static void *network_thread_function(void *ptr);
 
-int Network_init(Dataset_state_t *_ddstate, Network_ctx_t* network_context)
+int Network_init(dataset_state_t *_ddstate, Network_ctx_t* network_context)
 {
     Network_ctx_t_ *ctx = malloc(sizeof(Network_ctx_t_));
 
@@ -217,13 +217,13 @@ static unsigned int calculate_decision(char **recvData, Network_ctx_t_ *ctx)
 
     request_code = asnAuthHelper_check_msg_format(*recvData);
 
-    if(request_code == COMMAND_RESOLVE)
+    if (request_code == COMMAND_RESOLVE)
     {
         char decision[BUF_LEN] = {0};
         //@TODO: Should this be moved to access actor? Network should just send cb here to notify request.
-        PEP_request_access(*recvData, (void*)decision);
+        pep_request_access(*recvData, (void*)decision);
 
-        if(memcmp(decision, "grant", strlen("grant")))
+        if (memcmp(decision, "grant", strlen("grant")))
         {
             msg = grant;
         }
@@ -232,7 +232,7 @@ static unsigned int calculate_decision(char **recvData, Network_ctx_t_ *ctx)
             msg = deny;
         }
 
-        if(ctx->DAC_AUTH == 1)
+        if (ctx->DAC_AUTH == 1)
         {
             free(*recvData);
         }
@@ -244,11 +244,11 @@ static unsigned int calculate_decision(char **recvData, Network_ctx_t_ *ctx)
     else if (request_code == COMMAND_GET_POL_LIST)
     {
         //@TODO: Should this be moved to access actor? Network should just send cb here to notify request.
-        PEP_request_access(*recvData, (void*)ctx->send_buffer);
+        pep_request_access(*recvData, (void*)ctx->send_buffer);
 
         buffer_position = strlen(ctx->send_buffer);
 
-        if(ctx->DAC_AUTH == 1)
+        if (ctx->DAC_AUTH == 1)
         {
             free(*recvData);
         }
@@ -322,7 +322,7 @@ static unsigned int calculate_decision(char **recvData, Network_ctx_t_ *ctx)
         }
         else
         {
-            Dataset_from_json(ctx->ddstate, *recvData + get_token_at(arr_start).start, get_token_at(arr_start).end - get_token_at(arr_start).start);
+            dataset_from_json(ctx->ddstate, *recvData + get_token_at(arr_start).start, get_token_at(arr_start).end - get_token_at(arr_start).start);
             memcpy(ctx->send_buffer, grant, strlen(grant));
             buffer_position = strlen(grant);
         }
@@ -330,7 +330,7 @@ static unsigned int calculate_decision(char **recvData, Network_ctx_t_ *ctx)
     }
     else if (request_code == COMMAND_GET_DATASET)
     {
-        buffer_position = Dataset_to_json(ctx->ddstate, (char *)ctx->send_buffer);
+        buffer_position = dataset_to_json(ctx->ddstate, (char *)ctx->send_buffer);
         *recvData = ctx->send_buffer;
     }
     else if (request_code == COMMAND_GET_USER_OBJ)
@@ -348,7 +348,7 @@ static unsigned int calculate_decision(char **recvData, Network_ctx_t_ *ctx)
         }
 
         printf("get user\n");
-        PAP_user_management_action(PAP_USERMNG_GET_USER, username, ctx->send_buffer);
+        pap_user_management_action(PAP_USERMNG_GET_USER, username, ctx->send_buffer);
         *recvData = ctx->send_buffer;
         buffer_position = strlen(ctx->send_buffer);
     }
@@ -367,7 +367,7 @@ static unsigned int calculate_decision(char **recvData, Network_ctx_t_ *ctx)
         }
 
         printf("get_auth_id\n");
-        PAP_user_management_action(PAP_USERMNG_GET_USER_ID, username, ctx->send_buffer);
+        pap_user_management_action(PAP_USERMNG_GET_USER_ID, username, ctx->send_buffer);
         *recvData = ctx->send_buffer;
         buffer_position = strlen(ctx->send_buffer);
     }
@@ -385,21 +385,21 @@ static unsigned int calculate_decision(char **recvData, Network_ctx_t_ *ctx)
         }
 
         printf("put user\n");
-        PAP_user_management_action(PAP_USERMNG_PUT_USER, user_data, ctx->send_buffer);
+        pap_user_management_action(PAP_USERMNG_PUT_USER, user_data, ctx->send_buffer);
         *recvData = ctx->send_buffer;
         buffer_position = strlen(ctx->send_buffer);
     }
     else if (request_code == COMMAND_GET_ALL_USER)
     {
         printf("get all users\n");
-        PAP_user_management_action(PAP_USERMNG_GET_ALL_USR, ctx->send_buffer);
+        pap_user_management_action(PAP_USERMNG_GET_ALL_USR, ctx->send_buffer);
         *recvData = ctx->send_buffer;
         buffer_position = strlen(ctx->send_buffer);
     }
     else if (request_code == COMMAND_CLEAR_ALL_USER)
     {
         printf("clear all users\n");
-        PAP_user_management_action(PAP_USERMNG_CLR_ALL_USR, ctx->send_buffer);
+        pap_user_management_action(PAP_USERMNG_CLR_ALL_USR, ctx->send_buffer);
         *recvData = ctx->send_buffer;
         buffer_position = strlen(ctx->send_buffer);
     }

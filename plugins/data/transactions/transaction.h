@@ -59,27 +59,27 @@
  ****************************************************************************/
 typedef enum
 {
-	TRANS_NOT_PAYED,
-	TRANS_PAYED,
-	TRANS_PAYED_VERIFIED
-} TRANSACTION_payment_state_e;
+    TRANS_NOT_PAYED,
+    TRANS_PAYED,
+    TRANS_PAYED_VERIFIED
+} transaction_payment_state_e;
 
 /****************************************************************************
  * TYPES
  ****************************************************************************/
 typedef struct serv_confirm
 {
-	confirmation_service_t *service;
-	char* policy_id;
-	int policy_id_len;
-	bool transaction_confirmed;
-} TRANSACTION_serv_confirm_t;
+    confirmation_service_t *service;
+    char* policy_id;
+    int policy_id_len;
+    bool transaction_confirmed;
+} transaction_serv_confirm_t;
 
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
 /**
- * @fn      TRANSACTION_init
+ * @fn      transaction_init
  *
  * @brief   Initialize module
  *
@@ -87,10 +87,10 @@ typedef struct serv_confirm
  *
  * @return  void
  */
-void TRANSACTION_init(wallet_ctx_t* wallet_ctx);
+void transaction_init(wallet_ctx_t* wallet_ctx);
 
 /**
- * @fn      TRANSACTION_term
+ * @fn      transaction_term
  *
  * @brief   Terminate module
  *
@@ -98,10 +98,10 @@ void TRANSACTION_init(wallet_ctx_t* wallet_ctx);
  *
  * @return  void
  */
-void TRANSACTION_term(void);
+void transaction_term(void);
 
 /**
- * @fn      TRANSACTION_store_transaction
+ * @fn      transaction_store_transaction
  *
  * @brief   Save transaction info
  *
@@ -112,7 +112,7 @@ void TRANSACTION_term(void);
  *
  * @return  TRUE - success, FALSE - fail
  */
-bool TRANSACTION_store_transaction(char* policy_id, int policy_id_len,
-									char* transaction_hash, int transaction_hash_len);
+bool transaction_store_transaction(char* policy_id, int policy_id_len,
+                                   char* transaction_hash, int transaction_hash_len);
 
 #endif //_TRANSACTION_H_

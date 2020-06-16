@@ -38,15 +38,16 @@
 
 #define MODBUS_DEV_NAME_LEN 128
 
-typedef struct {
+typedef struct
+{
     char device_name[MODBUS_DEV_NAME_LEN];
     int fd;
-} Modbus_t;
+} modbus_t;
 
-int Modbus_init(Modbus_t* modbus, const char* serial_device);
+int modbus_init(modbus_t* modbus, const char* serial_device);
 
-int Modbus_read_registers(Modbus_t* modbus, int slave_device_address, uint16_t register_address, uint16_t quantity_to_read, int16_t *data);
+int modbus_read_registers(modbus_t* modbus, int slave_device_address, uint16_t register_address, uint16_t quantity_to_read, int16_t *data);
 
-void Modbus_deinit(Modbus_t* modbus);
+void modbus_deinit(modbus_t* modbus);
 
 #endif

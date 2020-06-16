@@ -57,7 +57,7 @@
 //@TODO: This can be removed by adding state and timer to resolver_plugin_t, which will be passed as functions argument
 static char action_s[] = "<Action performed>";
 static int timerId = -1;
-static Dataset_state_t *g_dstate = NULL;
+static dataset_state_t *g_dstate = NULL;
 static resolver_plugin_t resolver_action_set = {0};
 
 /****************************************************************************
@@ -88,7 +88,7 @@ static int start_data_sharing(const char *action, unsigned long end_time)
 
     memcpy(dataset_num, &action[RES_DATASET_NUM_POSITION], RES_DATASET_NUM_SIZE);
 
-    dataset = Dataset_options[atoi(dataset_num) - 1];
+    dataset = dataset_options[atoi(dataset_num) - 1];
 
     // Tokenize dataset
     char* tok = NULL;
@@ -175,7 +175,7 @@ static bool pep_request(char *obligation, void *action)
     }
     
     //TODO: only "log_event" obligation is supported currently
-    if(0 == memcmp(obligation, "log_event", strlen("log_event")))
+    if (0 == memcmp(obligation, "log_event", strlen("log_event")))
     {
         should_log = TRUE;
     }
@@ -193,18 +193,18 @@ static bool pep_request(char *obligation, void *action)
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
-void Resolver_init(resolver_plugin_initializer_t initializer, Dataset_state_t *dstate, void *options)
+void resolver_init(resolver_plugin_initializer_t initializer, dataset_state_t *dstate, void *options)
 {
     initializer(&resolver_action_set, options);
     g_dstate = dstate;
 
-    PEP_register_callback((resolver_fn) pep_request);
+    pep_register_callback((resolver_fn) pep_request);
 }
 
-void Resolver_term(resolver_plugin_terminizer_t terminizer)
+void resolver_term(resolver_plugin_terminizer_t terminizer)
 {
     terminizer(&resolver_action_set);
     g_dstate = NULL;
 
-    PEP_unregister_callback();
+    pep_unregister_callback();
 }

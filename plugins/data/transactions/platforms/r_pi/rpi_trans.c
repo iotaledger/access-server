@@ -42,191 +42,191 @@
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
-bool RPITRANSACTION_store(char* policy_id, int policy_id_len)
+bool rpitransaction_store(char* policy_id, int policy_id_len)
 {
-	char *line = NULL;
-	int line_len = 0;
-	FILE *f = NULL;
+    char *line = NULL;
+    int line_len = 0;
+    FILE *f = NULL;
 
-	//Check input parameters
-	if (policy_id == NULL)
-	{
-		printf("\nERROR[%s]: Bad input prameter.\n", __FUNCTION__);
-		return FALSE;
-	}
+    //Check input parameters
+    if (policy_id == NULL)
+    {
+        printf("\nERROR[%s]: Bad input prameter.\n", __FUNCTION__);
+        return FALSE;
+    }
 
-	line_len = strlen("policy_id:") + policy_id_len + strlen(",validated:0\n") + 1;
+    line_len = strlen("policy_id:") + policy_id_len + strlen(",validated:0\n") + 1;
 
-	line = malloc((line_len) * sizeof(char));
+    line = malloc((line_len) * sizeof(char));
 
-	sprintf(line, "policy_id:%s,validated:0\n", policy_id);
+    sprintf(line, "policy_id:%s,validated:0\n", policy_id);
 
-	//Write transaction to file
-	f = fopen("../../plugins/data/transactions/platforms/r_pi/bill", "a");
-	if (f == NULL)
-	{
-		printf("\nERROR[%s]: Invalida path to file.\n", __FUNCTION__);
-		return FALSE;
-	}
+    //Write transaction to file
+    f = fopen("../../plugins/data/transactions/platforms/r_pi/bill", "a");
+    if (f == NULL)
+    {
+        printf("\nERROR[%s]: Invalida path to file.\n", __FUNCTION__);
+        return FALSE;
+    }
 
-	fwrite(line, line_len, 1, f);
-	fclose(f);
-	free(line);
+    fwrite(line, line_len, 1, f);
+    fclose(f);
+    free(line);
 
-	return TRUE;
+    return TRUE;
 }
 
-bool RPITRANSACTION_update_payment_status(char* policy_id, int policy_id_len, bool is_verified)
+bool rpitransaction_update_payment_status(char* policy_id, int policy_id_len, bool is_verified)
 {
-	char *buff = NULL;
-	char *transaction = NULL;
-	char *line = NULL;
-	int buff_len = 0;
-	int line_len = 0;
-	FILE *f = NULL;
+    char *buff = NULL;
+    char *transaction = NULL;
+    char *line = NULL;
+    int buff_len = 0;
+    int line_len = 0;
+    FILE *f = NULL;
 
-	//Check input parameters
-	if (policy_id == NULL)
-	{
-		printf("\nERROR[%s]: Bad input prameter.\n", __FUNCTION__);
-		return FALSE;
-	}
+    //Check input parameters
+    if (policy_id == NULL)
+    {
+        printf("\nERROR[%s]: Bad input prameter.\n", __FUNCTION__);
+        return FALSE;
+    }
 
-	//Read transaction from file
-	f = fopen("../../plugins/data/transactions/platforms/r_pi/bill", "r");
-	if (f == NULL)
-	{
-		printf("\nERROR[%s]: Invalida path to file.\n", __FUNCTION__);
-		return FALSE;
-	}
+    //Read transaction from file
+    f = fopen("../../plugins/data/transactions/platforms/r_pi/bill", "r");
+    if (f == NULL)
+    {
+        printf("\nERROR[%s]: Invalida path to file.\n", __FUNCTION__);
+        return FALSE;
+    }
 
-	fseek(f, 0L, SEEK_END);
-	buff_len = ftell(f);
-	fseek(f, 0L, SEEK_SET);
+    fseek(f, 0L, SEEK_END);
+    buff_len = ftell(f);
+    fseek(f, 0L, SEEK_SET);
 
-	buff = malloc(buff_len * sizeof(char));
-	fread(buff, buff_len, 1, f);
-	fclose(f);
+    buff = malloc(buff_len * sizeof(char));
+    fread(buff, buff_len, 1, f);
+    fclose(f);
 
-	//Change transaction status
-	line_len = strlen("policy_id:") + policy_id_len + strlen(",validated:");
-	line = malloc((line_len + 1) * sizeof(char));
-	sprintf(line, "policy_id:%s,validated:", policy_id);
-	transaction = strstr(buff, line);
-	if (is_verified)
-	{
-		transaction[line_len] = '1';
-	}
-	else
-	{
-		transaction[line_len] = '0';
-	}
+    //Change transaction status
+    line_len = strlen("policy_id:") + policy_id_len + strlen(",validated:");
+    line = malloc((line_len + 1) * sizeof(char));
+    sprintf(line, "policy_id:%s,validated:", policy_id);
+    transaction = strstr(buff, line);
+    if (is_verified)
+    {
+        transaction[line_len] = '1';
+    }
+    else
+    {
+        transaction[line_len] = '0';
+    }
 
-	//Write changed buffer to file
-	f = fopen("../../plugins/data/transactions/platforms/r_pi/bill", "w");
-	if (f == NULL)
-	{
-		printf("\nERROR[%s]: Invalida path to file.\n", __FUNCTION__);
-		free(buff);
-		free(line);
-		return FALSE;
-	}
+    //Write changed buffer to file
+    f = fopen("../../plugins/data/transactions/platforms/r_pi/bill", "w");
+    if (f == NULL)
+    {
+        printf("\nERROR[%s]: Invalida path to file.\n", __FUNCTION__);
+        free(buff);
+        free(line);
+        return FALSE;
+    }
 
-	fwrite(buff, buff_len, 1, f);
-	fclose(f);
+    fwrite(buff, buff_len, 1, f);
+    fclose(f);
 
-	free(buff);
-	free(line);
-	return TRUE;
+    free(buff);
+    free(line);
+    return TRUE;
 }
 
-bool RPITRANSACTION_is_stored(char* policy_id)
+bool rpitransaction_is_stored(char* policy_id)
 {
-	char *buff = NULL;
-	int buff_len = 0;
-	FILE *f = NULL;
+    char *buff = NULL;
+    int buff_len = 0;
+    FILE *f = NULL;
 
-	//Check input parameters
-	if (policy_id == NULL)
-	{
-		printf("\nERROR[%s]: Bad input prameter.\n", __FUNCTION__);
-		return FALSE;
-	}
+    //Check input parameters
+    if (policy_id == NULL)
+    {
+        printf("\nERROR[%s]: Bad input prameter.\n", __FUNCTION__);
+        return FALSE;
+    }
 
-	//Read transactions from file
-	f = fopen("../../plugins/data/transactions/platforms/r_pi/bill", "r");
-	if (f == NULL)
-	{
-		//Non of the transactions occured
-		return FALSE;
-	}
+    //Read transactions from file
+    f = fopen("../../plugins/data/transactions/platforms/r_pi/bill", "r");
+    if (f == NULL)
+    {
+        //Non of the transactions occured
+        return FALSE;
+    }
 
-	fseek(f, 0L, SEEK_END);
-	buff_len = ftell(f);
-	fseek(f, 0L, SEEK_SET);
+    fseek(f, 0L, SEEK_END);
+    buff_len = ftell(f);
+    fseek(f, 0L, SEEK_SET);
 
-	buff = malloc(buff_len * sizeof(char));
-	fread(buff, buff_len, 1, f);
-	fclose(f);
+    buff = malloc(buff_len * sizeof(char));
+    fread(buff, buff_len, 1, f);
+    fclose(f);
 
-	if (strstr(buff, policy_id))
-	{
-		free(buff);
-		return TRUE;
-	}
-	else
-	{
-		free(buff);
-		return FALSE;
-	}
+    if (strstr(buff, policy_id))
+    {
+        free(buff);
+        return TRUE;
+    }
+    else
+    {
+        free(buff);
+        return FALSE;
+    }
 }
 
-bool RPITRANSACTION_is_verified(char* policy_id, int policy_id_len)
+bool rpitransaction_is_verified(char* policy_id, int policy_id_len)
 {
-	char *buff = NULL;
-	char *line = NULL;
-	char *transaction = NULL;
-	int buff_len = 0;
-	int line_len = 0;
-	FILE *f = NULL;
+    char *buff = NULL;
+    char *line = NULL;
+    char *transaction = NULL;
+    int buff_len = 0;
+    int line_len = 0;
+    FILE *f = NULL;
 
-	//Check input parameters
-	if (policy_id == NULL)
-	{
-		printf("\nERROR[%s]: Bad input prameter.\n", __FUNCTION__);
-		return FALSE;
-	}
+    //Check input parameters
+    if (policy_id == NULL)
+    {
+        printf("\nERROR[%s]: Bad input prameter.\n", __FUNCTION__);
+        return FALSE;
+    }
 
-	//Read transactions from file
-	f = fopen("../../plugins/data/transactions/platforms/r_pi/bill", "r");
-	if (f == NULL)
-	{
-		//Non of the transactions occured
-		return FALSE;
-	}
+    //Read transactions from file
+    f = fopen("../../plugins/data/transactions/platforms/r_pi/bill", "r");
+    if (f == NULL)
+    {
+        //Non of the transactions occured
+        return FALSE;
+    }
 
-	fseek(f, 0L, SEEK_END);
-	buff_len = ftell(f);
-	fseek(f, 0L, SEEK_SET);
+    fseek(f, 0L, SEEK_END);
+    buff_len = ftell(f);
+    fseek(f, 0L, SEEK_SET);
 
-	buff = malloc(buff_len * sizeof(char));
-	fread(buff, buff_len, 1, f);
-	fclose(f);
+    buff = malloc(buff_len * sizeof(char));
+    fread(buff, buff_len, 1, f);
+    fclose(f);
 
-	//Check transaction status
-	line_len = strlen("policy_id:") + policy_id_len + strlen(",validated:");
-	line = malloc((line_len + 1) * sizeof(char));
-	sprintf(line, "policy_id:%s,validated:", policy_id);
-	transaction = strstr(buff, line);
+    //Check transaction status
+    line_len = strlen("policy_id:") + policy_id_len + strlen(",validated:");
+    line = malloc((line_len + 1) * sizeof(char));
+    sprintf(line, "policy_id:%s,validated:", policy_id);
+    transaction = strstr(buff, line);
 
-	if (transaction[line_len] == '1')
-	{
-		free(buff);
-		return TRUE;
-	}
-	else
-	{
-		free(buff);
-		return FALSE;
-	}
+    if (transaction[line_len] == '1')
+    {
+        free(buff);
+        return TRUE;
+    }
+    else
+    {
+        free(buff);
+        return FALSE;
+    }
 }

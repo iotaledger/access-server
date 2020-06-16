@@ -38,8 +38,8 @@
 #include "vehicle_dataset.h"
 #include "modbus.h"
 
-void ModbusReceiver_init(canopen01_vehicle_dataset_t *dataset, pthread_mutex_t *json_mutex);
-int ModbusReceiver_start();
-void ModbusReceiver_stop();
+void modbusreceiver_init(canopen01_vehicle_dataset_t *dataset, pthread_mutex_t *json_mutex);
+int modbusreceiver_start();
+void modbusreceiver_stop();
 
 #endif

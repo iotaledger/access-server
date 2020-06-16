@@ -26,14 +26,14 @@
  *              discard policy, also it has functionality to
  *              perform policy optimisation.
  *
- * File:        optimizator.h
+ * File:        optimizer.h
  *
  * Designed-by: Strahinja Golic
  *
  * History:     25.03.2020. - Initial version
  *****************************************************************************/
-#ifndef __OPTIMIZATOR_H__
-#define __OPTIMIZATOR_H__
+#ifndef __OPTIMIZER_H__
+#define __OPTIMIZER_H__
 
 /***************************************************************************
  * INCLUDES
@@ -54,77 +54,77 @@
 ****************************************************************************/
 typedef enum
 {
-	RE_ERROR,
-	RE_NO_ACTION,
-	RE_SUCCESS
-} Optimizator_return_e;
+    RE_ERROR,
+    RE_NO_ACTION,
+    RE_SUCCESS
+} optimizer_return_e;
 
 typedef enum
 {
-	TE_OPERATOR,
-	TE_VARIABLE,
-	TE_COMPLEX
-} Optimizator_type_of_func_elem_e;
+    TE_OPERATOR,
+    TE_VARIABLE,
+    TE_COMPLEX
+} optimizer_type_of_func_elem_e;
 
 typedef enum
 {
-	BR_OPEN,
-	BR_CLOSED,
-	BR_NONE
-} Optimizator_bracket_e;
+    BR_OPEN,
+    BR_CLOSED,
+    BR_NONE
+} optimizer_bracket_e;
 
 typedef enum
 {
-	OA_NONE = 0x00,
-	OA_ABSORPTION = 0x01
-} Optimizator_optimization_actions_e;
+    OA_NONE = 0x00,
+    OA_ABSORPTION = 0x01
+} optimizer_optimization_actions_e;
 
 /***************************************************************************
  * STRUCTURES
 ****************************************************************************/
 typedef _Bool bool;
-typedef int Optimizator_symbol_t;
-typedef struct _function_list Optimizator_function_list_elem_t;
+typedef int optimizer_symbol_t;
+typedef struct _function_list optimizer_function_list_elem_t;
 
 typedef struct
 {
-	Optimizator_bracket_e bracket;
-	Parser_operations_e operation;
-} Optimizator_operator_t;
+    optimizer_bracket_e bracket;
+    parser_operations_e operation;
+} optimizer_operator_t;
 
 typedef struct
 {
-	char type[OPT_MAX_STR_LEN];
-	char value[OPT_MAX_STR_LEN];
-	Optimizator_symbol_t symbol;
-} Optimizator_log_var_t;
+    char type[OPT_MAX_STR_LEN];
+    char value[OPT_MAX_STR_LEN];
+    optimizer_symbol_t symbol;
+} optimizer_log_var_t;
 
 typedef struct
 {
-	Optimizator_function_list_elem_t *complex_var_elements;
-	Optimizator_symbol_t symbol;
-} Optimizator_complex_var_t;
+    optimizer_function_list_elem_t *complex_var_elements;
+    optimizer_symbol_t symbol;
+} optimizer_complex_var_t;
 
 
 typedef union
 {
-	Optimizator_operator_t operator;
-	Optimizator_log_var_t symple_var;
-	Optimizator_complex_var_t complex_var;
-} Optimizator_function_element_t;
+    optimizer_operator_t operator;
+    optimizer_log_var_t symple_var;
+    optimizer_complex_var_t complex_var;
+} optimizer_function_element_t;
 
 
 struct _function_list
 {
-	struct _function_list *previous;
-	struct _function_list *next;
-	Optimizator_type_of_func_elem_e elem_type;
-	Optimizator_function_element_t element;
+    struct _function_list *previous;
+    struct _function_list *next;
+    optimizer_type_of_func_elem_e elem_type;
+    optimizer_function_element_t element;
 };
 
 
 /***************************************************************************
  * FUNCTION DECLARATIONS
 ****************************************************************************/
-Optimizator_return_e Optimizator_optimize_pol(char*, char*);
+optimizer_return_e optimizer_optimize_pol(char*, char*);
 #endif

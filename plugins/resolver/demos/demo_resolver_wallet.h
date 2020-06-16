@@ -36,15 +36,15 @@
 #include "wallet.h"
 
 /**
- * @fn void DemoWalletPlugin_initializer(resolver_plugin_t* action_set)
+ * @fn void demowalletplugin_initializer(resolver_plugin_t* action_set)
  * @brief resolver plugin initializer callback
  */
-void DemoWalletPlugin_initializer(resolver_plugin_t* action_set, void* options);
+void demowalletplugin_initializer(resolver_plugin_t* action_set, void* options);
 
 /**
- * @fn void DemoWalletPlugin_terminizer()
+ * @fn void demowalletplugin_terminizer()
  * @brief resolver plugin terminizer callback
  */
-void DemoWalletPlugin_terminizer();
+void demowalletplugin_terminizer();
 
 #endif

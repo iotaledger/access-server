@@ -63,7 +63,7 @@ typedef int (*payment_status_fn)(char* policy_id, int policy_id_len);
  * API FUNCTIONS
  ****************************************************************************/
 /**
- * @fn      PROTOCOL_init
+ * @fn      protocol_init
  *
  * @brief   Initialize module
  *
@@ -71,10 +71,10 @@ typedef int (*payment_status_fn)(char* policy_id, int policy_id_len);
  *
  * @return  TRUE - success, FALSE - fail
  */
-bool PROTOCOL_init(wallet_ctx_t* wallet_ctx);
+bool protocol_init(wallet_ctx_t* wallet_ctx);
 
 /**
- * @fn      PROTOCOL_term
+ * @fn      protocol_term
  *
  * @brief   Terminate module
  *
@@ -82,10 +82,10 @@ bool PROTOCOL_init(wallet_ctx_t* wallet_ctx);
  *
  * @return  TRUE - success, FALSE - fail
  */
-bool PROTOCOL_term(void);
+bool protocol_term(void);
 
 /**
- * @fn      PROTOCOL_register_callback
+ * @fn      protocol_register_callback
  *
  * @brief   Register callback for different communication protocols
  *
@@ -93,10 +93,10 @@ bool PROTOCOL_term(void);
  *
  * @return  void
  */
-void PROTOCOL_register_callback(acquire_fn acquire);
+void protocol_register_callback(acquire_fn acquire);
 
 /**
- * @fn      PROTOCOL_unregister_callback
+ * @fn      protocol_unregister_callback
  *
  * @brief   Unregister callback for different communication protocols
  *
@@ -104,10 +104,10 @@ void PROTOCOL_register_callback(acquire_fn acquire);
  *
  * @return  void
  */
-void PROTOCOL_unregister_callback();
+void protocol_unregister_callback();
 
 /**
- * @fn      PROTOCOL_register_payment_state_callback
+ * @fn      protocol_register_payment_state_callback
  *
  * @brief   Register callback for acquiring payment status
  *
@@ -115,10 +115,10 @@ void PROTOCOL_unregister_callback();
  *
  * @return  void
  */
-void PROTOCOL_register_payment_state_callback(payment_status_fn trans_fn);
+void protocol_register_payment_state_callback(payment_status_fn trans_fn);
 
 /**
- * @fn      PROTOCOL_unregister_payment_state_callback
+ * @fn      protocol_unregister_payment_state_callback
  *
  * @brief   Unregister callback for acquiring payment status
  *
@@ -126,6 +126,6 @@ void PROTOCOL_register_payment_state_callback(payment_status_fn trans_fn);
  *
  * @return  void
  */
-void PROTOCOL_unregister_payment_state_callback(void);
+void protocol_unregister_payment_state_callback(void);
 
 #endif //__PROTOCOL_H__

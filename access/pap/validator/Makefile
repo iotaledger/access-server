@@ -8,11 +8,11 @@ endif
 
 SOURCES =	validate.c \
 			validator.c \
-			optimizator.c \
+			optimizer.c \
 			parser.c \
 			jsmn.c
 
-validate: validate.o validator.o optimizator.o parser.o jsmn.o
+validate: validate.o validator.o optimizer.o parser.o jsmn.o
 	@echo LD validate
 	$(AT)$(CC) -o validate $^ $(LDFLAGS)
 

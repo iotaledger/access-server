@@ -43,60 +43,60 @@
 
 static int demo02_vehicle_lock(resolver_action_data_t *action, int should_log)
 {
-    RelayInterface_off(3);
+    relayinterface_off(3);
     return 0;
 }
 
 static int demo02_vehicle_unlock(resolver_action_data_t *action, int should_log)
 {
-    RelayInterface_on(3);
+    relayinterface_on(3);
     return 0;
 }
 
 static int demo02_honk(resolver_action_data_t *action, int should_log)
 {
-    RelayInterface_pulse(2);
+    relayinterface_pulse(2);
     return 0;
 }
 
 static int demo02_alarm_on(resolver_action_data_t *action, int should_log)
 {
-    RelayInterface_on(1);
+    relayinterface_on(1);
     return 0;
 }
 
 static int demo02_alarm_off(resolver_action_data_t *action, int should_log)
 {
-    RelayInterface_off(1);
+    relayinterface_off(1);
     return 0;
 }
 
 static resolver_plugin_t* g_action_set = NULL;
 
-static void init_cb(Dataset_state_t* vdstate)
+static void init_cb(dataset_state_t* vdstate)
 {
 #ifdef TINY_EMBEDDED
-    CanopenReceiver_deinit();
+    canopenreceiver_deinit();
     // Re-init receiver with new dataset
 #endif
 
-    vdstate->options = &VehicleDatasetDemo02_options[0];
-    Dataset_init(vdstate);
-    CanopenReceiver_init(vdstate->dataset, JSONInterface_get_mutex());
+    vdstate->options = &vehicledatasetdemo02_options[0];
+    dataset_init(vdstate);
+    canopenreceiver_init(vdstate->dataset, JSONInterface_get_mutex());
 }
 
 static void start_cb() {}
 static void stop_cb() {}
 
-static void term_cb(Dataset_state_t* vdstate)
+static void term_cb(dataset_state_t* vdstate)
 {
-    Demo02Plugin_terminizer();
+    demo02plugin_terminizer();
     vdstate->options = NULL;
-    Dataset_deinit(vdstate);
-    CanopenReceiver_deinit();
+    dataset_deinit(vdstate);
+    canopenreceiver_deinit();
 }
 
-void Demo02Plugin_initializer(resolver_plugin_t* action_set, void* options)
+void demo02plugin_initializer(resolver_plugin_t* action_set, void* options)
 {
     if (action_set == NULL && g_action_set == NULL)
     {
@@ -125,7 +125,7 @@ void Demo02Plugin_initializer(resolver_plugin_t* action_set, void* options)
     g_action_set->term_ds_interface_cb = term_cb;
 }
 
-void Demo02Plugin_terminizer()
+void demo02plugin_terminizer()
 {
     g_action_set = NULL;
 }

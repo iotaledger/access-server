@@ -50,7 +50,7 @@
  * API FUNCTIONS
  ****************************************************************************/
 /**
- * @fn      RPITRANSACTION_store
+ * @fn      rpitransaction_store
  *
  * @brief   Store trnasaction on RPI
  *
@@ -59,10 +59,10 @@
  *
  * @return  TRUE - success, FALSE - fail
  */
-bool RPITRANSACTION_store(char* policy_id, int policy_id_len);
+bool rpitransaction_store(char* policy_id, int policy_id_len);
 
 /**
- * @fn      RPITRANSACTION_store
+ * @fn      rpitransaction_store
  *
  * @brief   Store transaction on RPI
  *
@@ -72,10 +72,10 @@ bool RPITRANSACTION_store(char* policy_id, int policy_id_len);
  *
  * @return  TRUE - success, FALSE - fail
  */
-bool RPITRANSACTION_update_payment_status(char* policy_id, int policy_id_len, bool is_verified);
+bool rpitransaction_update_payment_status(char* policy_id, int policy_id_len, bool is_verified);
 
 /**
- * @fn      RPITRANSACTION_is_stored
+ * @fn      rpitransaction_is_stored
  *
  * @brief   Check if transaction is stored on RPI
  *
@@ -83,10 +83,10 @@ bool RPITRANSACTION_update_payment_status(char* policy_id, int policy_id_len, bo
  *
  * @return  TRUE - stored, FALSE - not stored
  */
-bool RPITRANSACTION_is_stored(char* policy_id);
+bool rpitransaction_is_stored(char* policy_id);
 
 /**
- * @fn      RPITRANSACTION_is_verified
+ * @fn      rpitransaction_is_verified
  *
  * @brief   Check if transaction payment is verified
  *
@@ -95,6 +95,6 @@ bool RPITRANSACTION_is_stored(char* policy_id);
  *
  * @return  TRUE - verified, FALSE - not verified
  */
-bool RPITRANSACTION_is_verified(char* policy_id, int policy_id_len);
+bool rpitransaction_is_verified(char* policy_id, int policy_id_len);
 
 #endif //_RPI_TRANSACTION_H_

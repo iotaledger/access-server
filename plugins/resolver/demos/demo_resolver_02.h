@@ -38,15 +38,15 @@
 #include "resolver.h"
 
 /**
- * @fn void Demo02Plugin_initializer(resolver_plugin_t* action_set)
+ * @fn void demo02plugin_initializer(resolver_plugin_t* action_set)
  * @brief resolver plugin initializer callback
  */
-void Demo02Plugin_initializer(resolver_plugin_t* action_set, void* options);
+void demo02plugin_initializer(resolver_plugin_t* action_set, void* options);
 
 /**
- * @fn void Demo02Plugin_terminizer()
+ * @fn void demo02plugin_terminizer()
  * @brief resolver plugin terminizer callback
  */
-void Demo02Plugin_terminizer();
+void demo02plugin_terminizer();
 
 #endif

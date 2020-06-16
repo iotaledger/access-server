@@ -60,19 +60,19 @@ typedef struct
     int options_count;
     d_token_t* tokens;
     void* dataset;
-} Dataset_state_t;
+} dataset_state_t;
 
 /****************************************************************************
  * GLOBAL VARIABLES
  ****************************************************************************/
-extern char* Dataset_options[DATASET_ARRAY_SIZE];
+extern char* dataset_options[DATASET_ARRAY_SIZE];
 
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
-void Dataset_init(Dataset_state_t *state);
-void Dataset_deinit(Dataset_state_t *state);
-void Dataset_from_json(Dataset_state_t *state, const char* json, size_t json_len);
-int Dataset_to_json(Dataset_state_t *state, char* json);
-int Dataset_checked_count(Dataset_state_t *state);
+void dataset_init(dataset_state_t *state);
+void dataset_deinit(dataset_state_t *state);
+void dataset_from_json(dataset_state_t *state, const char* json, size_t json_len);
+int dataset_to_json(dataset_state_t *state, char* json);
+int dataset_checked_count(dataset_state_t *state);
 #endif //__DATASET_H__

@@ -55,14 +55,14 @@
  ****************************************************************************/
 typedef struct action
 {
-	char pol_id_str[RES_POL_ID_STR_LEN + 1];
-	unsigned long start_time;
-	unsigned long stop_time;
-	unsigned long balance;
-	char* wallet_address;
-	char* transaction_hash;
-	int transaction_hash_len;
-	char* value;
+    char pol_id_str[RES_POL_ID_STR_LEN + 1];
+    unsigned long start_time;
+    unsigned long stop_time;
+    unsigned long balance;
+    char* wallet_address;
+    char* transaction_hash;
+    int transaction_hash_len;
+    char* value;
 } resolver_action_data_t;
 
 typedef int (*resolver_action_t)(resolver_action_data_t* action, int should_log);
@@ -72,10 +72,10 @@ typedef struct
     char action_names[RES_MAX_RESOLVER_ACTIONS][RES_ACTION_NAME_SIZE];
     resolver_action_t actions[RES_MAX_RESOLVER_ACTIONS];
     size_t count;
-    void (*init_ds_interface_cb)(Dataset_state_t*);
+    void (*init_ds_interface_cb)(dataset_state_t*);
     void (*start_ds_interface_cb)(void);
     void (*stop_ds_interface_cb)(void);
-    void (*term_ds_interface_cb)(Dataset_state_t*);
+    void (*term_ds_interface_cb)(dataset_state_t*);
 } resolver_plugin_t;
 
 typedef void (*resolver_plugin_initializer_t)(resolver_plugin_t*, void*);
@@ -85,19 +85,19 @@ typedef void (*resolver_plugin_terminizer_t)(resolver_plugin_t*);
  * API FUNCTIONS
  ****************************************************************************/
 /**
- * @fn  void Resolver_init(resolver_plugin_initializer_t initializer, Dataset_state_t *dstate)
+ * @fn  void resolver_init(resolver_plugin_initializer_t initializer, Dataset_state_t *dstate)
  *
  * @brief   Initialize Resolver module
  *
  */
-void Resolver_init(resolver_plugin_initializer_t initializer, Dataset_state_t *dstate, void* options);
+void resolver_init(resolver_plugin_initializer_t initializer, dataset_state_t *dstate, void* options);
 
 /**
- * @fn  void Resolver_term(resolver_plugin_terminizer_t terminizer)
+ * @fn  void resolver_term(resolver_plugin_terminizer_t terminizer)
  *
  * @brief   Terminate Resolver module
  *
  */
-void Resolver_term(resolver_plugin_terminizer_t terminizer);
+void resolver_term(resolver_plugin_terminizer_t terminizer);
 
 #endif //_RESOLVER_H_

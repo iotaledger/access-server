@@ -39,28 +39,28 @@
 #include "resolver.h"
 
 /**
- * @fn void Demo01Plugin_initializer(resolver_plugin_t* action_set)
+ * @fn void demo01plugin_initializer(resolver_plugin_t* action_set)
  * @brief resolver plugin initializer callback
  */
-void Demo01Plugin_initializer(resolver_plugin_t* action_set, void* options);
+void demo01plugin_initializer(resolver_plugin_t* action_set, void* options);
 
 /**
- * @fn void Demo01Plugin_initializer_tcp(resolver_plugin_t* action_set)
+ * @fn void demo01plugin_initializer_tcp(resolver_plugin_t* action_set)
  * @brief resolver plugin initializer callback
  */
-void Demo01Plugin_initializer_tcp(resolver_plugin_t* action_set, void* options);
+void demo01plugin_initializer_tcp(resolver_plugin_t* action_set, void* options);
 
 /**
- * @fn void Demo01Plugin_terminizer()
+ * @fn void demo01plugin_terminizer()
  * @brief resolver plugin terminizer callback
  */
-void Demo01Plugin_terminizer();
+void demo01plugin_terminizer();
 
 /**
- * @fn void Demo01Plugin_set_relayboard_addr(const char* addr)
+ * @fn void demo01plugin_set_relayboard_addr(const char* addr)
  * @brief sets 	IP address for relayboard access
  * @param addr 	IP address for relayboard access
  */
-void Demo01Plugin_set_relayboard_addr(const char* addr);
+void demo01plugin_set_relayboard_addr(const char* addr);
 
 #endif

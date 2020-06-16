@@ -54,7 +54,7 @@
 /****************************************************************************
  * GLOBAL VARIBLES
  ****************************************************************************/
-static TRANSACTION_serv_confirm_t service[TRANS_CONF_SERV_MAX_NUM] = {0};
+static transaction_serv_confirm_t service[TRANS_CONF_SERV_MAX_NUM] = {0};
 static pthread_mutex_t trans_mutex;
 static wallet_ctx_t *dev_wallet;
 
@@ -63,178 +63,180 @@ static wallet_ctx_t *dev_wallet;
  ****************************************************************************/
 static void transaction_confirmation(uint32_t time, bool is_confirmed, pthread_t thread_id)
 {
-	int i;
+    int i;
 
-	//Find the service
-	for (i = 0; i < TRANS_CONF_SERV_MAX_NUM; i++)
-	{
-		if (service[i].service->thread_id == thread_id)
-		{
-			//Found
-			break;
-		}
-	}
+    //Find the service
+    for (i = 0; i < TRANS_CONF_SERV_MAX_NUM; i++)
+    {
+        if (service[i].service->thread_id == thread_id)
+        {
+            //Found
+            break;
+        }
+    }
 
-	if (i == TRANS_CONF_SERV_MAX_NUM)
-	{
-		return;
-	}
+    if (i == TRANS_CONF_SERV_MAX_NUM)
+    {
+        return;
+    }
 
 #ifdef USE_RPI
-	if (!RPITRANSACTION_update_payment_status(service[i].policy_id, service[i].policy_id_len, is_confirmed))
-	{
-		printf("\nERROR[%s]: Failed to store transaction.\n", __FUNCTION__);
-		return;
-	}
+    if (!rpitransaction_update_payment_status(service[i].policy_id, service[i].policy_id_len, is_confirmed))
+    {
+        printf("\nERROR[%s]: Failed to store transaction.\n", __FUNCTION__);
+        return;
+    }
 #else
-	//Add support for other platforms
+    //Add support for other platforms
 #endif
 
-	service[i].transaction_confirmed = TRUE;
+    service[i].transaction_confirmed = TRUE;
 }
 
 static int recover_transaction(char* policy_id, int policy_id_len)
 {
-	//Check input parameters
-	if (policy_id == NULL)
-	{
-		printf("\nERROR[%s]: Bad input prameter.\n", __FUNCTION__);
-		return TRANS_NOT_PAYED;
-	}
+    //Check input parameters
+    if (policy_id == NULL)
+    {
+        printf("\nERROR[%s]: Bad input prameter.\n", __FUNCTION__);
+        return TRANS_NOT_PAYED;
+    }
 
-	pthread_mutex_lock(&trans_mutex);
+    pthread_mutex_lock(&trans_mutex);
 
-	//Check transaction status
+    //Check transaction status
 #ifdef USE_RPI
-	if (!RPITRANSACTION_is_stored(policy_id))
-	{
-		pthread_mutex_unlock(&trans_mutex);
-		return TRANS_NOT_PAYED;
-	}
-	else
-	{
-		if (!RPITRANSACTION_is_verified(policy_id, policy_id_len))
-		{
-			pthread_mutex_unlock(&trans_mutex);
-			return TRANS_PAYED;
-		}
-		else
-		{
-			pthread_mutex_unlock(&trans_mutex);
-			return TRANS_PAYED_VERIFIED;
-		}
-	}
+    if (!rpitransaction_is_stored(policy_id))
+    {
+        pthread_mutex_unlock(&trans_mutex);
+        return TRANS_NOT_PAYED;
+    }
+    else
+    {
+        if (!rpitransaction_is_verified(policy_id, policy_id_len))
+        {
+            pthread_mutex_unlock(&trans_mutex);
+            return TRANS_PAYED;
+        }
+        else
+        {
+            pthread_mutex_unlock(&trans_mutex);
+            return TRANS_PAYED_VERIFIED;
+        }
+    }
 #else
-	//Add support for other platforms
+    //Add support for other platforms
 #endif
 }
 
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
-void TRANSACTION_init(wallet_ctx_t* wallet_ctx)
+void transaction_init(wallet_ctx_t* wallet_ctx)
 {
-	//Set wallet
-	dev_wallet = wallet_ctx;
+    //Set wallet
+    dev_wallet = wallet_ctx;
 
-	//Initalize mutex
-	if (pthread_mutex_init(&trans_mutex, NULL) != 0)
-	{
-		printf("\nERROR[%s]: Mutex init failed.\n", __FUNCTION__);
-		return;
-	}
+    //Initalize mutex
+    if (pthread_mutex_init(&trans_mutex, NULL) != 0)
+    {
+        printf("\nERROR[%s]: Mutex init failed.\n", __FUNCTION__);
+        return;
+    }
 
-	PROTOCOL_register_payment_state_callback(recover_transaction);
+    protocol_register_payment_state_callback(recover_transaction);
 }
 
-void TRANSACTION_term(void)
+void transaction_term(void)
 {
-	//Destroy mutex
-	pthread_mutex_destroy(&trans_mutex);
+    //Destroy mutex
+    pthread_mutex_destroy(&trans_mutex);
+
+    protocol_unregister_payment_state_callback();
 }
 
-bool TRANSACTION_store_transaction(char* policy_id, int policy_id_len,
-									char* transaction_hash, int transaction_hash_len)
+bool transaction_store_transaction(char* policy_id, int policy_id_len,
+                                   char* transaction_hash, int transaction_hash_len)
 {
-	int i;
+    int i;
 
-	//Check input parameters
-	if (policy_id == NULL || transaction_hash == NULL)
-	{
-		printf("\nERROR[%s]: Bad input prameter.\n", __FUNCTION__);
-		return FALSE;
-	}
+    //Check input parameters
+    if (policy_id == NULL || transaction_hash == NULL)
+    {
+        printf("\nERROR[%s]: Bad input prameter.\n", __FUNCTION__);
+        return FALSE;
+    }
 
-	pthread_mutex_lock(&trans_mutex);
+    pthread_mutex_lock(&trans_mutex);
 
 #ifdef USE_RPI
-	if (!RPITRANSACTION_store(policy_id, policy_id_len))
-	{
-		printf("\nERROR[%s]: Failed to store transaction.\n", __FUNCTION__);
-		pthread_mutex_unlock(&trans_mutex);
-		return FALSE;
-	}
+    if (!rpitransaction_store(policy_id, policy_id_len))
+    {
+        printf("\nERROR[%s]: Failed to store transaction.\n", __FUNCTION__);
+        pthread_mutex_unlock(&trans_mutex);
+        return FALSE;
+    }
 #else
-	//Add support for other platforms
+    //Add support for other platforms
 #endif
 
-	if (wallet_check_confirmation(dev_wallet, transaction_hash))
-	{
-		//Confirmed transaction
+    if (wallet_check_confirmation(dev_wallet, transaction_hash))
+    {
+        //Confirmed transaction
 #ifdef USE_RPI
-		if (!RPITRANSACTION_update_payment_status(policy_id, policy_id_len, TRUE))
-		{
-			printf("\nERROR[%s]: Failed to store transaction.\n", __FUNCTION__);
-			pthread_mutex_unlock(&trans_mutex);
-			return FALSE;
-		}
+        if (!rpitransaction_update_payment_status(policy_id, policy_id_len, TRUE))
+        {
+            printf("\nERROR[%s]: Failed to store transaction.\n", __FUNCTION__);
+            pthread_mutex_unlock(&trans_mutex);
+            return FALSE;
+        }
 #else
-		//Add support for other platforms
+        //Add support for other platforms
 #endif
-	}
-	else
-	{
-		//Not confirmed.
-		
-		//Clear all confirmed services
-		for (i = 0; i < TRANS_CONF_SERV_MAX_NUM; i++)
-		{
-			if (service[i].transaction_confirmed)
-			{
-				pthread_join(service[i].service->thread_id, NULL);
-				confirmation_service_free(&service[i].service);
-				service[i].service = NULL;
-				service[i].policy_id_len = 0;
-				service[i].transaction_confirmed = FALSE;
-				free(service[i].policy_id);
-			}
-		}
-		
-		//Start confirmation monitoring.
-		for (i = 0; i < TRANS_CONF_SERV_MAX_NUM; i++)
-		{
-			if (service[i].service == NULL)
-			{
-				//First available service
-				break;
-			}
-		}
+    }
+    else
+    {
+        //Not confirmed.
+        
+        //Clear all confirmed services
+        for (i = 0; i < TRANS_CONF_SERV_MAX_NUM; i++)
+        {
+            if (service[i].transaction_confirmed)
+            {
+                pthread_join(service[i].service->thread_id, NULL);
+                confirmation_service_free(&service[i].service);
+                service[i].service = NULL;
+                service[i].policy_id_len = 0;
+                service[i].transaction_confirmed = FALSE;
+                free(service[i].policy_id);
+            }
+        }
+        
+        //Start confirmation monitoring.
+        for (i = 0; i < TRANS_CONF_SERV_MAX_NUM; i++)
+        {
+            if (service[i].service == NULL)
+            {
+                //First available service
+                break;
+            }
+        }
 
-		if (i == TRANS_CONF_SERV_MAX_NUM)
-		{
-			printf("\nERROR[%s]: Transaction confirmation services limit reached.\n", __FUNCTION__);
-			pthread_mutex_unlock(&trans_mutex);
-			return FALSE;
-		}
+        if (i == TRANS_CONF_SERV_MAX_NUM)
+        {
+            printf("\nERROR[%s]: Transaction confirmation services limit reached.\n", __FUNCTION__);
+            pthread_mutex_unlock(&trans_mutex);
+            return FALSE;
+        }
 
-		service[i].service = confirmation_service_start(dev_wallet, transaction_hash, TRANS_INTERVAL_S,
-															TRANS_TIMEOUT_S, transaction_confirmation);
-		service[i].policy_id = malloc(policy_id_len * sizeof(char));
-		service[i].policy_id_len = policy_id_len;
-		service[i].transaction_confirmed = FALSE;
-	}
+        service[i].service = confirmation_service_start(dev_wallet, transaction_hash, TRANS_INTERVAL_S,
+                                                        TRANS_TIMEOUT_S, transaction_confirmation);
+        service[i].policy_id = malloc(policy_id_len * sizeof(char));
+        service[i].policy_id_len = policy_id_len;
+        service[i].transaction_confirmed = FALSE;
+    }
 
-	pthread_mutex_unlock(&trans_mutex);
-	return TRUE;
+    pthread_mutex_unlock(&trans_mutex);
+    return TRUE;
 }
 

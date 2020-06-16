@@ -43,19 +43,21 @@
 #include <string.h>
 
 
-typedef enum {
+typedef enum
+{
 	CANOPEN_SHD_INITIALIZING = 0x00,
 	CANOPEN_SHD_STOPPED = 0x04,
 	CANOPEN_SHD_OPERATIONAL = 0x05,
 	CANOPEN_SHD_PREOPERATIONAL = 0x7f
-} Canopen_service_heartbeat_data_e;
+} canopen_service_heartbeat_data_e;
 
-typedef enum {
+typedef enum
+{
 	CANOPEN_STC_4BYTES = 0x43,
 	CANOPEN_STC_3BYTES = 0x47,
 	CANOPEN_STC_2BYTES = 0x4b,
 	CANOPEN_STC_1BYTE = 0x4f
-} Canopen_service_tsdo_command_e;
+} canopen_service_tsdo_command_e;
 
 #define CANOPEN_JSON_NAME "canopen_data"
 #define CANOPEN_SERVICE_TPDO1 0x180
@@ -77,7 +79,7 @@ typedef enum {
 #define CANOPEN_READ_CANDLC 8
 #define CANOPEN_READ_DATA_READ_COMMAND 0x40
 
-#define CANOPEN_FILL_FRAME_DATA(X) {frame.data[1] = ((X) & 0x00ff00) >> 8; frame.data[2] = ((X) & 0xff0000) >> 16; frame.data[3] = (X) & 0xff; CAN_send_frame(&can_instance.can_connection, &frame); usleep(g_task_sleep_time);}
+#define CANOPEN_FILL_FRAME_DATA(X) {frame.data[1] = ((X) & 0x00ff00) >> 8; frame.data[2] = ((X) & 0xff0000) >> 16; frame.data[3] = (X) & 0xff; can_send_frame(&can_instance.can_connection, &frame); usleep(g_task_sleep_time);}
 
 static canopen01_vehicle_dataset_t *wanted_signals;
 static int end_loop = 0;
@@ -131,7 +133,8 @@ static fjson_object* can_json_filler()
 {
     fjson_object *fj_data_array = fjson_object_new_array();
 
-    if (wanted_signals->bms_bat_voltage == 1) {
+    if (wanted_signals->bms_bat_voltage == 1)
+    {
         fjson_object* fj_obj_tmp = fjson_object_new_object();
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(bms_bat_voltage_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
@@ -142,7 +145,8 @@ static fjson_object* can_json_filler()
         fj_values_array_bms_bat_voltage = NULL;
     }
 
-    if (wanted_signals->analogue_brake_full_voltage == 1) {
+    if (wanted_signals->analogue_brake_full_voltage == 1)
+    {
         fjson_object* fj_obj_tmp = fjson_object_new_object();
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(analogue_brake_full_voltage_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
@@ -153,7 +157,8 @@ static fjson_object* can_json_filler()
         fj_values_array_analogue_brake_full_voltage = NULL;
     }
 
-    if (wanted_signals->analogue_brake_off_voltage == 1) {
+    if (wanted_signals->analogue_brake_off_voltage == 1)
+    {
         fjson_object* fj_obj_tmp = fjson_object_new_object();
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(analogue_brake_off_voltage_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
@@ -164,7 +169,8 @@ static fjson_object* can_json_filler()
         fj_values_array_analogue_brake_off_voltage = NULL;
     }
 
-    if (wanted_signals->controller_temperature == 1) {
+    if (wanted_signals->controller_temperature == 1)
+    {
         fjson_object* fj_obj_tmp = fjson_object_new_object();
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(controller_temperature_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
@@ -175,7 +181,8 @@ static fjson_object* can_json_filler()
         fj_values_array_controller_temperature = NULL;
     }
 
-    if (wanted_signals->vehicle_speed == 1) {
+    if (wanted_signals->vehicle_speed == 1)
+    {
         fjson_object* fj_obj_tmp = fjson_object_new_object();
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(vehicle_speed_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
@@ -186,7 +193,8 @@ static fjson_object* can_json_filler()
         fj_values_array_vehicle_speed = NULL;
     }
 
-    if (wanted_signals->motor_rpm == 1) {
+    if (wanted_signals->motor_rpm == 1)
+    {
         fjson_object* fj_obj_tmp = fjson_object_new_object();
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(motor_rpm_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
@@ -197,7 +205,8 @@ static fjson_object* can_json_filler()
         fj_values_array_motor_rpm = NULL;
     }
 
-    if (wanted_signals->motor_speed == 1) {
+    if (wanted_signals->motor_speed == 1)
+    {
         fjson_object* fj_obj_tmp = fjson_object_new_object();
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(motor_speed_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
@@ -208,7 +217,8 @@ static fjson_object* can_json_filler()
         fj_values_array_motor_speed = NULL;
     }
 
-    if (wanted_signals->battery_voltage == 1) {
+    if (wanted_signals->battery_voltage == 1)
+    {
         fjson_object* fj_obj_tmp = fjson_object_new_object();
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(battery_voltage_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
@@ -219,7 +229,8 @@ static fjson_object* can_json_filler()
         fj_values_array_battery_voltage = NULL;
     }
 
-    if (wanted_signals->battery_current == 1) {
+    if (wanted_signals->battery_current == 1)
+    {
         fjson_object* fj_obj_tmp = fjson_object_new_object();
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(battery_current_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
@@ -230,7 +241,8 @@ static fjson_object* can_json_filler()
         fj_values_array_battery_current = NULL;
     }
 
-    if (wanted_signals->battery_soc == 1) {
+    if (wanted_signals->battery_soc == 1)
+    {
         fjson_object* fj_obj_tmp = fjson_object_new_object();
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(battery_soc_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
@@ -241,7 +253,8 @@ static fjson_object* can_json_filler()
         fj_values_array_battery_soc = NULL;
     }
 
-    if (wanted_signals->throttle_voltage == 1) {
+    if (wanted_signals->throttle_voltage == 1)
+    {
         fjson_object* fj_obj_tmp = fjson_object_new_object();
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(throttle_voltage_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
@@ -252,7 +265,8 @@ static fjson_object* can_json_filler()
         fj_values_array_throttle_voltage = NULL;
     }
 
-    if (wanted_signals->brake_1_voltage == 1) {
+    if (wanted_signals->brake_1_voltage == 1)
+    {
         fjson_object* fj_obj_tmp = fjson_object_new_object();
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(brake_1_voltage_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
@@ -263,7 +277,8 @@ static fjson_object* can_json_filler()
         fj_values_array_brake_1_voltage = NULL;
     }
 
-    if (wanted_signals->brake_2_voltage == 1) {
+    if (wanted_signals->brake_2_voltage == 1)
+    {
         fjson_object* fj_obj_tmp = fjson_object_new_object();
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(brake_2_voltage_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
@@ -274,7 +289,8 @@ static fjson_object* can_json_filler()
         fj_values_array_brake_2_voltage = NULL;
     }
 
-    if (wanted_signals->battery_power_percent == 1) {
+    if (wanted_signals->battery_power_percent == 1)
+    {
         fjson_object* fj_obj_tmp = fjson_object_new_object();
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(battery_power_percent_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
@@ -285,7 +301,8 @@ static fjson_object* can_json_filler()
         fj_values_array_battery_power_percent = NULL;
     }
 
-    if (wanted_signals->raw_battery_voltage == 1) {
+    if (wanted_signals->raw_battery_voltage == 1)
+    {
         fjson_object* fj_obj_tmp = fjson_object_new_object();
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(raw_battery_voltage_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
@@ -296,7 +313,8 @@ static fjson_object* can_json_filler()
         fj_values_array_raw_battery_voltage = NULL;
     }
 
-    if (wanted_signals->wheel_rpm_speed_sensor_based == 1) {
+    if (wanted_signals->wheel_rpm_speed_sensor_based == 1)
+    {
         fjson_object* fj_obj_tmp = fjson_object_new_object();
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(wheel_rpm_speed_sensor_based_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
@@ -307,7 +325,8 @@ static fjson_object* can_json_filler()
         fj_values_array_wheel_rpm_speed_sensor_based = NULL;
     }
 
-    if (wanted_signals->wheel_rpm_motor_based == 1) {
+    if (wanted_signals->wheel_rpm_motor_based == 1)
+    {
         fjson_object* fj_obj_tmp = fjson_object_new_object();
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(wheel_rpm_motor_based_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
@@ -318,7 +337,8 @@ static fjson_object* can_json_filler()
         fj_values_array_wheel_rpm_motor_based = NULL;
     }
 
-    if (wanted_signals->trip_meter == 1) {
+    if (wanted_signals->trip_meter == 1)
+    {
         fjson_object* fj_obj_tmp = fjson_object_new_object();
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(trip_meter_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
@@ -329,7 +349,8 @@ static fjson_object* can_json_filler()
         fj_values_array_trip_meter = NULL;
     }
 
-    if (wanted_signals->remote_throttle_voltage == 1) {
+    if (wanted_signals->remote_throttle_voltage == 1)
+    {
         fjson_object* fj_obj_tmp = fjson_object_new_object();
         fjson_object_object_add(fj_obj_tmp, "name", fjson_object_new_string(remote_throttle_voltage_JSON_NAME));
         fjson_object_array_add(fj_data_array, fj_obj_tmp);
@@ -348,21 +369,24 @@ static fjson_object* can_json_filler()
 static pthread_mutex_t *json_sync_lock;
 static pthread_t canopen_bg_thread;
 static int node_id;
-static CanThread_instance_t can_instance;
+static canthread_instance_t can_instance;
 
-static const int services_nonodeid [CANOPEN_NONODE_ARRAY_SIZE] = {
+static const int services_nonodeid [CANOPEN_NONODE_ARRAY_SIZE] =
+{
     0,
     0x80,
     0x100
 };
 
-static const char services_nonodeid_names[CANOPEN_NONODE_ARRAY_SIZE][CANOPEN_NONODE_STRING_SIZE] = {
+static const char services_nonodeid_names[CANOPEN_NONODE_ARRAY_SIZE][CANOPEN_NONODE_STRING_SIZE] =
+{
     "NMT",
     "SYNC",
     "TIME"
 };
 
-static const int services[CANOPEN_SERVICE_NUM] = {
+static const int services[CANOPEN_SERVICE_NUM] =
+{
     0x080,
     0x180,
     0x200,
@@ -377,7 +401,8 @@ static const int services[CANOPEN_SERVICE_NUM] = {
     0x700
 };
 
-static const char services_names[CANOPEN_SERVICE_NUM][CANOPEN_NONODE_STRING_SIZE] = {
+static const char services_names[CANOPEN_SERVICE_NUM][CANOPEN_NONODE_STRING_SIZE] =
+{
     "EMCY",
     "TPDO1",
     "RPDO1",
@@ -395,34 +420,44 @@ static const char services_names[CANOPEN_SERVICE_NUM][CANOPEN_NONODE_STRING_SIZE
 static void can_read_callback(struct can_frame *frame)
 {
     int found = -1;
-    for (int i=0; i<CANOPEN_NONODE_ARRAY_SIZE; i++){
-        if (frame->can_id == services_nonodeid[i]) {
+    for (int i=0; i<CANOPEN_NONODE_ARRAY_SIZE; i++)
+    {
+        if (frame->can_id == services_nonodeid[i])
+        {
             found = i;
         }
     }
 
-    if (found >= 0) {
+    if (found >= 0)
+    {
         printf("CANopen: %s [%d] ", services_nonodeid_names[found], frame->can_dlc);
-        for (int i=0; i<frame->can_dlc; i++) {
+        for (int i=0; i<frame->can_dlc; i++)
+        {
             printf("%02X", frame->data[i]);
         }
         printf("\n");
         return;
     }
 
-    if (found == -1){
+    if (found == -1)
+    {
         int service = frame->can_id - node_id;
-        for (int i=0; i<CANOPEN_SERVICE_NUM; i++){
-            if (service == services[i]) {
+        for (int i=0; i<CANOPEN_SERVICE_NUM; i++)
+        {
+            if (service == services[i])
+            {
                 found = i;
             }
         }
 
-        if (found >= 0){
-            switch (service) {
+        if (found >= 0)
+        {
+            switch (service)
+            {
                 case CANOPEN_SERVICE_HEARTBEAT:
                     //printf("CANopen - heartbeat: node %02X -", node_id);
-                    switch (frame->data[0]){
+                    switch (frame->data[0])
+                    {
                         case CANOPEN_SHD_INITIALIZING:
                             printf(" boot up (initializing)\n");
                         break;
@@ -440,7 +475,7 @@ static void can_read_callback(struct can_frame *frame)
                             _frame.can_dlc = CANOPEN_SHD_PREOP_CANDLC;
                             _frame.data[0] = CANOPEN_SHD_PREOP_CANDATA0;
                             _frame.data[1] = node_id;
-                            CAN_send_frame(&can_instance.can_connection, &_frame);
+                            can_send_frame(&can_instance.can_connection, &_frame);
                         break;
                         default:
                             printf(" invalid state, should not happen!\n");
@@ -452,7 +487,8 @@ static void can_read_callback(struct can_frame *frame)
                         int command = frame->data[0];
                         int index = frame->data[3] + ((int)frame->data[1] << 8) + ((int)frame->data[2] << 16);
                         int data;
-                        switch (command) {
+                        switch (command)
+                        {
                             case CANOPEN_STC_4BYTES:
                                 data = frame->data[4] + ((int)frame->data[5] << 8) + ((int)frame->data[6] << 16) + ((int)frame->data[7] << 24);
                             break;
@@ -466,53 +502,92 @@ static void can_read_callback(struct can_frame *frame)
                                 data = frame->data[4];
                             break;
                         }
-                        CanopenSdo_parsed_data_t parsed_sdo_data;
-                        CanopenSdo_parse(index, data, &parsed_sdo_data);
+                        canopensdo_parsed_data_t parsed_sdo_data;
+                        canopensdo_parse(index, data, &parsed_sdo_data);
 
                         pthread_mutex_lock(json_sync_lock);
                         fjson_object* fj_value = fjson_object_new_object();
                         fjson_object_object_add(fj_value, "value", fjson_object_new_double(parsed_sdo_data.value));
                         fjson_object_object_add(fj_value, "unit", fjson_object_new_string(parsed_sdo_data.unit));
                         int added = 1;
-                        if (index == CANOPEN_SDO_BMS_BAT_VOLTAGE_IDX && wanted_signals->bms_bat_voltage == 1 && fj_values_array_bms_bat_voltage != NULL) {
+                        if (index == CANOPEN_SDO_BMS_BAT_VOLTAGE_IDX && wanted_signals->bms_bat_voltage == 1 && fj_values_array_bms_bat_voltage != NULL)
+                        {
                             fjson_object_object_add(fj_values_array_bms_bat_voltage, "value", fj_value);
-                        } else if (index == CANOPEN_SDO_ANALOGUE_BRAKE_FULL_VOLTAGE_IDX && wanted_signals->analogue_brake_full_voltage == 1 && fj_values_array_analogue_brake_full_voltage != NULL) {
+                        }
+                        else if (index == CANOPEN_SDO_ANALOGUE_BRAKE_FULL_VOLTAGE_IDX && wanted_signals->analogue_brake_full_voltage == 1 && fj_values_array_analogue_brake_full_voltage != NULL)
+                        {
                             fjson_object_object_add(fj_values_array_analogue_brake_full_voltage, "value", fj_value);
-                        } else if (index == CANOPEN_SDO_ANALOGUE_BRAKE_OFF_VOLTAGE_IDX && wanted_signals->analogue_brake_off_voltage == 1 && fj_values_array_analogue_brake_off_voltage != NULL) {
+                        }
+                        else if (index == CANOPEN_SDO_ANALOGUE_BRAKE_OFF_VOLTAGE_IDX && wanted_signals->analogue_brake_off_voltage == 1 && fj_values_array_analogue_brake_off_voltage != NULL)
+                        {
                             fjson_object_object_add(fj_values_array_analogue_brake_off_voltage, "value", fj_value);
-                        } else if (index == CANOPEN_SDO_CONTROLLER_TEMPERATURE_IDX && wanted_signals->controller_temperature == 1 && fj_values_array_controller_temperature != NULL) {
+                        }
+                        else if (index == CANOPEN_SDO_CONTROLLER_TEMPERATURE_IDX && wanted_signals->controller_temperature == 1 && fj_values_array_controller_temperature != NULL)
+                        {
                             fjson_object_object_add(fj_values_array_controller_temperature, "value", fj_value);
-                        } else if (index == CANOPEN_SDO_VEHICLE_SPEED_IDX && wanted_signals->vehicle_speed == 1 && fj_values_array_vehicle_speed != NULL) {
+                        }
+                        else if (index == CANOPEN_SDO_VEHICLE_SPEED_IDX && wanted_signals->vehicle_speed == 1 && fj_values_array_vehicle_speed != NULL)
+                        {
                             fjson_object_object_add(fj_values_array_vehicle_speed, "value", fj_value);
-                        } else if (index == CANOPEN_SDO_MOTOR_RPM_IDX && wanted_signals->motor_rpm == 1 && fj_values_array_motor_rpm != NULL) {
+                        }
+                        else if (index == CANOPEN_SDO_MOTOR_RPM_IDX && wanted_signals->motor_rpm == 1 && fj_values_array_motor_rpm != NULL)
+                        {
                             fjson_object_object_add(fj_values_array_motor_rpm, "value", fj_value);
-                        } else if (index == CANOPEN_SDO_MOTOR_SPEED_IDX && wanted_signals->motor_speed == 1 && fj_values_array_motor_speed != NULL) {
+                        }
+                        else if (index == CANOPEN_SDO_MOTOR_SPEED_IDX && wanted_signals->motor_speed == 1 && fj_values_array_motor_speed != NULL)
+                        {
                             fjson_object_object_add(fj_values_array_motor_speed, "value", fj_value);
-                        } else if (index == CANOPEN_SDO_BATTERY_VOLTAGE_IDX && wanted_signals->battery_voltage == 1 && fj_values_array_battery_voltage != NULL) {
+                        }
+                        else if (index == CANOPEN_SDO_BATTERY_VOLTAGE_IDX && wanted_signals->battery_voltage == 1 && fj_values_array_battery_voltage != NULL)
+                        {
                             fjson_object_object_add(fj_values_array_battery_voltage, "value", fj_value);
-                        } else if (index == CANOPEN_SDO_BATTERY_CURRENT_IDX && wanted_signals->battery_current == 1 && fj_values_array_battery_current != NULL) {
+                        }
+                        else if (index == CANOPEN_SDO_BATTERY_CURRENT_IDX && wanted_signals->battery_current == 1 && fj_values_array_battery_current != NULL)
+                        {
                             fjson_object_object_add(fj_values_array_battery_current, "value", fj_value);
-                        } else if (index == CANOPEN_SDO_BATTERY_SOC_IDX && wanted_signals->battery_soc == 1 && fj_values_array_battery_soc != NULL) {
+                        }
+                        else if (index == CANOPEN_SDO_BATTERY_SOC_IDX && wanted_signals->battery_soc == 1 && fj_values_array_battery_soc != NULL)
+                        {
                             fjson_object_object_add(fj_values_array_battery_soc, "value", fj_value);
-                        } else if (index == CANOPEN_SDO_THROTTLE_VOLTAGE_IDX && wanted_signals->throttle_voltage == 1 && fj_values_array_throttle_voltage != NULL) {
+                        }
+                        else if (index == CANOPEN_SDO_THROTTLE_VOLTAGE_IDX && wanted_signals->throttle_voltage == 1 && fj_values_array_throttle_voltage != NULL)
+                        {
                             fjson_object_object_add(fj_values_array_throttle_voltage, "value", fj_value);
-                        } else if (index == CANOPEN_SDO_BRAKE_1_VOLTAGE_IDX && wanted_signals->brake_1_voltage == 1 && fj_values_array_brake_1_voltage != NULL) {
+                        }
+                        else if (index == CANOPEN_SDO_BRAKE_1_VOLTAGE_IDX && wanted_signals->brake_1_voltage == 1 && fj_values_array_brake_1_voltage != NULL)
+                        {
                             fjson_object_object_add(fj_values_array_brake_1_voltage, "value", fj_value);
-                        } else if (index == CANOPEN_SDO_BRAKE_2_VOLTAGE_IDX && wanted_signals->brake_2_voltage == 1 && fj_values_array_brake_2_voltage != NULL) {
+                        }
+                        else if (index == CANOPEN_SDO_BRAKE_2_VOLTAGE_IDX && wanted_signals->brake_2_voltage == 1 && fj_values_array_brake_2_voltage != NULL)
+                        {
                             fjson_object_object_add(fj_values_array_brake_2_voltage, "value", fj_value);
-                        } else if (index == CANOPEN_SDO_BATTERY_POWER_PERCENT_IDX && wanted_signals->battery_power_percent == 1 && fj_values_array_battery_power_percent != NULL) {
+                        }
+                        else if (index == CANOPEN_SDO_BATTERY_POWER_PERCENT_IDX && wanted_signals->battery_power_percent == 1 && fj_values_array_battery_power_percent != NULL)
+                        {
                             fjson_object_object_add(fj_values_array_battery_power_percent, "value", fj_value);
-                        } else if (index == CANOPEN_SDO_RAW_BATTERY_VOLTAGE_IDX && wanted_signals->raw_battery_voltage == 1 && fj_values_array_raw_battery_voltage != NULL) {
+                        }
+                        else if (index == CANOPEN_SDO_RAW_BATTERY_VOLTAGE_IDX && wanted_signals->raw_battery_voltage == 1 && fj_values_array_raw_battery_voltage != NULL)
+                        {
                             fjson_object_object_add(fj_values_array_raw_battery_voltage, "value", fj_value);
-                        } else if (index == CANOPEN_SDO_WHEEL_RPM_SPEED_SENSOR_BASED_IDX && wanted_signals->wheel_rpm_speed_sensor_based == 1 && fj_values_array_wheel_rpm_speed_sensor_based != NULL) {
+                        }
+                        else if (index == CANOPEN_SDO_WHEEL_RPM_SPEED_SENSOR_BASED_IDX && wanted_signals->wheel_rpm_speed_sensor_based == 1 && fj_values_array_wheel_rpm_speed_sensor_based != NULL)
+                        {
                             fjson_object_object_add(fj_values_array_wheel_rpm_speed_sensor_based, "value", fj_value);
-                        } else if (index == CANOPEN_SDO_WHEEL_RPM_MOTOR_BASED_IDX && wanted_signals->wheel_rpm_motor_based == 1 && fj_values_array_wheel_rpm_motor_based != NULL) {
+                        }
+                        else if (index == CANOPEN_SDO_WHEEL_RPM_MOTOR_BASED_IDX && wanted_signals->wheel_rpm_motor_based == 1 && fj_values_array_wheel_rpm_motor_based != NULL)
+                        {
                             fjson_object_object_add(fj_values_array_wheel_rpm_motor_based, "value", fj_value);
-                        } else if (index == CANOPEN_SDO_TRIP_METER_IDX && wanted_signals->trip_meter == 1 && fj_values_array_trip_meter != NULL) {
+                        }
+                        else if (index == CANOPEN_SDO_TRIP_METER_IDX && wanted_signals->trip_meter == 1 && fj_values_array_trip_meter != NULL)
+                        {
                             fjson_object_object_add(fj_values_array_trip_meter, "value", fj_value);
-                        } else if (index == CANOPEN_SDO_REMOTE_THROTTLE_VOLTAGE_IDX && wanted_signals->remote_throttle_voltage == 1 && fj_values_array_remote_throttle_voltage != NULL) {
+                        }
+                        else if (index == CANOPEN_SDO_REMOTE_THROTTLE_VOLTAGE_IDX && wanted_signals->remote_throttle_voltage == 1 && fj_values_array_remote_throttle_voltage != NULL)
+                        {
                             fjson_object_object_add(fj_values_array_remote_throttle_voltage, "value", fj_value);
-                        } else {
+                        }
+                        else
+                        {
                             added = 0;
                         }
                         pthread_mutex_unlock(json_sync_lock);
@@ -533,7 +608,8 @@ static void can_read_callback(struct can_frame *frame)
                 break;
                 default:
                     printf("CANopen: %s + %02X [%d] ", services_names[found], node_id, frame->can_dlc);
-                    for (int i=0; i<frame->can_dlc; i++) {
+                    for (int i=0; i<frame->can_dlc; i++)
+                    {
                         printf("%02X", frame->data[i]);
                     }
                     printf("\n");
@@ -545,7 +621,7 @@ static void can_read_callback(struct can_frame *frame)
 }
 
 #ifndef TINY_EMBEDDED
-void CanopenReceiver_preInitSetup()
+void canopenreceiver_pre_init_setup()
 {
     is_in_use = TRUE;
     ConfigManager_get_option_string("canopen", "port_name", port_name, CANOPEN_MAX_STR_SIZE);
@@ -553,14 +629,14 @@ void CanopenReceiver_preInitSetup()
 }
 #endif
 
-void CanopenReceiver_init(canopen01_vehicle_dataset_t *dataset, pthread_mutex_t *json_mutex)
+void canopenreceiver_init(canopen01_vehicle_dataset_t *dataset, pthread_mutex_t *json_mutex)
 {
     wanted_signals = dataset;
     JSONInterface_add_module_init_cb(can_json_filler, &fj_obj_canopen, CANOPEN_JSON_NAME);
     json_sync_lock = json_mutex;
     ConfigManager_get_option_string("canopen", "port_name", port_name, CANOPEN_MAX_STR_SIZE);
     ConfigManager_get_option_int("canopen", "node_id", &node_id);
-    CanThread_init(&can_instance, port_name, can_read_callback);
+    canthread_init(&can_instance, port_name, can_read_callback);
 #ifdef TINY_EMBEDDED
     is_in_use = TRUE;
 #endif
@@ -571,16 +647,19 @@ static void* canopen_bg_thread_func(void* _)
     int sync_counter = 0;
 
     int read_counter = 0;
-    while (end_loop != 1) {
-        if (sync_counter++ > (CANOPEN_SYNC_COUNTER_PRESCALER / g_task_sleep_time) || (CANOPEN_SYNC_COUNTER_PRESCALER / g_task_sleep_time) == 0) {
+    while (end_loop != 1)
+    {
+        if (sync_counter++ > (CANOPEN_SYNC_COUNTER_PRESCALER / g_task_sleep_time) || (CANOPEN_SYNC_COUNTER_PRESCALER / g_task_sleep_time) == 0)
+        {
             sync_counter = 0;
             struct can_frame frame;
             frame.can_id = CANOPEN_SYNC_CANID;
             frame.can_dlc = CANOPEN_SYNC_CANDLC;
-            CAN_send_frame(&can_instance.can_connection, &frame);
+            can_send_frame(&can_instance.can_connection, &frame);
         }
 
-        if (read_counter++ > (CANOPEN_READ_COUNTER_PRESCALER / g_task_sleep_time) || (CANOPEN_READ_COUNTER_PRESCALER / g_task_sleep_time) == 0) {
+        if (read_counter++ > (CANOPEN_READ_COUNTER_PRESCALER / g_task_sleep_time) || (CANOPEN_READ_COUNTER_PRESCALER / g_task_sleep_time) == 0)
+        {
             read_counter = 0;
             struct can_frame frame;
             frame.can_id = CANOPEN_READ_CANIDBASE + node_id;
@@ -592,75 +671,93 @@ static void* canopen_bg_thread_func(void* _)
             frame.data[7] = 0;
             uint8_t *wanted_signals_array = (uint8_t*)&wanted_signals;
 
-            if (wanted_signals->bms_bat_voltage == 1) {
+            if (wanted_signals->bms_bat_voltage == 1)
+            {
                 CANOPEN_FILL_FRAME_DATA(CANOPEN_SDO_BMS_BAT_VOLTAGE_IDX);
             }
 
-            if (wanted_signals->analogue_brake_off_voltage == 1) {
+            if (wanted_signals->analogue_brake_off_voltage == 1)
+            {
                 CANOPEN_FILL_FRAME_DATA(CANOPEN_SDO_ANALOGUE_BRAKE_OFF_VOLTAGE_IDX);
             }
 
-            if (wanted_signals->controller_temperature == 1) {
+            if (wanted_signals->controller_temperature == 1)
+            {
                 CANOPEN_FILL_FRAME_DATA(CANOPEN_SDO_CONTROLLER_TEMPERATURE_IDX);
             }
 
-            if (wanted_signals->vehicle_speed == 1) {
+            if (wanted_signals->vehicle_speed == 1)
+            {
                 CANOPEN_FILL_FRAME_DATA(CANOPEN_SDO_VEHICLE_SPEED_IDX);
             }
 
-            if (wanted_signals->motor_rpm == 1) {
+            if (wanted_signals->motor_rpm == 1)
+            {
                 CANOPEN_FILL_FRAME_DATA(CANOPEN_SDO_MOTOR_RPM_IDX);
             }
 
-            if (wanted_signals->motor_speed == 1) {
+            if (wanted_signals->motor_speed == 1)
+            {
                 CANOPEN_FILL_FRAME_DATA(CANOPEN_SDO_MOTOR_SPEED_IDX);
             }
 
-            if (wanted_signals->battery_voltage == 1) {
+            if (wanted_signals->battery_voltage == 1)
+            {
                 CANOPEN_FILL_FRAME_DATA(CANOPEN_SDO_BATTERY_VOLTAGE_IDX);
             }
 
-            if (wanted_signals->battery_current == 1) {
+            if (wanted_signals->battery_current == 1)
+            {
                 CANOPEN_FILL_FRAME_DATA(CANOPEN_SDO_BATTERY_CURRENT_IDX);
             }
 
-            if (wanted_signals->battery_soc == 1) {
+            if (wanted_signals->battery_soc == 1)
+            {
                 CANOPEN_FILL_FRAME_DATA(CANOPEN_SDO_BATTERY_SOC_IDX);
             }
 
-            if (wanted_signals->throttle_voltage == 1) {
+            if (wanted_signals->throttle_voltage == 1)
+            {
                 CANOPEN_FILL_FRAME_DATA(CANOPEN_SDO_THROTTLE_VOLTAGE_IDX);
             }
 
-            if (wanted_signals->brake_1_voltage == 1) {
+            if (wanted_signals->brake_1_voltage == 1)
+            {
                 CANOPEN_FILL_FRAME_DATA(CANOPEN_SDO_BRAKE_1_VOLTAGE_IDX);
             }
 
-            if (wanted_signals->brake_2_voltage == 1) {
+            if (wanted_signals->brake_2_voltage == 1)
+            {
                 CANOPEN_FILL_FRAME_DATA(CANOPEN_SDO_BRAKE_2_VOLTAGE_IDX);
             }
 
-            if (wanted_signals->battery_power_percent == 1) {
+            if (wanted_signals->battery_power_percent == 1)
+            {
                 CANOPEN_FILL_FRAME_DATA(CANOPEN_SDO_BATTERY_POWER_PERCENT_IDX);
             }
 
-            if (wanted_signals->raw_battery_voltage == 1) {
+            if (wanted_signals->raw_battery_voltage == 1)
+            {
                 CANOPEN_FILL_FRAME_DATA(CANOPEN_SDO_RAW_BATTERY_VOLTAGE_IDX);
             }
 
-            if (wanted_signals->wheel_rpm_speed_sensor_based == 1) {
+            if (wanted_signals->wheel_rpm_speed_sensor_based == 1)
+            {
                 CANOPEN_FILL_FRAME_DATA(CANOPEN_SDO_WHEEL_RPM_SPEED_SENSOR_BASED_IDX);
             }
 
-            if (wanted_signals->wheel_rpm_motor_based == 1) {
+            if (wanted_signals->wheel_rpm_motor_based == 1)
+            {
                 CANOPEN_FILL_FRAME_DATA(CANOPEN_SDO_WHEEL_RPM_MOTOR_BASED_IDX);
             }
 
-            if (wanted_signals->trip_meter == 1) {
+            if (wanted_signals->trip_meter == 1)
+            {
                 CANOPEN_FILL_FRAME_DATA(CANOPEN_SDO_TRIP_METER_IDX);
             }
 
-            if (wanted_signals->remote_throttle_voltage == 1) {
+            if (wanted_signals->remote_throttle_voltage == 1)
+            {
                 CANOPEN_FILL_FRAME_DATA(CANOPEN_SDO_REMOTE_THROTTLE_VOLTAGE_IDX);
             }
 #undef CANOPEN_FILL_FRAME_DATA
@@ -670,34 +767,36 @@ static void* canopen_bg_thread_func(void* _)
     }
 }
 
-int CanopenReceiver_start()
+int canopenreceiver_start()
 {
-    if (CanThread_start(&can_instance)){
+    if (canthread_start(&can_instance))
+    {
         fprintf(stderr, "Error creating CANopen read thread\n");
         return 1;
     }
 
-    if (pthread_create(&canopen_bg_thread, NULL, canopen_bg_thread_func, NULL)){
+    if (pthread_create(&canopen_bg_thread, NULL, canopen_bg_thread_func, NULL))
+    {
         fprintf(stderr, "Error creating CANopen bg thread\n");
         return 1;
     }
 }
 
-void CanopenReceiver_deinit()
+void canopenreceiver_deinit()
 {
     end_loop = 1;
-    CanThread_stop(&can_instance);
+    canthread_stop(&can_instance);
 #ifdef TINY_EMBEDDED
     is_in_use = FALSE;
 #endif
 }
 
-bool CanopenReceiver_isInUse()
+bool canopenreceiver_is_in_use()
 {
     return is_in_use;
 }
 
-void CanopenReceiver_getPortName(char* p_name_buff, int p_name_buff_len)
+void canopenreceiver_get_port_name(char* p_name_buff, int p_name_buff_len)
 {
     if (p_name_buff != NULL && p_name_buff_len > 0)
     {
@@ -705,7 +804,7 @@ void CanopenReceiver_getPortName(char* p_name_buff, int p_name_buff_len)
     }
 }
 
-int CanopenReceiver_getNodeId(void)
+int canopenreceiver_get_node_id(void)
 {
     return node_id;
 }

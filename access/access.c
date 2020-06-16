@@ -46,7 +46,8 @@
 #define CONFIG_CLIENT_CANOPEN01 "canopen01"
 #define CONFIG_CLIENT_OBDII "obdii"
 
-typedef struct {
+typedef struct
+{
     int using_can;
     int using_gps;
     int using_obdii;
@@ -55,103 +56,105 @@ typedef struct {
     int using_modbus;
     char client_name[MAX_CLIENT_NAME];
     pthread_mutex_t *json_mutex;
-    Dataset_state_t ddstate;
-} Access_ctx_t_;
+    dataset_state_t ddstate;
+} access_ctx_t_;
 
-void Access_init(Access_ctx_t *access_context, wallet_ctx_t *device_wallet)
+void access_init(access_ctx_t *access_context, wallet_ctx_t *device_wallet)
 {
     if (device_wallet == NULL)
     {
         access_context = NULL;
         return;
     }
-    Access_ctx_t_ *ctx = calloc(1, sizeof(Access_ctx_t_));
+    access_ctx_t_ *ctx = calloc(1, sizeof(access_ctx_t_));
 
     ConfigManager_init("config.ini");
     ConfigManager_get_option_string("config", "client", ctx->client_name, MAX_CLIENT_NAME);
 
     // Register plugins
     Timer_init();
-    Storage_init();
+    storage_init();
 
-    PEP_init();
-    PROTOCOL_init(device_wallet);
-    TRANSACTION_init(device_wallet);
+    pep_init();
+    protocol_init(device_wallet);
+    transaction_init(device_wallet);
 
     ctx->json_mutex = JSONInterface_get_mutex();
 
     if (strncmp(ctx->client_name, CONFIG_CLIENT_CAN01, strlen(CONFIG_CLIENT_CAN01)) == 0)
     {
-        Resolver_init(DemoWalletPlugin_initializer, &ctx->ddstate, (void*)device_wallet);
+        resolver_init(demowalletplugin_initializer, &ctx->ddstate, (void*)device_wallet);
 #ifdef TINY_EMBEDDED
         ctx->ddstate.options = &VehicleDatasetDemo01_options[0];
         ctx->ddstate.dataset = malloc(sizeof(can01_vehicle_dataset_t));
-        Dataset_init(&ctx->ddstate);
-        CanReceiver_init(ctx->ddstate.dataset, json_mutex);
+        dataset_init(&ctx->ddstate);
+        canreceiver_init(ctx->ddstate.dataset, json_mutex);
         //GpsReceiver_init(json_mutex);
         ctx->using_can = 1;
         //ctx->using_gps = 1;
 #else
-        CanReceiver_preInitSetup();
+        canreceiver_pre_init_setup();
 #endif
     }
     else if (strncmp(ctx->client_name, CONFIG_CLIENT_CANOPEN01, strlen(CONFIG_CLIENT_CANOPEN01)) == 0)
     {
-        Resolver_init(DemoWalletPlugin_initializer, &ctx->ddstate, (void*)device_wallet);
+        resolver_init(demowalletplugin_initializer, &ctx->ddstate, (void*)device_wallet);
 #ifdef TINY_EMBEDDED
         ctx->ddstate.options = &VehicleDatasetDemo02_options[0];
         ctx->ddstate.dataset = malloc(sizeof(canopen01_vehicle_dataset_t));
-        Dataset_init(&ctx->ddstate);
-        CanopenReceiver_init(ctx->ddstate.dataset, ctx->json_mutex);
+        dataset_init(&ctx->ddstate);
+        canopenreceiver_init(ctx->ddstate.dataset, ctx->json_mutex);
         //ModbusReceiver_init(ctx->ddstate.dataset, ctx->json_mutex);
         ctx->using_canopen = 1;
         //ctx->using_modbus = 1;
 #else
-        CanopenReceiver_preInitSetup();
+        canopenreceiver_pre_init_setup();
 #endif
     }
     else if (strncmp(ctx->client_name, CONFIG_CLIENT_OBDII, strlen(CONFIG_CLIENT_OBDII)) == 0)
     {
-        ObdiiReceiver_init("can0", ctx->json_mutex);
+        obdiireceiver_init("can0", ctx->json_mutex);
         ctx->using_obdii = 1;
     }
 
-    *access_context = (Access_ctx_t)ctx;
+    *access_context = (access_ctx_t)ctx;
     JSONInterface_init();
 }
 
-void Access_start(Access_ctx_t access_context)
+void access_start(access_ctx_t access_context)
 {
-    Access_ctx_t_ *ctx = (Access_ctx_t_*)access_context;
+    access_ctx_t_ *ctx = (access_ctx_t_*)access_context;
 
-    PolicyLoader_start();
+    policyloader_start();
 
-    if (ctx->using_modbus == 1) ModbusReceiver_start();
-    if (ctx->using_can == 1) CanReceiver_start();
-    if (ctx->using_gps == 1) GpsReceiver_start();
-    if (ctx->using_canopen == 1) CanopenReceiver_start();
+    if (ctx->using_modbus == 1) modbusreceiver_start();
+    if (ctx->using_can == 1) canreceiver_start();
+    if (ctx->using_gps == 1) gpsreceiver_start();
+    if (ctx->using_canopen == 1) canopenreceiver_start();
 }
 
-void Access_deinit(Access_ctx_t access_context)
+void access_deinit(access_ctx_t access_context)
 {
-    Access_ctx_t_ *ctx = (Access_ctx_t_*)access_context;
+    access_ctx_t_ *ctx = (access_ctx_t_*)access_context;
 
-    if (ctx->using_canopen == 1) CanopenReceiver_deinit();
-    if (ctx->using_gps == 1) GpsReceiver_end();
-    if (ctx->using_can == 1) CanReceiver_deinit();
-    if (ctx->using_modbus == 1) ModbusReceiver_stop();
+    if (ctx->using_canopen == 1) canopenreceiver_deinit();
+    if (ctx->using_gps == 1) gpsreceiver_end();
+    if (ctx->using_can == 1) canreceiver_deinit();
+    if (ctx->using_modbus == 1) modbusreceiver_stop();
 
-    PolicyLoader_stop();
+    policyloader_stop();
 
     JSONInterface_deinit();
     if (ctx->ddstate.dataset != 0)
-        Dataset_deinit(&ctx->ddstate);
+    {
+        dataset_deinit(&ctx->ddstate);
+    }
 
     Timer_deinit();
 }
 
-void Access_get_ddstate(Access_ctx_t access_context, Dataset_state_t **ddstate)
+void access_get_ddstate(access_ctx_t access_context, dataset_state_t **ddstate)
 {
-    Access_ctx_t_ *ctx = (Access_ctx_t_*)access_context;
+    access_ctx_t_ *ctx = (access_ctx_t_*)access_context;
     *ddstate = &ctx->ddstate;
 }

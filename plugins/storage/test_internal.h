@@ -56,7 +56,7 @@
 #define TEST_POL_ID_MAX_LEN 64
 
 #if PAP_STORAGE_TEST_ACIVE
-#define TEST_POLICY_STORAGE(X) {if (!TEST_policy_storage()) return X;}
+#define TEST_POLICY_STORAGE(X) {if (!test_policy_storage()) return X;}
 #else
 #define TEST_POLICY_STORAGE(X)
 #endif
@@ -65,7 +65,7 @@
  * TEST API
  ****************************************************************************/
 /**
- * @fn      TEST_policy_storage
+ * @fn      test_policy_storage
  *
  * @brief   Test policy store-get-delete cycle
  *
@@ -73,4 +73,4 @@
  *
  * @return  TRUE - test passed, FALSE - test fail
  */
-bool TEST_policy_storage();
+bool test_policy_storage();
