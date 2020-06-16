@@ -463,7 +463,7 @@ static int cycle_fsm()
     return 0;
 }
 
-void PolicyLoader_init()
+void policyloader_init()
 {
     ConfigManager_get_option_string("config", "device_id", g_device_id, POLICY_LOADER_STR_LEN);
     int status = ConfigManager_get_option_int("config", "thread_sleep_period", &g_task_sleep_time);
@@ -473,14 +473,14 @@ void PolicyLoader_init()
 
 static void *policy_loader_thread_function(void *arg);
 
-int PolicyLoader_start()
+int policyloader_start()
 {
     g_end = 0;
     pthread_create(&g_thread, NULL, policy_loader_thread_function, NULL);
     return 0;
 }
 
-int PolicyLoader_stop()
+int policyloader_stop()
 {
     g_end = 1;
     pthread_join(g_thread, NULL);

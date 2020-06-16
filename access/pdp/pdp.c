@@ -65,9 +65,9 @@ static int resolve_attribute(char *pol, char *policy_id, int atribute_position);
 /****************************************************************************
  * LOCAL FUNCTIONS DEFINITION
  ****************************************************************************/
-static PDP_operation_e get_operation_new(const char *operation, int size)
+static pdp_operation_e get_operation_new(const char *operation, int size)
 {
-    PDP_operation_e ret = UNDEFINED;
+    pdp_operation_e ret = UNDEFINED;
 
     if (size == 2)
     {
@@ -177,7 +177,7 @@ static int or(char *policy_object, char *policy_id, int attribute_list)
     return decision;
 }
 
-static int resolve_condition(char *policy_object, char* policy_id, int attribute_list, PDP_operation_e condition)
+static int resolve_condition(char *policy_object, char* policy_id, int attribute_list, pdp_operation_e condition)
 {
     char uri[PDP_MAX_STR_LEN] = {0};
     char data_value[PDP_DATA_VAL_SIZE] = {0};
@@ -193,7 +193,7 @@ static int resolve_condition(char *policy_object, char* policy_id, int attribute
     int value2 = -1;
     int size_of_type2 = -1;
     int size_of_value2 = -1;
-    PIP_attribute_object_t attribute;
+    pip_attribute_object_t attribute;
 
     memset(attribute.type, 0, sizeof(char) * PIP_MAX_STR_LEN);
     memset(attribute.value, 0, sizeof(char) * PIP_MAX_STR_LEN);
@@ -212,7 +212,7 @@ static int resolve_condition(char *policy_object, char* policy_id, int attribute
     //If any authority other than iota is to be supported, this needs to be modified
     sprintf(uri, "iota:%s/%s?%s", policy_id, data_type, data_value);
 
-    if (PIP_get_data(uri, &attribute) == PIP_NO_ERROR)
+    if (pip_get_data(uri, &attribute) == PIP_NO_ERROR)
     {
         size_of_type1 = get_size_of_token(type1);
         size_of_type2 = strlen(attribute.type);
@@ -302,7 +302,7 @@ static int resolve_condition(char *policy_object, char* policy_id, int attribute
     return ret;
 }
 
-static void get_time_from_attr(char *policy_object, int atribute_position, PDP_operation_e attr_operation, unsigned long *start_time, unsigned long *end_time)
+static void get_time_from_attr(char *policy_object, int atribute_position, pdp_operation_e attr_operation, unsigned long *start_time, unsigned long *end_time)
 {
     if (policy_object == NULL)
     {
@@ -321,7 +321,7 @@ static void get_time_from_attr(char *policy_object, int atribute_position, PDP_o
     int operation_end = -1;
     int attribute_list = -1;
     int i = 0;
-    PDP_operation_e opt;
+    pdp_operation_e opt;
 
     if ((operation != -1) && (get_start_of_token(operation) < get_end_of_token(atribute_position)))// Check only operations within this json object
     {
@@ -414,7 +414,7 @@ static void get_time_from_attr(char *policy_object, int atribute_position, PDP_o
 static int resolve_attribute(char *policy_object, char *policy_id, int atribute_position)
 {
     int ret = -1;
-    PDP_operation_e opt;
+    pdp_operation_e opt;
 
     int operation = json_get_token_index_from_pos(policy_object, atribute_position, "operation");
     int operation_start = -1;
@@ -560,7 +560,7 @@ static int resolve_obligation(char *policy_object, char *policy_id, int obl_posi
     int operation_start = -1;
     int operation_end = -1;
     int obl_value = -1;
-    PDP_operation_e opt;
+    pdp_operation_e opt;
 
     if (policy_object == NULL || obligation == NULL)
     {
@@ -629,17 +629,17 @@ static int resolve_obligation(char *policy_object, char *policy_id, int obl_posi
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
-bool PDP_init()
+bool pdp_init()
 {
     //Initialize PAP
-    if (PAP_init() == PAP_ERROR)
+    if (pap_init() == PAP_ERROR)
     {
         printf("\nERROR[%s]: PAP initialization failed.\n", __FUNCTION__);
         return FALSE;
     }
 
     //Initialize PIP
-    if (PIP_init() == PIP_ERROR)
+    if (pip_init() == PIP_ERROR)
     {
         printf("\nERROR[%s]: PIP initialization failed.\n", __FUNCTION__);
         return FALSE;
@@ -648,17 +648,17 @@ bool PDP_init()
     return TRUE;
 }
 
-bool PDP_term(void)
+bool pdp_term(void)
 {
     //Terminate PAP
-    if (PAP_term() == PAP_ERROR)
+    if (pap_term() == PAP_ERROR)
     {
         printf("\nERROR[%s]: PAP termination failed.\n", __FUNCTION__);
         return FALSE;
     }
 
     //Terminate PIP
-    if (PIP_term() == PIP_ERROR)
+    if (pip_term() == PIP_ERROR)
     {
         printf("\nERROR[%s]: PIP termination failed.\n", __FUNCTION__);
         return FALSE;
@@ -668,7 +668,7 @@ bool PDP_term(void)
 }
 
 //TODO: obligations should be linked list of the elements of the 'obligation_s' structure type
-PDP_decision_e PDP_calculate_decision(char *request_norm, char *obligation, PDP_action_t *action)
+pdp_decision_e pdp_calculate_decision(char *request_norm, char *obligation, pdp_action_t *action)
 {
     char user_str[PDP_USER_LEN] = {0};
     char *policy_object = NULL;
@@ -679,8 +679,8 @@ PDP_decision_e PDP_calculate_decision(char *request_norm, char *obligation, PDP_
     int tr_hash = -1;
     int size = -1;
     int pol_obj_len = 0;
-    PDP_decision_e ret = PDP_ERROR;
-    PAP_policy_t policy;
+    pdp_decision_e ret = PDP_ERROR;
+    pap_policy_t policy;
 
     //Check input parameters
     if(request_norm == NULL || obligation == NULL || action == NULL || action->value == NULL)
@@ -697,7 +697,7 @@ PDP_decision_e PDP_calculate_decision(char *request_norm, char *obligation, PDP_
     memcpy(action->pol_id_str, request_norm + get_start_of_token(request_policy_id), size * sizeof(char));
 
     //Get pol. object size and allocate policy object
-    if (PAP_get_policy_obj_len(action->pol_id_str, size, &pol_obj_len) == PAP_ERROR)
+    if (pap_get_policy_obj_len(action->pol_id_str, size, &pol_obj_len) == PAP_ERROR)
     {
         Dlog_printf("\nERROR[%s]: Could not get the policy object length.\n", __FUNCTION__);
         return PDP_ERROR;
@@ -736,7 +736,7 @@ PDP_decision_e PDP_calculate_decision(char *request_norm, char *obligation, PDP_
     policy.policy_object.policy_object = policy_object;
 
     //Get policy from PAP
-    if (PAP_get_policy(action->pol_id_str, size, &policy) == PAP_ERROR)
+    if (pap_get_policy(action->pol_id_str, size, &policy) == PAP_ERROR)
     {
         Dlog_printf("\nERROR[%s]: Could not get the policy.\n", __FUNCTION__);
         free(policy_object);
@@ -787,19 +787,19 @@ PDP_decision_e PDP_calculate_decision(char *request_norm, char *obligation, PDP_
         if (memcmp(action->value, "get_actions", strlen("get_actions")))
         {
             char uri[PDP_MAX_STR_LEN] = {0};
-            PAP_action_list_t *action_elem = NULL;
-            PIP_attribute_object_t attribute;
+            pap_action_list_t *action_elem = NULL;
+            pip_attribute_object_t attribute;
 
             //Get action list
-            PAP_get_subjects_list_of_actions(user_str, strlen(user_str), &action->action_list);
+            pap_get_subjects_list_of_actions(user_str, strlen(user_str), &action->action_list);
 
             //Fill is payed value
             action_elem = action->action_list;
             while (action_elem)
             {
-                memset(&attribute, 0, sizeof(PIP_attribute_object_t));
+                memset(&attribute, 0, sizeof(pip_attribute_object_t));
                 sprintf(uri, "iota:%s/request.isPayed.type?request.isPayed.value", action_elem->policy_ID_str);
-                PIP_get_data(uri, &attribute);
+                pip_get_data(uri, &attribute);
                 if (memcmp(attribute.value, "verified", strlen("verified")) == 0)
                 {
                     action_elem->is_available.is_payed = PAP_PAYED_VERIFIED;
@@ -813,9 +813,9 @@ PDP_decision_e PDP_calculate_decision(char *request_norm, char *obligation, PDP_
                     action_elem->is_available.is_payed = PAP_NOT_PAYED;
                 }
 
-                memset(&attribute, 0, sizeof(PIP_attribute_object_t));
+                memset(&attribute, 0, sizeof(pip_attribute_object_t));
                 sprintf(uri, "iota:%s/request.walletAddress.type?request.walletAddress.value", action_elem->policy_ID_str);
-                PIP_get_data(uri, &attribute);
+                pip_get_data(uri, &attribute);
                 memcpy(action_elem->is_available.wallet_address, attribute.value, PDP_WALLET_ADDR_LEN);
 
                 action_elem = action_elem->next;

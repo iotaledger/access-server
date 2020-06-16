@@ -101,8 +101,8 @@ int main(int argc, char** argv)
 
     // Validate
     fclose(fp);
-    Validator_report_t report;
-    Validator_check(policy_data, &report);
+    validator_report_t report;
+    validator_check(policy_data, &report);
 
     printf("validator report:\n - valid json: %s\n - proper format: %s\n",
         YESNO(report.valid_json == 1),
@@ -110,7 +110,7 @@ int main(int argc, char** argv)
 
     if (argc >= 3)
     {
-        Optimizator_optimize_pol(policy_data, argv[2]);
+        optimizator_optimize_pol(policy_data, argv[2]);
     }
 
     return 0;

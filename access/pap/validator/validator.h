@@ -63,7 +63,7 @@ typedef enum
     FL_HAS_POLID = 0x04,
     FL_HAS_POLOB = 0x08,
     FL_HAS_ALL = 0x0F
-} Validator_policy_first_level_e;
+} validator_policy_first_level_e;
 
 typedef enum
 {
@@ -73,7 +73,7 @@ typedef enum
     DG_HAS_ATTLIST = 0x04,
     DG_HAS_OPP = 0x08,
     DG_HAS_ALL = 0x0F
-} Validator_policy_docgoc_level_e;
+} validator_policy_docgoc_level_e;
 
 typedef enum
 {
@@ -82,7 +82,7 @@ typedef enum
     CT_HASH_FN,
     CT_ID,
     CT_TIME
-} Validator_cmp_types_e;
+} validator_cmp_types_e;
 
 typedef enum
 {
@@ -90,7 +90,7 @@ typedef enum
     CR_TRUE,
     CR_NOT_SUPPORTED,
     CR_BAD_ARG
-} Validator_check_res_e;
+} validator_check_res_e;
 
 /***************************************************************************
  * STRUCTURES
@@ -102,11 +102,11 @@ typedef struct
     int no_dead_code;
     int boundaries_met;
     int suspicious_conditions;
-} Validator_report_t;
+} validator_report_t;
 
 /***************************************************************************
  * FUNCTION DECLARATIONS
 ****************************************************************************/
-void Validator_check(const char*, Validator_report_t*);
+void validator_check(const char*, validator_report_t*);
 
 #endif

@@ -23,14 +23,14 @@
 #include "dataset.h"
 #include "wallet.h"
 
-typedef void* Access_ctx_t;
+typedef void* access_ctx_t;
 
-void Access_init(Access_ctx_t *access_context, wallet_ctx_t *device_wallet);
+void access_init(access_ctx_t *access_context, wallet_ctx_t *device_wallet);
 
-void Access_start(Access_ctx_t access_context);
+void access_start(access_ctx_t access_context);
 
-void Access_deinit(Access_ctx_t access_context);
+void access_deinit(access_ctx_t access_context);
 
-void Access_get_ddstate(Access_ctx_t access_context, Dataset_state_t **ddstate);
+void access_get_ddstate(access_ctx_t access_context, dataset_state_t **ddstate);
 
 #endif

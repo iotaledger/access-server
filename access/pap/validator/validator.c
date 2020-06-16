@@ -84,7 +84,7 @@ static int n = 0; // number of tokens
  *           CR_NOT_SUPPORTED - not supported type
  *           CR_BAD_ARG - bad argument
  */
-Validator_check_res_e check_eq(void *val1, void *val2, Validator_cmp_types_e type)
+validator_check_res_e check_eq(void *val1, void *val2, validator_cmp_types_e type)
 {
     char *tok;
     int *int_val_1;
@@ -174,7 +174,7 @@ Validator_check_res_e check_eq(void *val1, void *val2, Validator_cmp_types_e typ
  *           CR_NOT_SUPPORTED - not supported type
  *           CR_BAD_ARG - bad argument
  */
-Validator_check_res_e check_leq(void *val1, void *val2, Validator_cmp_types_e type)
+validator_check_res_e check_leq(void *val1, void *val2, validator_cmp_types_e type)
 {
     char *tok;
     int *int_val_1;
@@ -248,7 +248,7 @@ Validator_check_res_e check_leq(void *val1, void *val2, Validator_cmp_types_e ty
  *           CR_NOT_SUPPORTED - not supported type
  *           CR_BAD_ARG - bad argument
  */
-Validator_check_res_e check_geq(void *val1, void *val2, Validator_cmp_types_e type)
+validator_check_res_e check_geq(void *val1, void *val2, validator_cmp_types_e type)
 {
     char *tok;
     int *int_val_1;
@@ -322,7 +322,7 @@ Validator_check_res_e check_geq(void *val1, void *val2, Validator_cmp_types_e ty
  *           CR_NOT_SUPPORTED - not supported type
  *           CR_BAD_ARG - bad argument
  */
-Validator_check_res_e check_lte(void *val1, void *val2, Validator_cmp_types_e type)
+validator_check_res_e check_lte(void *val1, void *val2, validator_cmp_types_e type)
 {
     char *tok;
     int *int_val_1;
@@ -396,7 +396,7 @@ Validator_check_res_e check_lte(void *val1, void *val2, Validator_cmp_types_e ty
  *           CR_NOT_SUPPORTED - not supported type
  *           CR_BAD_ARG - bad argument
  */
-Validator_check_res_e check_gte(void *val1, void *val2, Validator_cmp_types_e type)
+validator_check_res_e check_gte(void *val1, void *val2, validator_cmp_types_e type)
 {
     char *tok;
     int *int_val_1;
@@ -468,7 +468,7 @@ Validator_check_res_e check_gte(void *val1, void *val2, Validator_cmp_types_e ty
  */
 static int check_gocdoc_object(jsmntok_t* tokens, int obj_idx, int max_idx, const char* policy_data)
 {
-    Validator_policy_docgoc_level_e ret = DG_HAS_NONE;
+    validator_policy_docgoc_level_e ret = DG_HAS_NONE;
 
     int next_object_index = obj_idx;
 
@@ -544,7 +544,7 @@ static int check_gocdoc_object(jsmntok_t* tokens, int obj_idx, int max_idx, cons
                                 int op_len = tokens[operation_idx + 1].end - tokens[operation_idx + 1].start;
                                 char operation_val[op_len];
                                 memcpy(operation_val, &policy_data[tokens[operation_idx + 1].start], op_len);
-                                Parser_operations_e op = Parser_get_op(operation_val, op_len);
+                                parser_operations_e op = Parser_get_op(operation_val, op_len);
 
                                 // if operation is LTE or LEQ, time is end-time
                                 if (op == OP_LTE || op == OP_LEQ)
@@ -608,11 +608,11 @@ static int check_gocdoc_object(jsmntok_t* tokens, int obj_idx, int max_idx, cons
  *              report - validation report
  *  Returns: void
  */
-void Validator_check(const char* policy_data, Validator_report_t* report)
+void validator_check(const char* policy_data, validator_report_t* report)
 {
     jsmn_parser parser;
     jsmn_init(&parser);
-    memset(report, 0, sizeof(Validator_report_t));
+    memset(report, 0, sizeof(validator_report_t));
 
     jsmntok_t tokens[VALIDATOR_MAX_TOKENS];
     n = jsmn_parse(&parser, policy_data, strlen(policy_data), tokens, VALIDATOR_MAX_TOKENS);
@@ -658,7 +658,7 @@ void Validator_check(const char* policy_data, Validator_report_t* report)
             // Second level tokens
             int policy_object_idx = -1;
             int policy_object_end_idx = -1;
-            Validator_policy_first_level_e found_everyone = FL_HAS_NONE;
+            validator_policy_first_level_e found_everyone = FL_HAS_NONE;
             for (int i = 2; i < n; i++)
             {
                 if (tokens[i].size != 1)
@@ -756,9 +756,9 @@ void Validator_check(const char* policy_data, Validator_report_t* report)
                 }
                 else
                 {
-                    Validator_policy_docgoc_level_e check_doc = DG_HAS_NONE;
-                    Validator_policy_docgoc_level_e check_goc = DG_HAS_NONE;
-                    Validator_policy_docgoc_level_e found_doc_goc = DG_HAS_NONE;
+                    validator_policy_docgoc_level_e check_doc = DG_HAS_NONE;
+                    validator_policy_docgoc_level_e check_goc = DG_HAS_NONE;
+                    validator_policy_docgoc_level_e found_doc_goc = DG_HAS_NONE;
 
                     /* policy_goc or policy_doc must contain keys "attribute_list" and "operation"
                        attribute_list value may be one of two types of arrays:

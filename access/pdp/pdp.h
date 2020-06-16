@@ -74,7 +74,7 @@ typedef enum
     LT,
     GT,
     IF
-} PDP_operation_e;
+} pdp_operation_e;
 
 typedef enum
 {
@@ -83,7 +83,7 @@ typedef enum
     TIME,
     BOOLEAN,
     UNKNOWN
-} PDP_type_e;
+} pdp_type_e;
 
 typedef enum
 {
@@ -92,17 +92,17 @@ typedef enum
     PDP_GRANT = 1,
     PDP_DENY = 2,
     PDP_CONFLICT = 3
-} PDP_decision_e;
+} pdp_decision_e;
 
 /****************************************************************************
  * TYPES
  ****************************************************************************/
 typedef struct attribute_value
 {
-    PDP_type_e type;
+    pdp_type_e type;
     void *value;
     int size;
-} PDP_attribute_value_t;
+} pdp_attribute_value_t;
 
 typedef struct action
 {
@@ -114,14 +114,14 @@ typedef struct action
     char* transaction_hash;
     int transaction_hash_len;
     char* value;
-    PAP_action_list_t* action_list;
-} PDP_action_t;
+    pap_action_list_t* action_list;
+} pdp_action_t;
 
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
 /**
- * @fn      PDP_init
+ * @fn      pdp_init
  *
  * @brief   Initialize module
  *
@@ -129,10 +129,10 @@ typedef struct action
  *
  * @return  TRUE on success, FALSE on failure
  */
-bool PDP_init(void);
+bool pdp_init(void);
 
 /**
- * @fn      PDP_term
+ * @fn      pdp_term
  *
  * @brief   Terminate module
  *
@@ -140,10 +140,10 @@ bool PDP_init(void);
  *
  * @return  TRUE on success, FALSE on failure
  */
-bool PDP_term(void);
+bool pdp_term(void);
 
 /**
- * @fn      PDP_calculate_decision
+ * @fn      pdp_calculate_decision
  *
  * @brief   Function that computes decision for PEP
  *
@@ -154,6 +154,6 @@ bool PDP_term(void);
  * @return  pdp_decision decision made
  */
 //TODO: obligations should be linked list of the elements of the 'obligation_s' structure type
-PDP_decision_e PDP_calculate_decision(char *request_norm, char *obligation, PDP_action_t *action);
+pdp_decision_e pdp_calculate_decision(char *request_norm, char *obligation, pdp_action_t *action);
 
 #endif //_PDP_H_

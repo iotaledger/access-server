@@ -56,17 +56,17 @@ typedef struct
     int using_modbus;
     char client_name[MAX_CLIENT_NAME];
     pthread_mutex_t *json_mutex;
-    Dataset_state_t ddstate;
-} Access_ctx_t_;
+    dataset_state_t ddstate;
+} access_ctx_t_;
 
-void Access_init(Access_ctx_t *access_context, wallet_ctx_t *device_wallet)
+void access_init(access_ctx_t *access_context, wallet_ctx_t *device_wallet)
 {
     if (device_wallet == NULL)
     {
         access_context = NULL;
         return;
     }
-    Access_ctx_t_ *ctx = calloc(1, sizeof(Access_ctx_t_));
+    access_ctx_t_ *ctx = calloc(1, sizeof(access_ctx_t_));
 
     ConfigManager_init("config.ini");
     ConfigManager_get_option_string("config", "client", ctx->client_name, MAX_CLIENT_NAME);
@@ -117,13 +117,13 @@ void Access_init(Access_ctx_t *access_context, wallet_ctx_t *device_wallet)
         ctx->using_obdii = 1;
     }
 
-    *access_context = (Access_ctx_t)ctx;
+    *access_context = (access_ctx_t)ctx;
     JSONInterface_init();
 }
 
-void Access_start(Access_ctx_t access_context)
+void access_start(access_ctx_t access_context)
 {
-    Access_ctx_t_ *ctx = (Access_ctx_t_*)access_context;
+    access_ctx_t_ *ctx = (access_ctx_t_*)access_context;
 
     PolicyLoader_start();
 
@@ -133,9 +133,9 @@ void Access_start(Access_ctx_t access_context)
     if (ctx->using_canopen == 1) CanopenReceiver_start();
 }
 
-void Access_deinit(Access_ctx_t access_context)
+void access_deinit(access_ctx_t access_context)
 {
-    Access_ctx_t_ *ctx = (Access_ctx_t_*)access_context;
+    access_ctx_t_ *ctx = (access_ctx_t_*)access_context;
 
     if (ctx->using_canopen == 1) CanopenReceiver_deinit();
     if (ctx->using_gps == 1) GpsReceiver_end();
@@ -153,8 +153,8 @@ void Access_deinit(Access_ctx_t access_context)
     Timer_deinit();
 }
 
-void Access_get_ddstate(Access_ctx_t access_context, Dataset_state_t **ddstate)
+void access_get_ddstate(access_ctx_t access_context, dataset_state_t **ddstate)
 {
-    Access_ctx_t_ *ctx = (Access_ctx_t_*)access_context;
+    access_ctx_t_ *ctx = (access_ctx_t_*)access_context;
     *ddstate = &ctx->ddstate;
 }

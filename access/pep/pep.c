@@ -112,7 +112,7 @@ static int normalize_request(char *request, int request_len, char **request_norm
     return charCnt;
 }
 
-static int append_action_item_to_str(char *str, int pos, PAP_action_list_t *action_item)
+static int append_action_item_to_str(char *str, int pos, pap_action_list_t *action_item)
 {
     if(action_item == NULL)
     {
@@ -177,11 +177,11 @@ static int append_action_item_to_str(char *str, int pos, PAP_action_list_t *acti
     return buffer_position - pos;
 }
 
-static int list_to_string(PAP_action_list_t *action_list, char *output_str)
+static int list_to_string(pap_action_list_t *action_list, char *output_str)
 {
     output_str[0] = '[';
     int buffer_position = 1;
-    PAP_action_list_t *action_list_temp = action_list;
+    pap_action_list_t *action_list_temp = action_list;
 
     while(action_list_temp != NULL)
     {
@@ -203,7 +203,7 @@ static resolver_fn callback_resolver = NULL;
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
-bool PEP_init()
+bool pep_init()
 {
     //Initialize mutex
     if (pthread_mutex_init(&pep_mutex, NULL) != 0)
@@ -213,7 +213,7 @@ bool PEP_init()
     }
 
     //Initialize PDP module
-    if (PDP_init() == FALSE)
+    if (pdp_init() == FALSE)
     {
         printf("\nERROR[%s]: PDP init failed.\n", __FUNCTION__);
         return FALSE;
@@ -222,13 +222,13 @@ bool PEP_init()
     return TRUE;
     }
 
-bool PEP_term(void)
+bool pep_term(void)
 {
     //Destroy mutex
     pthread_mutex_destroy(&pep_mutex);
 
     //Terminate PDP module
-    if (PDP_term() == FALSE)
+    if (pdp_term() == FALSE)
     {
         printf("\nERROR[%s]: PDP term failed.\n", __FUNCTION__);
         return FALSE;
@@ -237,7 +237,7 @@ bool PEP_term(void)
     return TRUE;
 }
 
-bool PEP_register_callback(resolver_fn resolver)
+bool pep_register_callback(resolver_fn resolver)
 {
     //Check input parameter
     if (resolver == NULL)
@@ -263,7 +263,7 @@ bool PEP_register_callback(resolver_fn resolver)
     return TRUE;
 }
 
-bool PEP_unregister_callback(void)
+bool pep_unregister_callback(void)
 {
     pthread_mutex_lock(&pep_mutex);
 
@@ -275,15 +275,15 @@ bool PEP_unregister_callback(void)
     return TRUE;
 }
 
-bool PEP_request_access(char *request, void *response)
+bool pep_request_access(char *request, void *response)
 {
     char action_value[PEP_ACTION_LEN];
     //TODO: obligations should be linked list of the elements of the 'obligation_s' structure type
     char obligation[PDP_OBLIGATION_LEN];
     char tangle_address[PEP_IOTA_ADDR_LEN];
     char *norm_request = NULL;
-    PDP_action_t action;
-    PDP_decision_e ret = PDP_ERROR;
+    pdp_action_t action;
+    pdp_decision_e ret = PDP_ERROR;
 
     //Check input parameter
     if (request == NULL || response == NULL)
@@ -308,11 +308,11 @@ bool PEP_request_access(char *request, void *response)
     }
 
     //Calculate decision and get action + obligation
-    ret = PDP_calculate_decision(norm_request, obligation, &action);
+    ret = pdp_calculate_decision(norm_request, obligation, &action);
 
     if (memcmp(action.value, "get_actions", strlen("get_actions")))
     {
-        PAP_action_list_t *temp = NULL;
+        pap_action_list_t *temp = NULL;
 
         list_to_string(action.action_list, (char *)response);
 

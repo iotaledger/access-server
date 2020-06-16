@@ -210,13 +210,13 @@ static void get_SHA256_hash(char *msg, int msg_len, char *hash_val)
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
-PAP_error_e PAP_init(void)
+pap_error_e pap_init(void)
 {
     //Generate keypair
     crypto_sign_keypair(public_key, private_key);
 
     //Init User Management
-    User_init();
+    user_init();
 
     //Initalize mutex
     if (pthread_mutex_init(&pap_mutex, NULL) != 0)
@@ -228,10 +228,10 @@ PAP_error_e PAP_init(void)
     return PAP_NO_ERROR;
 }
 
-PAP_error_e PAP_term(void)
+pap_error_e pap_term(void)
 {
     //Term User Management
-    User_deinit();
+    user_deinit();
 
     //Destroy mutex
     pthread_mutex_destroy(&pap_mutex);
@@ -239,7 +239,7 @@ PAP_error_e PAP_term(void)
     return PAP_NO_ERROR;
 }
 
-PAP_error_e PAP_register_callbacks(put_fn put, get_fn get, has_fn has, del_fn del, get_pol_obj_len_fn get_pol_obj_len, get_all_fn get_all)
+pap_error_e pap_register_callbacks(put_fn put, get_fn get, has_fn has, del_fn del, get_pol_obj_len_fn get_pol_obj_len, get_all_fn get_all)
 {
     /*
     Plugin doesn't need to use all callbacks, so any of parrameters can be NULL.
@@ -260,7 +260,7 @@ PAP_error_e PAP_register_callbacks(put_fn put, get_fn get, has_fn has, del_fn de
     return PAP_NO_ERROR;
 }
 
-PAP_error_e PAP_unregister_callbacks(void)
+pap_error_e pap_unregister_callbacks(void)
 {
     pthread_mutex_lock(&pap_mutex);
 
@@ -276,7 +276,7 @@ PAP_error_e PAP_unregister_callbacks(void)
     return PAP_NO_ERROR;
 }
 
-PAP_error_e PAP_add_policy(char *signed_policy, int signed_policy_size, char *parsed_policy_id)
+pap_error_e pap_add_policy(char *signed_policy, int signed_policy_size, char *parsed_policy_id)
 {
     char policy_id[PAP_POL_ID_MAX_LEN + 1] = {0};
     char policy_obj_hash[PAP_POL_ID_MAX_LEN + 1] = {0};
@@ -290,12 +290,12 @@ PAP_error_e PAP_add_policy(char *signed_policy, int signed_policy_size, char *pa
     int tok_num = 0;
     unsigned long long policy_size = 0;
     unsigned long long smlen;
-    PAP_policy_object_t policy_object;
-    PAP_policy_id_signature_t policy_id_signature;
-    PAP_hash_functions_e hash_fn;
+    pap_policy_object_t policy_object;
+    pap_policy_id_signature_t policy_id_signature;
+    pap_hash_functions_e hash_fn;
     jsmn_parser parser;
     jsmntok_t tokens[PAP_MAX_TOKENS];
-    Validator_report_t report;
+    validator_report_t report;
 
     //Check input parameters (parsed_policy_id is optional)
     if (signed_policy == NULL || signed_policy_size == 0)
@@ -321,8 +321,8 @@ PAP_error_e PAP_add_policy(char *signed_policy, int signed_policy_size, char *pa
     }
 
     //Check policy validity
-    memset(&report, 0, sizeof(Validator_report_t));
-    Validator_check(policy, &report);
+    memset(&report, 0, sizeof(validator_report_t));
+    validator_check(policy, &report);
     if ((report.valid_json == 0) || (report.proper_format == 0))
     {
         printf("\nERROR[%s]: Invalid policy.\n", __FUNCTION__);
@@ -466,7 +466,7 @@ PAP_error_e PAP_add_policy(char *signed_policy, int signed_policy_size, char *pa
     return PAP_NO_ERROR;
 }
 
-PAP_error_e PAP_get_policy(char *policy_id, int policy_id_len, PAP_policy_t *policy)
+pap_error_e pap_get_policy(char *policy_id, int policy_id_len, pap_policy_t *policy)
 {
     char policy_id_hex[PAP_POL_ID_MAX_LEN + 1] = {0};
     char calc_policy_id[PAP_POL_ID_MAX_LEN + 1] = {0};
@@ -541,7 +541,7 @@ PAP_error_e PAP_get_policy(char *policy_id, int policy_id_len, PAP_policy_t *pol
     return PAP_NO_ERROR;
 }
 
-bool PAP_has_policy(char *policy_id, int policy_id_len)
+bool pap_has_policy(char *policy_id, int policy_id_len)
 {
     char policy_id_hex[PAP_POL_ID_MAX_LEN + 1] = {0};
 
@@ -576,7 +576,7 @@ bool PAP_has_policy(char *policy_id, int policy_id_len)
     }
 }
 
-PAP_error_e PAP_remove_policy(char *policy_id, int policy_id_len)
+pap_error_e pap_remove_policy(char *policy_id, int policy_id_len)
 {
     char policy_id_hex[PAP_POL_ID_MAX_LEN + 1] = {0};
 
@@ -613,7 +613,7 @@ PAP_error_e PAP_remove_policy(char *policy_id, int policy_id_len)
     return PAP_NO_ERROR;
 }
 
-PAP_error_e PAP_get_policy_obj_len(char *policy_id, int policy_id_len, int *pol_obj_len)
+pap_error_e pap_get_policy_obj_len(char *policy_id, int policy_id_len, int *pol_obj_len)
 {
     char policy_id_hex[PAP_POL_ID_MAX_LEN + 1] = {0};
 
@@ -651,13 +651,13 @@ PAP_error_e PAP_get_policy_obj_len(char *policy_id, int policy_id_len, int *pol_
     return PAP_NO_ERROR;
 }
 
-PAP_error_e PAP_get_subjects_list_of_actions(char *subject_id, int subject_id_length, PAP_action_list_t **action_list)
+pap_error_e pap_get_subjects_list_of_actions(char *subject_id, int subject_id_length, pap_action_list_t **action_list)
 {
     int tok_num = 0;
     jsmn_parser parser;
     jsmntok_t tokens[PAP_MAX_TOKENS];
-    PAP_policy_id_list_t *pol_id_list = NULL;
-    PAP_policy_id_list_t *prev = NULL;
+    pap_policy_id_list_t *pol_id_list = NULL;
+    pap_policy_id_list_t *prev = NULL;
 
     //Check input parameter
     if (subject_id == NULL || subject_id_length == 0)
@@ -692,11 +692,11 @@ PAP_error_e PAP_get_subjects_list_of_actions(char *subject_id, int subject_id_le
         char *pol_obj = NULL;
         int pol_obj_len;
         int action = -1;
-        PAP_policy_object_t policy_object;
-        PAP_policy_id_signature_t policy_id_signature;
-        PAP_hash_functions_e hash_fn;
-        PAP_action_list_t *action_elem = NULL;
-        PAP_action_list_t *action_temp = NULL;
+        pap_policy_object_t policy_object;
+        pap_policy_id_signature_t policy_id_signature;
+        pap_hash_functions_e hash_fn;
+        pap_action_list_t *action_elem = NULL;
+        pap_action_list_t *action_temp = NULL;
 
         //Get obj. len
         if (callback_get_pol_obj_len)
@@ -753,8 +753,8 @@ PAP_error_e PAP_get_subjects_list_of_actions(char *subject_id, int subject_id_le
             char pol_id_str[PAP_POL_ID_MAX_LEN * 2 + 1] = {0};
             uint64_t index;
 
-            action_elem = malloc(sizeof(PAP_action_list_t));
-            memset(action_elem, 0, sizeof(PAP_action_list_t));
+            action_elem = malloc(sizeof(pap_action_list_t));
+            memset(action_elem, 0, sizeof(pap_action_list_t));
 
             if (hex_to_str(pol_id_list->policy_ID, pol_id_str, PAP_POL_ID_MAX_LEN) != UTILS_STRING_SUCCESS)
             {
@@ -797,13 +797,13 @@ PAP_error_e PAP_get_subjects_list_of_actions(char *subject_id, int subject_id_le
 }
 
 #if PAP_STORAGE_TEST_ACIVE
-void PAP_register_get_pk_cb(get_pk cb)
+void pap_register_get_pk_cb(get_pk cb)
 {
     callback_get_pk = cb;
 }
 #endif
 
-void PAP_user_management_action(PAP_user_mng_req_e request, ...)
+void pap_user_management_action(pap_user_mng_req_e request, ...)
 {
     va_list valist;
 
@@ -816,7 +816,7 @@ void PAP_user_management_action(PAP_user_mng_req_e request, ...)
         {
             char* response;
             response = va_arg(valist, char*);
-            User_get_all(response);
+            user_get_all(response);
             break;
         }
         case PAP_USERMNG_GET_USER:
@@ -825,7 +825,7 @@ void PAP_user_management_action(PAP_user_mng_req_e request, ...)
             char* response;
             id = va_arg(valist, char*);
             response = va_arg(valist, char*);
-            User_get_obj(id, response);
+            user_get_obj(id, response);
             break;
         }
         case PAP_USERMNG_PUT_USER:
@@ -834,7 +834,7 @@ void PAP_user_management_action(PAP_user_mng_req_e request, ...)
             char* json_response;
             json_string = va_arg(valist, char*);
             json_response = va_arg(valist, char*);
-            User_put_obj(json_string, json_response);
+            user_put_obj(json_string, json_response);
             break;
         }
         case PAP_USERMNG_GET_USER_ID:
@@ -843,14 +843,14 @@ void PAP_user_management_action(PAP_user_mng_req_e request, ...)
             char* json_string;
             username = va_arg(valist, char*);
             json_string = va_arg(valist, char*);
-            User_get_user_id(username, json_string);
+            user_get_user_id(username, json_string);
             break;
         }
         case PAP_USERMNG_CLR_ALL_USR:
         {
             char* response;
             response = va_arg(valist, char*);
-            User_clear_all(response);
+            user_clear_all(response);
             break;
         }
         default:

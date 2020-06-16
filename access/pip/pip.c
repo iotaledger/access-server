@@ -60,7 +60,7 @@ static fetch_fn callback_fetch[PIP_MAX_AUTH_CALLBACKS] = {0};
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
-PIP_error_e PIP_init(void)
+pip_error_e pip_init(void)
 {
     //Initalize mutex
     if (pthread_mutex_init(&pip_mutex, NULL) != 0)
@@ -72,7 +72,7 @@ PIP_error_e PIP_init(void)
     return PIP_NO_ERROR;
 }
 
-PIP_error_e PIP_term(void)
+pip_error_e pip_term(void)
 {
     //Destroy mutex
     pthread_mutex_destroy(&pip_mutex);
@@ -80,7 +80,7 @@ PIP_error_e PIP_term(void)
     return PIP_NO_ERROR;
 }
 
-PIP_error_e PIP_register_callback(PIP_authorities_e authority, fetch_fn fetch)
+pip_error_e pip_register_callback(pip_authorities_e authority, fetch_fn fetch)
 {
     pthread_mutex_lock(&pip_mutex);
 
@@ -115,7 +115,7 @@ PIP_error_e PIP_register_callback(PIP_authorities_e authority, fetch_fn fetch)
     return PIP_NO_ERROR;
 }
 
-PIP_error_e PIP_unregister_callback(PIP_authorities_e authority)
+pip_error_e pip_unregister_callback(pip_authorities_e authority)
 {
     pthread_mutex_lock(&pip_mutex);
 
@@ -134,7 +134,7 @@ PIP_error_e PIP_unregister_callback(PIP_authorities_e authority)
     return PIP_NO_ERROR;
 }
 
-PIP_error_e PIP_unregister_all_callbacks(void)
+pip_error_e pip_unregister_all_callbacks(void)
 {
     pthread_mutex_lock(&pip_mutex);
 
@@ -149,12 +149,12 @@ PIP_error_e PIP_unregister_all_callbacks(void)
     return PIP_NO_ERROR;
 }
 
-PIP_error_e PIP_get_data(char* uri, PIP_attribute_object_t* attribute)
+pip_error_e pip_get_data(char* uri, pip_attribute_object_t* attribute)
 {
     char delimiter[PIP_DELIMITER_LEN] = ":";
     char temp[PIP_MAX_STR_LEN] = {0};
     char *ptr = NULL;
-    PIP_authorities_e authority;
+    pip_authorities_e authority;
 
     pthread_mutex_lock(&pip_mutex);
 

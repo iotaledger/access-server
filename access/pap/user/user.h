@@ -22,12 +22,12 @@
 
 #include "user_implementation.h"
 
-int User_init();
-void User_deinit();
-void User_get_all(char* json_response);
-void User_get_obj(const char* username, char* json_response);
-void User_put_obj(const char* user_object, char* json_response);
-void User_get_user_id(const char* username, char* json_response);
-void User_clear_all(char* json_response);
+int user_init();
+void user_deinit();
+void user_get_all(char* json_response);
+void user_get_obj(const char* username, char* json_response);
+void user_put_obj(const char* user_object, char* json_response);
+void user_get_user_id(const char* username, char* json_response);
+void user_clear_all(char* json_response);
 
 #endif
