@@ -360,6 +360,20 @@ IOTA Access Server is designed to run on Embedded Systems and IoT devices. Thus,
 
 [CMake](https://cmake.org/) v3.11 is used as Build System.
 
+[ClangFormat](https://clang.llvm.org/docs/ClangFormat.html) is used to ensure that the codebase is formatted under the same style. [GNU  style](https://clang.llvm.org/docs/ClangFormatStyleOptions.html#configurable-format-style-options) is used with a few modifications, namely:
+
+```
+AlwaysBreakAfterDefinitionReturnType: None
+AlwaysBreakAfterReturnType: None
+BraceWrapping:
+  IndentBraces: false
+BreakBeforeBraces: Custom
+IndentCaseLabels: true
+IndentWidth: 4
+SpaceBeforeParens: ControlStatements
+
+```
+
 ## Environment
 [environment]: #environment
 <!--
