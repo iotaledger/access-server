@@ -92,8 +92,8 @@ bool store_policy(char* policy_id, pap_policy_object_t policy_object, pap_policy
 
     //Call function for storing policy on used platform
 #ifdef USE_RPI
-    return RPI_store_policy(policy_id, policy_object.policy_object, policy_object.policy_object_size, policy_object.cost,
-                            policy_id_signature.signature, policy_id_signature.public_key, sign_algorithm, hash_function);
+    return rpistorage_store_policy(policy_id, policy_object.policy_object, policy_object.policy_object_size, policy_object.cost,
+                                   policy_id_signature.signature, policy_id_signature.public_key, sign_algorithm, hash_function);
 #else
     //TODO: Support for other platforms will be added here
 #endif
@@ -113,9 +113,9 @@ bool acquire_policy(char* policy_id, pap_policy_object_t* policy_object, pap_pol
 
     //Call function for storing policy on used platform
 #ifdef USE_RPI
-    if (RPI_acquire_policy(policy_id, policy_object->policy_object, &(policy_object->policy_object_size), policy_object->cost,
-                           policy_id_signature->signature, policy_id_signature->public_key, sign_algorithm, 
-                           hash_function) == FALSE)
+    if (rpistorage_acquire_policy(policy_id, policy_object->policy_object, &(policy_object->policy_object_size), policy_object->cost,
+                                  policy_id_signature->signature, policy_id_signature->public_key, sign_algorithm, 
+                                  hash_function) == FALSE)
     {
         printf("\nERROR[%s]: Could not acquire policy from R-Pi.\n", __FUNCTION__);
         return FALSE;
@@ -158,7 +158,7 @@ bool check_if_stored_policy(char* policy_id)
 
     //Call function for checking if policy is stored on used platform
 #ifdef USE_RPI
-    return RPI_check_if_stored_policy(policy_id);
+    return rpistorage_check_if_stored_policy(policy_id);
 #else
     //TODO: Support for other platforms will be added here
 #endif
@@ -175,7 +175,7 @@ bool flush_policy(char* policy_id)
 
     //Call function for checking if policy is stored on used platform
 #ifdef USE_RPI
-    return RPI_flush_policy(policy_id);
+    return rpistorage_flush_policy(policy_id);
 #else
     //TODO: Support for other platforms will be added here
 #endif
@@ -192,7 +192,7 @@ bool acquire_pol_obj_len(char* policy_id, int* pol_obj_len)
 
     //Call function for geting if policy object length
 #ifdef USE_RPI
-    *pol_obj_len = RPI_get_pol_obj_len(policy_id);
+    *pol_obj_len = rpistorage_get_pol_obj_len(policy_id);
 #else
     //TODO: Support for other platforms will be added here
 #endif
@@ -212,7 +212,7 @@ bool acquire_all_policies(pap_policy_id_list_t **pol_list_head)
     pap_policy_id_list_t *temp = NULL;
     FILE *f;
 
-    f = fopen(RPI_get_stored_pol_info_file(), "r");
+    f = fopen(rpistorage_get_stored_pol_info_file(), "r");
     if (f == NULL)
     {
         printf("\nERROR[%s]: No stored policies info file.\n", __FUNCTION__);
@@ -273,7 +273,7 @@ bool acquire_all_policies(pap_policy_id_list_t **pol_list_head)
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
-STORAGE_error_t Storage_init(void)
+storage_error_t storage_init(void)
 {
     //Register PAP callback
     if (pap_register_callbacks(store_policy, acquire_policy, check_if_stored_policy,
@@ -286,7 +286,7 @@ STORAGE_error_t Storage_init(void)
     return STORAGE_OK;
 }
 
-STORAGE_error_t Storage_term(void)
+storage_error_t storage_term(void)
 {
     //Unregoster PAP callback
     if (pap_unregister_callbacks() == PAP_ERROR)

@@ -57,32 +57,32 @@ typedef enum
 {
     STORAGE_OK,
     STORAGE_ERROR,
-} STORAGE_error_t;
+} storage_error_t;
 
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
 /**
- * @fn      Storage_init
+ * @fn      storage_init
  *
  * @brief   Initialize storage module
  *
  * @param   void
  *
- * @return  STORAGE_error_t state.
+ * @return  storage_error_t state.
  */
-STORAGE_error_t Storage_init(void);
+storage_error_t storage_init(void);
 
 /**
- * @fn      Storage_term
+ * @fn      storage_term
  *
  * @brief   Terminate storage module
  *
  * @param   void
  *
- * @return  STORAGE_error_t state.
+ * @return  storage_error_t state.
  */
-STORAGE_error_t Storage_term(void);
+storage_error_t storage_term(void);
 
 
 #endif //_STORAGE_H_

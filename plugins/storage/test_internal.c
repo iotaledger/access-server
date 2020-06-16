@@ -115,7 +115,7 @@ static int normalize_object(char *object, int object_len, char **object_normaliz
 /****************************************************************************
  * TEST API
  ****************************************************************************/
-bool TEST_policy_storage()
+bool test_policy_storage()
 {
     bool ret = TRUE;
     char policy_id[TEST_POL_ID_MAX_LEN] = {0};

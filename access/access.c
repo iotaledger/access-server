@@ -73,7 +73,7 @@ void access_init(access_ctx_t *access_context, wallet_ctx_t *device_wallet)
 
     // Register plugins
     Timer_init();
-    Storage_init();
+    storage_init();
 
     pep_init();
     protocol_init(device_wallet);

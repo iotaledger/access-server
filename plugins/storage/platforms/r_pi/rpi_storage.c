@@ -50,7 +50,7 @@
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
-bool RPI_store_policy(char* policy_id, char* policy_object, int policy_object_size,
+bool rpistorage_store_policy(char* policy_id, char* policy_object, int policy_object_size,
                       char* policy_cost, char* signature, char* public_key,
                       char* signature_algorithm, char* hash_function)
 {
@@ -117,7 +117,7 @@ bool RPI_store_policy(char* policy_id, char* policy_object, int policy_object_si
     return TRUE;
 }
 
-bool RPI_acquire_policy(char* policy_id, char* policy_object, int *policy_object_size,
+bool rpistorage_acquire_policy(char* policy_id, char* policy_object, int *policy_object_size,
                         char* policy_cost, char* signature, char* public_key,
                         char* signature_algorithm, char* hash_function)
 {
@@ -195,7 +195,7 @@ bool RPI_acquire_policy(char* policy_id, char* policy_object, int *policy_object
     return TRUE;
 }
 
-bool RPI_check_if_stored_policy(char* policy_id)
+bool rpistorage_check_if_stored_policy(char* policy_id)
 {
     char pol_path[RPI_MAX_STR_LEN] = {0};
     char pol_id_str[RPI_POL_ID_MAX_LEN * 2 + 1] = {0};
@@ -228,7 +228,7 @@ bool RPI_check_if_stored_policy(char* policy_id)
     }
 }
 
-bool RPI_flush_policy(char* policy_id)
+bool rpistorage_flush_policy(char* policy_id)
 {
     char pol_path[RPI_MAX_STR_LEN] = {0};
     char pol_id_str[RPI_POL_ID_MAX_LEN * 2 + 1] = {0};
@@ -304,7 +304,7 @@ bool RPI_flush_policy(char* policy_id)
     }
 }
 
-int RPI_get_pol_obj_len(char* policy_id)
+int rpistorage_get_pol_obj_len(char* policy_id)
 {
     char pol_path[RPI_MAX_STR_LEN] = {0};
     char pol_id_str[RPI_POL_ID_MAX_LEN * 2 + 1] = {0};
@@ -351,7 +351,7 @@ int RPI_get_pol_obj_len(char* policy_id)
     return ret;
 }
 
-char* RPI_get_stored_pol_info_file(void)
+char* rpistorage_get_stored_pol_info_file(void)
 {
     return "../../plugins/storage/platforms/r_pi/policies/stored_policies.txt";
 }

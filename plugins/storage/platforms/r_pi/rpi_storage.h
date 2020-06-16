@@ -50,7 +50,7 @@
  * API FUNCTIONS
  ****************************************************************************/
 /**
- * @fn      RPI_store_policy
+ * @fn      rpistorage_store_policy
  *
  * @brief   Save policy on R-PI file system
  * 
@@ -65,12 +65,12 @@
  *
  * @return  TRUE - success, FALSE - error
  */
-bool RPI_store_policy(char* policy_id, char* policy_object, int policy_object_size,
+bool rpistorage_store_policy(char* policy_id, char* policy_object, int policy_object_size,
                       char* policy_cost, char* signature, char* public_key,
                       char* signature_algorithm, char* hash_function);
 
 /**
- * @fn      RPI_acquire_policy
+ * @fn      rpistorage_acquire_policy
  *
  * @brief   Acquire policy from R-PI file system
  * 
@@ -85,12 +85,12 @@ bool RPI_store_policy(char* policy_id, char* policy_object, int policy_object_si
  *
  * @return  TRUE - success, FALSE - error
  */
-bool RPI_acquire_policy(char* policy_id, char* policy_object, int *policy_object_size,
+bool rpistorage_acquire_policy(char* policy_id, char* policy_object, int *policy_object_size,
                         char* policy_cost, char* signature, char* public_key,
                         char* signature_algorithm, char* hash_function);
 
 /**
- * @fn      RPI_check_if_stored_policy
+ * @fn      rpistorage_check_if_stored_policy
  *
  * @brief   Check if policy is stored
  * 
@@ -98,10 +98,10 @@ bool RPI_acquire_policy(char* policy_id, char* policy_object, int *policy_object
  *
  * @return  TRUE - stored, FALSE - not stored
  */
-bool RPI_check_if_stored_policy(char* policy_id);
+bool rpistorage_check_if_stored_policy(char* policy_id);
 
 /**
- * @fn      RPI_flush_policy
+ * @fn      rpistorage_flush_policy
  *
  * @brief   Delete policy from R-PI file system
  * 
@@ -109,10 +109,10 @@ bool RPI_check_if_stored_policy(char* policy_id);
  *
  * @return  TRUE - success, FALSE - error
  */
-bool RPI_flush_policy(char* policy_id);
+bool rpistorage_flush_policy(char* policy_id);
 
 /**
- * @fn      RPI_get_pol_obj_len
+ * @fn      rpistorage_get_pol_obj_len
  *
  * @brief   Get length of stored policy's policy object
  *
@@ -120,10 +120,10 @@ bool RPI_flush_policy(char* policy_id);
  *
  * @return  Length of stored policy's policy object
  */
-int RPI_get_pol_obj_len(char* policy_id);
+int rpistorage_get_pol_obj_len(char* policy_id);
 
 /**
- * @fn      RPI_get_stored_pol_info_file
+ * @fn      rpistorage_get_stored_pol_info_file
  *
  * @brief   Acquire path to the file which keeps stored policies info
  *
@@ -131,6 +131,6 @@ int RPI_get_pol_obj_len(char* policy_id);
  *
  * @return  Path to the file which keeps stored policies info
  */
-char* RPI_get_stored_pol_info_file(void);
+char* rpistorage_get_stored_pol_info_file(void);
 
 #endif //_RPI_STORAGE_H_
