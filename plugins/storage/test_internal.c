@@ -132,14 +132,14 @@ bool TEST_policy_storage()
     unsigned long long signed_buff_len = 0;
     unsigned long long signed_pol_id_ver_len = 0;
     FILE *f = NULL;
-    PAP_policy_t policy;
+    pap_policy_t policy;
 
     //Generate keypair
     crypto_sign_keypair(public_key, private_key);
 
 #if PAP_STORAGE_TEST_ACIVE
     //Register pk callback
-    PAP_register_get_pk_cb(provide_public_key);
+    pap_register_get_pk_cb(provide_public_key);
 #endif
 
     //Load test policy to a buffer
@@ -168,14 +168,14 @@ bool TEST_policy_storage()
     crypto_sign(signed_policy_buffer, &signed_buff_len, policy_buffer, buff_len, private_key);
 
     //Add signed policy
-    if (ret && (PAP_add_policy(signed_policy_buffer, signed_buff_len, policy_id) == PAP_ERROR))
+    if (ret && (pap_add_policy(signed_policy_buffer, signed_buff_len, policy_id) == PAP_ERROR))
     {
         printf("\nSTORAGE TEST FAILED - Couldn't add policy\n");
         ret = FALSE;
     }
 
     //Check if policy is added
-    if (ret && (PAP_has_policy(policy_id, TEST_POL_ID_MAX_LEN) == FALSE))
+    if (ret && (pap_has_policy(policy_id, TEST_POL_ID_MAX_LEN) == FALSE))
     {
         printf("\nSTORAGE TEST FAILED - Policy is not added\n");
         ret = FALSE;
@@ -183,7 +183,7 @@ bool TEST_policy_storage()
 
     policy.policy_object.policy_object = policy_object_buff;
     //Recover policy
-    if (ret && (PAP_get_policy(policy_id, TEST_POL_ID_MAX_LEN, &policy) == PAP_ERROR))
+    if (ret && (pap_get_policy(policy_id, TEST_POL_ID_MAX_LEN, &policy) == PAP_ERROR))
     {
         printf("\nSTORAGE TEST FAILED - Couldn't add policy\n");
         ret = FALSE;
@@ -245,7 +245,7 @@ bool TEST_policy_storage()
     }
 
     //Delete policy
-    if (ret && (PAP_remove_policy(policy_id, TEST_POL_ID_MAX_LEN) == PAP_ERROR))
+    if (ret && (pap_remove_policy(policy_id, TEST_POL_ID_MAX_LEN) == PAP_ERROR))
     {
         printf("\nSTORAGE TEST FAILED - Policy is not removed\n");
         ret = FALSE;

@@ -61,7 +61,7 @@ static payment_status_fn transaction_status = NULL;
 /****************************************************************************
  * LOCAL FUNCTIONS
  ****************************************************************************/
-static bool fetch_data(char* uri, PIP_attribute_object_t* attribute_object)
+static bool fetch_data(char* uri, pip_attribute_object_t* attribute_object)
 {
     char temp[PROTOCOL_MAX_STR_LEN];
     char pol_id[PROTOCOL_MAX_STR_LEN];
@@ -156,7 +156,7 @@ bool PROTOCOL_init(wallet_ctx_t* wallet_ctx)
     //Set wallet
     dev_wallet = wallet_ctx;
 
-    if (PIP_register_callback(PIP_IOTA, fetch_data) != PIP_NO_ERROR)
+    if (pip_register_callback(PIP_IOTA, fetch_data) != PIP_NO_ERROR)
     {
         printf("\nERROR[%s]: Register PIP callback failed.\n", __FUNCTION__);
         return FALSE;
@@ -167,7 +167,7 @@ bool PROTOCOL_init(wallet_ctx_t* wallet_ctx)
 
 bool PROTOCOL_term(void)
 {
-    if (PIP_unregister_callback(PIP_IOTA) != PIP_NO_ERROR)
+    if (pip_unregister_callback(PIP_IOTA) != PIP_NO_ERROR)
     {
         printf("\nERROR[%s]: Unregister PIP callback failed.\n");
         return FALSE;

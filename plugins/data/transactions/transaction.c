@@ -152,7 +152,7 @@ void TRANSACTION_term(void)
     //Destroy mutex
     pthread_mutex_destroy(&trans_mutex);
 
-    ROTOCOL_unregister_payment_state_callback();
+    PROTOCOL_unregister_payment_state_callback();
 }
 
 bool TRANSACTION_store_transaction(char* policy_id, int policy_id_len,

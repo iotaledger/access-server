@@ -409,7 +409,7 @@ static unsigned int receive_policies(void)
         int status = parse_policy(g_policy, policy_buff, &policy_len);
         if (status == 1)
         {
-            PAP_add_policy(policy_buff, policy_len, NULL);
+            pap_add_policy(policy_buff, policy_len, NULL);
         }
         if (policy_buff != NULL)
         {

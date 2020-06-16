@@ -221,7 +221,7 @@ static unsigned int calculate_decision(char **recvData, Network_ctx_t_ *ctx)
     {
         char decision[BUF_LEN] = {0};
         //@TODO: Should this be moved to access actor? Network should just send cb here to notify request.
-        PEP_request_access(*recvData, (void*)decision);
+        pep_request_access(*recvData, (void*)decision);
 
         if (memcmp(decision, "grant", strlen("grant")))
         {
@@ -244,7 +244,7 @@ static unsigned int calculate_decision(char **recvData, Network_ctx_t_ *ctx)
     else if (request_code == COMMAND_GET_POL_LIST)
     {
         //@TODO: Should this be moved to access actor? Network should just send cb here to notify request.
-        PEP_request_access(*recvData, (void*)ctx->send_buffer);
+        pep_request_access(*recvData, (void*)ctx->send_buffer);
 
         buffer_position = strlen(ctx->send_buffer);
 
@@ -348,7 +348,7 @@ static unsigned int calculate_decision(char **recvData, Network_ctx_t_ *ctx)
         }
 
         printf("get user\n");
-        PAP_user_management_action(PAP_USERMNG_GET_USER, username, ctx->send_buffer);
+        pap_user_management_action(PAP_USERMNG_GET_USER, username, ctx->send_buffer);
         *recvData = ctx->send_buffer;
         buffer_position = strlen(ctx->send_buffer);
     }
@@ -367,7 +367,7 @@ static unsigned int calculate_decision(char **recvData, Network_ctx_t_ *ctx)
         }
 
         printf("get_auth_id\n");
-        PAP_user_management_action(PAP_USERMNG_GET_USER_ID, username, ctx->send_buffer);
+        pap_user_management_action(PAP_USERMNG_GET_USER_ID, username, ctx->send_buffer);
         *recvData = ctx->send_buffer;
         buffer_position = strlen(ctx->send_buffer);
     }
@@ -385,21 +385,21 @@ static unsigned int calculate_decision(char **recvData, Network_ctx_t_ *ctx)
         }
 
         printf("put user\n");
-        PAP_user_management_action(PAP_USERMNG_PUT_USER, user_data, ctx->send_buffer);
+        pap_user_management_action(PAP_USERMNG_PUT_USER, user_data, ctx->send_buffer);
         *recvData = ctx->send_buffer;
         buffer_position = strlen(ctx->send_buffer);
     }
     else if (request_code == COMMAND_GET_ALL_USER)
     {
         printf("get all users\n");
-        PAP_user_management_action(PAP_USERMNG_GET_ALL_USR, ctx->send_buffer);
+        pap_user_management_action(PAP_USERMNG_GET_ALL_USR, ctx->send_buffer);
         *recvData = ctx->send_buffer;
         buffer_position = strlen(ctx->send_buffer);
     }
     else if (request_code == COMMAND_CLEAR_ALL_USER)
     {
         printf("clear all users\n");
-        PAP_user_management_action(PAP_USERMNG_CLR_ALL_USR, ctx->send_buffer);
+        pap_user_management_action(PAP_USERMNG_CLR_ALL_USR, ctx->send_buffer);
         *recvData = ctx->send_buffer;
         buffer_position = strlen(ctx->send_buffer);
     }

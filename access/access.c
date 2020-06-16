@@ -56,7 +56,7 @@ typedef struct
     int using_modbus;
     char client_name[MAX_CLIENT_NAME];
     pthread_mutex_t *json_mutex;
-    dataset_state_t ddstate;
+    Dataset_state_t ddstate;
 } access_ctx_t_;
 
 void access_init(access_ctx_t *access_context, wallet_ctx_t *device_wallet)
@@ -75,7 +75,7 @@ void access_init(access_ctx_t *access_context, wallet_ctx_t *device_wallet)
     Timer_init();
     Storage_init();
 
-    PEP_init();
+    pep_init();
     PROTOCOL_init(device_wallet);
     TRANSACTION_init(device_wallet);
 
@@ -125,7 +125,7 @@ void access_start(access_ctx_t access_context)
 {
     access_ctx_t_ *ctx = (access_ctx_t_*)access_context;
 
-    PolicyLoader_start();
+    policyloader_start();
 
     if (ctx->using_modbus == 1) ModbusReceiver_start();
     if (ctx->using_can == 1) CanReceiver_start();
@@ -142,7 +142,7 @@ void access_deinit(access_ctx_t access_context)
     if (ctx->using_can == 1) CanReceiver_deinit();
     if (ctx->using_modbus == 1) ModbusReceiver_stop();
 
-    PolicyLoader_stop();
+    policyloader_stop();
 
     JSONInterface_deinit();
     if (ctx->ddstate.dataset != 0)
@@ -153,7 +153,7 @@ void access_deinit(access_ctx_t access_context)
     Timer_deinit();
 }
 
-void access_get_ddstate(access_ctx_t access_context, dataset_state_t **ddstate)
+void access_get_ddstate(access_ctx_t access_context, Dataset_state_t **ddstate)
 {
     access_ctx_t_ *ctx = (access_ctx_t_*)access_context;
     *ddstate = &ctx->ddstate;

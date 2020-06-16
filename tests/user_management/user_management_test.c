@@ -30,19 +30,19 @@ static char response[RESPONSE_LEN];
 
 void main()
 {
-    User_init();
+    user_init();
 
-    User_get_all(response);
+    user_get_all(response);
     printf("get_all_users response: '%s'\n", response);
 
-    User_get_obj("jamie", response);
+    user_get_obj("jamie", response);
     printf("get jamie response: '%s'\n", response);
 
-    User_put_obj("{ \"username\": \"djura\", \"firstName\": \"Djura\", \"lastName\": \"Djuric\", \"userId\": \"0x824717182474182747282812472724818\" }", response);
+    user_put_obj("{ \"username\": \"djura\", \"firstName\": \"Djura\", \"lastName\": \"Djuric\", \"userId\": \"0x824717182474182747282812472724818\" }", response);
     printf("put djura response: '%s'\n", response);
 
-    User_get_obj("djura", response);
+    user_get_obj("djura", response);
     printf("get djura response: '%s'\n", response);
 
-    User_deinit();
+    user_deinit();
 }

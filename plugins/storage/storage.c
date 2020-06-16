@@ -54,7 +54,7 @@
 /****************************************************************************
  * LOCAL FUNCTIONS
  ****************************************************************************/
-bool store_policy(char* policy_id, PAP_policy_object_t policy_object, PAP_policy_id_signature_t policy_id_signature, PAP_hash_functions_e hash_fn)
+bool store_policy(char* policy_id, pap_policy_object_t policy_object, pap_policy_id_signature_t policy_id_signature, pap_hash_functions_e hash_fn)
 {
     char sign_algorithm[STORAGE_SIGN_ALG_LEN] = {0};
     char hash_function[STORAGE_HASH_FN_LEN] = {0};
@@ -99,7 +99,7 @@ bool store_policy(char* policy_id, PAP_policy_object_t policy_object, PAP_policy
 #endif
 }
 
-bool acquire_policy(char* policy_id, PAP_policy_object_t* policy_object, PAP_policy_id_signature_t* policy_id_signature, PAP_hash_functions_e* hash_fn)
+bool acquire_policy(char* policy_id, pap_policy_object_t* policy_object, pap_policy_id_signature_t* policy_id_signature, pap_hash_functions_e* hash_fn)
 {
     char sign_algorithm[STORAGE_SIGN_ALG_LEN] = {0};
     char hash_function[STORAGE_HASH_FN_LEN] = {0};
@@ -201,7 +201,7 @@ bool acquire_pol_obj_len(char* policy_id, int* pol_obj_len)
 }
 
 //List must be freed bu the user
-bool acquire_all_policies(PAP_policy_id_list_t **pol_list_head)
+bool acquire_all_policies(pap_policy_id_list_t **pol_list_head)
 {
     //Call function for acquring all policies
 #ifdef USE_RPI
@@ -209,7 +209,7 @@ bool acquire_all_policies(PAP_policy_id_list_t **pol_list_head)
     char *pol_id_buff = NULL;
     char *tok = NULL;
     int pol_id_buff_len = 0;
-    PAP_policy_id_list_t *temp = NULL;
+    pap_policy_id_list_t *temp = NULL;
     FILE *f;
 
     f = fopen(RPI_get_stored_pol_info_file(), "r");
@@ -232,8 +232,8 @@ bool acquire_all_policies(PAP_policy_id_list_t **pol_list_head)
     tok = strtok(pol_id_buff, "|");
     while (tok)
     {
-        PAP_policy_id_list_t *elem = malloc(sizeof(PAP_policy_id_list_t));
-        memset(elem, 0, sizeof(PAP_policy_id_list_t));
+        pap_policy_id_list_t *elem = malloc(sizeof(pap_policy_id_list_t));
+        memset(elem, 0, sizeof(pap_policy_id_list_t));
         memset(pol_id_hex, 0, PAP_POL_ID_MAX_LEN);
 
         if (str_to_hex(tok, pol_id_hex, PAP_POL_ID_MAX_LEN * 2) != UTILS_STRING_SUCCESS)
@@ -276,7 +276,7 @@ bool acquire_all_policies(PAP_policy_id_list_t **pol_list_head)
 STORAGE_error_t Storage_init(void)
 {
     //Register PAP callback
-    if (PAP_register_callbacks(store_policy, acquire_policy, check_if_stored_policy,
+    if (pap_register_callbacks(store_policy, acquire_policy, check_if_stored_policy,
                                flush_policy, acquire_pol_obj_len, acquire_all_policies) == PAP_ERROR)
     {
         printf("\nERROR[%s]: Error registering PAP callbacks.\n", __FUNCTION__);
@@ -289,7 +289,7 @@ STORAGE_error_t Storage_init(void)
 STORAGE_error_t Storage_term(void)
 {
     //Unregoster PAP callback
-    if (PAP_unregister_callbacks() == PAP_ERROR)
+    if (pap_unregister_callbacks() == PAP_ERROR)
     {
         printf("\nERROR[%s]: Error unregistering PAP callbacks.\n", __FUNCTION__);
         return STORAGE_ERROR;

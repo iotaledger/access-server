@@ -148,7 +148,7 @@ int parser_object_parent_idx(jsmntok_t* _tokens, int cur_idx)
             else if (_tokens[i].type == JSMN_OBJECT)
             {
                 // object can be another object's parent, just check if they are not siblings
-                int siblings = Parser_next_object_sibling_idx(_tokens, i, cur_idx + 1);
+                int siblings = parser_next_object_sibling_idx(_tokens, i, cur_idx + 1);
                 while (siblings >= 0)
                 {
                     if (siblings == cur_idx)
@@ -158,7 +158,7 @@ int parser_object_parent_idx(jsmntok_t* _tokens, int cur_idx)
                     }
                     else
                     {
-                        siblings = Parser_next_object_sibling_idx(_tokens, siblings, cur_idx + 1);
+                        siblings = parser_next_object_sibling_idx(_tokens, siblings, cur_idx + 1);
                     }
                 }
 

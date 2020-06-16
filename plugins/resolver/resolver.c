@@ -198,7 +198,7 @@ void Resolver_init(resolver_plugin_initializer_t initializer, Dataset_state_t *d
     initializer(&resolver_action_set, options);
     g_dstate = dstate;
 
-    PEP_register_callback((resolver_fn) pep_request);
+    pep_register_callback((resolver_fn) pep_request);
 }
 
 void Resolver_term(resolver_plugin_terminizer_t terminizer)
@@ -206,5 +206,5 @@ void Resolver_term(resolver_plugin_terminizer_t terminizer)
     terminizer(&resolver_action_set);
     g_dstate = NULL;
 
-    PEP_unregister_callback();
+    pep_unregister_callback();
 }
