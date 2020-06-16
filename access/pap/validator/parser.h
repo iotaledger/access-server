@@ -53,8 +53,8 @@ typedef enum
     OP_GEQ,
     OP_LTE,
     OP_GTE,
-	OP_AND,
-	OP_OR,
+    OP_AND,
+    OP_OR,
     OP_UNKNOWN
 } Parser_operations_e;
 

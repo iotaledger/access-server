@@ -43,25 +43,25 @@
 
 typedef enum
 {
-	CAN_DOOR_UNKNOWN = 0x00,
-	CAN_DOOR_OPENED = 0x01,
-	CAN_DOOR_CLOSED = 0x02
+    CAN_DOOR_UNKNOWN = 0x00,
+    CAN_DOOR_OPENED = 0x01,
+    CAN_DOOR_CLOSED = 0x02
 } CAN_door_status_e;
 
 typedef enum
 {
-	CAN_LOCK_UNDEF = 0x00,
-	CAN_LOCK_OPENED = 0x01,
-	CAN_LOCK_CLOSED = 0x02,
-	CAN_LOCK_LOCKED = 0x03,
-	CAN_LOCK_SAFE = 0x04
+    CAN_LOCK_UNDEF = 0x00,
+    CAN_LOCK_OPENED = 0x01,
+    CAN_LOCK_CLOSED = 0x02,
+    CAN_LOCK_LOCKED = 0x03,
+    CAN_LOCK_SAFE = 0x04
 } CAN_lock_status_e;
 
 typedef enum
 {
-	CAN_TEMP_UNIT_C = 0x00,
-	CAN_TEMP_UNIT_F = 0x01,
-	CAN_TEMP_UNIT_UNKNOWN = 0x02
+    CAN_TEMP_UNIT_C = 0x00,
+    CAN_TEMP_UNIT_F = 0x01,
+    CAN_TEMP_UNIT_UNKNOWN = 0x02
 } CAN_temp_unit_e;
 
 #ifndef TINY_EMBEDDED

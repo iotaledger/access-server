@@ -1,21 +1,21 @@
 /*
- * This file is part of the IOTA Access Distribution
- * (https://github.com/iotaledger/access)
- *
- * Copyright (c) 2020 IOTA Stiftung
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+* This file is part of the IOTA Access Distribution
+* (https://github.com/iotaledger/access)
+*
+* Copyright (c) 2020 IOTA Stiftung
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 /****************************************************************************
  * \project Decentralized Access Control
@@ -69,45 +69,45 @@ static wallet_ctx_t* dev_wallet = NULL;
  ****************************************************************************/
 static int normalize_request(char *request, int request_len, char **request_normalized)
 {
-	char temp[request_len];
-	int charCnt = 0;
+    char temp[request_len];
+    int charCnt = 0;
 
-	//Check input parameters
-	if (request == NULL || request_len == 0)
-	{
-		printf("\nERROR[%s]: Bad input parameters.\n", __FUNCTION__);
-		return 0;
-	}
+    //Check input parameters
+    if (request == NULL || request_len == 0)
+    {
+        printf("\nERROR[%s]: Bad input parameters.\n", __FUNCTION__);
+        return 0;
+    }
 
-	//Normalize request object and save it to temp
-	memset(temp, 0, request_len);
+    //Normalize request object and save it to temp
+    memset(temp, 0, request_len);
 
-	for (int i = 0; i < request_len; i++)
-	{
-		if (!PEP_CHECK_WHITESPACE(request[i]))
-		{
-			temp[charCnt] = request[i];
-			charCnt++;
-		}
-	}
+    for (int i = 0; i < request_len; i++)
+    {
+        if (!PEP_CHECK_WHITESPACE(request[i]))
+        {
+            temp[charCnt] = request[i];
+            charCnt++;
+        }
+    }
 
-	//Allocate memory for request_normalized
-	if (*request_normalized)
-	{
-		free(*request_normalized);
-		*request_normalized = NULL;
-	}
+    //Allocate memory for request_normalized
+    if (*request_normalized)
+    {
+        free(*request_normalized);
+        *request_normalized = NULL;
+    }
 
-	*request_normalized = malloc(charCnt * sizeof(char));
-	if (*request_normalized == NULL)
-	{
-		return 0;
-	}
+    *request_normalized = malloc(charCnt * sizeof(char));
+    if (*request_normalized == NULL)
+    {
+        return 0;
+    }
 
-	//Copy temp to request_normalized
-	memcpy(*request_normalized, temp, charCnt * sizeof(char));
+    //Copy temp to request_normalized
+    memcpy(*request_normalized, temp, charCnt * sizeof(char));
 
-	return charCnt;
+    return charCnt;
 }
 
 /****************************************************************************
@@ -120,130 +120,130 @@ static resolver_fn callback_resolver = NULL;
  ****************************************************************************/
 bool PEP_init(wallet_ctx_t* wallet_ctx)
 {
-	//Set wallet
-	dev_wallet = wallet_ctx;
+    //Set wallet
+    dev_wallet = wallet_ctx;
 
-	//Initialize mutex
-	if (pthread_mutex_init(&pep_mutex, NULL) != 0)
-	{
-		printf("\nERROR[%s]: Mutex init failed.\n", __FUNCTION__);
-		return FALSE;
-	}
+    //Initialize mutex
+    if (pthread_mutex_init(&pep_mutex, NULL) != 0)
+    {
+        printf("\nERROR[%s]: Mutex init failed.\n", __FUNCTION__);
+        return FALSE;
+    }
 
-	//Initialize PDP module
-	if (PDP_init() == FALSE)
-	{
-		printf("\nERROR[%s]: PDP init failed.\n", __FUNCTION__);
-		return FALSE;
-	}
+    //Initialize PDP module
+    if (PDP_init() == FALSE)
+    {
+        printf("\nERROR[%s]: PDP init failed.\n", __FUNCTION__);
+        return FALSE;
+    }
 
-	return TRUE;
+    return TRUE;
 }
 
 bool PEP_term(void)
 {
-	//Clear wallet
-	dev_wallet = NULL;
+    //Clear wallet
+    dev_wallet = NULL;
 
-	//Destroy mutex
-	pthread_mutex_destroy(&pep_mutex);
+    //Destroy mutex
+    pthread_mutex_destroy(&pep_mutex);
 
-	//Terminate PDP module
-	if (PDP_term() == FALSE)
-	{
-		printf("\nERROR[%s]: PDP term failed.\n", __FUNCTION__);
-		return FALSE;
-	}
+    //Terminate PDP module
+    if (PDP_term() == FALSE)
+    {
+        printf("\nERROR[%s]: PDP term failed.\n", __FUNCTION__);
+        return FALSE;
+    }
 
-	return TRUE;
+    return TRUE;
 }
 
 bool PEP_register_callback(resolver_fn resolver)
 {
-	//Check input parameter
-	if (resolver == NULL)
-	{
-		printf("\n\nERROR[%s]: Invalid input parameters.\n\n",__FUNCTION__);
-		return FALSE;
-	}
+    //Check input parameter
+    if (resolver == NULL)
+    {
+        printf("\n\nERROR[%s]: Invalid input parameters.\n\n",__FUNCTION__);
+        return FALSE;
+    }
 
-	//Check if it's already registered
-	if (callback_resolver != NULL)
-	{
-		printf("\n\nERROR[%s]: Callback already registered.\n\n",__FUNCTION__);
-		return FALSE;
-	}
+    //Check if it's already registered
+    if (callback_resolver != NULL)
+    {
+        printf("\n\nERROR[%s]: Callback already registered.\n\n",__FUNCTION__);
+        return FALSE;
+    }
 
-	pthread_mutex_lock(&pep_mutex);
+    pthread_mutex_lock(&pep_mutex);
 
-	//Register callback
-	callback_resolver = resolver;
+    //Register callback
+    callback_resolver = resolver;
 
-	pthread_mutex_unlock(&pep_mutex);
+    pthread_mutex_unlock(&pep_mutex);
 
-	return TRUE;
+    return TRUE;
 }
 
 bool PEP_unregister_callback(void)
 {
-	pthread_mutex_lock(&pep_mutex);
+    pthread_mutex_lock(&pep_mutex);
 
-	//Unregister callback
-	callback_resolver = NULL;
+    //Unregister callback
+    callback_resolver = NULL;
 
-	pthread_mutex_unlock(&pep_mutex);
+    pthread_mutex_unlock(&pep_mutex);
 
-	return TRUE;
+    return TRUE;
 }
 
 bool PEP_request_access(char *request)
 {
-	char action_value[PEP_ACTION_LEN];
-	//TODO: obligations should be linked list of the elements of the 'obligation_s' structure type
-	char obligation[PDP_OBLIGATION_LEN];
-	char tangle_address[PEP_IOTA_ADDR_LEN];
-	char *norm_request = NULL;
-	PDP_action_t action;
-	PDP_decision_e ret = PDP_ERROR;
+    char action_value[PEP_ACTION_LEN];
+    //TODO: obligations should be linked list of the elements of the 'obligation_s' structure type
+    char obligation[PDP_OBLIGATION_LEN];
+    char tangle_address[PEP_IOTA_ADDR_LEN];
+    char *norm_request = NULL;
+    PDP_action_t action;
+    PDP_decision_e ret = PDP_ERROR;
 
-	//Check input parameter
-	if (request == NULL)
-	{
-		printf("\n\nERROR[%s]: Invalid input parameter.\n\n",__FUNCTION__);
-		return FALSE;
-	}
+    //Check input parameter
+    if (request == NULL)
+    {
+        printf("\n\nERROR[%s]: Invalid input parameter.\n\n",__FUNCTION__);
+        return FALSE;
+    }
 
-	pthread_mutex_lock(&pep_mutex);
+    pthread_mutex_lock(&pep_mutex);
 
-	memset(obligation, 0, PEP_ACTION_LEN * sizeof(char));
+    memset(obligation, 0, PEP_ACTION_LEN * sizeof(char));
 
-	action.value = action_value;
-	action.wallet_address = tangle_address;
-	action.wallet_context = dev_wallet;
+    action.value = action_value;
+    action.wallet_address = tangle_address;
+    action.wallet_context = dev_wallet;
 
-	//Get normalized request
-	if (normalize_request(request, strlen(request), &norm_request) == 0)
-	{
-		printf("\n\nERROR[%s]: Error normalizing request.\n\n",__FUNCTION__);
-		pthread_mutex_unlock(&pep_mutex);
-		return FALSE;
-	}
+    //Get normalized request
+    if (normalize_request(request, strlen(request), &norm_request) == 0)
+    {
+        printf("\n\nERROR[%s]: Error normalizing request.\n\n",__FUNCTION__);
+        pthread_mutex_unlock(&pep_mutex);
+        return FALSE;
+    }
 
-	//Calculate decision and get action + obligation
-	ret = PDP_calculate_decision(norm_request, obligation, &action);
+    //Calculate decision and get action + obligation
+    ret = PDP_calculate_decision(norm_request, obligation, &action);
 
-	//Resolver callback
-	if (callback_resolver != NULL)
-	{
-		callback_resolver(obligation, (void*)&action);
-	}
-	else
-	{
-		printf("\n\nERROR[%s]: Callback is not regostered.\n\n",__FUNCTION__);
-		ret = PDP_ERROR;
-	}
+    //Resolver callback
+    if (callback_resolver != NULL)
+    {
+        callback_resolver(obligation, (void*)&action);
+    }
+    else
+    {
+        printf("\n\nERROR[%s]: Callback is not regostered.\n\n",__FUNCTION__);
+        ret = PDP_ERROR;
+    }
 
-	free(norm_request);
-	pthread_mutex_unlock(&pep_mutex);
-	return ret == PDP_GRANT ? TRUE : FALSE;
+    free(norm_request);
+    pthread_mutex_unlock(&pep_mutex);
+    return ret == PDP_GRANT ? TRUE : FALSE;
 }

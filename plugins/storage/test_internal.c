@@ -1,21 +1,21 @@
 /*
- * This file is part of the IOTA Access Distribution
- * (https://github.com/iotaledger/access)
- *
- * Copyright (c) 2020 IOTA Stiftung
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+* This file is part of the IOTA Access Distribution
+* (https://github.com/iotaledger/access)
+*
+* Copyright (c) 2020 IOTA Stiftung
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 /****************************************************************************
  * \project Decentralized Access Control
@@ -63,53 +63,53 @@ static unsigned char private_key[TEST_PRIVATE_KEY_LEN];
  ****************************************************************************/
 void provide_public_key(char *pk)
 {
-	if (pk)
-	{
-		memcpy(pk, public_key, TEST_PUBLIC_KEY_LEN * sizeof(char));
-	}
+    if (pk)
+    {
+        memcpy(pk, public_key, TEST_PUBLIC_KEY_LEN * sizeof(char));
+    }
 }
 
 static int normalize_object(char *object, int object_len, char **object_normalized)
 {
-	char temp[object_len];
-	int charCnt = 0;
+    char temp[object_len];
+    int charCnt = 0;
 
-	//Check input parameters
-	if (object == NULL || object_len == 0)
-	{
-		printf("\nERROR[%s]: Bad input parameters.\n", __FUNCTION__);
-		return 0;
-	}
+    //Check input parameters
+    if (object == NULL || object_len == 0)
+    {
+        printf("\nERROR[%s]: Bad input parameters.\n", __FUNCTION__);
+        return 0;
+    }
 
-	//Normalize object and save it to temp
-	memset(temp, 0, object_len);
+    //Normalize object and save it to temp
+    memset(temp, 0, object_len);
 
-	for (int i = 0; i < object_len; i++)
-	{
-		if (!TEST_CHECK_WHITESPACE(object[i]))
-		{
-			temp[charCnt] = object[i];
-			charCnt++;
-		}
-	}
+    for (int i = 0; i < object_len; i++)
+    {
+        if (!TEST_CHECK_WHITESPACE(object[i]))
+        {
+            temp[charCnt] = object[i];
+            charCnt++;
+        }
+    }
 
-	//Allocate memory for object_normalized
-	if (*object_normalized)
-	{
-		free(*object_normalized);
-		*object_normalized = NULL;
-	}
+    //Allocate memory for object_normalized
+    if (*object_normalized)
+    {
+        free(*object_normalized);
+        *object_normalized = NULL;
+    }
 
-	*object_normalized = malloc(charCnt * sizeof(char));
-	if (*object_normalized == NULL)
-	{
-		return 0;
-	}
+    *object_normalized = malloc(charCnt * sizeof(char));
+    if (*object_normalized == NULL)
+    {
+        return 0;
+    }
 
-	//Copy temp to object_normalized
-	memcpy(*object_normalized, temp, charCnt * sizeof(char));
+    //Copy temp to object_normalized
+    memcpy(*object_normalized, temp, charCnt * sizeof(char));
 
-	return charCnt;
+    return charCnt;
 }
 
 /****************************************************************************
@@ -117,148 +117,148 @@ static int normalize_object(char *object, int object_len, char **object_normaliz
  ****************************************************************************/
 bool TEST_policy_storage()
 {
-	bool ret = TRUE;
-	char policy_id[TEST_POL_ID_MAX_LEN] = {0};
-	char policy_id_hex[TEST_POL_ID_MAX_LEN/2] = {0};
-	char policy_id_hex_verified[TEST_POL_ID_MAX_LEN/2] = {0};
-	char signed_policy_id[TEST_POL_ID_MAX_LEN/2 + TEST_SIGNATURE_LEN];
-	char *policy_buffer = NULL;
-	char *signed_policy_buffer = NULL;
-	char *policy_object_buff = NULL;
-	char *policy_object_pos = NULL;
-	char *policy_object_norm = NULL;
-	int buff_len = 0;
-	int pol_object_norm_chars = 0;
-	unsigned long long signed_buff_len = 0;
-	unsigned long long signed_pol_id_ver_len = 0;
-	FILE *f = NULL;
-	PAP_policy_t policy;
+    bool ret = TRUE;
+    char policy_id[TEST_POL_ID_MAX_LEN] = {0};
+    char policy_id_hex[TEST_POL_ID_MAX_LEN/2] = {0};
+    char policy_id_hex_verified[TEST_POL_ID_MAX_LEN/2] = {0};
+    char signed_policy_id[TEST_POL_ID_MAX_LEN/2 + TEST_SIGNATURE_LEN];
+    char *policy_buffer = NULL;
+    char *signed_policy_buffer = NULL;
+    char *policy_object_buff = NULL;
+    char *policy_object_pos = NULL;
+    char *policy_object_norm = NULL;
+    int buff_len = 0;
+    int pol_object_norm_chars = 0;
+    unsigned long long signed_buff_len = 0;
+    unsigned long long signed_pol_id_ver_len = 0;
+    FILE *f = NULL;
+    PAP_policy_t policy;
 
-	//Generate keypair
-	crypto_sign_keypair(public_key, private_key);
+    //Generate keypair
+    crypto_sign_keypair(public_key, private_key);
 
 #if PAP_STORAGE_TEST_ACIVE
-	//Register pk callback
-	PAP_register_get_pk_cb(provide_public_key);
+    //Register pk callback
+    PAP_register_get_pk_cb(provide_public_key);
 #endif
 
-	//Load test policy to a buffer
-	f = fopen("../access/pap/validator/policies_test_set/policy_no1_ok.json", "r");
-	if (f == NULL)
-	{
-		printf("\nSTORAGE TEST FAILED - policy policy_no1_ok.json not available at acess/pap/validator/policies_test_set\n");
-		return FALSE;
-	}
+    //Load test policy to a buffer
+    f = fopen("../access/pap/validator/policies_test_set/policy_no1_ok.json", "r");
+    if (f == NULL)
+    {
+        printf("\nSTORAGE TEST FAILED - policy policy_no1_ok.json not available at acess/pap/validator/policies_test_set\n");
+        return FALSE;
+    }
 
-	//Get file size
-	fseek(f, 0L, SEEK_END);
-	buff_len = ftell(f);
-	fseek(f, 0L, SEEK_SET);
+    //Get file size
+    fseek(f, 0L, SEEK_END);
+    buff_len = ftell(f);
+    fseek(f, 0L, SEEK_SET);
 
-	//Store policy to buffer
-	policy_buffer = malloc(buff_len * sizeof(char));
-	policy_object_buff = malloc(buff_len * sizeof(char)); //Worst case
-	policy_object_norm = malloc(buff_len * sizeof(char)); //Worst case
-	signed_policy_buffer = malloc((buff_len + TEST_SIGNATURE_LEN) * sizeof(char));
+    //Store policy to buffer
+    policy_buffer = malloc(buff_len * sizeof(char));
+    policy_object_buff = malloc(buff_len * sizeof(char)); //Worst case
+    policy_object_norm = malloc(buff_len * sizeof(char)); //Worst case
+    signed_policy_buffer = malloc((buff_len + TEST_SIGNATURE_LEN) * sizeof(char));
 
-	fread(policy_buffer, buff_len * sizeof(char), 1, f);
-	fclose(f);
+    fread(policy_buffer, buff_len * sizeof(char), 1, f);
+    fclose(f);
 
-	//Sign policy
-	crypto_sign(signed_policy_buffer, &signed_buff_len, policy_buffer, buff_len, private_key);
+    //Sign policy
+    crypto_sign(signed_policy_buffer, &signed_buff_len, policy_buffer, buff_len, private_key);
 
-	//Add signed policy
-	if (ret && (PAP_add_policy(signed_policy_buffer, signed_buff_len, policy_id) == PAP_ERROR))
-	{
-		printf("\nSTORAGE TEST FAILED - Couldn't add policy\n");
-		ret = FALSE;
-	}
+    //Add signed policy
+    if (ret && (PAP_add_policy(signed_policy_buffer, signed_buff_len, policy_id) == PAP_ERROR))
+    {
+        printf("\nSTORAGE TEST FAILED - Couldn't add policy\n");
+        ret = FALSE;
+    }
 
-	//Check if policy is added
-	if (ret && (PAP_has_policy(policy_id, TEST_POL_ID_MAX_LEN) == FALSE))
-	{
-		printf("\nSTORAGE TEST FAILED - Policy is not added\n");
-		ret = FALSE;
-	}
+    //Check if policy is added
+    if (ret && (PAP_has_policy(policy_id, TEST_POL_ID_MAX_LEN) == FALSE))
+    {
+        printf("\nSTORAGE TEST FAILED - Policy is not added\n");
+        ret = FALSE;
+    }
 
-	policy.policy_object.policy_object = policy_object_buff;
-	//Recover policy
-	if (ret && (PAP_get_policy(policy_id, TEST_POL_ID_MAX_LEN, &policy) == PAP_ERROR))
-	{
-		printf("\nSTORAGE TEST FAILED - Couldn't add policy\n");
-		ret = FALSE;
-	}
+    policy.policy_object.policy_object = policy_object_buff;
+    //Recover policy
+    if (ret && (PAP_get_policy(policy_id, TEST_POL_ID_MAX_LEN, &policy) == PAP_ERROR))
+    {
+        printf("\nSTORAGE TEST FAILED - Couldn't add policy\n");
+        ret = FALSE;
+    }
 
-	//Check recovered values
-	if (ret && str_to_hex(policy_id, policy_id_hex, TEST_POL_ID_MAX_LEN) != UTILS_STRING_SUCCESS)
-	{
-		printf("\nSTORAGE TEST FAILED - Couldn't convert string to hex\n");
-		ret = FALSE;
-	}
+    //Check recovered values
+    if (ret && str_to_hex(policy_id, policy_id_hex, TEST_POL_ID_MAX_LEN) != UTILS_STRING_SUCCESS)
+    {
+        printf("\nSTORAGE TEST FAILED - Couldn't convert string to hex\n");
+        ret = FALSE;
+    }
 
-	if (ret && (memcmp(policy_id_hex, policy.policy_ID, TEST_POL_ID_MAX_LEN/2) != 0))
-	{
-		printf("\nSTORAGE TEST FAILED - Policy ID hex differ from recovered value\n");
-		ret = FALSE;
-	}
-	else
-	{
-		policy_object_pos = strstr(policy_buffer, "policy_object");
-		pol_object_norm_chars = normalize_object(policy_object_pos, &policy_buffer[buff_len] - policy_object_pos, &policy_object_norm);
-	}
+    if (ret && (memcmp(policy_id_hex, policy.policy_ID, TEST_POL_ID_MAX_LEN/2) != 0))
+    {
+        printf("\nSTORAGE TEST FAILED - Policy ID hex differ from recovered value\n");
+        ret = FALSE;
+    }
+    else
+    {
+        policy_object_pos = strstr(policy_buffer, "policy_object");
+        pol_object_norm_chars = normalize_object(policy_object_pos, &policy_buffer[buff_len] - policy_object_pos, &policy_object_norm);
+    }
 
-	if (ret && ((pol_object_norm_chars - strlen("policy_object:") - TEST_BRACKETS_NUM) != policy.policy_object.policy_object_size))
-	{
-		printf("\nSTORAGE TEST FAILED - Policy object size differ from recovered value\n");
-		ret = FALSE;
-	}
+    if (ret && ((pol_object_norm_chars - strlen("policy_object:") - TEST_BRACKETS_NUM) != policy.policy_object.policy_object_size))
+    {
+        printf("\nSTORAGE TEST FAILED - Policy object size differ from recovered value\n");
+        ret = FALSE;
+    }
 
-	if (ret && (memcmp(&policy_object_norm[strlen("policy_object:{")], policy.policy_object.policy_object, policy.policy_object.policy_object_size) != 0))
-	{
-		printf("\nSTORAGE TEST FAILED - Policy object differ from recovered value\n");
-		ret = FALSE;
-	}
+    if (ret && (memcmp(&policy_object_norm[strlen("policy_object:{")], policy.policy_object.policy_object, policy.policy_object.policy_object_size) != 0))
+    {
+        printf("\nSTORAGE TEST FAILED - Policy object differ from recovered value\n");
+        ret = FALSE;
+    }
 
-	if (ret && (policy.policy_id_signature.signature_algorithm != PAP_ECDSA))
-	{
-		printf("\nSTORAGE TEST FAILED - Policy ID signature algorithm differ from recovered value\n");
-		ret = FALSE;
-	}
-	else
-	{
-		//Prepend signature to policy_id_hex
-		memcpy(signed_policy_id, policy.policy_id_signature.signature, TEST_SIGNATURE_LEN);
-		memcpy(&signed_policy_id[TEST_SIGNATURE_LEN], policy_id_hex, TEST_POL_ID_MAX_LEN/2);
-	}
+    if (ret && (policy.policy_id_signature.signature_algorithm != PAP_ECDSA))
+    {
+        printf("\nSTORAGE TEST FAILED - Policy ID signature algorithm differ from recovered value\n");
+        ret = FALSE;
+    }
+    else
+    {
+        //Prepend signature to policy_id_hex
+        memcpy(signed_policy_id, policy.policy_id_signature.signature, TEST_SIGNATURE_LEN);
+        memcpy(&signed_policy_id[TEST_SIGNATURE_LEN], policy_id_hex, TEST_POL_ID_MAX_LEN/2);
+    }
 
-	if (ret && (crypto_sign_open(policy_id_hex_verified, &signed_pol_id_ver_len, signed_policy_id,
-									TEST_SIGNATURE_LEN + TEST_POL_ID_MAX_LEN/2, policy.policy_id_signature.public_key) != 0))
-	{
-		printf("\nSTORAGE TEST FAILED - Policy ID signature differ from recovered value\n");
-		ret = FALSE;
-	}
+    if (ret && (crypto_sign_open(policy_id_hex_verified, &signed_pol_id_ver_len, signed_policy_id,
+                                 TEST_SIGNATURE_LEN + TEST_POL_ID_MAX_LEN/2, policy.policy_id_signature.public_key) != 0))
+    {
+        printf("\nSTORAGE TEST FAILED - Policy ID signature differ from recovered value\n");
+        ret = FALSE;
+    }
 
-	if (ret && (policy.hash_function != PAP_SHA_256))
-	{
-		printf("\nSTORAGE TEST FAILED - Hash function differ from recovered value\n");
-		ret = FALSE;
-	}
+    if (ret && (policy.hash_function != PAP_SHA_256))
+    {
+        printf("\nSTORAGE TEST FAILED - Hash function differ from recovered value\n");
+        ret = FALSE;
+    }
 
-	//Delete policy
-	if (ret && (PAP_remove_policy(policy_id, TEST_POL_ID_MAX_LEN) == PAP_ERROR))
-	{
-		printf("\nSTORAGE TEST FAILED - Policy is not removed\n");
-		ret = FALSE;
-	}
+    //Delete policy
+    if (ret && (PAP_remove_policy(policy_id, TEST_POL_ID_MAX_LEN) == PAP_ERROR))
+    {
+        printf("\nSTORAGE TEST FAILED - Policy is not removed\n");
+        ret = FALSE;
+    }
 
-	if (ret)
-	{
-		printf("\nSTORAGE TEST PASSED!!!\n");
-	}
+    if (ret)
+    {
+        printf("\nSTORAGE TEST PASSED!!!\n");
+    }
 
-	free(policy_buffer);
-	free(policy_object_buff);
-	free(policy_object_norm);
-	free(signed_policy_buffer);
-	return ret;
+    free(policy_buffer);
+    free(policy_object_buff);
+    free(policy_object_norm);
+    free(signed_policy_buffer);
+    return ret;
 }

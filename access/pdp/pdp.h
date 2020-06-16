@@ -60,34 +60,34 @@
  ****************************************************************************/
 typedef enum
 {
-	AND,
-	OR,
-	NOT,
-	EQ,
-	LEQ,
-	GEQ,
-	UNDEFINED,
-	LT,
-	GT,
-	IF
+    AND,
+    OR,
+    NOT,
+    EQ,
+    LEQ,
+    GEQ,
+    UNDEFINED,
+    LT,
+    GT,
+    IF
 } PDP_operation_e;
 
 typedef enum
 {
-	STRING,
-	NUMBER,
-	TIME,
-	BOOLEAN,
-	UNKNOWN
+    STRING,
+    NUMBER,
+    TIME,
+    BOOLEAN,
+    UNKNOWN
 } PDP_type_e;
 
 typedef enum
 {
-	PDP_ERROR = -1,
-	PDP_GAP = 0,
-	PDP_GRANT = 1,
-	PDP_DENY = 2,
-	PDP_CONFLICT = 3
+    PDP_ERROR = -1,
+    PDP_GAP = 0,
+    PDP_GRANT = 1,
+    PDP_DENY = 2,
+    PDP_CONFLICT = 3
 } PDP_decision_e;
 
 /****************************************************************************
@@ -102,12 +102,12 @@ typedef struct attribute_value
 
 typedef struct action
 {
-	unsigned long start_time;
-	unsigned long stop_time;
-	unsigned long balance;
-	char* wallet_address;
-	wallet_ctx_t* wallet_context;
-	char* value;
+    unsigned long start_time;
+    unsigned long stop_time;
+    unsigned long balance;
+    char* wallet_address;
+    wallet_ctx_t* wallet_context;
+    char* value;
 } PDP_action_t;
 
 /****************************************************************************

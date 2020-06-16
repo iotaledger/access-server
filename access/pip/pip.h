@@ -55,13 +55,13 @@
  ****************************************************************************/
 typedef enum
 {
-	PIP_NO_ERROR,
-	PIP_ERROR
+    PIP_NO_ERROR,
+    PIP_ERROR
 } PIP_error_e;
 
 typedef enum
 {
-	PIP_IOTA = 0
+    PIP_IOTA = 0
 } PIP_authorities_e;
 
 /****************************************************************************
@@ -69,8 +69,8 @@ typedef enum
  ****************************************************************************/
 typedef struct attribute_object
 {
-	char type[PIP_MAX_STR_LEN];
-	char value[PIP_MAX_STR_LEN];
+    char type[PIP_MAX_STR_LEN];
+    char value[PIP_MAX_STR_LEN];
 } PIP_attribute_object_t;
 
 /****************************************************************************

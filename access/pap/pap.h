@@ -67,29 +67,29 @@ this will have to be adjusted accordingly. */
  ****************************************************************************/
 typedef enum
 {
-	PAP_NO_ERROR,
-	PAP_ERROR
+    PAP_NO_ERROR,
+    PAP_ERROR
 } PAP_error_e;
 
 typedef enum
 {
-	//Only ECDSA is supported, for now
-	PAP_ECDSA
+    //Only ECDSA is supported, for now
+    PAP_ECDSA
 } PAP_signature_algorithm_e;
 
 typedef enum
 {
-	/* Only sha-256 is supported, for now. */
-	PAP_SHA_256
+    /* Only sha-256 is supported, for now. */
+    PAP_SHA_256
 } PAP_hash_functions_e;
 
 typedef enum
 {
-	PAP_USERMNG_GET_ALL_USR,
-	PAP_USERMNG_GET_USER,
-	PAP_USERMNG_PUT_USER,
-	PAP_USERMNG_GET_USER_ID,
-	PAP_USERMNG_CLR_ALL_USR
+    PAP_USERMNG_GET_ALL_USR,
+    PAP_USERMNG_GET_USER,
+    PAP_USERMNG_PUT_USER,
+    PAP_USERMNG_GET_USER_ID,
+    PAP_USERMNG_CLR_ALL_USR
 } PAP_user_mng_req_e;
 
 /****************************************************************************
@@ -97,23 +97,23 @@ typedef enum
  ****************************************************************************/
 typedef struct policy_id_signature
 {
-	PAP_signature_algorithm_e signature_algorithm;
-	char signature[PAP_SIGNATURE_LEN];
-	char public_key[PAP_PUBLIC_KEY_LEN];
+    PAP_signature_algorithm_e signature_algorithm;
+    char signature[PAP_SIGNATURE_LEN];
+    char public_key[PAP_PUBLIC_KEY_LEN];
 } PAP_policy_id_signature_t;
 
 typedef struct PAP_policy_object
 {
-	int policy_object_size;
-	char *policy_object;
+    int policy_object_size;
+    char *policy_object;
 } PAP_policy_object_t;
 
 typedef struct policy
 {
-	char policy_ID[PAP_POL_ID_MAX_LEN + 1]; //Consider null character
-	PAP_policy_object_t policy_object;
-	PAP_policy_id_signature_t policy_id_signature;
-	PAP_hash_functions_e hash_function;
+    char policy_ID[PAP_POL_ID_MAX_LEN + 1]; //Consider null character
+    PAP_policy_object_t policy_object;
+    PAP_policy_id_signature_t policy_id_signature;
+    PAP_hash_functions_e hash_function;
 } PAP_policy_t;
 
 /****************************************************************************
