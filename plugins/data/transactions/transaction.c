@@ -54,7 +54,7 @@
 /****************************************************************************
  * GLOBAL VARIBLES
  ****************************************************************************/
-static TRANSACTION_serv_confirm_t service[TRANS_CONF_SERV_MAX_NUM] = {0};
+static transaction_serv_confirm_t service[TRANS_CONF_SERV_MAX_NUM] = {0};
 static pthread_mutex_t trans_mutex;
 static wallet_ctx_t *dev_wallet;
 
@@ -81,7 +81,7 @@ static void transaction_confirmation(uint32_t time, bool is_confirmed, pthread_t
     }
 
 #ifdef USE_RPI
-    if (!RPITRANSACTION_update_payment_status(service[i].policy_id, service[i].policy_id_len, is_confirmed))
+    if (!rpitransaction_update_payment_status(service[i].policy_id, service[i].policy_id_len, is_confirmed))
     {
         printf("\nERROR[%s]: Failed to store transaction.\n", __FUNCTION__);
         return;
@@ -106,14 +106,14 @@ static int recover_transaction(char* policy_id, int policy_id_len)
 
     //Check transaction status
 #ifdef USE_RPI
-    if (!RPITRANSACTION_is_stored(policy_id))
+    if (!rpitransaction_is_stored(policy_id))
     {
         pthread_mutex_unlock(&trans_mutex);
         return TRANS_NOT_PAYED;
     }
     else
     {
-        if (!RPITRANSACTION_is_verified(policy_id, policy_id_len))
+        if (!rpitransaction_is_verified(policy_id, policy_id_len))
         {
             pthread_mutex_unlock(&trans_mutex);
             return TRANS_PAYED;
@@ -132,7 +132,7 @@ static int recover_transaction(char* policy_id, int policy_id_len)
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
-void TRANSACTION_init(wallet_ctx_t* wallet_ctx)
+void transaction_init(wallet_ctx_t* wallet_ctx)
 {
     //Set wallet
     dev_wallet = wallet_ctx;
@@ -144,18 +144,18 @@ void TRANSACTION_init(wallet_ctx_t* wallet_ctx)
         return;
     }
 
-    PROTOCOL_register_payment_state_callback(recover_transaction);
+    protocol_register_payment_state_callback(recover_transaction);
 }
 
-void TRANSACTION_term(void)
+void transaction_term(void)
 {
     //Destroy mutex
     pthread_mutex_destroy(&trans_mutex);
 
-    PROTOCOL_unregister_payment_state_callback();
+    protocol_unregister_payment_state_callback();
 }
 
-bool TRANSACTION_store_transaction(char* policy_id, int policy_id_len,
+bool transaction_store_transaction(char* policy_id, int policy_id_len,
                                    char* transaction_hash, int transaction_hash_len)
 {
     int i;
@@ -170,7 +170,7 @@ bool TRANSACTION_store_transaction(char* policy_id, int policy_id_len,
     pthread_mutex_lock(&trans_mutex);
 
 #ifdef USE_RPI
-    if (!RPITRANSACTION_store(policy_id, policy_id_len))
+    if (!rpitransaction_store(policy_id, policy_id_len))
     {
         printf("\nERROR[%s]: Failed to store transaction.\n", __FUNCTION__);
         pthread_mutex_unlock(&trans_mutex);
@@ -184,7 +184,7 @@ bool TRANSACTION_store_transaction(char* policy_id, int policy_id_len,
     {
         //Confirmed transaction
 #ifdef USE_RPI
-        if (!RPITRANSACTION_update_payment_status(policy_id, policy_id_len, TRUE))
+        if (!rpitransaction_update_payment_status(policy_id, policy_id_len, TRUE))
         {
             printf("\nERROR[%s]: Failed to store transaction.\n", __FUNCTION__);
             pthread_mutex_unlock(&trans_mutex);

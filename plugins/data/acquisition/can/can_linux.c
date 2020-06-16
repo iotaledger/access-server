@@ -41,7 +41,7 @@
 #define CAN_CTRLMSG_LEN 1024
 #define CAN_TIMEOUT_uSEC 30000
 
-int CAN_open(CAN_t *can_connection, const char* can_device)
+int can_open(can_t *can_connection, const char* can_device)
 {
     if (can_connection == NULL) return CAN_OPEN_CONNECTION_ERROR;
 
@@ -80,9 +80,9 @@ int CAN_open(CAN_t *can_connection, const char* can_device)
     return CAN_OPEN_NO_ERROR;
 }
 
-int CAN_send_frame_str(CAN_t *can_connection, char* frame_data)
+int can_send_frame_str(can_t *can_connection, char* frame_data)
 {
-                        struct can_frame frame;
+    struct can_frame frame;
 
     if (frame_data == NULL) return CAN_SEND_FRAME_DATA_ERROR;
 
@@ -109,7 +109,7 @@ int CAN_send_frame_str(CAN_t *can_connection, char* frame_data)
     return CAN_SEND_NO_ERROR;
 }
 
-int CAN_send_frame(CAN_t *can_connection, struct can_frame *frame)
+int can_send_frame(can_t *can_connection, struct can_frame *frame)
 {
 
     if (can_connection == NULL || frame == NULL) return CAN_SEND_FRAME_DATA_ERROR;
@@ -123,12 +123,12 @@ int CAN_send_frame(CAN_t *can_connection, struct can_frame *frame)
     return CAN_SEND_NO_ERROR;
 }
 
-int CAN_end_loop(CAN_t *can_connection)
+int can_end_loop(can_t *can_connection)
 {
     can_connection->end_loop = 1;
 }
 
-int CAN_read_loop(CAN_t *can_connection, void (*frame_read_cb)(struct can_frame *frame))
+int can_read_loop(can_t *can_connection, void (*frame_read_cb)(struct can_frame *frame))
 {
     fd_set rdfs;
     struct iovec iov;
@@ -198,7 +198,7 @@ int CAN_read_loop(CAN_t *can_connection, void (*frame_read_cb)(struct can_frame 
     return ret;
 }
 
-int CAN_close(CAN_t *can_connection)
+int can_close(can_t *can_connection)
 {
     if (can_connection == NULL) return CAN_CLOSE_ERROR;
     close(can_connection->sock);

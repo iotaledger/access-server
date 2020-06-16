@@ -54,7 +54,7 @@ static int set_interface_attribs (int fd, int speed, int parity);
 static void set_blocking (int fd, int should_block);
 static uint16_t calculate_crc(uint8_t* buf, int len);
 
-int Modbus_init(Modbus_t* modbus, const char* serial_device)
+int modbus_init(modbus_t* modbus, const char* serial_device)
 {
     modbus->fd = -1;
     strncpy(modbus->device_name, serial_device, MODBUS_DEVICE_NAME_LEN);
@@ -70,7 +70,7 @@ int Modbus_init(Modbus_t* modbus, const char* serial_device)
     set_blocking (modbus->fd, 1);                   // set blocking
 }
 
-int Modbus_read_registers(Modbus_t* modbus, int slave_device_address, uint16_t register_address, uint16_t quantity_to_read, int16_t *data)
+int modbus_read_registers(modbus_t* modbus, int slave_device_address, uint16_t register_address, uint16_t quantity_to_read, int16_t *data)
 {
     uint8_t buff[MODBUS_SLAVE_DEVICE_BUFF_LEN] = {0};
     buff[0] = slave_device_address;
@@ -105,7 +105,7 @@ int Modbus_read_registers(Modbus_t* modbus, int slave_device_address, uint16_t r
     return response_crc != crc;
 }
 
-void Modbus_deinit(Modbus_t* modbus)
+void modbus_deinit(modbus_t* modbus)
 {
     close(modbus->fd);
 }

@@ -41,13 +41,13 @@
 typedef struct
 {
     char can_bus_name[CAN_BUS_LEN];
-    CAN_t can_connection;
+    can_t can_connection;
     pthread_t thread;
     void (*can_frame_read_cb)(struct can_frame *frame);
-} CanThread_instance_t;
+} canthread_instance_t;
 
-void CanThread_init(CanThread_instance_t* inst, const char* can_bus_name, void (*can_cb)(struct can_frame *frame));
-int CanThread_start(CanThread_instance_t* inst);
-int CanThread_stop(CanThread_instance_t* inst);
+void canthread_init(canthread_instance_t* inst, const char* can_bus_name, void (*can_cb)(struct can_frame *frame));
+int canthread_start(canthread_instance_t* inst);
+int canthread_stop(canthread_instance_t* inst);
 
 #endif

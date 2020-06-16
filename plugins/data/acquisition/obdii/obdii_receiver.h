@@ -22,8 +22,8 @@
 
 #include <pthread.h>
 
-void ObdiiReceiver_init(const char* portname, pthread_mutex_t *json_mutex);
-int ObdiiReceiver_start();
-void ObdiiReceiver_stop();
+void obdiireceiver_init(const char* portname, pthread_mutex_t *json_mutex);
+int obdiireceiver_start();
+void obdiireceiver_stop();
 
 #endif

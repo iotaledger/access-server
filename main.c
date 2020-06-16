@@ -57,7 +57,7 @@ static wallet_ctx_t *device_wallet;
 
 int main(int argc, char** argv)
 {
-    Dataset_state_t *ddstate;
+    dataset_state_t *ddstate;
 
     signal(SIGINT, signal_handler);
     sigaction(SIGPIPE, &(struct sigaction){SIG_IGN}, NULL);

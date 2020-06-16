@@ -246,13 +246,13 @@ static fjson_object* can_json_filler()
 // !CAN data stuff
 
 static pthread_mutex_t *json_sync_lock;
-static CanThread_instance_t can_chas_instance;
-static CanThread_instance_t can_body_instance;
+static canthread_instance_t can_chas_instance;
+static canthread_instance_t can_body_instance;
 static void can_body_frame_read_cb(struct can_frame *frame);
 static void can_chas_frame_read_cb(struct can_frame *frame);
 
 #ifndef TINY_EMBEDDED
-void CanReceiver_preInitSetup()
+void canreceiver_pre_init_setup()
 {
     ConfigManager_get_option_string("can_receiver", "can_body_channel", body_chan, MAX_STR_SIZE);
     ConfigManager_get_option_string("can_receiver", "can_chas_channel", chas_chan, MAX_STR_SIZE);
@@ -261,7 +261,7 @@ void CanReceiver_preInitSetup()
 }
 #endif
 
-void CanReceiver_init(can01_vehicle_dataset_t *dataset, pthread_mutex_t *json_mutex)
+void canreceiver_init(can01_vehicle_dataset_t *dataset, pthread_mutex_t *json_mutex)
 {
     wanted_signals = dataset;
     JSONInterface_add_module_init_cb(can_json_filler, &fj_obj_can, CAN_JSON_NAME);
@@ -269,35 +269,35 @@ void CanReceiver_init(can01_vehicle_dataset_t *dataset, pthread_mutex_t *json_mu
     ConfigManager_get_option_string("can_receiver", "can_body_channel", body_chan, MAX_STR_SIZE);
     ConfigManager_get_option_string("can_receiver", "can_chas_channel", chas_chan, MAX_STR_SIZE);
 
-    CanThread_init(&can_body_instance, body_chan, can_body_frame_read_cb);
-    CanThread_init(&can_chas_instance, chas_chan, can_chas_frame_read_cb);
+    canthread_init(&can_body_instance, body_chan, can_body_frame_read_cb);
+    canthread_init(&can_chas_instance, chas_chan, can_chas_frame_read_cb);
 #ifdef TINY_EMBEDDED
     is_in_use = TRUE;
 #endif
 }
 
-void CanReceiver_start()
+void canreceiver_start()
 {
-    CanThread_start(&can_body_instance);
-    CanThread_start(&can_chas_instance);
+    canthread_start(&can_body_instance);
+    canthread_start(&can_chas_instance);
 }
 
-int CanReceiver_deinit()
+int canreceiver_deinit()
 {
-    if (CanThread_stop(&can_chas_instance)) return 1;
-    if (CanThread_stop(&can_body_instance)) return 2;
+    if (canthread_stop(&can_chas_instance)) return 1;
+    if (canthread_stop(&can_body_instance)) return 2;
 #ifdef TINY_EMBEDDED
     is_in_use = FALSE;
 #endif
     return 0;
 }
 
-bool CanReceiver_isInUse()
+bool canreceiver_is_in_use()
 {
     return is_in_use;
 }
 
-void CanReceiver_getBodyChannel(char* channel_buff, int channel_buff_len)
+void canreceiver_get_body_channel(char* channel_buff, int channel_buff_len)
 {
     if (channel_buff != NULL && channel_buff_len > 0)
     {
@@ -305,7 +305,7 @@ void CanReceiver_getBodyChannel(char* channel_buff, int channel_buff_len)
     }
 }
 
-void CanReceiver_getChasChannel(char* channel_buff, int channel_buff_len)
+void canreceiver_get_chas_channel(char* channel_buff, int channel_buff_len)
 {
     if (channel_buff != NULL && channel_buff_len > 0)
     {

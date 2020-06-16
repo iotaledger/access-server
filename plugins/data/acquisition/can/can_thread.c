@@ -37,7 +37,7 @@
 
 #define CAN_BUS_NAME_LEN 5
 
-void CanThread_init(CanThread_instance_t* inst, const char* can_bus_name, void (*can_cb)(struct can_frame *frame))
+void canthread_init(canthread_instance_t* inst, const char* can_bus_name, void (*can_cb)(struct can_frame *frame))
 {
     strncpy(inst->can_bus_name, can_bus_name, CAN_BUS_NAME_LEN);
     inst->can_frame_read_cb = can_cb;
@@ -45,13 +45,13 @@ void CanThread_init(CanThread_instance_t* inst, const char* can_bus_name, void (
 
 static void *can_thread(void *ptr)
 {
-    CanThread_instance_t *targs = (CanThread_instance_t*)ptr;
-    CAN_open(&targs->can_connection, targs->can_bus_name);
-    CAN_read_loop(&targs->can_connection, targs->can_frame_read_cb);
-    CAN_close(&targs->can_connection);
+    canthread_instance_t *targs = (canthread_instance_t*)ptr;
+    can_open(&targs->can_connection, targs->can_bus_name);
+    can_read_loop(&targs->can_connection, targs->can_frame_read_cb);
+    can_close(&targs->can_connection);
 }
 
-int CanThread_start(CanThread_instance_t* inst)
+int canthread_start(canthread_instance_t* inst)
 {
     if (pthread_create(&inst->thread, NULL, can_thread, inst))
     {
@@ -61,9 +61,9 @@ int CanThread_start(CanThread_instance_t* inst)
     return 0;
 }
 
-int CanThread_stop(CanThread_instance_t* inst)
+int canthread_stop(canthread_instance_t* inst)
 {
-    CAN_end_loop(&inst->can_connection);
+    can_end_loop(&inst->can_connection);
     if (pthread_join(inst->thread, NULL))
     {
         fprintf(stderr, "Error joining can reader thread\n");

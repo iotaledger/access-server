@@ -38,15 +38,15 @@
 #include "dataset.h"
 
 #define vd_token_t                   d_token_t
-#define VehicleDataset_state_t       Dataset_state_t
-#define VehicleDataset_init          Dataset_init
-#define VehicleDataset_deinit        Dataset_deinit
-#define VehicleDataset_from_json     Dataset_from_json
-#define VehicleDataset_to_json       Dataset_to_json
-#define VehicleDataset_checked_count Dataset_checked_count
+#define vehicledataset_state_t       dataset_state_t
+#define vehicledataset_init          dataset_init
+#define vehicledataset_deinit        dataset_deinit
+#define vehicledataset_from_json     dataset_from_json
+#define vehicledataset_to_json       dataset_to_json
+#define vehicledataset_checked_count dataset_checked_count
 
-extern char VehicleDatasetDemo01_options[];
-extern char VehicleDatasetDemo02_options[];
+extern char vehicledatasetdemo01_options[];
+extern char vehicledatasetdemo02_options[];
 
 typedef struct
 {

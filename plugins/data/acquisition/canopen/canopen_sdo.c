@@ -35,7 +35,7 @@
 #include <string.h>
 
 
-static CanopenSdo_SDO_object_t sdo_db[] =
+static canopensdo_sdo_object_t sdo_db[] =
 {
     {CANOPEN_SDO_BMS_BAT_VOLTAGE_IDX, "bms bat voltage", "", 32, 0.0, -32768, 32767},
     {CANOPEN_SDO_ANALOGUE_BRAKE_FULL_VOLTAGE_IDX, "analogue brake full voltage", "Volts", 4096, 0.0, -32768, 32767},
@@ -62,12 +62,12 @@ static CanopenSdo_SDO_object_t sdo_db[] =
     {CANOPEN_SDO_TPDO0_MAPPING4_IDX, "TPDO0 map4", "", 1, 0.0, -32768, 32767},
 };
 
-void CanopenSdo_init(){}
-void CanopenSdo_deinit(){}
+void canopensdo_init(){}
+void canopensdo_deinit(){}
 
-void CanopenSdo_parse(int index, uint64_t data, CanopenSdo_parsed_data_t* parsed_data)
+void canopensdo_parse(int index, uint64_t data, canopensdo_parsed_data_t* parsed_data)
 {
-    CanopenSdo_SDO_object_t* sdobj = CanopenSdo_get(index);
+    canopensdo_sdo_object_t* sdobj = canopensdo_get(index);
     if (sdobj != NULL)
     {
         strncpy(parsed_data->unit, sdobj->unit, sizeof(parsed_data->unit) / sizeof(parsed_data->unit[0]));
@@ -103,7 +103,7 @@ void CanopenSdo_parse(int index, uint64_t data, CanopenSdo_parsed_data_t* parsed
     }
 }
 
-CanopenSdo_SDO_object_t* CanopenSdo_get(int index)
+canopensdo_sdo_object_t* canopensdo_get(int index)
 {
     for (int i=0; i<sizeof(sdo_db) / sizeof(sdo_db[0]); i++)
     {

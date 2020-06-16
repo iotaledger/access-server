@@ -48,14 +48,14 @@ typedef enum
     CAN_OPEN_SOCKET_ERROR = -2,
     CAN_OPEN_IOCTL_ERROR = -3,
     CAN_OPEN_BIND_ERROR = -4
-} CAN_open_error_e;
+} can_open_error_e;
 
 typedef enum
 {
     CAN_SEND_NO_ERROR = 0,
     CAN_SEND_FRAME_DATA_ERROR = -1,
     CAN_SEND_WRITE_ERROR = -2
-} CAN_send_frame_error_e;
+} can_send_frame_error_e;
 
 typedef enum
 {
@@ -63,13 +63,13 @@ typedef enum
     CAN_READ_CONNECTION_ERROR = -1,
     CAN_READ_RECEIVE_ERROR = -2,
     CAN_READ_INCOMPLETE_ERROR = -3
-} CAN_read_error_e;
+} can_read_error_e;
 
 typedef enum
 {
     CAN_CLOSE_NO_ERROR = 0,
     CAN_CLOSE_ERROR = -1
-} CAN_close_error_e;
+} can_close_error_e;
 
 typedef struct
 {
@@ -77,13 +77,13 @@ typedef struct
     struct sockaddr_can addr;
     struct ifreq ifr;
     int end_loop;
-} CAN_t;
+} can_t;
 
-int CAN_open(CAN_t *can_connection, const char* can_device);
-int CAN_send_frame_str(CAN_t *can_connection, char* frame_data);
-int CAN_send_frame(CAN_t *can_connection, struct can_frame *frame);
-int CAN_read_loop(CAN_t *can_connection, void (*frame_read_cb)(struct can_frame *frame));
-int CAN_end_loop(CAN_t *can_connection);
-int CAN_close(CAN_t *can_connection);
+int can_open(can_t *can_connection, const char* can_device);
+int can_send_frame_str(can_t *can_connection, char* frame_data);
+int can_send_frame(can_t *can_connection, struct can_frame *frame);
+int can_read_loop(can_t *can_connection, void (*frame_read_cb)(struct can_frame *frame));
+int can_end_loop(can_t *can_connection);
+int can_close(can_t *can_connection);
 
 #endif

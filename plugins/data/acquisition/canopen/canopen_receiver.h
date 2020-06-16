@@ -41,13 +41,13 @@
 #endif
 
 #ifndef TINY_EMBEDDED
-void CanopenReceiver_preInitSetup();
+void canopenreceiver_pre_init_setup();
 #endif
-void CanopenReceiver_init(canopen01_vehicle_dataset_t *dataset, pthread_mutex_t *json_mutex);
-int CanopenReceiver_start();
-void CanopenReceiver_deinit();
-bool CanopenReceiver_isInUse();
-void CanopenReceiver_getPortName(char* p_name_buff, int p_name_buff_len);
-int CanopenReceiver_getNodeId(void);
+void canopenreceiver_init(canopen01_vehicle_dataset_t *dataset, pthread_mutex_t *json_mutex);
+int canopenreceiver_start();
+void canopenreceiver_deinit();
+bool canopenreceiver_is_in_use();
+void canopenreceiver_get_port_name(char* p_name_buff, int p_name_buff_len);
+int canopenreceiver_get_node_id(void);
 
 #endif

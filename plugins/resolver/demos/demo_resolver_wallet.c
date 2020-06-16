@@ -52,14 +52,14 @@ static int demo_wallet_transfer_tokens(resolver_action_data_t *action, int shoul
 
 static int demo_wallet_store_transaction(resolver_action_data_t *action, int should_log)
 {
-    TRANSACTION_store_transaction(action->pol_id_str, RES_POL_ID_STR_LEN,
+    transaction_store_transaction(action->pol_id_str, RES_POL_ID_STR_LEN,
                                   action->transaction_hash, action->transaction_hash_len);
     return 0;
 }
 
 static resolver_plugin_t* g_action_set = NULL;
 
-static void init_ds_interface(Dataset_state_t* vdstate)
+static void init_ds_interface(dataset_state_t* vdstate)
 {
 
 }
@@ -74,7 +74,7 @@ static void stop_ds_interface()
 
 }
 
-static void term_ds_interface(Dataset_state_t* vdstate)
+static void term_ds_interface(dataset_state_t* vdstate)
 {
 
 }

@@ -147,45 +147,45 @@ static int demo01_tcp_open_trunk(resolver_action_data_t *action, int should_log)
 
 static resolver_plugin_t* g_action_set = NULL;
 
-static void init_ds_interface(Dataset_state_t* vdstate)
+static void init_ds_interface(dataset_state_t* vdstate)
 {
 #ifdef TINY_EMBEDDED
-    CanReceiver_deinit();
+    canreceiver_deinit();
     // Re-init receiver with new dataset
 #endif
     
-    vdstate->options = &VehicleDatasetDemo01_options[0];
-    Dataset_init(vdstate);
-    CanReceiver_init(vdstate->dataset, JSONInterface_get_mutex());
+    vdstate->options = &vehicledatasetdemo01_options[0];
+    dataset_init(vdstate);
+    canreceiver_init(vdstate->dataset, JSONInterface_get_mutex());
 }
 
-static void init_ds_interface_tcp(Dataset_state_t* vdstate)
+static void init_ds_interface_tcp(dataset_state_t* vdstate)
 {
 #ifdef TINY_EMBEDDED
-    CanReceiver_deinit();
+    canreceiver_deinit();
     // Re-init receiver with new dataset
 #endif
 
-    vdstate->options = &VehicleDatasetDemo01_options[0];
-    Dataset_init(vdstate);
-    CanReceiver_init(vdstate->dataset, JSONInterface_get_mutex());
+    vdstate->options = &vehicledatasetdemo01_options[0];
+    dataset_init(vdstate);
+    canreceiver_init(vdstate->dataset, JSONInterface_get_mutex());
 }
 
 static void start_ds_interface()
 {
-    CanReceiver_start();
+    canreceiver_start();
 }
 
 static void stop_ds_interface()
 {
-    CanReceiver_deinit();
+    canreceiver_deinit();
 }
 
-static void term_ds_interface(Dataset_state_t* vdstate)
+static void term_ds_interface(dataset_state_t* vdstate)
 {
     Demo01Plugin_terminizer();
     vdstate->options = NULL;
-    Dataset_deinit(vdstate);
+    dataset_deinit(vdstate);
 }
 
 void Demo01Plugin_initializer(resolver_plugin_t* action_set, void* options)

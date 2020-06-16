@@ -42,7 +42,7 @@
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
-bool RPITRANSACTION_store(char* policy_id, int policy_id_len)
+bool rpitransaction_store(char* policy_id, int policy_id_len)
 {
     char *line = NULL;
     int line_len = 0;
@@ -76,7 +76,7 @@ bool RPITRANSACTION_store(char* policy_id, int policy_id_len)
     return TRUE;
 }
 
-bool RPITRANSACTION_update_payment_status(char* policy_id, int policy_id_len, bool is_verified)
+bool rpitransaction_update_payment_status(char* policy_id, int policy_id_len, bool is_verified)
 {
     char *buff = NULL;
     char *transaction = NULL;
@@ -140,7 +140,7 @@ bool RPITRANSACTION_update_payment_status(char* policy_id, int policy_id_len, bo
     return TRUE;
 }
 
-bool RPITRANSACTION_is_stored(char* policy_id)
+bool rpitransaction_is_stored(char* policy_id)
 {
     char *buff = NULL;
     int buff_len = 0;
@@ -181,7 +181,7 @@ bool RPITRANSACTION_is_stored(char* policy_id)
     }
 }
 
-bool RPITRANSACTION_is_verified(char* policy_id, int policy_id_len)
+bool rpitransaction_is_verified(char* policy_id, int policy_id_len)
 {
     char *buff = NULL;
     char *line = NULL;

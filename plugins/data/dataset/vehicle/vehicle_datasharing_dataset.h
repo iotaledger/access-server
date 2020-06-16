@@ -33,36 +33,36 @@
 
 #include "dataset.h"
 
-extern char VehicleDataset01_options[];
+extern char vehicledataset01_options[];
 
-extern char VehicleDataset02_options[];
+extern char vehicledataset02_options[];
 
-extern char VehicleDataset03_options[];
+extern char vehicledataset03_options[];
 
-extern char VehicleDataset04_options[];
+extern char vehicledataset04_options[];
 
-extern char VehicleDataset05_options[];
+extern char vehicledataset05_options[];
 
-extern char VehicleDataset06_options[];
+extern char vehicledataset06_options[];
 
-extern char VehicleDataset07_options[];
+extern char vehicledataset07_options[];
 
-extern char VehicleDataset08_options[];
+extern char vehicledataset08_options[];
 
-extern char VehicleDataset09_options[];
+extern char vehicledataset09_options[];
 
-extern char VehicleDataset10_options[];
+extern char vehicledataset10_options[];
 
-extern char VehicleDataset11_options[];
+extern char vehicledataset11_options[];
 
-extern char VehicleDataset12_options[];
+extern char vehicledataset12_options[];
 
-extern char VehicleDataset13_options[];
+extern char vehicledataset13_options[];
 
-extern char VehicleDataset14_options[];
+extern char vehicledataset14_options[];
 
-extern char VehicleDataset15_options[];
+extern char vehicledataset15_options[];
 
-extern char VehicleDataset16_options[];
+extern char vehicledataset16_options[];
 
 #endif

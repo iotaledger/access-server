@@ -70,9 +70,9 @@ typedef struct
     char portname[GPS_PORTNAME_LEN];
     fjson_object* fj_root;
     pthread_mutex_t *json_mutex;
-} GpsReceiver_thread_args_t;
+} gpsreceiver_thread_args_t;
 
-static GpsReceiver_thread_args_t targs;
+static gpsreceiver_thread_args_t targs;
 
 static int set_interface_attribs (int fd, int speed, int parity)
 {
@@ -180,7 +180,7 @@ static void *gps_thread_loop(void *ptr)
 {
     int fd = -1;
     //char *portname = (char*)ptr;
-    GpsReceiver_thread_args_t *targs = (GpsReceiver_thread_args_t*)ptr;
+    gpsreceiver_thread_args_t *targs = (gpsreceiver_thread_args_t*)ptr;
 
     fd = open(targs->portname, O_RDONLY | O_NOCTTY | O_SYNC);
 
@@ -290,7 +290,7 @@ static void *gps_thread_loop(void *ptr)
     }
 }
 
-int GpsReceiver_init(pthread_mutex_t *json_mutex)
+int gpsreceiver_init(pthread_mutex_t *json_mutex)
 {
     ConfigManager_get_option_string("gps_recv", "serialportname", targs.portname, GPS_PORTNAME_LEN);
 
@@ -301,7 +301,7 @@ int GpsReceiver_init(pthread_mutex_t *json_mutex)
     return GPS_NO_ERROR;
 }
 
-int GpsReceiver_start()
+int gpsreceiver_start()
 {
     if (pthread_create(&gps_thread, NULL, gps_thread_loop, (void*)&targs))
     {
@@ -312,7 +312,7 @@ int GpsReceiver_start()
     return GPS_NO_ERROR;
 }
 
-int GpsReceiver_end()
+int gpsreceiver_end()
 {
     end_thread = 1;
     pthread_join(gps_thread, NULL);

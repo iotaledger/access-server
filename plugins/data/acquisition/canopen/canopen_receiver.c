@@ -49,7 +49,7 @@ typedef enum
 	CANOPEN_SHD_STOPPED = 0x04,
 	CANOPEN_SHD_OPERATIONAL = 0x05,
 	CANOPEN_SHD_PREOPERATIONAL = 0x7f
-} Canopen_service_heartbeat_data_e;
+} canopen_service_heartbeat_data_e;
 
 typedef enum
 {
@@ -57,7 +57,7 @@ typedef enum
 	CANOPEN_STC_3BYTES = 0x47,
 	CANOPEN_STC_2BYTES = 0x4b,
 	CANOPEN_STC_1BYTE = 0x4f
-} Canopen_service_tsdo_command_e;
+} canopen_service_tsdo_command_e;
 
 #define CANOPEN_JSON_NAME "canopen_data"
 #define CANOPEN_SERVICE_TPDO1 0x180
@@ -79,7 +79,7 @@ typedef enum
 #define CANOPEN_READ_CANDLC 8
 #define CANOPEN_READ_DATA_READ_COMMAND 0x40
 
-#define CANOPEN_FILL_FRAME_DATA(X) {frame.data[1] = ((X) & 0x00ff00) >> 8; frame.data[2] = ((X) & 0xff0000) >> 16; frame.data[3] = (X) & 0xff; CAN_send_frame(&can_instance.can_connection, &frame); usleep(g_task_sleep_time);}
+#define CANOPEN_FILL_FRAME_DATA(X) {frame.data[1] = ((X) & 0x00ff00) >> 8; frame.data[2] = ((X) & 0xff0000) >> 16; frame.data[3] = (X) & 0xff; can_send_frame(&can_instance.can_connection, &frame); usleep(g_task_sleep_time);}
 
 static canopen01_vehicle_dataset_t *wanted_signals;
 static int end_loop = 0;
@@ -369,7 +369,7 @@ static fjson_object* can_json_filler()
 static pthread_mutex_t *json_sync_lock;
 static pthread_t canopen_bg_thread;
 static int node_id;
-static CanThread_instance_t can_instance;
+static canthread_instance_t can_instance;
 
 static const int services_nonodeid [CANOPEN_NONODE_ARRAY_SIZE] =
 {
@@ -475,7 +475,7 @@ static void can_read_callback(struct can_frame *frame)
                             _frame.can_dlc = CANOPEN_SHD_PREOP_CANDLC;
                             _frame.data[0] = CANOPEN_SHD_PREOP_CANDATA0;
                             _frame.data[1] = node_id;
-                            CAN_send_frame(&can_instance.can_connection, &_frame);
+                            can_send_frame(&can_instance.can_connection, &_frame);
                         break;
                         default:
                             printf(" invalid state, should not happen!\n");
@@ -502,8 +502,8 @@ static void can_read_callback(struct can_frame *frame)
                                 data = frame->data[4];
                             break;
                         }
-                        CanopenSdo_parsed_data_t parsed_sdo_data;
-                        CanopenSdo_parse(index, data, &parsed_sdo_data);
+                        canopensdo_parsed_data_t parsed_sdo_data;
+                        canopensdo_parse(index, data, &parsed_sdo_data);
 
                         pthread_mutex_lock(json_sync_lock);
                         fjson_object* fj_value = fjson_object_new_object();
@@ -621,7 +621,7 @@ static void can_read_callback(struct can_frame *frame)
 }
 
 #ifndef TINY_EMBEDDED
-void CanopenReceiver_preInitSetup()
+void canopenreceiver_pre_init_setup()
 {
     is_in_use = TRUE;
     ConfigManager_get_option_string("canopen", "port_name", port_name, CANOPEN_MAX_STR_SIZE);
@@ -629,14 +629,14 @@ void CanopenReceiver_preInitSetup()
 }
 #endif
 
-void CanopenReceiver_init(canopen01_vehicle_dataset_t *dataset, pthread_mutex_t *json_mutex)
+void canopenreceiver_init(canopen01_vehicle_dataset_t *dataset, pthread_mutex_t *json_mutex)
 {
     wanted_signals = dataset;
     JSONInterface_add_module_init_cb(can_json_filler, &fj_obj_canopen, CANOPEN_JSON_NAME);
     json_sync_lock = json_mutex;
     ConfigManager_get_option_string("canopen", "port_name", port_name, CANOPEN_MAX_STR_SIZE);
     ConfigManager_get_option_int("canopen", "node_id", &node_id);
-    CanThread_init(&can_instance, port_name, can_read_callback);
+    canthread_init(&can_instance, port_name, can_read_callback);
 #ifdef TINY_EMBEDDED
     is_in_use = TRUE;
 #endif
@@ -655,7 +655,7 @@ static void* canopen_bg_thread_func(void* _)
             struct can_frame frame;
             frame.can_id = CANOPEN_SYNC_CANID;
             frame.can_dlc = CANOPEN_SYNC_CANDLC;
-            CAN_send_frame(&can_instance.can_connection, &frame);
+            can_send_frame(&can_instance.can_connection, &frame);
         }
 
         if (read_counter++ > (CANOPEN_READ_COUNTER_PRESCALER / g_task_sleep_time) || (CANOPEN_READ_COUNTER_PRESCALER / g_task_sleep_time) == 0)
@@ -767,9 +767,9 @@ static void* canopen_bg_thread_func(void* _)
     }
 }
 
-int CanopenReceiver_start()
+int canopenreceiver_start()
 {
-    if (CanThread_start(&can_instance))
+    if (canthread_start(&can_instance))
     {
         fprintf(stderr, "Error creating CANopen read thread\n");
         return 1;
@@ -782,21 +782,21 @@ int CanopenReceiver_start()
     }
 }
 
-void CanopenReceiver_deinit()
+void canopenreceiver_deinit()
 {
     end_loop = 1;
-    CanThread_stop(&can_instance);
+    canthread_stop(&can_instance);
 #ifdef TINY_EMBEDDED
     is_in_use = FALSE;
 #endif
 }
 
-bool CanopenReceiver_isInUse()
+bool canopenreceiver_is_in_use()
 {
     return is_in_use;
 }
 
-void CanopenReceiver_getPortName(char* p_name_buff, int p_name_buff_len)
+void canopenreceiver_get_port_name(char* p_name_buff, int p_name_buff_len)
 {
     if (p_name_buff != NULL && p_name_buff_len > 0)
     {
@@ -804,7 +804,7 @@ void CanopenReceiver_getPortName(char* p_name_buff, int p_name_buff_len)
     }
 }
 
-int CanopenReceiver_getNodeId(void)
+int canopenreceiver_get_node_id(void)
 {
     return node_id;
 }

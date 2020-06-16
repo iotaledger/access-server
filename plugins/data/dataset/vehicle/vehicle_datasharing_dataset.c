@@ -32,56 +32,56 @@
  ****************************************************************************/
 #include "vehicle_datasharing_dataset.h"
 
-char VehicleDataset01_options[] =
+char vehicledataset01_options[] =
     "DoorDrvrSts"
     "|DoorDrvrReSts";
 
-char VehicleDataset02_options[] = "";
+char vehicledataset02_options[] = "";
 
-char VehicleDataset03_options[] = "";
+char vehicledataset03_options[] = "";
 
-char VehicleDataset04_options[] = "";
+char vehicledataset04_options[] = "";
 
-char VehicleDataset05_options[] = "";
+char vehicledataset05_options[] = "";
 
-char VehicleDataset06_options[] = "";
+char vehicledataset06_options[] = "";
 
-char VehicleDataset07_options[] = "";
+char vehicledataset07_options[] = "";
 
-char VehicleDataset08_options[] = "";
+char vehicledataset08_options[] = "";
 
-char VehicleDataset09_options[] = "";
+char vehicledataset09_options[] = "";
 
-char VehicleDataset10_options[] = "";
+char vehicledataset10_options[] = "";
 
-char VehicleDataset11_options[] = "";
+char vehicledataset11_options[] = "";
 
-char VehicleDataset12_options[] = "";
+char vehicledataset12_options[] = "";
 
-char VehicleDataset13_options[] = "";
+char vehicledataset13_options[] = "";
 
-char VehicleDataset14_options[] = "";
+char vehicledataset14_options[] = "";
 
-char VehicleDataset15_options[] = "";
+char vehicledataset15_options[] = "";
 
-char VehicleDataset16_options[] = "";
+char vehicledataset16_options[] = "";
 
-char* Dataset_options[DATASET_ARRAY_SIZE] =
+char* dataset_options[DATASET_ARRAY_SIZE] =
 {
-    VehicleDataset01_options,
-    VehicleDataset02_options,
-    VehicleDataset03_options,
-    VehicleDataset04_options,
-    VehicleDataset05_options,
-    VehicleDataset06_options,
-    VehicleDataset07_options,
-    VehicleDataset08_options,
-    VehicleDataset09_options,
-    VehicleDataset10_options,
-    VehicleDataset11_options,
-    VehicleDataset12_options,
-    VehicleDataset13_options,
-    VehicleDataset14_options,
-    VehicleDataset15_options,
-    VehicleDataset16_options
+    vehicledataset01_options,
+    vehicledataset02_options,
+    vehicledataset03_options,
+    vehicledataset04_options,
+    vehicledataset05_options,
+    vehicledataset06_options,
+    vehicledataset07_options,
+    vehicledataset08_options,
+    vehicledataset09_options,
+    vehicledataset10_options,
+    vehicledataset11_options,
+    vehicledataset12_options,
+    vehicledataset13_options,
+    vehicledataset14_options,
+    vehicledataset15_options,
+    vehicledataset16_options
 };

@@ -151,7 +151,7 @@ static bool fetch_data(char* uri, pip_attribute_object_t* attribute_object)
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
-bool PROTOCOL_init(wallet_ctx_t* wallet_ctx)
+bool protocol_init(wallet_ctx_t* wallet_ctx)
 {
     //Set wallet
     dev_wallet = wallet_ctx;
@@ -165,7 +165,7 @@ bool PROTOCOL_init(wallet_ctx_t* wallet_ctx)
     return TRUE;
 }
 
-bool PROTOCOL_term(void)
+bool protocol_term(void)
 {
     if (pip_unregister_callback(PIP_IOTA) != PIP_NO_ERROR)
     {
@@ -176,22 +176,22 @@ bool PROTOCOL_term(void)
     return TRUE;
 }
 
-void PROTOCOL_register_callback(acquire_fn acquire)
+void protocol_register_callback(acquire_fn acquire)
 {
     callback_acquire = acquire;
 }
 
-void PROTOCOL_unregister_callback(void)
+void protocol_unregister_callback(void)
 {
     callback_acquire = NULL;
 }
 
-void PROTOCOL_register_payment_state_callback(payment_status_fn trans_fn)
+void protocol_register_payment_state_callback(payment_status_fn trans_fn)
 {
     transaction_status = trans_fn;
 }
 
-void PROTOCOL_unregister_payment_state_callback(void)
+void protocol_unregister_payment_state_callback(void)
 {
     transaction_status = NULL;
 }

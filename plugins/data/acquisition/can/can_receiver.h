@@ -46,7 +46,7 @@ typedef enum
     CAN_DOOR_UNKNOWN = 0x00,
     CAN_DOOR_OPENED = 0x01,
     CAN_DOOR_CLOSED = 0x02
-} CAN_door_status_e;
+} can_door_status_e;
 
 typedef enum
 {
@@ -55,23 +55,23 @@ typedef enum
     CAN_LOCK_CLOSED = 0x02,
     CAN_LOCK_LOCKED = 0x03,
     CAN_LOCK_SAFE = 0x04
-} CAN_lock_status_e;
+} can_lock_status_e;
 
 typedef enum
 {
     CAN_TEMP_UNIT_C = 0x00,
     CAN_TEMP_UNIT_F = 0x01,
     CAN_TEMP_UNIT_UNKNOWN = 0x02
-} CAN_temp_unit_e;
+} can_temp_unit_e;
 
 #ifndef TINY_EMBEDDED
-void CanReceiver_preInitSetup();
+void canreceiver_pre_init_setup();
 #endif
-void CanReceiver_init(can01_vehicle_dataset_t *dataset, pthread_mutex_t *json_mutex);
-void CanReceiver_start();
-int CanReceiver_deinit();
-bool CanReceiver_isInUse();
-void CanReceiver_getBodyChannel(char* channel_buff, int channel_buff_len);
-void CanReceiver_getChasChannel(char* channel_buff, int channel_buff_len);
+void canreceiver_init(can01_vehicle_dataset_t *dataset, pthread_mutex_t *json_mutex);
+void canreceiver_start();
+int canreceiver_deinit();
+bool canreceiver_is_in_use();
+void canreceiver_get_body_channel(char* channel_buff, int channel_buff_len);
+void canreceiver_get_chas_channel(char* channel_buff, int channel_buff_len);
 
 #endif
