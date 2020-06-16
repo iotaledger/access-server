@@ -51,13 +51,13 @@ int g_task_sleep_time;
 static volatile int running = 1;
 static void signal_handler(int _) { running = 0; }
 
-static Network_actor_ctx_t network_actor_context = 0;
+static Network_ctx_t network_context = 0;
 static Access_ctx_t access_context = 0;
 static wallet_ctx_t *device_wallet;
 
 int main(int argc, char** argv)
 {
-    Dataset_state_t *vdstate;
+    Dataset_state_t *ddstate;
 
     signal(SIGINT, signal_handler);
     sigaction(SIGPIPE, &(struct sigaction){SIG_IGN}, NULL);
@@ -70,12 +70,12 @@ int main(int argc, char** argv)
     device_wallet = wallet_create(NODE_URL, NODE_PORT, NULL, NODE_DEPTH, NODE_MWM, WALLET_SEED);
 
     Access_init(&access_context, device_wallet);
-    Access_get_vdstate(access_context, &vdstate);
+    Access_get_ddstate(access_context, &ddstate);
 
-    Network_actor_init(vdstate, &network_actor_context);
+    Network_init(ddstate, &network_context);
 
     Access_start(access_context);
-    if (Network_actor_start(network_actor_context) != 0)
+    if (Network_start(network_context) != 0)
     {
         fprintf(stderr, "Error starting Network actor\n");
         running = 0;
@@ -84,7 +84,7 @@ int main(int argc, char** argv)
     // Wait until process receives SIGINT
     while (running == 1) usleep(g_task_sleep_time);
 
-    Network_actor_stop(&network_actor_context);
+    Network_stop(&network_context);
     Access_deinit(access_context);
 
     return 0;

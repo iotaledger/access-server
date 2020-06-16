@@ -56,7 +56,7 @@ typedef struct
     int using_modbus;
     char client_name[MAX_CLIENT_NAME];
     pthread_mutex_t *json_mutex;
-    Dataset_state_t vdstate;
+    Dataset_state_t ddstate;
 } Access_ctx_t_;
 
 void Access_init(Access_ctx_t *access_context, wallet_ctx_t *device_wallet)
@@ -83,12 +83,12 @@ void Access_init(Access_ctx_t *access_context, wallet_ctx_t *device_wallet)
 
     if (strncmp(ctx->client_name, CONFIG_CLIENT_CAN01, strlen(CONFIG_CLIENT_CAN01)) == 0)
     {
-        Resolver_init(DemoWalletPlugin_initializer, &ctx->vdstate, (void*)device_wallet);
+        Resolver_init(DemoWalletPlugin_initializer, &ctx->ddstate, (void*)device_wallet);
 #ifdef TINY_EMBEDDED
-        ctx->vdstate.options = &VehicleDatasetDemo01_options[0];
-        ctx->vdstate.dataset = malloc(sizeof(can01_vehicle_dataset_t));
-        Dataset_init(&ctx->vdstate);
-        CanReceiver_init(ctx->vdstate.dataset, json_mutex);
+        ctx->ddstate.options = &VehicleDatasetDemo01_options[0];
+        ctx->ddstate.dataset = malloc(sizeof(can01_vehicle_dataset_t));
+        Dataset_init(&ctx->ddstate);
+        CanReceiver_init(ctx->ddstate.dataset, json_mutex);
         //GpsReceiver_init(json_mutex);
         ctx->using_can = 1;
         //ctx->using_gps = 1;
@@ -98,13 +98,13 @@ void Access_init(Access_ctx_t *access_context, wallet_ctx_t *device_wallet)
     }
     else if (strncmp(ctx->client_name, CONFIG_CLIENT_CANOPEN01, strlen(CONFIG_CLIENT_CANOPEN01)) == 0)
     {
-        Resolver_init(DemoWalletPlugin_initializer, &ctx->vdstate, (void*)device_wallet);
+        Resolver_init(DemoWalletPlugin_initializer, &ctx->ddstate, (void*)device_wallet);
 #ifdef TINY_EMBEDDED
-        ctx->vdstate.options = &VehicleDatasetDemo02_options[0];
-        ctx->vdstate.dataset = malloc(sizeof(canopen01_vehicle_dataset_t));
-        Dataset_init(&ctx->vdstate);
-        CanopenReceiver_init(ctx->vdstate.dataset, ctx->json_mutex);
-        //ModbusReceiver_init(ctx->vdstate.dataset, ctx->json_mutex);
+        ctx->ddstate.options = &VehicleDatasetDemo02_options[0];
+        ctx->ddstate.dataset = malloc(sizeof(canopen01_vehicle_dataset_t));
+        Dataset_init(&ctx->ddstate);
+        CanopenReceiver_init(ctx->ddstate.dataset, ctx->json_mutex);
+        //ModbusReceiver_init(ctx->ddstate.dataset, ctx->json_mutex);
         ctx->using_canopen = 1;
         //ctx->using_modbus = 1;
 #else
@@ -145,16 +145,16 @@ void Access_deinit(Access_ctx_t access_context)
     PolicyLoader_stop();
 
     JSONInterface_deinit();
-    if (ctx->vdstate.dataset != 0)
+    if (ctx->ddstate.dataset != 0)
     {
-        Dataset_deinit(&ctx->vdstate);
+        Dataset_deinit(&ctx->ddstate);
     }
 
     Timer_deinit();
 }
 
-void Access_get_vdstate(Access_ctx_t access_context, Dataset_state_t **vdstate)
+void Access_get_ddstate(Access_ctx_t access_context, Dataset_state_t **ddstate)
 {
     Access_ctx_t_ *ctx = (Access_ctx_t_*)access_context;
-    *vdstate = &ctx->vdstate;
+    *ddstate = &ctx->ddstate;
 }

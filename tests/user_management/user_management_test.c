@@ -18,10 +18,11 @@
  */
 
 #include <stdio.h>
-#include <json.h>
+#include <libfastjson/json.h>
+#include <sqlite3.h>
 #include "jsmn.h"
 
-#include "user_management.h"
+#include "user.h"
 
 #define RESPONSE_LEN 4096
 
@@ -29,19 +30,19 @@ static char response[RESPONSE_LEN];
 
 void main()
 {
-    UserManagement_init();
+    User_init();
 
-    UserManagement_get_all_users(response);
+    User_get_all(response);
     printf("get_all_users response: '%s'\n", response);
 
-    UserManagement_get_string("jamie", response);
+    User_get_obj("jamie", response);
     printf("get jamie response: '%s'\n", response);
 
-    UserManagement_put_string("{ \"username\": \"djura\", \"firstName\": \"Djura\", \"lastName\": \"Djuric\", \"userId\": \"0x824717182474182747282812472724818\" }", response);
+    User_put_obj("{ \"username\": \"djura\", \"firstName\": \"Djura\", \"lastName\": \"Djuric\", \"userId\": \"0x824717182474182747282812472724818\" }", response);
     printf("put djura response: '%s'\n", response);
 
-    UserManagement_get_string("djura", response);
+    User_get_obj("djura", response);
     printf("get djura response: '%s'\n", response);
 
-    UserManagement_deinit();
+    User_deinit();
 }

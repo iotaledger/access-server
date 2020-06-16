@@ -31,6 +31,6 @@ void Access_start(Access_ctx_t access_context);
 
 void Access_deinit(Access_ctx_t access_context);
 
-void Access_get_vdstate(Access_ctx_t access_context, Dataset_state_t **vdstate);
+void Access_get_ddstate(Access_ctx_t access_context, Dataset_state_t **ddstate);
 
 #endif

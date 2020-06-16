@@ -1,3 +1,4 @@
+
 #
 # This file is part of the IOTA Access distribution
 # (https://github.com/iotaledger/access)
@@ -19,23 +20,9 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-add_subdirectory(pdp)
-add_subdirectory(pip)
-add_subdirectory(pap)
-add_subdirectory(pep)
+add_subdirectory(json_parser)
+add_subdirectory(crypto)
+add_subdirectory(libfastjson)
+add_subdirectory(config_manager)
+add_subdirectory(misc)
 
-set(target access_actor)
-
-set(libs
-  config_manager
-  pep
-  misc
-  fastjson
-  data_acquisition_plugins
-  data_transactions_plugins
-  resolver
-  storage_plugin)
-
-add_library(${target} access.c)
-target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(${target} PUBLIC ${libs})

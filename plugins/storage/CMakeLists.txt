@@ -32,7 +32,7 @@ set(include_dirs
 
 set(libs
   pap
-  legacy_modules)
+  misc)
 
 add_library(${target} ${sources})
 target_include_directories(${target} PUBLIC ${include_dirs})

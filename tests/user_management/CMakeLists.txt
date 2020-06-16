@@ -19,23 +19,16 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-add_subdirectory(pdp)
-add_subdirectory(pip)
-add_subdirectory(pap)
-add_subdirectory(pep)
+set(target user_test)
 
-set(target access_actor)
+set(sources
+  user_management_test.c)
 
 set(libs
-  config_manager
-  pep
-  misc
+  sqlite3
   fastjson
-  data_acquisition_plugins
-  data_transactions_plugins
-  resolver
-  storage_plugin)
+  pap)
 
-add_library(${target} access.c)
+add_executable(${target} ${sources})
 target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(${target} PUBLIC ${libs})
