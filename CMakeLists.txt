@@ -54,10 +54,25 @@ message(STATUS "Fetching sqlite3")
 FetchContent_MakeAvailable(sqlite3)
 
 # Global includes
-include_directories(embedded/include plugins/data/dataset)
+include_directories(utils/misc plugins/data/dataset)
 
 add_subdirectory(access)
-add_subdirectory(embedded)
 add_subdirectory(network)
 add_subdirectory(plugins)
 add_subdirectory(wallet)
+add_subdirectory(utils)
+add_subdirectory(tests)
+
+set(target main)
+
+set(libs
+  sqlite3
+  json_parser
+  vehicle_dataset
+  network
+  misc
+  access_actor)
+
+add_executable(${target} main.c)
+target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(${target} PUBLIC ${libs})

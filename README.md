@@ -25,18 +25,6 @@ IOTA Access will soon be integrated into IOTA Streams (previously known as MAM).
 * As a secure layer of the delegation protocol.
 * As a secure layer of publisher/subscriber data sharing protocol.
 
-## Repository Overview
-This repository is a Work-in-Progress. Nevertheless, it shows the possibilities of IOTA Access.
-
-* The `android` directory contains a smartphone client application used to create access delegation policies for actions and data streams. Also it is used to identify the user and indicate ownership access right to particular asset.
-* The `embedded` directory contains the codebase necessary to run IOTA Access on a Raspberry Pi as a Proof of Concept in the context of the Automotive Industry.
-* The `iota` directory contains the codebase necessary to run interface servers responsible for managing delegation policies and token stores on the IOTA Tangle. It is meant to be executed on a Cloud Server.
-* The `policy_validation` directory contains tooling used to validate policies, such as:
-  - Validate JSON.
-  - Eliminate reduncancy of a binary circuit.
-  - Limit values checks.
-  - Check for suspicious conditions.
-
 ## Build Instructions
 Development of the PoC is currently focused on [Raspbian Buster](https://www.raspberrypi.org/blog/buster-the-new-version-of-raspbian/).
 
@@ -58,11 +46,6 @@ $ cmake .. -DCMAKE_INSTALL_PREFIX=$PWD/ext_install
 $ make
 
 ```
-
-## Run Instructions
-1. xxx
-2. xxx
-3. xxx
 
 ## XAIN FROST
 IOTA Access is based on [XAIN](https://www.xain.io/)'s **FROST** project, which is the byproduct of [Leif-Nissen Lundbeak](https://www.researchgate.net/profile/Leif_Nissen_Lundbaek)'s 2019 PhD Thesis at Imperial College London.

@@ -48,7 +48,7 @@ set(libs
   cryptography
   config_manager
   policy_updater
-  legacy_modules)
+  misc)
 
 add_library(${target} ${sources})
 target_include_directories(${target} PUBLIC ${include_dirs})

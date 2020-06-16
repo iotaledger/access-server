@@ -19,23 +19,5 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-add_subdirectory(config_manager)
-add_subdirectory(CpuGeneric/crypto)
-add_subdirectory(CpuGeneric/jsmn)
-add_subdirectory(CpuGeneric/libfastjson)
-add_subdirectory(include)
-add_subdirectory(tests/asn_test)
-
-set(target main)
-
-set(libs
-  sqlite3
-  json_parser
-  vehicle_dataset
-  network
-  legacy_modules
-  access_actor)
-
-add_executable(${target} main.c)
-target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(${target} PUBLIC ${libs})
+add_subdirectory(asn_test)
+add_subdirectory(user_management)

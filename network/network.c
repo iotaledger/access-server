@@ -92,18 +92,18 @@ typedef struct {
     int listenfd;
     int connfd;
 
-    Dataset_state_t* vdstate;
-} Network_actor_ctx_t_;
+    Dataset_state_t* ddstate;
+} Network_ctx_t_;
 
 static void *network_thread_function(void *ptr);
 
-int Network_actor_init(Dataset_state_t *_vdstate, Network_actor_ctx_t* network_actor_context)
+int Network_init(Dataset_state_t *_ddstate, Network_ctx_t* network_context)
 {
-    Network_actor_ctx_t_ *ctx = malloc(sizeof(Network_actor_ctx_t_));
+    Network_ctx_t_ *ctx = malloc(sizeof(Network_ctx_t_));
 
     ConfigManager_init("config.ini");
     int tcp_port;
-    if (CONFIG_MANAGER_OK != ConfigManager_get_option_int("network_actor", "tcp_port", &tcp_port))
+    if (CONFIG_MANAGER_OK != ConfigManager_get_option_int("network", "tcp_port", &tcp_port))
     {
         ctx->port = 9998;
     }
@@ -117,18 +117,18 @@ int Network_actor_init(Dataset_state_t *_vdstate, Network_actor_ctx_t* network_a
     ctx->end = 0;
     ctx->listenfd = 0;
     ctx->connfd = 0;
-    ctx->vdstate = _vdstate;
+    ctx->ddstate = _ddstate;
 
     PolicyUpdater_init();
 
-    *network_actor_context = (void*)ctx;
+    *network_context = (void*)ctx;
 
     return 0;
 }
 
-int Network_actor_start(Network_actor_ctx_t network_actor_context)
+int Network_start(Network_ctx_t network_context)
 {
-    Network_actor_ctx_t_ *ctx = (Network_actor_ctx_t_*)network_actor_context;
+    Network_ctx_t_ *ctx = (Network_ctx_t_*)network_context;
 
     struct sockaddr_in serv_addr;
     char read_buffer[READ_BUFF_LEN];
@@ -171,9 +171,9 @@ int Network_actor_start(Network_actor_ctx_t network_actor_context)
     return NO_ERROR;
 }
 
-void Network_actor_stop(Network_actor_ctx_t network_actor_context)
+void Network_stop(Network_ctx_t network_context)
 {
-    Network_actor_ctx_t_ *ctx = (Network_actor_ctx_t_*)network_actor_context;
+    Network_ctx_t_ *ctx = (Network_ctx_t_*)network_context;
     if (ctx != NULL)
     {
         ctx->end = 1;
@@ -199,12 +199,12 @@ static int verify(unsigned char *key, int len)
     return 0;
 }
 
-static int get_server_state(Network_actor_ctx_t_ *ctx)
+static int get_server_state(Network_ctx_t_ *ctx)
 {
     return ctx->state;
 }
 
-static unsigned int calculate_decision(char **recvData, Network_actor_ctx_t_ *ctx)
+static unsigned int calculate_decision(char **recvData, Network_ctx_t_ *ctx)
 {
     int request_code = -1;
     unsigned int buffer_position = 0;
@@ -322,7 +322,7 @@ static unsigned int calculate_decision(char **recvData, Network_actor_ctx_t_ *ct
         }
         else
         {
-            Dataset_from_json(ctx->vdstate, *recvData + get_token_at(arr_start).start, get_token_at(arr_start).end - get_token_at(arr_start).start);
+            Dataset_from_json(ctx->ddstate, *recvData + get_token_at(arr_start).start, get_token_at(arr_start).end - get_token_at(arr_start).start);
             memcpy(ctx->send_buffer, grant, strlen(grant));
             buffer_position = strlen(grant);
         }
@@ -330,7 +330,7 @@ static unsigned int calculate_decision(char **recvData, Network_actor_ctx_t_ *ct
     }
     else if (request_code == COMMAND_GET_DATASET)
     {
-        buffer_position = Dataset_to_json(ctx->vdstate, (char *)ctx->send_buffer);
+        buffer_position = Dataset_to_json(ctx->ddstate, (char *)ctx->send_buffer);
         *recvData = ctx->send_buffer;
     }
     else if (request_code == COMMAND_GET_USER_OBJ)
@@ -417,7 +417,7 @@ static unsigned int calculate_decision(char **recvData, Network_actor_ctx_t_ *ct
 
 static void *network_thread_function(void *ptr)
 {
-    Network_actor_ctx_t_ *ctx = (Network_actor_ctx_t_*)ptr;
+    Network_ctx_t_ *ctx = (Network_ctx_t_*)ptr;
     while (!ctx->end)
     {
         struct timeval tv = { 0, TIME_50MS };
