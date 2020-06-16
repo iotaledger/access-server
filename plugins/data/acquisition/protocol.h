@@ -34,6 +34,11 @@
 #define __PROTOCOL_H__
 
 /****************************************************************************
+ * INCLUDES
+ ****************************************************************************/
+#include "wallet.h"
+
+/****************************************************************************
  * MACROS
  ****************************************************************************/
 #ifndef bool
@@ -51,7 +56,8 @@
 /****************************************************************************
  * CALLBACKS
  ****************************************************************************/
-typedef bool (*acquire_fn)(char* requested_type, char* requested_value, char* type_buff, char* value_buff);
+typedef int (*acquire_fn)(char* requested_type, char* requested_value, char* type_buff, char* value_buff);
+typedef int (*payment_status_fn)(char* policy_id, int policy_id_len);
 
 /****************************************************************************
  * API FUNCTIONS
@@ -61,11 +67,11 @@ typedef bool (*acquire_fn)(char* requested_type, char* requested_value, char* ty
  *
  * @brief   Initialize module
  *
- * @param   void
+ * @param   wallet_ctx - Device wallet
  *
  * @return  TRUE - success, FALSE - fail
  */
-bool PROTOCOL_init(void);
+bool PROTOCOL_init(wallet_ctx_t* wallet_ctx);
 
 /**
  * @fn      PROTOCOL_term
@@ -99,5 +105,27 @@ void PROTOCOL_register_callback(acquire_fn acquire);
  * @return  void
  */
 void PROTOCOL_unregister_callback();
+
+/**
+ * @fn      PROTOCOL_register_payment_state_callback
+ *
+ * @brief   Register callback for acquiring payment status
+ *
+ * @param   trans_fn - Callback for checking payment status
+ *
+ * @return  void
+ */
+void PROTOCOL_register_payment_state_callback(payment_status_fn trans_fn);
+
+/**
+ * @fn      PROTOCOL_unregister_payment_state_callback
+ *
+ * @brief   Unregister callback for acquiring payment status
+ *
+ * @param   void
+ *
+ * @return  void
+ */
+void PROTOCOL_unregister_payment_state_callback(void);
 
 #endif //__PROTOCOL_H__

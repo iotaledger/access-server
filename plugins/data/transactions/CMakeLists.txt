@@ -19,28 +19,19 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-set(target resolver)
+set(target data_transactions_plugins)
 
 set(sources
-  resolver.c
-  platform_interface/r_pi/relay_interface.c
-  demos/demo_resolver_01.c
-  demos/demo_resolver_02.c
-  demos/demo_resolver_wallet.c)
+  transaction.c
+  platforms/r_pi/rpi_trans.c)
 
 set(include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/platform_interface/r_pi
-  ${CMAKE_CURRENT_SOURCE_DIR}/demos
-  ${pigpio_SOURCE_DIR}
-)
+  ${CMAKE_CURRENT_SOURCE_DIR}/platforms/r_pi)
 
 set(libs
-  pep
-  data_acquisition_plugins
-  data_transactions_plugins
-  pap
-  pigpio)
+  access_wallet
+  data_acquisition_plugins)
 
 add_library(${target} ${sources})
 target_include_directories(${target} PUBLIC ${include_dirs})

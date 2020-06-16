@@ -77,6 +77,7 @@
 #define COMMAND_REDISTER_USER 7
 #define COMMAND_GET_ALL_USER 8
 #define COMMAND_CLEAR_ALL_USER 9
+#define COMMAND_NOTIFY_TRANSACTION 10
 
 typedef struct {
     pthread_t thread;
@@ -203,88 +204,9 @@ static int get_server_state(Network_actor_ctx_t_ *ctx)
     return ctx->state;
 }
 
-#if 0
-static int append_action_item_to_str(char *str, int pos, list_t *action_item)
-{
-    if(action_item == NULL)
-    {
-        return 0;
-    }
-    else if(action_item->policyID == NULL)
-    {
-        return 0;
-    }
-
-    int buffer_position = pos;
-
-    if(buffer_position != 1)
-    {
-        str[buffer_position++] = ',';
-    }
-
-    str[buffer_position++] = '{';
-
-    // add "policy_id"
-    memcpy(str + buffer_position, "\"policy_id\":\"", strlen("\"policy_id\":\""));
-    buffer_position += strlen("\"policy_id\":\"");
-
-    // add "policy_id" value
-    hex_to_str(action_item->policyID, str + buffer_position, POL_ID_HEX_LEN);
-    buffer_position += POL_ID_STR_LEN;
-    str[buffer_position++] = '\"';
-
-    // add "action"
-    memcpy(str + buffer_position, ",\"action\":\"", strlen(",\"action\":\""));
-    buffer_position += strlen(",\"action\":\"");
-
-    // add "action" value
-    memcpy(str + buffer_position, action_item->action, action_item->action_length);
-    buffer_position += action_item->action_length;
-    str[buffer_position++] = '\"';
-
-    int is_paid = PolicyStore_is_policy_paid(action_item->policyID, POL_ID_HEX_LEN);
-
-    // check if "cost" field should be added (add it if policy is not paid)
-    if (is_paid == 0)
-    {
-        // add "cost"
-        memcpy(str + buffer_position, ",\"cost\":\"", strlen(",\"cost\":\""));
-        buffer_position += strlen(",\"cost\":\"");
-
-        // add "cost" value
-        memcpy(str + buffer_position, action_item->policy_cost, action_item->policy_cost_size);
-        buffer_position += action_item->policy_cost_size;
-        str[buffer_position++] = '\"';
-    }
-
-    str[buffer_position++] = '}';
-
-    return buffer_position - pos;
-}
-
-static int list_to_string(list_t *action_list, char *output_str)
-{
-    output_str[0] = '[';
-    int buffer_position = 1;
-    list_t *action_list_temp = action_list;
-
-    while(action_list_temp != NULL)
-    {
-        buffer_position += append_action_item_to_str(output_str, buffer_position, action_list_temp);
-        action_list_temp = action_list_temp->next;
-    }
-
-    output_str[buffer_position++] = ']';
-    output_str[buffer_position++] = '\0';
-
-    return buffer_position;
-}
-#endif
-
 static unsigned int calculate_decision(char **recvData, Network_actor_ctx_t_ *ctx)
 {
     int request_code = -1;
-    int decision = -1;
     unsigned int buffer_position = 0;
 
     char grant[] = "{\"response\":\"access granted\"}";
@@ -297,9 +219,11 @@ static unsigned int calculate_decision(char **recvData, Network_actor_ctx_t_ *ct
 
     if(request_code == COMMAND_RESOLVE)
     {
-        decision = PEP_request_access(*recvData);
+        char decision[BUF_LEN] = {0};
+        //@TODO: Should this be moved to access actor? Network should just send cb here to notify request.
+        PEP_request_access(*recvData, (void*)decision);
 
-        if(decision == 1)
+        if(memcmp(decision, "grant", strlen("grant")))
         {
             msg = grant;
         }
@@ -319,36 +243,17 @@ static unsigned int calculate_decision(char **recvData, Network_actor_ctx_t_ *ct
     }
     else if (request_code == COMMAND_GET_POL_LIST)
     {
-        //@FIXME: Will be refactored
-#if 0
-        list_t *action_list = NULL;
+        //@TODO: Should this be moved to access actor? Network should just send cb here to notify request.
+        PEP_request_access(*recvData, (void*)ctx->send_buffer);
 
-        // index of "user_id" token
-        int user_id_index = 0;
+        buffer_position = strlen(ctx->send_buffer);
 
-        for (int i = 0; i < num_of_tokens; i++)
-        {
-            if (memcmp(*recvData + get_start_of_token(i), "user_id", strlen("user_id")) == 0)
-            {
-                user_id_index = i + 1;
-                break;
-            }
-        }
-
-        PolicyStore_get_list_of_actions(*recvData + get_start_of_token(user_id_index), get_size_of_token(user_id_index), &action_list);
-
-        buffer_position = list_to_string(action_list, (char *)send_buffer);
-        Dlog_printf("\nResponse: %s\n", send_buffer);
-
-        if(DAC_AUTH == 1)
+        if(ctx->DAC_AUTH == 1)
         {
             free(*recvData);
         }
 
-        *recvData = send_buffer;
-
-        PolicyStore_clear_list_of_actions(action_list);
-#endif
+        *recvData = ctx->send_buffer;
     }
     else if (request_code == COMMAND_ENABLE_POLICY)
     {

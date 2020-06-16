@@ -146,7 +146,9 @@ void test_wallet_check_confirmation(void) {
   printf("%s : %s\n", tx_hash2, confirmed ? "true" : "false");
 }
 
-static void confirmation_notifier(uint32_t time) { printf("confirmation callback in %d \n", time); }
+static void confirmation_notifier(uint32_t time, bool is_confirmed, pthread_t thread_id) {
+  printf("transaction is %s in %d \n", is_confirmed == TRUE ? "confirmed" : "not confirmed", time);
+}
 
 void test_confirmation_service(void) {
   confirmation_service_t *service = confirmation_service_start(
