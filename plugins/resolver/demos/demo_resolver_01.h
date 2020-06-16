@@ -42,13 +42,13 @@
  * @fn void Demo01Plugin_initializer(resolver_plugin_t* action_set)
  * @brief resolver plugin initializer callback
  */
-void Demo01Plugin_initializer(resolver_plugin_t* action_set);
+void Demo01Plugin_initializer(resolver_plugin_t* action_set, void* options);
 
 /**
  * @fn void Demo01Plugin_initializer_tcp(resolver_plugin_t* action_set)
  * @brief resolver plugin initializer callback
  */
-void Demo01Plugin_initializer_tcp(resolver_plugin_t* action_set);
+void Demo01Plugin_initializer_tcp(resolver_plugin_t* action_set, void* options);
 
 /**
  * @fn void Demo01Plugin_terminizer()

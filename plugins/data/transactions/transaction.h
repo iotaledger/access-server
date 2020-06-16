@@ -19,20 +19,24 @@
 
 /****************************************************************************
  * \project Decentralized Access Control
- * \file pep.h
+ * \file transaction.h
  * \brief
- * Implementation of Policy Enforcement Point
+ * Implementation of API for transactions storage
  *
- * @Author Dejan Nedic, Strahinja Golic
+ * @Author Strahinja Golic
  *
  * \notes
  *
  * \history
- * 25.09.2018. Initial version.
- * 11.05.2020. Refactoring
+ * 10.06.2020. Initial version.
  ****************************************************************************/
-#ifndef PEP_H
-#define PEP_H
+#ifndef _TRANSACTION_H_
+#define _TRANSACTION_H_
+
+/****************************************************************************
+ * INCLUDES
+ ****************************************************************************/
+#include "wallet.h"
 
 /****************************************************************************
  * MACROS
@@ -40,76 +44,75 @@
 #ifndef bool
 #define bool _Bool
 #endif
-#ifndef FALSE
-#define FALSE 0
-#endif
 #ifndef TRUE
 #define TRUE 1
 #endif
+#ifndef FALSE
+#define FALSE 0
+#endif
+
+//Set R-Pi as used platform
+#define USE_RPI 1
 
 /****************************************************************************
- * CALLBACKS
+ * ENUMERATIONS
  ****************************************************************************/
-typedef bool (*resolver_fn)(char* obligation, void* action);
+typedef enum
+{
+	TRANS_NOT_PAYED,
+	TRANS_PAYED,
+	TRANS_PAYED_VERIFIED
+} TRANSACTION_payment_state_e;
+
+/****************************************************************************
+ * TYPES
+ ****************************************************************************/
+typedef struct serv_confirm
+{
+	confirmation_service_t *service;
+	char* policy_id;
+	int policy_id_len;
+	bool transaction_confirmed;
+} TRANSACTION_serv_confirm_t;
 
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
-
 /**
- * @fn      PEP_init
+ * @fn      TRANSACTION_init
  *
  * @brief   Initialize module
  *
- * @param   void
+ * @param   wallet_ctx - Device wallet
  *
- * @return  TRUE on success, FALSE on failure
+ * @return  void
  */
-bool PEP_init(void);
+void TRANSACTION_init(wallet_ctx_t* wallet_ctx);
 
 /**
- * @fn      PEP_term
+ * @fn      TRANSACTION_term
  *
  * @brief   Terminate module
  *
  * @param   void
  *
- * @return  TRUE on success, FALSE on failure
+ * @return  void
  */
-bool PEP_term(void);
+void TRANSACTION_term(void);
 
 /**
- * @fn      PEP_register_callback
+ * @fn      TRANSACTION_store_transaction
  *
- * @brief   Register resolver callback
+ * @brief   Save transaction info
  *
- * @param   resolver - Resolver callback
+ * @param   policy_id - Policy ID string
+ * @param   policy_id_len - Length of policy ID string
+ * @param   transaction_hash - Transaction hasn string
+ * @param   transaction_hash_len - Transaction hasn string length
  *
- * @return  TRUE on success, FALSE on failure
+ * @return  TRUE - success, FALSE - fail
  */
-bool PEP_register_callback(resolver_fn resolver);
+bool TRANSACTION_store_transaction(char* policy_id, int policy_id_len,
+									char* transaction_hash, int transaction_hash_len);
 
-/**
- * @fn      PEP_unregister_callback
- *
- * @brief   Unregister resolver callback
- *
- * @param   void
- *
- * @return  TRUE on success, FALSE on failure
- */
-bool PEP_unregister_callback(void);
-
-/**
- * @fn      int pep_request_access(JSON_Value *request)
- *
- * @brief   Function that computes decision for PEP
- *
- * @param   request         request JSON containing request uri and request object
- * @param   response        response to action
- *
- * @return  Fail (0), Success (1)
- */
-bool PEP_request_access(char *request, void *response);
-
-#endif
+#endif //_TRANSACTION_H_

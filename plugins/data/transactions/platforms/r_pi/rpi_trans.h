@@ -19,20 +19,19 @@
 
 /****************************************************************************
  * \project Decentralized Access Control
- * \file storage.h
+ * \file rpi_trans.h
  * \brief
- * Implementation of policy storage interface
+ * Implementation of API for transactions storage to RPI
  *
- * @Author Dejan Nedic, Strahinja Golic
+ * @Author Strahinja Golic
  *
  * \notes
  *
  * \history
- * 24.08.2018. Initial version.
- * 25.05.2020. Refactoring.
+ * 10.06.2020. Initial version.
  ****************************************************************************/
-#ifndef _STORAGE_H_
-#define _STORAGE_H_
+#ifndef _RPI_TRANSACTION_H_
+#define _RPI_TRANSACTION_H_
 
 /****************************************************************************
  * MACROS
@@ -47,42 +46,55 @@
 #define FALSE 0
 #endif
 
-//Set R-Pi as used platform
-#define USE_RPI 1
-
-/****************************************************************************
- * TYPES
- ****************************************************************************/
-typedef enum
-{
-    STORAGE_OK,
-    STORAGE_ERROR,
-} STORAGE_error_t;
-
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
 /**
- * @fn      Storage_init
+ * @fn      RPITRANSACTION_store
  *
- * @brief   Initialize storage module
+ * @brief   Store trnasaction on RPI
  *
- * @param   void
+ * @param   policy_id - Policy ID string
+ * @param   policy_id_len - Length of policy ID string
  *
- * @return  STORAGE_error_t state.
+ * @return  TRUE - success, FALSE - fail
  */
-STORAGE_error_t Storage_init(void);
+bool RPITRANSACTION_store(char* policy_id, int policy_id_len);
 
 /**
- * @fn      Storage_term
+ * @fn      RPITRANSACTION_store
  *
- * @brief   Terminate storage module
+ * @brief   Store transaction on RPI
  *
- * @param   void
+ * @param   policy_id - Policy ID string
+ * @param   policy_id_len - Length of policy ID string
+ * @param   is_verified - Transaction verified
  *
- * @return  STORAGE_error_t state.
+ * @return  TRUE - success, FALSE - fail
  */
-STORAGE_error_t Storage_term(void);
+bool RPITRANSACTION_update_payment_status(char* policy_id, int policy_id_len, bool is_verified);
 
+/**
+ * @fn      RPITRANSACTION_is_stored
+ *
+ * @brief   Check if transaction is stored on RPI
+ *
+ * @param   policy_id - Policy ID string
+ *
+ * @return  TRUE - stored, FALSE - not stored
+ */
+bool RPITRANSACTION_is_stored(char* policy_id);
 
-#endif //_STORAGE_H_
+/**
+ * @fn      RPITRANSACTION_is_verified
+ *
+ * @brief   Check if transaction payment is verified
+ *
+ * @param   policy_id - Policy ID string
+ * @param   policy_id_len - Length of policy ID string
+ *
+ * @return  TRUE - verified, FALSE - not verified
+ */
+bool RPITRANSACTION_is_verified(char* policy_id, int policy_id_len);
+
+#endif //_RPI_TRANSACTION_H_
