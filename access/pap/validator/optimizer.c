@@ -26,7 +26,7 @@
  *              discard policy, also it has functionality to
  *              perform policy optimisation.
  *
- * File:        optimizator.c
+ * File:        optimizer.c
  *
  * Designed-by: Strahinja Golic
  *
@@ -39,7 +39,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "optimizator.h"
+#include "optimizer.h"
 
 #define JSMN_HEADER
 #include "jsmn.h"
@@ -47,22 +47,22 @@
 /***************************************************************************
  * DEFINES
 ****************************************************************************/
-#define OPTIMIZATOR_MAX_TOKENS 256
-#define OPTIMIZATOR_MAX_BUFFER 4*1024
-#define OPTIMIZATOR_CHAR_PER_ITERATION 3
-#define OPTIMIZATOR_REMOVAL_BRACKET_ELEMENTS 6 //2 variables + 2 bracket + 1 operator inside bracket + 1 operator outside bracket
-#define OPTIMIZATIR_MAX_OPERATION_LEN 4
-#define OPTIMIZATOR_DOC_GOC_INDENTATION 2
-#define OPTIMIZATOR_FIRST_NON_WHITESPACE_ASCII_CHAR 33
-#define OPTIMIZATOR_ASCII_SPACE 32
+#define OPTIMIZER_MAX_TOKENS 256
+#define OPTIMIZER_MAX_BUFFER 4*1024
+#define OPTIMIZER_CHAR_PER_ITERATION 3
+#define OPTIMIZER_REMOVAL_BRACKET_ELEMENTS 6 //2 variables + 2 bracket + 1 operator inside bracket + 1 operator outside bracket
+#define OPTIMIZER_MAX_OPERATION_LEN 4
+#define OPTIMIZER_DOC_GOC_INDENTATION 2
+#define OPTIMIZER_FIRST_NON_WHITESPACE_ASCII_CHAR 33
+#define OPTIMIZER_ASCII_SPACE 32
 
 /***************************************************************************
  * GLOBAL VARIABLES
 ****************************************************************************/
 static int tok_num = 0;
-static optimizator_symbol_t sub_var_symbol_cnt = 0;
-static optimizator_function_list_elem_t *doc_head = NULL;
-static optimizator_function_list_elem_t *goc_head = NULL;
+static optimizer_symbol_t sub_var_symbol_cnt = 0;
+static optimizer_function_list_elem_t *doc_head = NULL;
+static optimizer_function_list_elem_t *goc_head = NULL;
 
 /***************************************************************************
  * FUNCTION IMPLEMENTATIONS
@@ -73,10 +73,10 @@ static optimizator_function_list_elem_t *goc_head = NULL;
 *  Parameters: list - the list
 *  Returns: number of elements
 */
-int get_list_size(optimizator_function_list_elem_t *list)
+int get_list_size(optimizer_function_list_elem_t *list)
 {
     int ret = 0;
-    optimizator_function_list_elem_t *temp = list;
+    optimizer_function_list_elem_t *temp = list;
 
     while (temp)
     {
@@ -94,11 +94,11 @@ int get_list_size(optimizator_function_list_elem_t *list)
 *              list_2 - second lisr
 *  Returns: TRUE if equal, FALSE if not
 */
-bool list_cmp(optimizator_function_list_elem_t *list_1, optimizator_function_list_elem_t *list_2)
+bool list_cmp(optimizer_function_list_elem_t *list_1, optimizer_function_list_elem_t *list_2)
 {
     bool ret = FALSE;
-    optimizator_function_list_elem_t *temp_1 = list_1;
-    optimizator_function_list_elem_t *temp_2 = list_2;
+    optimizer_function_list_elem_t *temp_1 = list_1;
+    optimizer_function_list_elem_t *temp_2 = list_2;
 
     if (get_list_size(temp_1) == get_list_size(temp_2))
     {
@@ -162,10 +162,10 @@ bool list_cmp(optimizator_function_list_elem_t *list_1, optimizator_function_lis
 *              list_head - list to add element
 *  Returns: void
 */
-void new_operator(optimizator_operator_t operator, optimizator_function_list_elem_t **list_head)
+void new_operator(optimizer_operator_t operator, optimizer_function_list_elem_t **list_head)
 {
-    optimizator_function_list_elem_t *new_elem = malloc(sizeof(optimizator_function_list_elem_t));
-    optimizator_function_list_elem_t *temp = *list_head;
+    optimizer_function_list_elem_t *new_elem = malloc(sizeof(optimizer_function_list_elem_t));
+    optimizer_function_list_elem_t *temp = *list_head;
 
     new_elem->elem_type = TE_OPERATOR;
 
@@ -201,11 +201,11 @@ void new_operator(optimizator_operator_t operator, optimizator_function_list_ele
 *              list_head - list to add element
 *  Returns: void
 */
-void new_simple_element(char *policy, jsmntok_t *tokens, int obj_idx, optimizator_function_list_elem_t **list_head)
+void new_simple_element(char *policy, jsmntok_t *tokens, int obj_idx, optimizer_function_list_elem_t **list_head)
 {
-    optimizator_function_list_elem_t* new_elem = malloc(sizeof(optimizator_function_list_elem_t));
-    optimizator_function_list_elem_t* temp = *list_head;
-    optimizator_symbol_t new_symbol = 0;
+    optimizer_function_list_elem_t* new_elem = malloc(sizeof(optimizer_function_list_elem_t));
+    optimizer_function_list_elem_t* temp = *list_head;
+    optimizer_symbol_t new_symbol = 0;
 
     new_elem->elem_type = TE_VARIABLE;
 
@@ -301,7 +301,7 @@ void new_simple_element(char *policy, jsmntok_t *tokens, int obj_idx, optimizato
 
         if (new_symbol == 0)
         {
-            optimizator_symbol_t top_symbol = 0;
+            optimizer_symbol_t top_symbol = 0;
 
             //find top symbol
             while (temp)
@@ -380,13 +380,13 @@ void new_simple_element(char *policy, jsmntok_t *tokens, int obj_idx, optimizato
 *              list_head - list to add element
 *  Returns: void
 */
-void new_complex_element(char *policy, jsmntok_t *tokens, int att_list_idx, int operation_idx, optimizator_function_list_elem_t **list_head)
+void new_complex_element(char *policy, jsmntok_t *tokens, int att_list_idx, int operation_idx, optimizer_function_list_elem_t **list_head)
 {
     bool found = FALSE;
-    optimizator_function_list_elem_t* new_elem = malloc(sizeof(optimizator_function_list_elem_t));
-    optimizator_function_list_elem_t* temp = *list_head;
-    optimizator_symbol_t new_symbol = 0;
-    optimizator_operator_t operator;
+    optimizer_function_list_elem_t* new_elem = malloc(sizeof(optimizer_function_list_elem_t));
+    optimizer_function_list_elem_t* temp = *list_head;
+    optimizer_symbol_t new_symbol = 0;
+    optimizer_operator_t operator;
 
     new_elem->elem_type = TE_COMPLEX;
 
@@ -478,7 +478,7 @@ void new_complex_element(char *policy, jsmntok_t *tokens, int att_list_idx, int 
 
         if (new_symbol == 0)
         {
-            optimizator_symbol_t top_symbol = 0;
+            optimizer_symbol_t top_symbol = 0;
 
             //find top symbol
             while (temp)
@@ -530,12 +530,12 @@ void new_complex_element(char *policy, jsmntok_t *tokens, int att_list_idx, int 
 * 				list_head - list to fill
 *  Returns: Number of elements added to list
 */
-int obj_to_expression(char *policy, jsmntok_t *tokens, int obj_idx, int max_idx, optimizator_function_list_elem_t **list_head)
+int obj_to_expression(char *policy, jsmntok_t *tokens, int obj_idx, int max_idx, optimizer_function_list_elem_t **list_head)
 {
     int ret = 0;
     int att_list_idx = -1;
     int operation_idx = -1;
-    optimizator_operator_t operator;
+    optimizer_operator_t operator;
 
     if (strncmp(&policy[tokens[obj_idx + 1].start], "type", strlen("type")) == 0)
     {
@@ -612,10 +612,10 @@ int obj_to_expression(char *policy, jsmntok_t *tokens, int obj_idx, int max_idx,
 *              buffer - buffer to fill
 *  Returns: written characters num
 */
-int sprint_expression(optimizator_function_list_elem_t *list_head, bool print_sub_var, char *buffer)
+int sprint_expression(optimizer_function_list_elem_t *list_head, bool print_sub_var, char *buffer)
 {
     int written = 0;
-    optimizator_function_list_elem_t *element = list_head;
+    optimizer_function_list_elem_t *element = list_head;
 
     if (list_head == NULL || buffer == NULL)
     {
@@ -627,7 +627,7 @@ int sprint_expression(optimizator_function_list_elem_t *list_head, bool print_su
         written += sprintf(buffer, "F = ");
     }
 
-    while (element && (written <= OPTIMIZATOR_MAX_BUFFER - OPTIMIZATOR_CHAR_PER_ITERATION)) //we must not write to memory over buffer limit
+    while (element && (written <= OPTIMIZER_MAX_BUFFER - OPTIMIZER_CHAR_PER_ITERATION)) //we must not write to memory over buffer limit
     {
         switch (element->elem_type)
         {
@@ -702,13 +702,13 @@ int sprint_expression(optimizator_function_list_elem_t *list_head, bool print_su
 *              indentation - indentation starting point
 *  Returns: written characters num
 */
-int sprint_object(optimizator_function_list_elem_t *list_head, char *buffer, int indentation)
+int sprint_object(optimizer_function_list_elem_t *list_head, char *buffer, int indentation)
 {
     bool is_single_element = FALSE;
     char operation_c[OPTIMIZATIR_MAX_OPERATION_LEN];
     int written = 0;
     int indent_cnt = indentation;
-    optimizator_function_list_elem_t *element = list_head;
+    optimizer_function_list_elem_t *element = list_head;
 
     if (list_head == NULL || buffer == NULL)
     {
@@ -893,9 +893,9 @@ int sprint_object(optimizator_function_list_elem_t *list_head, char *buffer, int
 *  Parameters: expression - list to check
 *  Returns: void
 */
-void remove_dummy_brackets(optimizator_function_list_elem_t **expression)
+void remove_dummy_brackets(optimizer_function_list_elem_t **expression)
 {
-    optimizator_function_list_elem_t *temp = *expression;
+    optimizer_function_list_elem_t *temp = *expression;
 
     if (*expression == NULL)
     {
@@ -913,7 +913,7 @@ void remove_dummy_brackets(optimizator_function_list_elem_t **expression)
             if (temp->next->next->elem_type == TE_OPERATOR &&
                 temp->next->next->element.operator.bracket == BR_CLOSED)
             {
-                optimizator_function_list_elem_t *elem_for_removal = temp;
+                optimizer_function_list_elem_t *elem_for_removal = temp;
                 temp = elem_for_removal->next->next;
 
                 if (elem_for_removal->previous != NULL)
@@ -958,11 +958,11 @@ void remove_dummy_brackets(optimizator_function_list_elem_t **expression)
 *  Returns: OA_NONE - no action taken
 *           OA_ABSORPTION - absorption performed
 */
-optimizator_optimization_actions_e check_absorption(optimizator_function_list_elem_t **expression)
+optimizer_optimization_actions_e check_absorption(optimizer_function_list_elem_t **expression)
 {
     bool remove_bracket = FALSE;
-    optimizator_optimization_actions_e ret = OA_NONE;
-    optimizator_function_list_elem_t *temp = *expression;
+    optimizer_optimization_actions_e ret = OA_NONE;
+    optimizer_function_list_elem_t *temp = *expression;
 
     if (*expression == NULL)
     {
@@ -976,9 +976,9 @@ optimizator_optimization_actions_e check_absorption(optimizator_function_list_el
         if (temp->elem_type == TE_OPERATOR &&
             temp->element.operator.bracket == BR_OPEN)
         {
-            optimizator_function_list_elem_t *bracket = temp;
-            optimizator_function_list_elem_t *bracket_opn = bracket;
-            optimizator_function_list_elem_t *bracket_cls = NULL;
+            optimizer_function_list_elem_t *bracket = temp;
+            optimizer_function_list_elem_t *bracket_opn = bracket;
+            optimizer_function_list_elem_t *bracket_cls = NULL;
 
             /* Absorption law applies if there are two variables
             inside the brackets. We must count the elements before bracket
@@ -1011,10 +1011,10 @@ optimizator_optimization_actions_e check_absorption(optimizator_function_list_el
             {
                 bracket_cls = bracket;
 
-                if (el_cnt == OPTIMIZATOR_REMOVAL_BRACKET_ELEMENTS - 1)
+                if (el_cnt == OPTIMIZER_REMOVAL_BRACKET_ELEMENTS - 1)
                 {
                     //variables inside of the brackets must differ
-                    optimizator_symbol_t sym_1;
+                    optimizer_symbol_t sym_1;
                     if (bracket_opn->next->elem_type == TE_VARIABLE)
                     {
                         sym_1 = bracket_opn->next->element.symple_var.symbol;
@@ -1024,7 +1024,7 @@ optimizator_optimization_actions_e check_absorption(optimizator_function_list_el
                         sym_1 = bracket_opn->next->element.complex_var.symbol;
                     }
 
-                    optimizator_symbol_t sym_2;
+                    optimizer_symbol_t sym_2;
                     if (bracket_cls->previous->elem_type == TE_VARIABLE)
                     {
                         sym_2 = bracket_cls->previous->element.symple_var.symbol;
@@ -1082,7 +1082,7 @@ optimizator_optimization_actions_e check_absorption(optimizator_function_list_el
                             elements b, c, g, j will be checked. Same elements will be checked for (h + i) bracket,
                             but that's another iteration. If any of these elements is also presented in the
                             bracket (maximum once), bracket shall be absorped. */
-                            optimizator_function_list_elem_t *absorper;
+                            optimizer_function_list_elem_t *absorper;
 
                             if (outside_op == before_op)
                             {
@@ -1162,7 +1162,7 @@ optimizator_optimization_actions_e check_absorption(optimizator_function_list_el
 
                             if (remove_bracket)
                             {
-                                optimizator_function_list_elem_t *elem_for_removal;
+                                optimizer_function_list_elem_t *elem_for_removal;
 
                                 if (outside_op == before_op)
                                 {
@@ -1175,7 +1175,7 @@ optimizator_optimization_actions_e check_absorption(optimizator_function_list_el
                                     elem_for_removal = bracket_opn;
                                 }
 
-                                for (int i = 0; i < OPTIMIZATOR_REMOVAL_BRACKET_ELEMENTS; i++)
+                                for (int i = 0; i < OPTIMIZER_REMOVAL_BRACKET_ELEMENTS; i++)
                                 {
                                     if (elem_for_removal->previous != NULL)
                                     {
@@ -1193,14 +1193,14 @@ optimizator_optimization_actions_e check_absorption(optimizator_function_list_el
                                         //free sub-list
                                         while (elem_for_removal->element.complex_var.complex_var_elements)
                                         {
-                                            optimizator_function_list_elem_t *sub_elem_for_removal = elem_for_removal->element.complex_var.complex_var_elements;
+                                            optimizer_function_list_elem_t *sub_elem_for_removal = elem_for_removal->element.complex_var.complex_var_elements;
                                             elem_for_removal->element.complex_var.complex_var_elements = sub_elem_for_removal->next;
 
                                             free(sub_elem_for_removal);
                                         }
                                     }
 
-                                    optimizator_function_list_elem_t *helper = elem_for_removal;
+                                    optimizer_function_list_elem_t *helper = elem_for_removal;
                                     elem_for_removal = helper->next;
 
                                     free(helper);
@@ -1238,9 +1238,9 @@ optimizator_optimization_actions_e check_absorption(optimizator_function_list_el
 *           RE_NO_ACTION - Nothing to be optimized
 *           RE_SUCCESS - Optimization done
 */
-optimizator_return_e optimize_expression(optimizator_function_list_elem_t **expression)
+optimizer_return_e optimize_expression(optimizer_function_list_elem_t **expression)
 {
-    optimizator_return_e ret = RE_ERROR;
+    optimizer_return_e ret = RE_ERROR;
 
     if (*expression == NULL)
     {
@@ -1272,7 +1272,7 @@ optimizator_return_e optimize_expression(optimizator_function_list_elem_t **expr
 void expression_to_policy(char* policy, jsmntok_t *tokens, char *new_json_path)
 {
     char new_path[OPT_MAX_STR_LEN];
-    char buffer[OPTIMIZATOR_MAX_BUFFER];
+    char buffer[OPTIMIZER_MAX_BUFFER];
     int tok_idx = 0;
     int doc_start = 0;
     int doc_end = 0;
@@ -1317,7 +1317,7 @@ void expression_to_policy(char* policy, jsmntok_t *tokens, char *new_json_path)
     if (before == doc_start)
     {
         memset(buffer, 0, OPT_MAX_STR_LEN * sizeof(char));
-        wrote = sprint_object(doc_head, buffer, OPTIMIZATOR_DOC_GOC_INDENTATION);
+        wrote = sprint_object(doc_head, buffer, OPTIMIZER_DOC_GOC_INDENTATION);
         fseek(file, 0, SEEK_END);
         fwrite(buffer, 1, wrote, file);
 
@@ -1325,14 +1325,14 @@ void expression_to_policy(char* policy, jsmntok_t *tokens, char *new_json_path)
         fwrite("\"policy_goc\":", 1, strlen("\"policy_goc\":"), file);
 
         memset(buffer, 0, OPT_MAX_STR_LEN * sizeof(char));
-        wrote = sprint_object(goc_head, buffer, OPTIMIZATOR_DOC_GOC_INDENTATION);
+        wrote = sprint_object(goc_head, buffer, OPTIMIZER_DOC_GOC_INDENTATION);
         fseek(file, 0, SEEK_END);
         fwrite(buffer, 1, wrote, file);
     }
     else
     {
         memset(buffer, 0, OPT_MAX_STR_LEN * sizeof(char));
-        wrote = sprint_object(goc_head, buffer, OPTIMIZATOR_DOC_GOC_INDENTATION);
+        wrote = sprint_object(goc_head, buffer, OPTIMIZER_DOC_GOC_INDENTATION);
         fseek(file, 0, SEEK_END);
         fwrite(buffer, 1, wrote, file);
 
@@ -1340,7 +1340,7 @@ void expression_to_policy(char* policy, jsmntok_t *tokens, char *new_json_path)
         fwrite("\"policy_doc\":", 1, strlen("\"policy_doc\":"), file);
 
         memset(buffer, 0, OPT_MAX_STR_LEN * sizeof(char));
-        wrote = sprint_object(doc_head, buffer, OPTIMIZATOR_DOC_GOC_INDENTATION);
+        wrote = sprint_object(doc_head, buffer, OPTIMIZER_DOC_GOC_INDENTATION);
         fseek(file, 0, SEEK_END);
         fwrite(buffer, 1, wrote, file);
     }
@@ -1349,7 +1349,7 @@ void expression_to_policy(char* policy, jsmntok_t *tokens, char *new_json_path)
     policy_object is done and "," after doc/goc should be deleted. */
     for (int i = after; i < strlen(policy); i++)
     {
-        if (policy[i] >= OPTIMIZATOR_FIRST_NON_WHITESPACE_ASCII_CHAR)
+        if (policy[i] >= OPTIMIZER_FIRST_NON_WHITESPACE_ASCII_CHAR)
         {
             if (policy[i] == '}')
             {
@@ -1366,7 +1366,7 @@ void expression_to_policy(char* policy, jsmntok_t *tokens, char *new_json_path)
                 }
 
                 fseek(file, 1 - cnt, SEEK_END);
-                fputc(OPTIMIZATOR_ASCII_SPACE, file);
+                fputc(OPTIMIZER_ASCII_SPACE, file);
             }
 
             break;
@@ -1381,7 +1381,7 @@ void expression_to_policy(char* policy, jsmntok_t *tokens, char *new_json_path)
 }
 
 /*
-*  Function: Optimizator_optimize_pol
+*  Function: Optimizer_optimize_pol
 *  Description: Check if logical operations in policy can be optimized and
 *               create new, optimized, .json file
 *  Parameters: policy - policy to check/optimze
@@ -1391,12 +1391,12 @@ void expression_to_policy(char* policy, jsmntok_t *tokens, char *new_json_path)
 *           RE_NO_ACTION - Nothing to be optimized
 *           RE_SUCCESS - Optimization done
 */
-optimizator_return_e optimizator_optimize_pol(char* policy, char* new_json_path)
+optimizer_return_e optimizer_optimize_pol(char* policy, char* new_json_path)
 {
     jsmn_parser parser;
-    jsmntok_t tokens[OPTIMIZATOR_MAX_TOKENS];
-    optimizator_return_e ret_doc = RE_ERROR;
-    optimizator_return_e ret_goc = RE_ERROR;
+    jsmntok_t tokens[OPTIMIZER_MAX_TOKENS];
+    optimizer_return_e ret_doc = RE_ERROR;
+    optimizer_return_e ret_goc = RE_ERROR;
 
     if (policy == NULL || new_json_path == NULL)
     {
@@ -1405,7 +1405,7 @@ optimizator_return_e optimizator_optimize_pol(char* policy, char* new_json_path)
     }
 
     jsmn_init(&parser);
-    tok_num = jsmn_parse(&parser, policy, strlen(policy), tokens, OPTIMIZATOR_MAX_TOKENS);
+    tok_num = jsmn_parse(&parser, policy, strlen(policy), tokens, OPTIMIZER_MAX_TOKENS);
 
     if (tok_num <= 0)
     {
@@ -1447,18 +1447,18 @@ optimizator_return_e optimizator_optimize_pol(char* policy, char* new_json_path)
         expression_to_policy(policy, tokens, new_json_path);
     }
 
-    char doc_buffer[OPTIMIZATOR_MAX_BUFFER];
+    char doc_buffer[OPTIMIZER_MAX_BUFFER];
     sprint_expression(doc_head, FALSE, doc_buffer);
     printf("\n\nDoC Function:\n%s\n\n", doc_buffer);
 
-    char goc_buffer[OPTIMIZATOR_MAX_BUFFER];
+    char goc_buffer[OPTIMIZER_MAX_BUFFER];
     sprint_expression(goc_head, FALSE, goc_buffer);
     printf("\n\nGoC Function:\n%s\n\n", goc_buffer);
 
     //free the list
     while (doc_head)
     {
-        optimizator_function_list_elem_t *temp = doc_head;
+        optimizer_function_list_elem_t *temp = doc_head;
 
         doc_head = temp->next;
 
@@ -1467,7 +1467,7 @@ optimizator_return_e optimizator_optimize_pol(char* policy, char* new_json_path)
             //free sublist
             while (temp->element.complex_var.complex_var_elements)
             {
-                optimizator_function_list_elem_t *sub_temp = temp->element.complex_var.complex_var_elements;
+                optimizer_function_list_elem_t *sub_temp = temp->element.complex_var.complex_var_elements;
 
                 temp->element.complex_var.complex_var_elements = sub_temp->next;
 
@@ -1481,7 +1481,7 @@ optimizator_return_e optimizator_optimize_pol(char* policy, char* new_json_path)
     //free the list
     while (goc_head)
     {
-        optimizator_function_list_elem_t *temp = goc_head;
+        optimizer_function_list_elem_t *temp = goc_head;
 
         goc_head = temp->next;
 
@@ -1490,7 +1490,7 @@ optimizator_return_e optimizator_optimize_pol(char* policy, char* new_json_path)
             //free sublist
             while (temp->element.complex_var.complex_var_elements)
             {
-                optimizator_function_list_elem_t *sub_temp = temp->element.complex_var.complex_var_elements;
+                optimizer_function_list_elem_t *sub_temp = temp->element.complex_var.complex_var_elements;
 
                 temp->element.complex_var.complex_var_elements = sub_temp->next;
 

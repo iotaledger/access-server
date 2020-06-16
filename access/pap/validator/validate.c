@@ -41,7 +41,7 @@
 #include <string.h>
 
 #include "validator.h"
-#include "optimizator.h"
+#include "optimizer.h"
 
 /***************************************************************************
  * DEFINES
@@ -110,7 +110,7 @@ int main(int argc, char** argv)
 
     if (argc >= 3)
     {
-        optimizator_optimize_pol(policy_data, argv[2]);
+        optimizer_optimize_pol(policy_data, argv[2]);
     }
 
     return 0;
