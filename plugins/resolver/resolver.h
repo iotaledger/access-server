@@ -85,19 +85,19 @@ typedef void (*resolver_plugin_terminizer_t)(resolver_plugin_t*);
  * API FUNCTIONS
  ****************************************************************************/
 /**
- * @fn  void Resolver_init(resolver_plugin_initializer_t initializer, Dataset_state_t *dstate)
+ * @fn  void resolver_init(resolver_plugin_initializer_t initializer, Dataset_state_t *dstate)
  *
  * @brief   Initialize Resolver module
  *
  */
-void Resolver_init(resolver_plugin_initializer_t initializer, dataset_state_t *dstate, void* options);
+void resolver_init(resolver_plugin_initializer_t initializer, dataset_state_t *dstate, void* options);
 
 /**
- * @fn  void Resolver_term(resolver_plugin_terminizer_t terminizer)
+ * @fn  void resolver_term(resolver_plugin_terminizer_t terminizer)
  *
  * @brief   Terminate Resolver module
  *
  */
-void Resolver_term(resolver_plugin_terminizer_t terminizer);
+void resolver_term(resolver_plugin_terminizer_t terminizer);
 
 #endif //_RESOLVER_H_

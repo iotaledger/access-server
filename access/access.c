@@ -83,11 +83,11 @@ void access_init(access_ctx_t *access_context, wallet_ctx_t *device_wallet)
 
     if (strncmp(ctx->client_name, CONFIG_CLIENT_CAN01, strlen(CONFIG_CLIENT_CAN01)) == 0)
     {
-        Resolver_init(DemoWalletPlugin_initializer, &ctx->ddstate, (void*)device_wallet);
+        resolver_init(demowalletplugin_initializer, &ctx->ddstate, (void*)device_wallet);
 #ifdef TINY_EMBEDDED
         ctx->ddstate.options = &VehicleDatasetDemo01_options[0];
         ctx->ddstate.dataset = malloc(sizeof(can01_vehicle_dataset_t));
-        Dataset_init(&ctx->ddstate);
+        dataset_init(&ctx->ddstate);
         canreceiver_init(ctx->ddstate.dataset, json_mutex);
         //GpsReceiver_init(json_mutex);
         ctx->using_can = 1;
@@ -98,11 +98,11 @@ void access_init(access_ctx_t *access_context, wallet_ctx_t *device_wallet)
     }
     else if (strncmp(ctx->client_name, CONFIG_CLIENT_CANOPEN01, strlen(CONFIG_CLIENT_CANOPEN01)) == 0)
     {
-        Resolver_init(DemoWalletPlugin_initializer, &ctx->ddstate, (void*)device_wallet);
+        resolver_init(demowalletplugin_initializer, &ctx->ddstate, (void*)device_wallet);
 #ifdef TINY_EMBEDDED
         ctx->ddstate.options = &VehicleDatasetDemo02_options[0];
         ctx->ddstate.dataset = malloc(sizeof(canopen01_vehicle_dataset_t));
-        Dataset_init(&ctx->ddstate);
+        dataset_init(&ctx->ddstate);
         canopenreceiver_init(ctx->ddstate.dataset, ctx->json_mutex);
         //ModbusReceiver_init(ctx->ddstate.dataset, ctx->json_mutex);
         ctx->using_canopen = 1;

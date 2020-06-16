@@ -79,7 +79,7 @@ static void term_ds_interface(dataset_state_t* vdstate)
 
 }
 
-void DemoWalletPlugin_initializer(resolver_plugin_t* action_set, void* options)
+void demowalletplugin_initializer(resolver_plugin_t* action_set, void* options)
 {
     if (action_set == NULL && options == NULL)
     {
@@ -104,7 +104,7 @@ void DemoWalletPlugin_initializer(resolver_plugin_t* action_set, void* options)
     g_action_set->term_ds_interface_cb = term_ds_interface;
 }
 
-void DemoWalletPlugin_terminizer()
+void demowalletplugin_terminizer()
 {
     g_action_set = NULL;
 }

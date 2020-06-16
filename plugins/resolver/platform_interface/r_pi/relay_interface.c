@@ -54,7 +54,7 @@ static int check_idx(int idx)
     }
 }
 
-int RelayInterface_on(int idx)
+int relayinterface_on(int idx)
 {
     printf("RELAY ON %d\n", idx);
 
@@ -78,7 +78,7 @@ int RelayInterface_on(int idx)
     return 0;
 }
 
-int RelayInterface_off(int idx)
+int relayinterface_off(int idx)
 {
     printf("RELAY OFF %d\n", idx);
  
@@ -102,7 +102,7 @@ int RelayInterface_off(int idx)
     return 0;
 }
 
-int RelayInterface_toggle(int idx)
+int relayinterface_toggle(int idx)
 {
     printf("RELAY TOGGLE %d\n", idx);
 
@@ -133,7 +133,7 @@ int RelayInterface_toggle(int idx)
     return 0;
 }
 
-int RelayInterface_pulse(int idx)
+int relayinterface_pulse(int idx)
 {
     printf("RELAY PULSE %d\n", idx);
 

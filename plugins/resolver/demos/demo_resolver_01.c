@@ -50,32 +50,32 @@
 
 static char relayboard_addr[ADDR_SIZE] = "127.0.0.1";
 
-void Demo01Plugin_set_relayboard_addr(const char* addr)
+void demo01plugin_set_relayboard_addr(const char* addr)
 {
     strncpy(relayboard_addr, addr, sizeof(relayboard_addr));
 }
 
 static int demo01_car_lock(resolver_action_data_t *action, int should_log)
 {
-    RelayInterface_pulse(0);
+    relayinterface_pulse(0);
     return 0;
 }
 
 static int demo01_car_unlock(resolver_action_data_t *action, int should_log)
 {
-    RelayInterface_pulse(1);
+    relayinterface_pulse(1);
     return 0;
 }
 
 static int demo01_start_engine(resolver_action_data_t *action, int should_log)
 {
-    RelayInterface_pulse(2);
+    relayinterface_pulse(2);
     return 0;
 }
 
 static int demo01_open_trunk(resolver_action_data_t *action, int should_log)
 {
-    RelayInterface_pulse(3);
+    relayinterface_pulse(3);
     return 0;
 }
 
@@ -183,12 +183,12 @@ static void stop_ds_interface()
 
 static void term_ds_interface(dataset_state_t* vdstate)
 {
-    Demo01Plugin_terminizer();
+    demo01plugin_terminizer();
     vdstate->options = NULL;
     dataset_deinit(vdstate);
 }
 
-void Demo01Plugin_initializer(resolver_plugin_t* action_set, void* options)
+void demo01plugin_initializer(resolver_plugin_t* action_set, void* options)
 {
     int cfg_status = ConfigManager_get_option_string("demo01plugin", "relayboard_address", relayboard_addr, ADDR_SIZE);
 
@@ -216,7 +216,7 @@ void Demo01Plugin_initializer(resolver_plugin_t* action_set, void* options)
     g_action_set->term_ds_interface_cb = term_ds_interface;
 }
 
-void Demo01Plugin_initializer_tcp(resolver_plugin_t* action_set, void* options)
+void demo01plugin_initializer_tcp(resolver_plugin_t* action_set, void* options)
 {
     if (g_action_set == NULL && action_set == NULL && options == NULL)
     {
@@ -242,7 +242,7 @@ void Demo01Plugin_initializer_tcp(resolver_plugin_t* action_set, void* options)
     g_action_set->term_ds_interface_cb = term_ds_interface;
 }
 
-void Demo01Plugin_terminizer()
+void demo01plugin_terminizer()
 {
     g_action_set = NULL;
 }

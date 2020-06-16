@@ -193,7 +193,7 @@ static bool pep_request(char *obligation, void *action)
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
-void Resolver_init(resolver_plugin_initializer_t initializer, dataset_state_t *dstate, void *options)
+void resolver_init(resolver_plugin_initializer_t initializer, dataset_state_t *dstate, void *options)
 {
     initializer(&resolver_action_set, options);
     g_dstate = dstate;
@@ -201,7 +201,7 @@ void Resolver_init(resolver_plugin_initializer_t initializer, dataset_state_t *d
     pep_register_callback((resolver_fn) pep_request);
 }
 
-void Resolver_term(resolver_plugin_terminizer_t terminizer)
+void resolver_term(resolver_plugin_terminizer_t terminizer)
 {
     terminizer(&resolver_action_set);
     g_dstate = NULL;
