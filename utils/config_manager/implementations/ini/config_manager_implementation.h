@@ -25,22 +25,20 @@
 #define CONFIG_MANAGER_DATA_SIZE 2048
 #define CONFIG_MANAGER_MAX_TOKENS 1024
 
-typedef enum {
-    CONFIG_MANAGER_TOKEN_GROUP,
-    CONFIG_MANAGER_TOKEN_OPTION
-} ConfigManager_token_type_t;
+typedef enum { CONFIG_MANAGER_TOKEN_GROUP, CONFIG_MANAGER_TOKEN_OPTION } configmanager_token_type_t;
 
 typedef struct {
-    int start;
-    int eq_sign_idx;
-    int end;
-    int size;
-    ConfigManager_token_type_t level;
-} ConfigManager_token_t;
+  int start;
+  int eq_sign_idx;
+  int end;
+  int size;
+  configmanager_token_type_t level;
+} configmanager_token_t;
 
-int ConfigManagerImplementation_init_cb(void* in_parameter);
-int ConfigManagerImplementation_get_string_cb(const char* module_name, const char* option_name, char* option_value, size_t option_value_size);
-int ConfigManagerImplementation_get_int_cb(const char* module_name, const char* option_name, int* option_value);
-int ConfigManagerImplementation_get_float_cb(const char* module_name, const char* option_name, float* option_value);
+int configmanagerimplementation_init_cb(void *in_parameter);
+int configmanagerimplementation_get_string_cb(const char *module_name, const char *option_name, char *option_value,
+                                              size_t option_value_size);
+int configmanagerimplementation_get_int_cb(const char *module_name, const char *option_name, int *option_value);
+int configmanagerimplementation_get_float_cb(const char *module_name, const char *option_name, float *option_value);
 
 #endif

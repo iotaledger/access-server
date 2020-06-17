@@ -34,9 +34,7 @@
 #include "canopen_sdo.h"
 #include <string.h>
 
-
-static canopensdo_sdo_object_t sdo_db[] =
-{
+static canopensdo_sdo_object_t sdo_db[] = {
     {CANOPEN_SDO_BMS_BAT_VOLTAGE_IDX, "bms bat voltage", "", 32, 0.0, -32768, 32767},
     {CANOPEN_SDO_ANALOGUE_BRAKE_FULL_VOLTAGE_IDX, "analogue brake full voltage", "Volts", 4096, 0.0, -32768, 32767},
     {CANOPEN_SDO_ANALOGUE_BRAKE_OFF_VOLTAGE_IDX, "analogue brake off voltage", "Volts", 4096, 0.0, -32768, 32767},
@@ -62,56 +60,50 @@ static canopensdo_sdo_object_t sdo_db[] =
     {CANOPEN_SDO_TPDO0_MAPPING4_IDX, "TPDO0 map4", "", 1, 0.0, -32768, 32767},
 };
 
-void canopensdo_init(){}
-void canopensdo_deinit(){}
+void canopensdo_init() {}
+void canopensdo_deinit() {}
 
-void canopensdo_parse(int index, uint64_t data, canopensdo_parsed_data_t* parsed_data)
-{
-    canopensdo_sdo_object_t* sdobj = canopensdo_get(index);
-    if (sdobj != NULL)
-    {
-        strncpy(parsed_data->unit, sdobj->unit, sizeof(parsed_data->unit) / sizeof(parsed_data->unit[0]));
-        strncpy(parsed_data->name, sdobj->name, sizeof(parsed_data->name) / sizeof(parsed_data->name[0]));
-        parsed_data->value = (float)data / sdobj->factor + sdobj->offset;
-        if (parsed_data->value > sdobj->max) parsed_data->value = sdobj->max;
-        if (parsed_data->value < sdobj->min) parsed_data->value = sdobj->min;
-    }
-    switch (index)
-    {
-        case CANOPEN_SDO_CONTROLLER_TEMPERATURE_IDX:
-        break;
-        case CANOPEN_SDO_VEHICLE_SPEED_IDX:
-        break;
-        case CANOPEN_SDO_MOTOR_RPM_IDX:
-        break;
-        case CANOPEN_SDO_MOTOR_SPEED_IDX:
-        break;
-        case CANOPEN_SDO_BATTERY_VOLTAGE_IDX:
-        break;
-        case CANOPEN_SDO_BATTERY_CURRENT_IDX:
-        break;
-        case CANOPEN_SDO_BATTERY_SOC_IDX:
-        break;
-        case CANOPEN_SDO_THROTTLE_VOLTAGE_IDX:
-        break;
-        case CANOPEN_SDO_BRAKE_1_VOLTAGE_IDX:
-        break;
-        case CANOPEN_SDO_BRAKE_2_VOLTAGE_IDX:
-        break;
-        case CANOPEN_SDO_BATTERY_POWER_PERCENT_IDX:
-        break;
-    }
+void canopensdo_parse(int index, uint64_t data, canopensdo_parsed_data_t* parsed_data) {
+  canopensdo_sdo_object_t* sdobj = canopensdo_get(index);
+  if (sdobj != NULL) {
+    strncpy(parsed_data->unit, sdobj->unit, sizeof(parsed_data->unit) / sizeof(parsed_data->unit[0]));
+    strncpy(parsed_data->name, sdobj->name, sizeof(parsed_data->name) / sizeof(parsed_data->name[0]));
+    parsed_data->value = (float)data / sdobj->factor + sdobj->offset;
+    if (parsed_data->value > sdobj->max) parsed_data->value = sdobj->max;
+    if (parsed_data->value < sdobj->min) parsed_data->value = sdobj->min;
+  }
+  switch (index) {
+    case CANOPEN_SDO_CONTROLLER_TEMPERATURE_IDX:
+      break;
+    case CANOPEN_SDO_VEHICLE_SPEED_IDX:
+      break;
+    case CANOPEN_SDO_MOTOR_RPM_IDX:
+      break;
+    case CANOPEN_SDO_MOTOR_SPEED_IDX:
+      break;
+    case CANOPEN_SDO_BATTERY_VOLTAGE_IDX:
+      break;
+    case CANOPEN_SDO_BATTERY_CURRENT_IDX:
+      break;
+    case CANOPEN_SDO_BATTERY_SOC_IDX:
+      break;
+    case CANOPEN_SDO_THROTTLE_VOLTAGE_IDX:
+      break;
+    case CANOPEN_SDO_BRAKE_1_VOLTAGE_IDX:
+      break;
+    case CANOPEN_SDO_BRAKE_2_VOLTAGE_IDX:
+      break;
+    case CANOPEN_SDO_BATTERY_POWER_PERCENT_IDX:
+      break;
+  }
 }
 
-canopensdo_sdo_object_t* canopensdo_get(int index)
-{
-    for (int i=0; i<sizeof(sdo_db) / sizeof(sdo_db[0]); i++)
-    {
-        if (sdo_db[i].index == index)
-        {
-            return &sdo_db[i];
-            break;
-        }
+canopensdo_sdo_object_t* canopensdo_get(int index) {
+  for (int i = 0; i < sizeof(sdo_db) / sizeof(sdo_db[0]); i++) {
+    if (sdo_db[i].index == index) {
+      return &sdo_db[i];
+      break;
     }
-    return NULL;
+  }
+  return NULL;
 }

@@ -46,12 +46,12 @@
 #define bool _Bool
 #endif
 #ifndef FALSE
-#define FALSE    (0)
+#define FALSE (0)
 #endif
 #ifndef TRUE
-#define TRUE     (1)
+#define TRUE (1)
 #endif
-#define PDP_ERROR_RET    (666)
+#define PDP_ERROR_RET (666)
 
 #define PDP_OBLIGATION_LEN (15)
 
@@ -62,59 +62,31 @@ this will have to be adjusted accordingly. */
 /****************************************************************************
  * ENUMERATIONS
  ****************************************************************************/
-typedef enum
-{
-    AND,
-    OR,
-    NOT,
-    EQ,
-    LEQ,
-    GEQ,
-    UNDEFINED,
-    LT,
-    GT,
-    IF
-} pdp_operation_e;
+typedef enum { AND, OR, NOT, EQ, LEQ, GEQ, UNDEFINED, LT, GT, IF } pdp_operation_e;
 
-typedef enum
-{
-    STRING,
-    NUMBER,
-    TIME,
-    BOOLEAN,
-    UNKNOWN
-} pdp_type_e;
+typedef enum { STRING, NUMBER, TIME, BOOLEAN, UNKNOWN } pdp_type_e;
 
-typedef enum
-{
-    PDP_ERROR = -1,
-    PDP_GAP = 0,
-    PDP_GRANT = 1,
-    PDP_DENY = 2,
-    PDP_CONFLICT = 3
-} pdp_decision_e;
+typedef enum { PDP_ERROR = -1, PDP_GAP = 0, PDP_GRANT = 1, PDP_DENY = 2, PDP_CONFLICT = 3 } pdp_decision_e;
 
 /****************************************************************************
  * TYPES
  ****************************************************************************/
-typedef struct attribute_value
-{
-    pdp_type_e type;
-    void *value;
-    int size;
+typedef struct attribute_value {
+  pdp_type_e type;
+  void* value;
+  int size;
 } pdp_attribute_value_t;
 
-typedef struct action
-{
-    char pol_id_str[2 * PDP_POL_ID_MAX_LEN + 1];
-    unsigned long start_time;
-    unsigned long stop_time;
-    unsigned long balance;
-    char* wallet_address;
-    char* transaction_hash;
-    int transaction_hash_len;
-    char* value;
-    pap_action_list_t* action_list;
+typedef struct action {
+  char pol_id_str[2 * PDP_POL_ID_MAX_LEN + 1];
+  unsigned long start_time;
+  unsigned long stop_time;
+  unsigned long balance;
+  char* wallet_address;
+  char* transaction_hash;
+  int transaction_hash_len;
+  char* value;
+  pap_action_list_t* action_list;
 } pdp_action_t;
 
 /****************************************************************************
@@ -153,7 +125,7 @@ bool pdp_term(void);
  *
  * @return  pdp_decision decision made
  */
-//TODO: obligations should be linked list of the elements of the 'obligation_s' structure type
-pdp_decision_e pdp_calculate_decision(char *request_norm, char *obligation, pdp_action_t *action);
+// TODO: obligations should be linked list of the elements of the 'obligation_s' structure type
+pdp_decision_e pdp_calculate_decision(char* request_norm, char* obligation, pdp_action_t* action);
 
-#endif //_PDP_H_
+#endif  //_PDP_H_

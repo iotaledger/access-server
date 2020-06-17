@@ -17,26 +17,21 @@
  * limitations under the License.
  */
 
+#include <errno.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
 #include <string.h>
 #include <sys/types.h>
-#include <signal.h>
-
-#include "dataset.h"
-
-#include "json_interface.h"
-#include "config_manager.h"
-
-#include "network.h"
-
 #include <time.h>
-#include "globals_declarations.h"
-#include "timer.h"
+#include <unistd.h>
 
 #include "access.h"
+#include "config_manager.h"
+#include "dataset.h"
+#include "globals_declarations.h"
+#include "network.h"
+#include "timer.h"
 
 #define NODE_URL "nodes.comnet.thetangle.org"
 #define NODE_PORT 443
@@ -46,46 +41,44 @@
 
 int g_task_sleep_time;
 
-#define Dlog_printf printf
+#define dlog_printf printf
 
 static volatile int running = 1;
 static void signal_handler(int _) { running = 0; }
 
-static Network_ctx_t network_context = 0;
+static network_ctx_t network_context = 0;
 static access_ctx_t access_context = 0;
 static wallet_ctx_t *device_wallet;
 
-int main(int argc, char** argv)
-{
-    dataset_state_t *ddstate;
+int main(int argc, char **argv) {
+  dataset_state_t *ddstate;
 
-    signal(SIGINT, signal_handler);
-    sigaction(SIGPIPE, &(struct sigaction){SIG_IGN}, NULL);
+  signal(SIGINT, signal_handler);
+  sigaction(SIGPIPE, &(struct sigaction){SIG_IGN}, NULL);
 
-    ConfigManager_init("config.ini");
+  configmanager_init("config.ini");
 
-    int status = ConfigManager_get_option_int("config", "thread_sleep_period", &g_task_sleep_time);
-    if (status != CONFIG_MANAGER_OK) g_task_sleep_time = 1000; // 1 second
+  int status = configmanager_get_option_int("config", "thread_sleep_period", &g_task_sleep_time);
+  if (status != CONFIG_MANAGER_OK) g_task_sleep_time = 1000;  // 1 second
 
-    device_wallet = wallet_create(NODE_URL, NODE_PORT, NULL, NODE_DEPTH, NODE_MWM, WALLET_SEED);
+  device_wallet = wallet_create(NODE_URL, NODE_PORT, NULL, NODE_DEPTH, NODE_MWM, WALLET_SEED);
 
-    access_init(&access_context, device_wallet);
-    access_get_ddstate(access_context, &ddstate);
+  access_init(&access_context, device_wallet);
+  access_get_ddstate(access_context, &ddstate);
 
-    Network_init(ddstate, &network_context);
+  network_init(ddstate, &network_context);
 
-    access_start(access_context);
-    if (Network_start(network_context) != 0)
-    {
-        fprintf(stderr, "Error starting Network actor\n");
-        running = 0;
-    }
+  access_start(access_context);
+  if (network_start(network_context) != 0) {
+    fprintf(stderr, "Error starting Network actor\n");
+    running = 0;
+  }
 
-    // Wait until process receives SIGINT
-    while (running == 1) usleep(g_task_sleep_time);
+  // Wait until process receives SIGINT
+  while (running == 1) usleep(g_task_sleep_time);
 
-    Network_stop(&network_context);
-    access_deinit(access_context);
+  network_stop(&network_context);
+  access_deinit(access_context);
 
-    return 0;
+  return 0;
 }

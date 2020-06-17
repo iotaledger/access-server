@@ -19,22 +19,17 @@
 
 #include "config_manager.h"
 
-int ConfigManager_init(void* in_parameter)
-{
-    return ConfigManagerImplementation_init_cb(in_parameter);
+int configmanager_init(void *in_parameter) { return configmanagerimplementation_init_cb(in_parameter); }
+
+int configmanager_get_option_string(const char *module_name, const char *option_name, char *option_value,
+                                    size_t option_size) {
+  return configmanagerimplementation_get_string_cb(module_name, option_name, option_value, option_size);
 }
 
-int ConfigManager_get_option_string(const char* module_name, const char* option_name, char* option_value, size_t option_size)
-{
-    return ConfigManagerImplementation_get_string_cb(module_name, option_name, option_value, option_size);
+int configmanager_get_option_int(const char *module_name, const char *option_name, int *option_value) {
+  return configmanagerimplementation_get_int_cb(module_name, option_name, option_value);
 }
 
-int ConfigManager_get_option_int(const char* module_name, const char* option_name, int* option_value)
-{
-    return ConfigManagerImplementation_get_int_cb(module_name, option_name, option_value);
-}
-
-int ConfigManager_get_option_float(const char* module_name, const char* option_name, float* option_value)
-{
-    return ConfigManagerImplementation_get_float_cb(module_name, option_name, option_value);
+int configmanager_get_option_float(const char *module_name, const char *option_name, float *option_value) {
+  return configmanagerimplementation_get_float_cb(module_name, option_name, option_value);
 }

@@ -85,8 +85,8 @@ int parse_canframe(char *cs, struct can_frame *cf);
  *
  */
 
-void fprint_canframe(FILE *stream , struct can_frame *cf, char *eol, int sep);
-void sprint_canframe(char *buf , struct can_frame *cf, int sep);
+void fprint_canframe(FILE *stream, struct can_frame *cf, char *eol, int sep);
+void sprint_canframe(char *buf, struct can_frame *cf, int sep);
 /*
  * Creates a CAN frame hexadecimal output in compact format.
  * The CAN data[] is seperated by '.' when sep != 0.
@@ -103,15 +103,15 @@ void sprint_canframe(char *buf , struct can_frame *cf, int sep);
  *
  */
 
-#define CANLIB_VIEW_ASCII	0x1
-#define CANLIB_VIEW_BINARY	0x2
-#define CANLIB_VIEW_SWAP	0x4
-#define CANLIB_VIEW_ERROR	0x8
+#define CANLIB_VIEW_ASCII 0x1
+#define CANLIB_VIEW_BINARY 0x2
+#define CANLIB_VIEW_SWAP 0x4
+#define CANLIB_VIEW_ERROR 0x8
 
 #define SWAP_DELIMITER '`'
 
-void fprint_long_canframe(FILE *stream , struct can_frame *cf, char *eol, int view);
-void sprint_long_canframe(char *buf , struct can_frame *cf, int view);
+void fprint_long_canframe(FILE *stream, struct can_frame *cf, char *eol, int view);
+void sprint_long_canframe(char *buf, struct can_frame *cf, int view);
 /*
  * Creates a CAN frame hexadecimal output in user readable format.
  *
@@ -127,8 +127,7 @@ void sprint_long_canframe(char *buf , struct can_frame *cf, int view);
  *
  */
 
-void snprintf_can_error_frame(char *buf, size_t len, struct can_frame *cf,
-			      char *sep);
+void snprintf_can_error_frame(char *buf, size_t len, struct can_frame *cf, char *sep);
 /*
  * Creates a CAN error frame output in user readable format.
  */

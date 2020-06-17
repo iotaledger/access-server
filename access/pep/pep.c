@@ -1,21 +1,21 @@
 /*
-* This file is part of the IOTA Access Distribution
-* (https://github.com/iotaledger/access)
-*
-* Copyright (c) 2020 IOTA Stiftung
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * This file is part of the IOTA Access Distribution
+ * (https://github.com/iotaledger/access)
+ *
+ * Copyright (c) 2020 IOTA Stiftung
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 /****************************************************************************
  * \project Decentralized Access Control
@@ -37,13 +37,13 @@
 /****************************************************************************
  * INCLUDES
  ****************************************************************************/
-#include <stdio.h>
-#include <string.h>
-#include <pthread.h>
-#include <stdlib.h>
 #include "pep.h"
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "pdp.h"
-#include "utils_string.h"
+#include "utils.h"
 
 /****************************************************************************
  * MACROS
@@ -59,7 +59,8 @@
 #define PEP_ASCII_CR 13
 #define PEP_ASCII_LF 10
 
-#define PEP_CHECK_WHITESPACE(x) ((x == PEP_ASCII_SPACE) || (x == PEP_ASCII_TAB) || (x == PEP_ASCII_CR) || (x == PEP_ASCII_LF) ? TRUE : FALSE)
+#define PEP_CHECK_WHITESPACE(x) \
+  ((x == PEP_ASCII_SPACE) || (x == PEP_ASCII_TAB) || (x == PEP_ASCII_CR) || (x == PEP_ASCII_LF) ? TRUE : FALSE)
 
 /****************************************************************************
  * GLOBAL VARIABLES
@@ -69,130 +70,116 @@ static pthread_mutex_t pep_mutex;
 /****************************************************************************
  * LOCAL FUNCTIONS
  ****************************************************************************/
-static int normalize_request(char *request, int request_len, char **request_normalized)
-{
-    char temp[request_len];
-    int charCnt = 0;
+static int normalize_request(char *request, int request_len, char **request_normalized) {
+  char temp[request_len];
+  int charCnt = 0;
 
-    //Check input parameters
-    if (request == NULL || request_len == 0)
-    {
-        printf("\nERROR[%s]: Bad input parameters.\n", __FUNCTION__);
-        return 0;
+  // Check input parameters
+  if (request == NULL || request_len == 0) {
+    printf("\nERROR[%s]: Bad input parameters.\n", __FUNCTION__);
+    return 0;
+  }
+
+  // Normalize request object and save it to temp
+  memset(temp, 0, request_len);
+
+  for (int i = 0; i < request_len; i++) {
+    if (!PEP_CHECK_WHITESPACE(request[i])) {
+      temp[charCnt] = request[i];
+      charCnt++;
     }
+  }
 
-    //Normalize request object and save it to temp
-    memset(temp, 0, request_len);
+  // Allocate memory for request_normalized
+  if (*request_normalized) {
+    free(*request_normalized);
+    *request_normalized = NULL;
+  }
 
-    for (int i = 0; i < request_len; i++)
-    {
-        if (!PEP_CHECK_WHITESPACE(request[i]))
-        {
-            temp[charCnt] = request[i];
-            charCnt++;
-        }
-    }
+  *request_normalized = malloc(charCnt * sizeof(char));
+  if (*request_normalized == NULL) {
+    return 0;
+  }
 
-    //Allocate memory for request_normalized
-    if (*request_normalized)
-    {
-        free(*request_normalized);
-        *request_normalized = NULL;
-    }
+  // Copy temp to request_normalized
+  memcpy(*request_normalized, temp, charCnt * sizeof(char));
 
-    *request_normalized = malloc(charCnt * sizeof(char));
-    if (*request_normalized == NULL)
-    {
-        return 0;
-    }
-
-    //Copy temp to request_normalized
-    memcpy(*request_normalized, temp, charCnt * sizeof(char));
-
-    return charCnt;
+  return charCnt;
 }
 
-static int append_action_item_to_str(char *str, int pos, pap_action_list_t *action_item)
-{
-    if(action_item == NULL)
-    {
-        return 0;
-    }
-    else if(action_item->policy_ID_str == NULL)
-    {
-        return 0;
-    }
+static int append_action_item_to_str(char *str, int pos, pap_action_list_t *action_item) {
+  if (action_item == NULL) {
+    return 0;
+  } else if (action_item->policy_ID_str == NULL) {
+    return 0;
+  }
 
-    int buffer_position = pos;
+  int buffer_position = pos;
 
-    if(buffer_position != 1)
-    {
-        str[buffer_position++] = ',';
-    }
+  if (buffer_position != 1) {
+    str[buffer_position++] = ',';
+  }
 
-    str[buffer_position++] = '{';
+  str[buffer_position++] = '{';
 
-    // add "policy_id"
-    memcpy(str + buffer_position, "\"policy_id\":\"", strlen("\"policy_id\":\""));
-    buffer_position += strlen("\"policy_id\":\"");
+  // add "policy_id"
+  memcpy(str + buffer_position, "\"policy_id\":\"", strlen("\"policy_id\":\""));
+  buffer_position += strlen("\"policy_id\":\"");
 
-    // add "policy_id" value
-    hex_to_str(action_item->policy_ID_str, str + buffer_position, PEP_POL_ID_HEX_LEN);
-    buffer_position += PEP_POL_ID_STR_LEN;
+  // add "policy_id" value
+  hex_to_str(action_item->policy_ID_str, str + buffer_position, PEP_POL_ID_HEX_LEN);
+  buffer_position += PEP_POL_ID_STR_LEN;
+  str[buffer_position++] = '\"';
+
+  // add "action"
+  memcpy(str + buffer_position, ",\"action\":\"", strlen(",\"action\":\""));
+  buffer_position += strlen(",\"action\":\"");
+
+  // add "action" value
+  memcpy(str + buffer_position, action_item->action, strlen(action_item->action));
+  buffer_position += strlen(action_item->action);
+  str[buffer_position++] = '\"';
+
+  // check if "cost" field should be added (add it if policy is not paid)
+  if (action_item->is_available.is_payed == PAP_NOT_PAYED) {
+    // add "cost"
+    memcpy(str + buffer_position, ",\"cost\":\"", strlen(",\"cost\":\""));
+    buffer_position += strlen(",\"cost\":\"");
+
+    // add "cost" value
+    memcpy(str + buffer_position, action_item->is_available.cost, strlen(action_item->is_available.cost));
+    buffer_position += strlen(action_item->is_available.cost);
     str[buffer_position++] = '\"';
 
-    // add "action"
-    memcpy(str + buffer_position, ",\"action\":\"", strlen(",\"action\":\""));
-    buffer_position += strlen(",\"action\":\"");
+    // add wallet address
+    memcpy(str + buffer_position, ",\"wallet address\":\"", strlen(",\"wallet address\":\""));
+    buffer_position += strlen(",\"wallet address\":\"");
 
-    // add "action" value
-    memcpy(str + buffer_position, action_item->action, strlen(action_item->action));
-    buffer_position += strlen(action_item->action);
+    // add wallet address value
+    memcpy(str + buffer_position, action_item->is_available.wallet_address, PAP_WALLET_ADDR_LEN);
+    buffer_position += PAP_WALLET_ADDR_LEN;
     str[buffer_position++] = '\"';
+  }
 
-    // check if "cost" field should be added (add it if policy is not paid)
-    if (action_item->is_available.is_payed == PAP_NOT_PAYED)
-    {
-        // add "cost"
-        memcpy(str + buffer_position, ",\"cost\":\"", strlen(",\"cost\":\""));
-        buffer_position += strlen(",\"cost\":\"");
+  str[buffer_position++] = '}';
 
-        // add "cost" value
-        memcpy(str + buffer_position, action_item->is_available.cost, strlen(action_item->is_available.cost));
-        buffer_position += strlen(action_item->is_available.cost);
-        str[buffer_position++] = '\"';
-
-        // add wallet address
-        memcpy(str + buffer_position, ",\"wallet address\":\"", strlen(",\"wallet address\":\""));
-        buffer_position += strlen(",\"wallet address\":\"");
-
-        // add wallet address value
-        memcpy(str + buffer_position, action_item->is_available.wallet_address, PAP_WALLET_ADDR_LEN);
-        buffer_position += PAP_WALLET_ADDR_LEN;
-        str[buffer_position++] = '\"';
-    }
-
-    str[buffer_position++] = '}';
-
-    return buffer_position - pos;
+  return buffer_position - pos;
 }
 
-static int list_to_string(pap_action_list_t *action_list, char *output_str)
-{
-    output_str[0] = '[';
-    int buffer_position = 1;
-    pap_action_list_t *action_list_temp = action_list;
+static int list_to_string(pap_action_list_t *action_list, char *output_str) {
+  output_str[0] = '[';
+  int buffer_position = 1;
+  pap_action_list_t *action_list_temp = action_list;
 
-    while(action_list_temp != NULL)
-    {
-        buffer_position += append_action_item_to_str(output_str, buffer_position, action_list_temp);
-        action_list_temp = action_list_temp->next;
-    }
+  while (action_list_temp != NULL) {
+    buffer_position += append_action_item_to_str(output_str, buffer_position, action_list_temp);
+    action_list_temp = action_list_temp->next;
+  }
 
-    output_str[buffer_position++] = ']';
-    output_str[buffer_position++] = '\0';
+  output_str[buffer_position++] = ']';
+  output_str[buffer_position++] = '\0';
 
-    return buffer_position;
+  return buffer_position;
 }
 
 /****************************************************************************
@@ -203,143 +190,124 @@ static resolver_fn callback_resolver = NULL;
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
-bool pep_init()
-{
-    //Initialize mutex
-    if (pthread_mutex_init(&pep_mutex, NULL) != 0)
-    {
-        printf("\nERROR[%s]: Mutex init failed.\n", __FUNCTION__);
-        return FALSE;
-    }
+bool pep_init() {
+  // Initialize mutex
+  if (pthread_mutex_init(&pep_mutex, NULL) != 0) {
+    printf("\nERROR[%s]: Mutex init failed.\n", __FUNCTION__);
+    return FALSE;
+  }
 
-    //Initialize PDP module
-    if (pdp_init() == FALSE)
-    {
-        printf("\nERROR[%s]: PDP init failed.\n", __FUNCTION__);
-        return FALSE;
-    }
+  // Initialize PDP module
+  if (pdp_init() == FALSE) {
+    printf("\nERROR[%s]: PDP init failed.\n", __FUNCTION__);
+    return FALSE;
+  }
 
-    return TRUE;
-    }
-
-bool pep_term(void)
-{
-    //Destroy mutex
-    pthread_mutex_destroy(&pep_mutex);
-
-    //Terminate PDP module
-    if (pdp_term() == FALSE)
-    {
-        printf("\nERROR[%s]: PDP term failed.\n", __FUNCTION__);
-        return FALSE;
-    }
-
-    return TRUE;
+  return TRUE;
 }
 
-bool pep_register_callback(resolver_fn resolver)
-{
-    //Check input parameter
-    if (resolver == NULL)
-    {
-        printf("\n\nERROR[%s]: Invalid input parameters.\n\n",__FUNCTION__);
-        return FALSE;
-    }
+bool pep_term(void) {
+  // Destroy mutex
+  pthread_mutex_destroy(&pep_mutex);
 
-    //Check if it's already registered
-    if (callback_resolver != NULL)
-    {
-        printf("\n\nERROR[%s]: Callback already registered.\n\n",__FUNCTION__);
-        return FALSE;
-    }
+  // Terminate PDP module
+  if (pdp_term() == FALSE) {
+    printf("\nERROR[%s]: PDP term failed.\n", __FUNCTION__);
+    return FALSE;
+  }
 
-    pthread_mutex_lock(&pep_mutex);
-
-    //Register callback
-    callback_resolver = resolver;
-
-    pthread_mutex_unlock(&pep_mutex);
-
-    return TRUE;
+  return TRUE;
 }
 
-bool pep_unregister_callback(void)
-{
-    pthread_mutex_lock(&pep_mutex);
+bool pep_register_callback(resolver_fn resolver) {
+  // Check input parameter
+  if (resolver == NULL) {
+    printf("\n\nERROR[%s]: Invalid input parameters.\n\n", __FUNCTION__);
+    return FALSE;
+  }
 
-    //Unregister callback
-    callback_resolver = NULL;
+  // Check if it's already registered
+  if (callback_resolver != NULL) {
+    printf("\n\nERROR[%s]: Callback already registered.\n\n", __FUNCTION__);
+    return FALSE;
+  }
 
-    pthread_mutex_unlock(&pep_mutex);
+  pthread_mutex_lock(&pep_mutex);
 
-    return TRUE;
+  // Register callback
+  callback_resolver = resolver;
+
+  pthread_mutex_unlock(&pep_mutex);
+
+  return TRUE;
 }
 
-bool pep_request_access(char *request, void *response)
-{
-    char action_value[PEP_ACTION_LEN];
-    //TODO: obligations should be linked list of the elements of the 'obligation_s' structure type
-    char obligation[PDP_OBLIGATION_LEN];
-    char tangle_address[PEP_IOTA_ADDR_LEN];
-    char *norm_request = NULL;
-    pdp_action_t action;
-    pdp_decision_e ret = PDP_ERROR;
+bool pep_unregister_callback(void) {
+  pthread_mutex_lock(&pep_mutex);
 
-    //Check input parameter
-    if (request == NULL || response == NULL)
-    {
-        printf("\n\nERROR[%s]: Invalid input parameter.\n\n",__FUNCTION__);
-        return FALSE;
-    }
+  // Unregister callback
+  callback_resolver = NULL;
 
-    pthread_mutex_lock(&pep_mutex);
+  pthread_mutex_unlock(&pep_mutex);
 
-    memset(obligation, 0, PEP_ACTION_LEN * sizeof(char));
+  return TRUE;
+}
 
-    action.value = action_value;
-    action.wallet_address = tangle_address;
+bool pep_request_access(char *request, void *response) {
+  char action_value[PEP_ACTION_LEN];
+  // TODO: obligations should be linked list of the elements of the 'obligation_s' structure type
+  char obligation[PDP_OBLIGATION_LEN];
+  char tangle_address[PEP_IOTA_ADDR_LEN];
+  char *norm_request = NULL;
+  pdp_action_t action;
+  pdp_decision_e ret = PDP_ERROR;
 
-    //Get normalized request
-    if (normalize_request(request, strlen(request), &norm_request) == 0)
-    {
-        printf("\n\nERROR[%s]: Error normalizing request.\n\n",__FUNCTION__);
-        pthread_mutex_unlock(&pep_mutex);
-        return FALSE;
-    }
+  // Check input parameter
+  if (request == NULL || response == NULL) {
+    printf("\n\nERROR[%s]: Invalid input parameter.\n\n", __FUNCTION__);
+    return FALSE;
+  }
 
-    //Calculate decision and get action + obligation
-    ret = pdp_calculate_decision(norm_request, obligation, &action);
+  pthread_mutex_lock(&pep_mutex);
 
-    if (memcmp(action.value, "get_actions", strlen("get_actions")))
-    {
-        pap_action_list_t *temp = NULL;
+  memset(obligation, 0, PEP_ACTION_LEN * sizeof(char));
 
-        list_to_string(action.action_list, (char *)response);
+  action.value = action_value;
+  action.wallet_address = tangle_address;
 
-        while (action.action_list)
-        {
-            temp = action.action_list;
-            action.action_list = action.action_list->next;
-            free(temp);
-        }
-    }
-    else
-    {
-        //Resolver callback
-        if (callback_resolver != NULL)
-        {
-            callback_resolver(obligation, (void*)&action);
-        }
-        else
-        {
-            printf("\n\nERROR[%s]: Callback is not regostered.\n\n",__FUNCTION__);
-            ret = FALSE;
-        }
-
-        ret == PDP_GRANT ? memcpy(response, "grant", strlen("grant")) : memcpy(response, "deny", strlen("deny"));
-    }
-
-    free(norm_request);
+  // Get normalized request
+  if (normalize_request(request, strlen(request), &norm_request) == 0) {
+    printf("\n\nERROR[%s]: Error normalizing request.\n\n", __FUNCTION__);
     pthread_mutex_unlock(&pep_mutex);
-    return TRUE;
+    return FALSE;
+  }
+
+  // Calculate decision and get action + obligation
+  ret = pdp_calculate_decision(norm_request, obligation, &action);
+
+  if (memcmp(action.value, "get_actions", strlen("get_actions"))) {
+    pap_action_list_t *temp = NULL;
+
+    list_to_string(action.action_list, (char *)response);
+
+    while (action.action_list) {
+      temp = action.action_list;
+      action.action_list = action.action_list->next;
+      free(temp);
+    }
+  } else {
+    // Resolver callback
+    if (callback_resolver != NULL) {
+      callback_resolver(obligation, (void *)&action);
+    } else {
+      printf("\n\nERROR[%s]: Callback is not regostered.\n\n", __FUNCTION__);
+      ret = FALSE;
+    }
+
+    ret == PDP_GRANT ? memcpy(response, "grant", strlen("grant")) : memcpy(response, "deny", strlen("deny"));
+  }
+
+  free(norm_request);
+  pthread_mutex_unlock(&pep_mutex);
+  return TRUE;
 }

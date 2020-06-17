@@ -36,9 +36,9 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "json_interface.h"
-#include "globals_declarations.h"
 #include "config_manager.h"
+#include "datadumper.h"
+#include "globals_declarations.h"
 
 #define MODBUS_JSON_NAME "modbus_data"
 #define MODBUS_BUFF_LEN 128
@@ -50,16 +50,15 @@
 #define MODBUS_RPM_REGADDR 0x107
 #define MODBUS_THROTTLE_VOLTAGE_REGADDR 0x010e
 
-typedef struct
-{
-    char serial_device[MODBUS_SERIAL_DEV_LEN];
-    fjson_object* fj_root;
-    pthread_mutex_t *json_mutex;
-    modbus_t modbus;
+typedef struct {
+  char serial_device[MODBUS_SERIAL_DEV_LEN];
+  fjson_object* fj_root;
+  pthread_mutex_t* json_mutex;
+  modbus_t modbus;
 } modbusreceiver_thread_args_t;
 
 static modbusreceiver_thread_args_t targs;
-static canopen01_vehicle_dataset_t *wanted_signals;
+static canopen01_vehicle_dataset_t* wanted_signals;
 
 // modbus data stuff
 static fjson_object* fj_obj_modbus;
@@ -68,129 +67,105 @@ static fjson_object* fj_obj_brake_1_voltage;
 static fjson_object* fj_obj_brake_2_voltage;
 static fjson_object* fj_obj_throttle_voltage;
 
-static fjson_object* modbus_json_filler()
-{
-    fj_obj_modbus = fjson_object_new_array();
+static fjson_object* modbus_json_filler() {
+  fj_obj_modbus = fjson_object_new_array();
 
-    if (wanted_signals->motor_rpm == 1)
-    {
-        fj_obj_motor_rpm = fjson_object_new_object();
-        fjson_object_object_add(fj_obj_motor_rpm, "name", fjson_object_new_string("motor_rpm"));
-        fjson_object_array_add(fj_obj_modbus, fj_obj_motor_rpm);
-    }
-    else
-    {
-        fj_obj_motor_rpm = NULL;
-    }
+  if (wanted_signals->motor_rpm == 1) {
+    fj_obj_motor_rpm = fjson_object_new_object();
+    fjson_object_object_add(fj_obj_motor_rpm, "name", fjson_object_new_string("motor_rpm"));
+    fjson_object_array_add(fj_obj_modbus, fj_obj_motor_rpm);
+  } else {
+    fj_obj_motor_rpm = NULL;
+  }
 
-    if (wanted_signals->brake_1_voltage == 1)
-    {
-        fj_obj_brake_1_voltage = fjson_object_new_object();
-        fjson_object_object_add(fj_obj_brake_1_voltage, "name", fjson_object_new_string("brake_1_voltage"));
-        fjson_object_array_add(fj_obj_modbus, fj_obj_brake_1_voltage);
-    }
-    else
-    {
-        fj_obj_brake_1_voltage = NULL;
-    }
+  if (wanted_signals->brake_1_voltage == 1) {
+    fj_obj_brake_1_voltage = fjson_object_new_object();
+    fjson_object_object_add(fj_obj_brake_1_voltage, "name", fjson_object_new_string("brake_1_voltage"));
+    fjson_object_array_add(fj_obj_modbus, fj_obj_brake_1_voltage);
+  } else {
+    fj_obj_brake_1_voltage = NULL;
+  }
 
-    if (wanted_signals->brake_2_voltage == 1)
-    {
-        fj_obj_brake_2_voltage = fjson_object_new_object();
-        fjson_object_object_add(fj_obj_brake_2_voltage, "name", fjson_object_new_string("brake_2_voltage"));
-        fjson_object_array_add(fj_obj_modbus, fj_obj_brake_2_voltage);
-    }
-    else
-    {
-        fj_obj_brake_1_voltage = NULL;
-    }
+  if (wanted_signals->brake_2_voltage == 1) {
+    fj_obj_brake_2_voltage = fjson_object_new_object();
+    fjson_object_object_add(fj_obj_brake_2_voltage, "name", fjson_object_new_string("brake_2_voltage"));
+    fjson_object_array_add(fj_obj_modbus, fj_obj_brake_2_voltage);
+  } else {
+    fj_obj_brake_1_voltage = NULL;
+  }
 
-    if (wanted_signals->throttle_voltage == 1)
-    {
-        fj_obj_throttle_voltage = fjson_object_new_object();
-        fjson_object_object_add(fj_obj_throttle_voltage, "name", fjson_object_new_string("throttle_voltage"));
-        fjson_object_array_add(fj_obj_modbus, fj_obj_throttle_voltage);
-    }
-    else
-    {
-        fj_obj_throttle_voltage = NULL;
-    }
+  if (wanted_signals->throttle_voltage == 1) {
+    fj_obj_throttle_voltage = fjson_object_new_object();
+    fjson_object_object_add(fj_obj_throttle_voltage, "name", fjson_object_new_string("throttle_voltage"));
+    fjson_object_array_add(fj_obj_modbus, fj_obj_throttle_voltage);
+  } else {
+    fj_obj_throttle_voltage = NULL;
+  }
 
-    return fj_obj_modbus;
+  return fj_obj_modbus;
 }
 
 // !modbus data stuff
 
+void modbusreceiver_init(canopen01_vehicle_dataset_t* dataset, pthread_mutex_t* json_mutex) {
+  char buff[MODBUS_BUFF_LEN] = {0};
+  configmanager_get_option_string("modbus", "serial_device", targs.serial_device, MODBUS_SERIAL_DEV_LEN);
 
-void modbusreceiver_init(canopen01_vehicle_dataset_t *dataset,
-                         pthread_mutex_t *json_mutex)
-{
-    char buff[MODBUS_BUFF_LEN] = {0};
-    ConfigManager_get_option_string("modbus", "serial_device", targs.serial_device, MODBUS_SERIAL_DEV_LEN);
+  datadumper_add_module_init_cb(modbus_json_filler, &fj_obj_modbus, MODBUS_JSON_NAME);
 
-    JSONInterface_add_module_init_cb(modbus_json_filler,
-                                     &fj_obj_modbus,
-                                     MODBUS_JSON_NAME);
+  targs.json_mutex = json_mutex;
+  wanted_signals = dataset;
 
-    targs.json_mutex = json_mutex;
-    wanted_signals = dataset;
-
-    modbus_init(&targs.modbus, targs.serial_device);
+  modbus_init(&targs.modbus, targs.serial_device);
 }
 
 static int end_thread = 0;
 static pthread_t thread = 0;
 
-static void *thread_loop(void *ptr)
-{
-    modbusreceiver_thread_args_t* targs = (modbusreceiver_thread_args_t*)ptr;
+static void* thread_loop(void* ptr) {
+  modbusreceiver_thread_args_t* targs = (modbusreceiver_thread_args_t*)ptr;
 
-    while (end_thread == 0)
-    {
-        uint16_t data = -1;
-        if (wanted_signals->motor_rpm == 1)
-        {
-            modbus_read_registers(&targs->modbus, 1, MODBUS_RPM_REGADDR, 1, &data);
-            fjson_object_object_add(fj_obj_motor_rpm, "value", fjson_object_new_double((double)data));
-        }
-
-        if (wanted_signals->brake_1_voltage == 1)
-        {
-            modbus_read_registers(&targs->modbus, 1, MODBUS_BRAKE_1_VOLTAGE_REGADDR, 1, &data);
-            fjson_object_object_add(fj_obj_brake_1_voltage, "value", fjson_object_new_double((double)data / MODBUS_DATA_RESOLUTION));
-        }
-
-        if (wanted_signals->brake_2_voltage == 1)
-        {
-            modbus_read_registers(&targs->modbus, 1, MODBUS_BRAKE_2_VOLTAGE_REGADDR, 1, &data);
-            fjson_object_object_add(fj_obj_brake_2_voltage, "value", fjson_object_new_double((double)data / MODBUS_DATA_RESOLUTION));
-        }
-
-        if (wanted_signals->throttle_voltage == 1)
-        {
-            modbus_read_registers(&targs->modbus, 1, MODBUS_THROTTLE_VOLTAGE_REGADDR, 1, &data);
-            fjson_object_object_add(fj_obj_throttle_voltage, "value", fjson_object_new_double((double)data / MODBUS_DATA_RESOLUTION));
-        }
-
-        JSONInterface_dump_if_needed(MODBUS_JSON_DUMP_PERIOD_S);
-        usleep(g_task_sleep_time);
-    }
-}
-
-int modbusreceiver_start()
-{
-    if (pthread_create(&thread, NULL, thread_loop, (void*)&targs))
-    {
-        fprintf(stderr, "Error creating modbus thread\n");
-        return -1;
+  while (end_thread == 0) {
+    uint16_t data = -1;
+    if (wanted_signals->motor_rpm == 1) {
+      modbus_read_registers(&targs->modbus, 1, MODBUS_RPM_REGADDR, 1, &data);
+      fjson_object_object_add(fj_obj_motor_rpm, "value", fjson_object_new_double((double)data));
     }
 
-    return 0;
+    if (wanted_signals->brake_1_voltage == 1) {
+      modbus_read_registers(&targs->modbus, 1, MODBUS_BRAKE_1_VOLTAGE_REGADDR, 1, &data);
+      fjson_object_object_add(fj_obj_brake_1_voltage, "value",
+                              fjson_object_new_double((double)data / MODBUS_DATA_RESOLUTION));
+    }
+
+    if (wanted_signals->brake_2_voltage == 1) {
+      modbus_read_registers(&targs->modbus, 1, MODBUS_BRAKE_2_VOLTAGE_REGADDR, 1, &data);
+      fjson_object_object_add(fj_obj_brake_2_voltage, "value",
+                              fjson_object_new_double((double)data / MODBUS_DATA_RESOLUTION));
+    }
+
+    if (wanted_signals->throttle_voltage == 1) {
+      modbus_read_registers(&targs->modbus, 1, MODBUS_THROTTLE_VOLTAGE_REGADDR, 1, &data);
+      fjson_object_object_add(fj_obj_throttle_voltage, "value",
+                              fjson_object_new_double((double)data / MODBUS_DATA_RESOLUTION));
+    }
+
+    datadumper_dump_if_needed(MODBUS_JSON_DUMP_PERIOD_S);
+    usleep(g_task_sleep_time);
+  }
 }
 
-void modbusreceiver_stop()
-{
-    end_thread = 1;
-    pthread_join(thread, NULL);
-    modbus_deinit(&targs.modbus);
+int modbusreceiver_start() {
+  if (pthread_create(&thread, NULL, thread_loop, (void*)&targs)) {
+    fprintf(stderr, "Error creating modbus thread\n");
+    return -1;
+  }
+
+  return 0;
+}
+
+void modbusreceiver_stop() {
+  end_thread = 1;
+  pthread_join(thread, NULL);
+  modbus_deinit(&targs.modbus);
 }

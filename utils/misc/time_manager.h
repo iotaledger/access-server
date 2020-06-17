@@ -36,20 +36,20 @@
 #define _TIMEMANAGER_H
 
 /**
- * @fn  getStringTime(void)
+ * @fn  timemanager_get_time_string(void)
  *
  * @brief convert epoch time to human readable time format
  * @param buf - pointer to array containing human readable time
  * @param size - size of the buf
  */
-void getStringTime(char *buf, int size);
+void timemanager_get_time_string(char *buf, int size);
 
 /**
- * @fn  getEpochTime()
+ * @fn  timemanager_get_time_epoch()
  *
  * @brief return epoch time
  *
  */
-unsigned long getEpochTime();
+unsigned long timemanager_get_time_epoch();
 
 #endif /* _TIMEMANAGER_H_ */

@@ -21,7 +21,7 @@
  * \project Decentralized Access Control
  * \file rpi_storage.h
  * \brief
- * Implementation of policy storage API for Raspberry Pi 
+ * Implementation of policy storage API for Raspberry Pi
  *
  * @Author Strahinja Golic
  *
@@ -53,7 +53,7 @@
  * @fn      rpistorage_store_policy
  *
  * @brief   Save policy on R-PI file system
- * 
+ *
  * @param   policy_id - policy ID
  * @param   policy_object - policy object
  * @param   policy_object_size - policy object size
@@ -65,15 +65,14 @@
  *
  * @return  TRUE - success, FALSE - error
  */
-bool rpistorage_store_policy(char* policy_id, char* policy_object, int policy_object_size,
-                      char* policy_cost, char* signature, char* public_key,
-                      char* signature_algorithm, char* hash_function);
+bool rpistorage_store_policy(char* policy_id, char* policy_object, int policy_object_size, char* policy_cost,
+                             char* signature, char* public_key, char* signature_algorithm, char* hash_function);
 
 /**
  * @fn      rpistorage_acquire_policy
  *
  * @brief   Acquire policy from R-PI file system
- * 
+ *
  * @param   policy_id - policy ID
  * @param   policy_object - policy object
  * @param   policy_object_size - policy object size
@@ -85,15 +84,14 @@ bool rpistorage_store_policy(char* policy_id, char* policy_object, int policy_ob
  *
  * @return  TRUE - success, FALSE - error
  */
-bool rpistorage_acquire_policy(char* policy_id, char* policy_object, int *policy_object_size,
-                        char* policy_cost, char* signature, char* public_key,
-                        char* signature_algorithm, char* hash_function);
+bool rpistorage_acquire_policy(char* policy_id, char* policy_object, int* policy_object_size, char* policy_cost,
+                               char* signature, char* public_key, char* signature_algorithm, char* hash_function);
 
 /**
  * @fn      rpistorage_check_if_stored_policy
  *
  * @brief   Check if policy is stored
- * 
+ *
  * @param   policy_id - policy ID
  *
  * @return  TRUE - stored, FALSE - not stored
@@ -104,7 +102,7 @@ bool rpistorage_check_if_stored_policy(char* policy_id);
  * @fn      rpistorage_flush_policy
  *
  * @brief   Delete policy from R-PI file system
- * 
+ *
  * @param   policy_id - policy ID
  *
  * @return  TRUE - success, FALSE - error
@@ -133,4 +131,4 @@ int rpistorage_get_pol_obj_len(char* policy_id);
  */
 char* rpistorage_get_stored_pol_info_file(void);
 
-#endif //_RPI_STORAGE_H_
+#endif  //_RPI_STORAGE_H_

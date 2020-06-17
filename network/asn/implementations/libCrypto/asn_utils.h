@@ -37,29 +37,28 @@
 #include <stdlib.h>
 #include <string.h>
 
-//#define NDEBUG
-
 #include "asn_debug.h"
-
 #include "asn_internal.h"
 
-void asnUtils_randmem(unsigned char *randomString, int length);
+void asnutils_randmem(unsigned char *randomString, int length);
 
-int asnUtils_send_message_part(asnSession_t *session, void *data, unsigned short dataLen);
+int asnutils_send_message_part(asn_ctx_t *session, void *data, unsigned short data_len);
 
-int asnUtils_send_message_part_bignum(asnSession_t *session, const BIGNUM *bn);
+int asnutils_send_message_part_bignum(asn_ctx_t *session, const BIGNUM *bn);
 
-int asnUtils_receive_message_part(asnSession_t *session, unsigned char **data, unsigned short *dataLen);
+int asnutils_receive_message_part(asn_ctx_t *session, unsigned char **data, unsigned short *data_len);
 
-int asnUtils_compute_hash(asnSession_t *session, unsigned char *md,
-      unsigned char *pKey, int pKey_len, const BIGNUM *e, const BIGNUM *pub_key);
+int asnutils_compute_hash(asn_ctx_t *session, unsigned char *md, unsigned char *pkey, int pkey_len, const BIGNUM *e,
+                          const BIGNUM *pub_key);
 
-void asnUtils_debug_binary(char *name, unsigned char* data, int len);
+void asnutils_debug_binary(char *name, unsigned char *data, int len);
 
-void asnUtils_generate_keys(asnSession_t *session);
+void asnutils_generate_keys(asn_ctx_t *session);
 
-/* ASN_ERRORS */int asnUtils_send(asnSession_t *session, const void *hmacKey, AES_KEY *aesKey, unsigned char *iv, const unsigned char *data, unsigned short  data_len);
+int asnutils_send(asn_ctx_t *session, const void *hmacKey, AES_KEY *aes_key, unsigned char *iv,
+                  const unsigned char *data, unsigned short data_len);
 
-/* ASN_ERRORS */int asnUtils_receive(asnSession_t *session, const void *hmacKey, AES_KEY *aesKey, unsigned char *iv, unsigned char **data, unsigned short  *data_len);
+int asnutils_receive(asn_ctx_t *session, const void *hmacKey, AES_KEY *aes_key, unsigned char *iv, unsigned char **data,
+                     unsigned short *data_len);
 
 #endif /* ASN_UTILS_H_ */

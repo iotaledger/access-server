@@ -47,7 +47,7 @@ void canopenreceiver_init(canopen01_vehicle_dataset_t *dataset, pthread_mutex_t 
 int canopenreceiver_start();
 void canopenreceiver_deinit();
 bool canopenreceiver_is_in_use();
-void canopenreceiver_get_port_name(char* p_name_buff, int p_name_buff_len);
+void canopenreceiver_get_port_name(char *p_name_buff, int p_name_buff_len);
 int canopenreceiver_get_node_id(void);
 
 #endif

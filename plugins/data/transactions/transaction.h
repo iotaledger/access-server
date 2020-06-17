@@ -51,28 +51,22 @@
 #define FALSE 0
 #endif
 
-//Set R-Pi as used platform
+// Set R-Pi as used platform
 #define USE_RPI 1
 
 /****************************************************************************
  * ENUMERATIONS
  ****************************************************************************/
-typedef enum
-{
-    TRANS_NOT_PAYED,
-    TRANS_PAYED,
-    TRANS_PAYED_VERIFIED
-} transaction_payment_state_e;
+typedef enum { TRANS_NOT_PAYED, TRANS_PAYED, TRANS_PAYED_VERIFIED } transaction_payment_state_e;
 
 /****************************************************************************
  * TYPES
  ****************************************************************************/
-typedef struct serv_confirm
-{
-    confirmation_service_t *service;
-    char* policy_id;
-    int policy_id_len;
-    bool transaction_confirmed;
+typedef struct serv_confirm {
+  confirmation_service_t* service;
+  char* policy_id;
+  int policy_id_len;
+  bool transaction_confirmed;
 } transaction_serv_confirm_t;
 
 /****************************************************************************
@@ -112,7 +106,7 @@ void transaction_term(void);
  *
  * @return  TRUE - success, FALSE - fail
  */
-bool transaction_store_transaction(char* policy_id, int policy_id_len,
-                                   char* transaction_hash, int transaction_hash_len);
+bool transaction_store_transaction(char* policy_id, int policy_id_len, char* transaction_hash,
+                                   int transaction_hash_len);
 
-#endif //_TRANSACTION_H_
+#endif  //_TRANSACTION_H_

@@ -32,10 +32,10 @@
 
 #include "obdii_receiver.h"
 
-#include <string.h>
 #include <errno.h>
+#include <string.h>
 #include "OBDIICommunication.h"
-#include "json_interface.h"
+#include "datadumper.h"
 
 #define OBDII_NO_ERROR 0
 #define OBDII_ERROR -2
@@ -44,11 +44,10 @@
 #define OBDII_TX_ID 0x7E0
 #define OBDII_RX_ID 0x7E8
 
-typedef struct
-{
-    char portname[OBDII_PORTNAME_LEN];
-    fjson_object* fj_root;
-    pthread_mutex_t *json_mutex;
+typedef struct {
+  char portname[OBDII_PORTNAME_LEN];
+  fjson_object* fj_root;
+  pthread_mutex_t* json_mutex;
 } obdiireceiver_thread_args_t;
 
 static OBDIISocket s;
@@ -56,51 +55,45 @@ static OBDIICommandSet supportedCommands;
 static obdiireceiver_thread_args_t targs;
 static fjson_object* fj_obj_obdii;
 
-static fjson_object* obdii_json_filler()
-{
-    fj_obj_obdii = fjson_object_new_array();
-    return fj_obj_obdii;
+static fjson_object* obdii_json_filler() {
+  fj_obj_obdii = fjson_object_new_array();
+  return fj_obj_obdii;
 }
 
-void obdiireceiver_init(const char* portname, pthread_mutex_t *json_mutex)
-{
-    if (OBDIIOpenSocket(&s, portname, OBDII_TX_ID, OBDII_RX_ID, 0) < 0)
-    {
-        printf("Error opening socket: %s\n", strerror(errno));
-        exit(EXIT_FAILURE);
-    }
+void obdiireceiver_init(const char* portname, pthread_mutex_t* json_mutex) {
+  if (OBDIIOpenSocket(&s, portname, OBDII_TX_ID, OBDII_RX_ID, 0) < 0) {
+    printf("Error opening socket: %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
 
-    supportedCommands = OBDIIGetSupportedCommands(&s);
+  supportedCommands = OBDIIGetSupportedCommands(&s);
 
-    strncpy(targs.portname, portname, OBDII_PORTNAME_LEN);
+  strncpy(targs.portname, portname, OBDII_PORTNAME_LEN);
 
-    JSONInterface_add_module_init_cb(obdii_json_filler, &fj_obj_obdii, OBDII_JSON_NAME);
+  datadumper_add_module_init_cb(obdii_json_filler, &fj_obj_obdii, OBDII_JSON_NAME);
 
-    targs.json_mutex = json_mutex;
+  targs.json_mutex = json_mutex;
 }
 
 static int end_thread = 0;
 static pthread_t obdii_thread = 0;
 
-static void *obdii_thread_loop(void *ptr)
-{
-    while (end_thread == 0) {}
+static void* obdii_thread_loop(void* ptr) {
+  while (end_thread == 0) {
+  }
 }
 
-int obdiireceiver_start()
-{
-    if (pthread_create(&obdii_thread, NULL, obdii_thread_loop, (void*)&targs))
-    {
-        fprintf(stderr, "Error creating OBDII thread\n");
-        return OBDII_ERROR;
-    }
+int obdiireceiver_start() {
+  if (pthread_create(&obdii_thread, NULL, obdii_thread_loop, (void*)&targs)) {
+    fprintf(stderr, "Error creating OBDII thread\n");
+    return OBDII_ERROR;
+  }
 
-    return OBDII_NO_ERROR;
+  return OBDII_NO_ERROR;
 }
 
-void obdiireceiver_stop()
-{
-    end_thread = 1;
-    OBDIICommandSetFree(&supportedCommands);
-    OBDIICloseSocket(&s);
+void obdiireceiver_stop() {
+  end_thread = 1;
+  OBDIICommandSetFree(&supportedCommands);
+  OBDIICloseSocket(&s);
 }

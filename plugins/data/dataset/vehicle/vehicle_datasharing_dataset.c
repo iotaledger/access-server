@@ -1,7 +1,7 @@
 /*
  * This file is part of the DAC distribution
  * (https://github.com/iotaledger/access)
- * 
+ *
  * Copyright (c) 2020 IOTA Foundation
  *
  * This program is free software: you can redistribute it and/or modify
@@ -66,22 +66,8 @@ char vehicledataset15_options[] = "";
 
 char vehicledataset16_options[] = "";
 
-char* dataset_options[DATASET_ARRAY_SIZE] =
-{
-    vehicledataset01_options,
-    vehicledataset02_options,
-    vehicledataset03_options,
-    vehicledataset04_options,
-    vehicledataset05_options,
-    vehicledataset06_options,
-    vehicledataset07_options,
-    vehicledataset08_options,
-    vehicledataset09_options,
-    vehicledataset10_options,
-    vehicledataset11_options,
-    vehicledataset12_options,
-    vehicledataset13_options,
-    vehicledataset14_options,
-    vehicledataset15_options,
-    vehicledataset16_options
-};
+char* dataset_options[DATASET_ARRAY_SIZE] = {
+    vehicledataset01_options, vehicledataset02_options, vehicledataset03_options, vehicledataset04_options,
+    vehicledataset05_options, vehicledataset06_options, vehicledataset07_options, vehicledataset08_options,
+    vehicledataset09_options, vehicledataset10_options, vehicledataset11_options, vehicledataset12_options,
+    vehicledataset13_options, vehicledataset14_options, vehicledataset15_options, vehicledataset16_options};

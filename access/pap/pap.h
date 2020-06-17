@@ -35,8 +35,8 @@
 /****************************************************************************
  * INCLUDES
  ****************************************************************************/
-#include <stdint.h>
 #include <stdarg.h>
+#include <stdint.h>
 #include "user.h"
 
 /****************************************************************************
@@ -69,97 +69,81 @@ this will have to be adjusted accordingly. */
 /****************************************************************************
  * ENUMERATIONS
  ****************************************************************************/
-typedef enum
-{
-    PAP_NO_ERROR,
-    PAP_ERROR
-} pap_error_e;
+typedef enum { PAP_NO_ERROR, PAP_ERROR } pap_error_e;
 
-typedef enum
-{
-    //Only ECDSA is supported, for now
-    PAP_ECDSA
+typedef enum {
+  // Only ECDSA is supported, for now
+  PAP_ECDSA
 } pap_signature_algorithm_e;
 
-typedef enum
-{
-    /* Only sha-256 is supported, for now. */
-    PAP_SHA_256
+typedef enum {
+  /* Only sha-256 is supported, for now. */
+  PAP_SHA_256
 } pap_hash_functions_e;
 
-typedef enum
-{
-    PAP_NOT_PAYED,
-    PAP_PAYED_PENDING,
-    PAP_PAYED_VERIFIED
-} pap_payment_state_e;
+typedef enum { PAP_NOT_PAYED, PAP_PAYED_PENDING, PAP_PAYED_VERIFIED } pap_payment_state_e;
 
-typedef enum
-{
-    PAP_USERMNG_GET_ALL_USR,
-    PAP_USERMNG_GET_USER,
-    PAP_USERMNG_PUT_USER,
-    PAP_USERMNG_GET_USER_ID,
-    PAP_USERMNG_CLR_ALL_USR
+typedef enum {
+  PAP_USERMNG_GET_ALL_USR,
+  PAP_USERMNG_GET_USER,
+  PAP_USERMNG_PUT_USER,
+  PAP_USERMNG_GET_USER_ID,
+  PAP_USERMNG_CLR_ALL_USR
 } pap_user_mng_req_e;
 
 /****************************************************************************
  * TYPES
  ****************************************************************************/
-typedef struct policy_id_signature
-{
-    pap_signature_algorithm_e signature_algorithm;
-    char signature[PAP_SIGNATURE_LEN];
-    char public_key[PAP_PUBLIC_KEY_LEN];
+typedef struct policy_id_signature {
+  pap_signature_algorithm_e signature_algorithm;
+  char signature[PAP_SIGNATURE_LEN];
+  char public_key[PAP_PUBLIC_KEY_LEN];
 } pap_policy_id_signature_t;
 
-typedef struct policy_value
-{
-    pap_payment_state_e is_payed;
-    char cost[PAP_MAX_COST_LEN];
-    char wallet_address[PAP_WALLET_ADDR_LEN];
+typedef struct policy_value {
+  pap_payment_state_e is_payed;
+  char cost[PAP_MAX_COST_LEN];
+  char wallet_address[PAP_WALLET_ADDR_LEN];
 } pap_policy_value_t;
 
-typedef struct policy_object
-{
-    int policy_object_size;
-    char *policy_object;
-    char cost[PAP_MAX_COST_LEN];
+typedef struct policy_object {
+  int policy_object_size;
+  char *policy_object;
+  char cost[PAP_MAX_COST_LEN];
 } pap_policy_object_t;
 
-typedef struct policy
-{
-    char policy_ID[PAP_POL_ID_MAX_LEN + 1]; //Consider null character
-    pap_policy_object_t policy_object;
-    pap_policy_id_signature_t policy_id_signature;
-    pap_hash_functions_e hash_function;
+typedef struct policy {
+  char policy_ID[PAP_POL_ID_MAX_LEN + 1];  // Consider null character
+  pap_policy_object_t policy_object;
+  pap_policy_id_signature_t policy_id_signature;
+  pap_hash_functions_e hash_function;
 } pap_policy_t;
 
-typedef struct policy_id_list
-{
-    char policy_ID[PAP_POL_ID_MAX_LEN + 1]; //Consider null character
-    struct policy_id_list *next;
+typedef struct policy_id_list {
+  char policy_ID[PAP_POL_ID_MAX_LEN + 1];  // Consider null character
+  struct policy_id_list *next;
 } pap_policy_id_list_t;
 
-typedef struct action_list
-{
-    char policy_ID_str[PAP_POL_ID_MAX_LEN * 2 + 1]; //Consider null character
-    char action[PAP_MAX_STR_LEN];
-    pap_policy_value_t is_available;
-    struct action_list *next;
+typedef struct action_list {
+  char policy_ID_str[PAP_POL_ID_MAX_LEN * 2 + 1];  // Consider null character
+  char action[PAP_MAX_STR_LEN];
+  pap_policy_value_t is_available;
+  struct action_list *next;
 } pap_action_list_t;
 
 /****************************************************************************
  * CALLBACKS
  ****************************************************************************/
-typedef bool (*put_fn)(char* policy_id, pap_policy_object_t policy_object, pap_policy_id_signature_t policy_id_signature, pap_hash_functions_e hash_fn);
-typedef bool (*get_fn)(char* policy_id, pap_policy_object_t *policy_object, pap_policy_id_signature_t *policy_id_signature, pap_hash_functions_e *hash_fn);
-typedef bool (*has_fn)(char* policy_id);
-typedef bool (*del_fn)(char* policy_id);
-typedef bool (*get_pol_obj_len_fn)(char* policy_id, int *pol_obj_len);
-typedef bool (*get_all_fn)(pap_policy_id_list_t **pol_list_head); //List acquired here, must be freed by the caller
+typedef bool (*put_fn)(char *policy_id, pap_policy_object_t policy_object,
+                       pap_policy_id_signature_t policy_id_signature, pap_hash_functions_e hash_fn);
+typedef bool (*get_fn)(char *policy_id, pap_policy_object_t *policy_object,
+                       pap_policy_id_signature_t *policy_id_signature, pap_hash_functions_e *hash_fn);
+typedef bool (*has_fn)(char *policy_id);
+typedef bool (*del_fn)(char *policy_id);
+typedef bool (*get_pol_obj_len_fn)(char *policy_id, int *pol_obj_len);
+typedef bool (*get_all_fn)(pap_policy_id_list_t **pol_list_head);  // List acquired here, must be freed by the caller
 #if PAP_STORAGE_TEST_ACIVE
-typedef void (*get_pk)(char* pk);
+typedef void (*get_pk)(char *pk);
 #endif
 
 /****************************************************************************
@@ -201,7 +185,8 @@ pap_error_e pap_term(void);
  *
  * @return  pap_error_e error status
  */
-pap_error_e pap_register_callbacks(put_fn put, get_fn get, has_fn has, del_fn del, get_pol_obj_len_fn get_pol_obj_len, get_all_fn get_all);
+pap_error_e pap_register_callbacks(put_fn put, get_fn get, has_fn has, del_fn del, get_pol_obj_len_fn get_pol_obj_len,
+                                   get_all_fn get_all);
 
 /**
  * @fn      PAP_unregister_callbacks
@@ -315,4 +300,4 @@ void pap_register_get_pk_cb(get_pk cb);
  * @return  void
  */
 void pap_user_management_action(pap_user_mng_req_e request, ...);
-#endif //_PAP_H_
+#endif  //_PAP_H_

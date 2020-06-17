@@ -110,6 +110,6 @@ bool pep_unregister_callback(void);
  *
  * @return  Fail (0), Success (1)
  */
-bool pep_request_access(char *request, void *response);
+bool pep_request_access(char* request, void* response);
 
 #endif

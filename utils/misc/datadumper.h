@@ -19,9 +19,9 @@
 
 /****************************************************************************
  * \project Decentralized Access Control
- * \file json_interface.h
+ * \file datadumper.h
  * \brief
- * JSON dumper interface for can_receiver and gps_receiver
+ * Data dumper and publisher interface
  *
  * @Author Djordje Golubovic
  *
@@ -37,13 +37,13 @@
 #include <pthread.h>
 #include "libfastjson/json.h"
 
-fjson_object* JSONInterface_init();
-void JSONInterface_set_address(const char* new_addr);
-void JSONInterface_set_port(int new_port);
-int JSONInterface_dump_if_needed(int dump_period_s);
-fjson_object* JSONInterface_get(const char* name);
-pthread_mutex_t* JSONInterface_get_mutex();
-void JSONInterface_deinit();
-void JSONInterface_add_module_init_cb(fjson_object* (*json_filler)(), fjson_object** added_node, const char* name);
+fjson_object *datadumper_init();
+void datadumper_set_address(const char *new_addr);
+void datadumper_set_port(int new_port);
+int datadumper_dump_if_needed(int dump_period_s);
+fjson_object *datadumper_get(const char *name);
+pthread_mutex_t *datadumper_get_mutex();
+void datadumper_deinit();
+void datadumper_add_module_init_cb(fjson_object *(*json_filler)(), fjson_object **added_node, const char *name);
 
 #endif

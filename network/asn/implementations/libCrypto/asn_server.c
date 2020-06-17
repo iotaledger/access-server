@@ -34,281 +34,263 @@
 #include <stdlib.h>
 #include <string.h>
 
-//#define NDEBUG
-
-#include "asn_debug.h"
 #include "asn_auth.h"
+#include "asn_debug.h"
 #include "asn_internal.h"
 #include "asn_utils.h"
 
-//////////////////////////////////////////
-// Macros and defines
-//////////////////////////////////////////
-
 /* AUTH_STAGES */
-#define AUTH_ERROR   0
-#define AUTH_INIT    1
+#define AUTH_ERROR 0
+#define AUTH_INIT 1
 #define AUTH_COMPUTE 2
-#define AUTH_VERIFY  3
-#define AUTH_FINISH  4
-#define AUTH_DONE    5
-//////////////////////////////////////////
-// Function declarations and definitions
-//////////////////////////////////////////
+#define AUTH_VERIFY 3
+#define AUTH_FINISH 4
+#define AUTH_DONE 5
 
 /*
  * Stage 0 - Server initialization
  *
  */
 
-/* AUTH_STAGES */int authServerInit(asnSession_t *session)
-{
-   int next_stage = AUTH_ERROR;
-   BIGNUM *e = BN_new();
-   debug("authServerInit START");
+int authserver_init(asn_ctx_t *session) {
+  int next_stage = AUTH_ERROR;
+  BIGNUM *e = BN_new();
+  debug("authserver_init START");
 
-   /* Generate RSA key */
-   getInternalRSA_S(session) = RSA_new();
-   BN_set_word(e, RSA_F4);
-   RSA_generate_key_ex(getInternalRSA_S(session), ASN_RSA_KEY_LEN, e, NULL);
+  /* Generate RSA key */
+  ASN_GET_INTERNAL_RSA_S(session) = RSA_new();
+  BN_set_word(e, RSA_F4);
+  RSA_generate_key_ex(ASN_GET_INTERNAL_RSA_S(session), ASN_RSA_KEY_LEN, e, NULL);
 
-   getInternalDH(session) = DH_new();
+  ASN_GET_INTERNAL_DH(session) = DH_new();
 
-   /* Server generates Vs, and y. */
-   asnUtils_randmem(getInternalVs(session), ASN_V_STRING_LEN);
+  /* Server generates vs, and y. */
+  asnutils_randmem(ASN_GET_INTERNAL_VS(session), ASN_V_STRING_LEN);
 
-   getInternalOutP_Count(session) = 1;
-   getInternalInP_Count(session) = 1;
+  ASN_GET_INTERNAL_OUT_PACKET_COUNT(session) = 1;
+  ASN_GET_INTERNAL_IN_PACKET_COUNT(session) = 1;
 
-   memset(getInternalH(session), 0, RSA_DIGEST_LENGTH);
-   memset(getInternalHc(session), 0, RSA_DIGEST_LENGTH);
+  memset(ASN_GET_INTERNAL_H(session), 0, RSA_DIGEST_LENGTH);
+  memset(ASN_GET_INTERNAL_HC(session), 0, RSA_DIGEST_LENGTH);
 
-   next_stage = AUTH_COMPUTE;
+  next_stage = AUTH_COMPUTE;
 
-   debug("authServerInit END");
+  debug("authserver_init END");
 
-   return next_stage;
+  return next_stage;
 }
 
 /* Stage 1 - Compute DH Client parameters
  *
- * Server receives ( p || g || e || Vc ) from Client.
- * Server generates Vs, and y.
+ * Server receives ( p || g || e || vc ) from Client.
+ * Server generates vs, and y.
  * Server calculates f = gy mod p.
- * Server computes K = ey mod p
- * Server computes H  = hash( Vc || Vs || Ks || e || f || K )
- * Server computes signature s = sign( sks, H )
- * Server sends ( f || s || Ks || Vs )
+ * Server computes k = ey mod p
+ * Server computes h  = hash( vc || vs || ks || e || f || k )
+ * Server computes signature s = sign( sks, h )
+ * Server sends ( f || s || ks || vs )
  *
  */
 
-static inline int authServerComputeReceive(asnSession_t *session,
-      unsigned char **p, unsigned short *p_len,
-      unsigned char **g, unsigned short *g_len,
-      unsigned char **e, unsigned short *e_len,
-      unsigned char **Vc, unsigned short *Vc_len)
-{
-   int ret = ASN_ERROR;
+static inline int authserver_compute_receive(asn_ctx_t *session, unsigned char **p, unsigned short *p_len,
+                                             unsigned char **g, unsigned short *g_len, unsigned char **e,
+                                             unsigned short *e_len, unsigned char **vc, unsigned short *vc_len) {
+  int ret = ASN_ERROR;
 
-   ret = asnUtils_receive_message_part(session, p, p_len);
-   //TODO: Check return
+  ret = asnutils_receive_message_part(session, p, p_len);
+  // TODO: Check return
 
-   ret = asnUtils_receive_message_part(session, g, g_len);
-   //TODO: Check return
+  ret = asnutils_receive_message_part(session, g, g_len);
+  // TODO: Check return
 
-   ret = asnUtils_receive_message_part(session, e, e_len);
-   //TODO: Check return
+  ret = asnutils_receive_message_part(session, e, e_len);
+  // TODO: Check return
 
-   ret = asnUtils_receive_message_part(session, Vc, Vc_len);
-   //TODO: Check return
+  ret = asnutils_receive_message_part(session, vc, vc_len);
+  // TODO: Check return
 
-   return ret;
+  return ret;
 }
 
-static inline int authServerComputeSend(asnSession_t *session, const BIGNUM *f,
-      unsigned char *s, unsigned short s_len,
-      unsigned char *Ks, unsigned short Ks_len)
-{
-   int ret = ASN_ERROR;
+static inline int auth_server_compute_send(asn_ctx_t *session, const BIGNUM *f, unsigned char *s, unsigned short s_len,
+                                           unsigned char *ks, unsigned short ks_len) {
+  int ret = ASN_ERROR;
 
-   debug("send f");
-   ret = asnUtils_send_message_part_bignum(session, f);
-   //TODO: Check return
+  debug("send f");
+  ret = asnutils_send_message_part_bignum(session, f);
+  // TODO: Check return
 
-   debug("send s");
-   ret = asnUtils_send_message_part(session, s, s_len);
-   //TODO: Check return
+  debug("send s");
+  ret = asnutils_send_message_part(session, s, s_len);
+  // TODO: Check return
 
-   debug("send Ks");
-   ret = asnUtils_send_message_part(session, Ks, Ks_len);
-   //TODO: Check return
+  debug("send ks");
+  ret = asnutils_send_message_part(session, ks, ks_len);
+  // TODO: Check return
 
-   debug("send Vs");
-   ret = asnUtils_send_message_part(session, getInternalVs(session), ASN_V_STRING_LEN);
-   //TODO: Check return
+  debug("send vs");
+  ret = asnutils_send_message_part(session, ASN_GET_INTERNAL_VS(session), ASN_V_STRING_LEN);
+  // TODO: Check return
 
-   return ret;
+  return ret;
 }
 
-static inline int authServerComputePopulateServerKeys(asnSession_t *session, BIGNUM *p, BIGNUM *g, BIGNUM *pub_key)
-{
-   int ret = ASN_ERROR;
-   int ret_ossl;
+static inline int auth_server_compute_populate_server_keys(asn_ctx_t *session, BIGNUM *p, BIGNUM *g, BIGNUM *pub_key) {
+  int ret = ASN_ERROR;
+  int ret_ossl;
 
-   if (NULL != getInternalDH(session)) /* DH parameters generated */
-   {
-      /* Set parameters from Client */
-      ret_ossl = DH_set0_pqg(getInternalDH(session), p, NULL, g);
+  if (NULL != ASN_GET_INTERNAL_DH(session)) /* DH parameters generated */
+  {
+    /* Set parameters from Client */
+    ret_ossl = DH_set0_pqg(ASN_GET_INTERNAL_DH(session), p, NULL, g);
 
-      if (0 != ret_ossl)
+    if (0 != ret_ossl) {
+      /* Server calculates f = gy mod p. */
+      ret_ossl = DH_generate_key(ASN_GET_INTERNAL_DH(session));
+
+      if (0 != ret_ossl) /* Keys generated */
       {
-         /* Server calculates f = gy mod p. */
-         ret_ossl = DH_generate_key(getInternalDH(session));
+        int len = DH_size(ASN_GET_INTERNAL_DH(session));
+        ASN_GET_INTERNAL_K(session) = malloc(len);
 
-         if (0 != ret_ossl) /* Keys generated */
-         {
-            int len = DH_size(getInternalDH(session));
-            getInternalK(session) = malloc(len);
+        if (NULL != ASN_GET_INTERNAL_K(session)) {
+          /* Server computes k = ey mod p */
+          ASN_GET_INTERNAL_K_LEN(session) =
+              DH_compute_key(ASN_GET_INTERNAL_K(session), pub_key, ASN_GET_INTERNAL_DH(session));
 
-            if(NULL != getInternalK(session))
-            {
-               /* Server computes K = ey mod p */
-               getInternalK_len(session) = DH_compute_key(getInternalK(session),
-                     pub_key, getInternalDH(session));
-
-               ret = ASN_OK;
-            }
-         }
+          ret = ASN_OK;
+        }
       }
-   }
+    }
+  }
 
-   return ret;
+  return ret;
 }
 
-/* AUTH_STAGES */int authServerCompute(asnSession_t *session)
-{
-   int next_stage = AUTH_ERROR;
-   int ret = ASN_ERROR;
+int authserver_compute(asn_ctx_t *session) {
+  int next_stage = AUTH_ERROR;
+  int ret = ASN_ERROR;
 
-   unsigned char *sp = NULL, *sg = NULL, *se = NULL, *Vc = NULL, *Ks = NULL;
-   unsigned short sp_len = 0, sg_len = 0, se_len = 0, Vc_len = 0, Ks_len = 0;
-   BIGNUM *p = NULL, *g = NULL;
-   const BIGNUM *spub_key = NULL;
-   unsigned int s_len = 0;
-   unsigned char s[ASN_RSA_SIGN_LEN] = { 0, };
+  unsigned char *sp = NULL, *sg = NULL, *se = NULL, *vc = NULL, *ks = NULL;
+  unsigned short sp_len = 0, sg_len = 0, se_len = 0, vc_len = 0, ks_len = 0;
+  BIGNUM *p = NULL, *g = NULL;
+  const BIGNUM *spub_key = NULL;
+  unsigned int s_len = 0;
+  unsigned char s[ASN_RSA_SIGN_LEN] = {
+      0,
+  };
 
-   debug("authServerCompute START");
+  debug("authserver_compute START");
 
-   // Receive ( p || g || e || Vc )
-   ret = authServerComputeReceive(session, &sp, &sp_len, &sg, &sg_len, &se, &se_len, &Vc, &Vc_len);
-   //TODO: Check return
+  // Receive ( p || g || e || vc )
+  ret = authserver_compute_receive(session, &sp, &sp_len, &sg, &sg_len, &se, &se_len, &vc, &vc_len);
+  // TODO: Check return
 
-   memcpy(getInternalVc(session), Vc, Vc_len);
+  memcpy(ASN_GET_INTERNAL_VC(session), vc, vc_len);
 
-   asnUtils_debug_binary("p", sp, sp_len);
+  asnutils_debug_binary("p", sp, sp_len);
 
-   p = BN_bin2bn(sp, sp_len, NULL);
+  p = BN_bin2bn(sp, sp_len, NULL);
 
-   asnUtils_debug_binary("g", sg, sg_len);
+  asnutils_debug_binary("g", sg, sg_len);
 
-   g = BN_bin2bn(sg, sg_len, NULL);
+  g = BN_bin2bn(sg, sg_len, NULL);
 
-   asnUtils_debug_binary("e", se, se_len);
+  asnutils_debug_binary("e", se, se_len);
 
-   getInternalPubK(session) = BN_bin2bn(se, se_len, NULL);
+  ASN_GET_INTERNAL_PUB_K(session) = BN_bin2bn(se, se_len, NULL);
 
-   ret = authServerComputePopulateServerKeys(session, p, g, getInternalPubK(session));
-   //TODO: Check return
+  ret = auth_server_compute_populate_server_keys(session, p, g, ASN_GET_INTERNAL_PUB_K(session));
+  // TODO: Check return
 
-   DH_get0_key(getInternalDH(session), &spub_key, NULL);
+  DH_get0_key(ASN_GET_INTERNAL_DH(session), &spub_key, NULL);
 
-   /* Server computes H  = hash( Vc || Vs || Ks || e || f || K ) */
-   Ks_len = i2d_RSAPublicKey(getInternalRSA_S(session), &Ks);
-   ret = asnUtils_compute_hash(session, getInternalH(session), Ks, Ks_len,
-         getInternalPubK(session), spub_key);
+  /* Server computes h  = hash( vc || vs || ks || e || f || k ) */
+  ks_len = i2d_RSAPublicKey(ASN_GET_INTERNAL_RSA_S(session), &ks);
+  ret = asnutils_compute_hash(session, ASN_GET_INTERNAL_H(session), ks, ks_len, ASN_GET_INTERNAL_PUB_K(session),
+                              spub_key);
 
-   /* Server computes signature s = sign( sks, H ) */
-   /*NID_sha256*/
-   RSA_sign(/*NID_sha256*/ 0, getInternalH(session), RSA_DIGEST_LENGTH, s, &s_len, getInternalRSA_S(session));
-   asnUtils_debug_binary("RSA_Server_sign", s, s_len);
+  /* Server computes signature s = sign( sks, h ) */
+  /*NID_sha256*/
+  RSA_sign(/*NID_sha256*/ 0, ASN_GET_INTERNAL_H(session), RSA_DIGEST_LENGTH, s, &s_len,
+           ASN_GET_INTERNAL_RSA_S(session));
+  asnutils_debug_binary("RSA_Server_sign", s, s_len);
 
-   /* Server sends ( f || s || Ks || Vs ) */
-   ret = authServerComputeSend(session, spub_key, s, s_len, Ks, Ks_len);
-   //TODO: Check return
+  /* Server sends ( f || s || ks || vs ) */
+  ret = auth_server_compute_send(session, spub_key, s, s_len, ks, ks_len);
+  // TODO: Check return
 
-   free(sp);
-   free(sg);
-   free(se);
-   free(Vc);
-   free(Ks);
+  free(sp);
+  free(sg);
+  free(se);
+  free(vc);
+  free(ks);
 
-   next_stage = AUTH_VERIFY;
+  next_stage = AUTH_VERIFY;
 
-   debug("authServerCompute END");
+  debug("authserver_compute END");
 
-   return next_stage;
+  return next_stage;
 }
 
 /* Stage 2 - Verify Client parameters
  *
- * Server receives ( Kc || sc )
- * Server computes Hc = hash( Vc || Vs || Kc || e || f || K )
- * Server verifies the signature sc on Hc
+ * Server receives ( kc || sc )
+ * Server computes hc = hash( vc || vs || kc || e || f || k )
+ * Server verifies the signature sc on hc
  *
  */
 
-static inline int authServerVerifyReceive(asnSession_t *session,
-      unsigned char **Kc, unsigned short *Kc_len,
-      unsigned char **sc, unsigned short *sc_len)
-{
-   int ret = ASN_ERROR;
+static inline int auth_server_verify_receive(asn_ctx_t *session, unsigned char **kc, unsigned short *kc_len,
+                                             unsigned char **sc, unsigned short *sc_len) {
+  int ret = ASN_ERROR;
 
-   ret = asnUtils_receive_message_part(session, Kc, Kc_len);
-   //TODO: Check return
+  ret = asnutils_receive_message_part(session, kc, kc_len);
+  // TODO: Check return
 
-   ret = asnUtils_receive_message_part(session, sc, sc_len);
-   //TODO: Check return
+  ret = asnutils_receive_message_part(session, sc, sc_len);
+  // TODO: Check return
 
-   return ret;
+  return ret;
 }
 
-/* AUTH_STAGES */int authServerVerify(asnSession_t *session)
-{
-   int next_stage = AUTH_ERROR;
-   int ret = ASN_ERROR;
+int authserver_verify(asn_ctx_t *session) {
+  int next_stage = AUTH_ERROR;
+  int ret = ASN_ERROR;
 
-   unsigned char *Kc = NULL, *s = NULL;
-   unsigned short Kc_len = 0, s_len = 0;
-   const BIGNUM *spub_key = NULL;
+  unsigned char *kc = NULL, *s = NULL;
+  unsigned short kc_len = 0, s_len = 0;
+  const BIGNUM *spub_key = NULL;
 
-   debug("authServerVerify START");
+  debug("authserver_verify START");
 
-   // Receive ( Kc || sc )
-   ret = authServerVerifyReceive(session, &Kc, &Kc_len, &s, &s_len);
-   //TODO: Check return
+  // Receive ( kc || sc )
+  ret = auth_server_verify_receive(session, &kc, &kc_len, &s, &s_len);
+  // TODO: Check return
 
-   /* Server checks Client key */
-   ret = session->f_verify(Kc, Kc_len);
-   //TODO: Check return
+  /* Server checks Client key */
+  ret = session->f_verify(kc, kc_len);
+  // TODO: Check return
 
-   DH_get0_key(getInternalDH(session), &spub_key, NULL);
-   /* Server computes Hc = hash( Vc || Vs || Kc || e || f || K ) */
-   ret = asnUtils_compute_hash(session, getInternalHc(session), Kc, Kc_len,
-         getInternalPubK(session), spub_key);
+  DH_get0_key(ASN_GET_INTERNAL_DH(session), &spub_key, NULL);
+  /* Server computes hc = hash( vc || vs || kc || e || f || k ) */
+  ret = asnutils_compute_hash(session, ASN_GET_INTERNAL_HC(session), kc, kc_len, ASN_GET_INTERNAL_PUB_K(session),
+                              spub_key);
 
-   /* Server verifies the signature sc on Hc */
-   getInternalRSA_C(session) = d2i_RSAPublicKey(NULL, (const unsigned char **) &Kc, Kc_len);
-   ret = RSA_verify(/*NID_sha256*/ 0, getInternalHc(session), RSA_DIGEST_LENGTH, s, s_len, getInternalRSA_C(session));
-   debug("!!!!!!!!!!!!!!!!!!!!!!!!!!!RSA_verify (%d)", ret);
-   asnUtils_debug_binary("RSA_Client_sign", s, s_len);
+  /* Server verifies the signature sc on hc */
+  ASN_GET_INTERNAL_RSA_C(session) = d2i_RSAPublicKey(NULL, (const unsigned char **)&kc, kc_len);
+  ret = RSA_verify(/*NID_sha256*/ 0, ASN_GET_INTERNAL_HC(session), RSA_DIGEST_LENGTH, s, s_len,
+                   ASN_GET_INTERNAL_RSA_C(session));
+  debug("!!!!!!!!!!!!!!!!!!!!!!!!!!!RSA_verify (%d)", ret);
+  asnutils_debug_binary("RSA_Client_sign", s, s_len);
 
-   free(s);
+  free(s);
 
-   next_stage = AUTH_FINISH;
+  next_stage = AUTH_FINISH;
 
-   debug("authServerVerify END");
+  debug("authserver_verify END");
 
-   return next_stage;
+  return next_stage;
 }
 
 /* Stage 3 - Finish authentication
@@ -318,119 +300,107 @@ static inline int authServerVerifyReceive(asnSession_t *session,
  *
  */
 
-/* AUTH_STAGES */int authServerFinish(asnSession_t *session)
-{
-   int next_stage = AUTH_ERROR;
+int authserver_finish(asn_ctx_t *session) {
+  int next_stage = AUTH_ERROR;
 
-   debug("authServerFinish START");
+  debug("authserver_finish START");
 
-   asnUtils_debug_binary("K", getInternalK(session), getInternalK_len(session));
-   asnUtils_debug_binary("H", getInternalH(session), RSA_DIGEST_LENGTH);
-   asnUtils_debug_binary("Hc", getInternalHc(session), RSA_DIGEST_LENGTH);
+  asnutils_debug_binary("k", ASN_GET_INTERNAL_K(session), ASN_GET_INTERNAL_K_LEN(session));
+  asnutils_debug_binary("h", ASN_GET_INTERNAL_H(session), RSA_DIGEST_LENGTH);
+  asnutils_debug_binary("hc", ASN_GET_INTERNAL_HC(session), RSA_DIGEST_LENGTH);
 
-   // Generate AES, HMAC keys
-   asnUtils_generate_keys(session);
+  // Generate AES, HMAC keys
+  asnutils_generate_keys(session);
 
-   getInternalKey_CS(session) = malloc(sizeof(AES_KEY));
-   getInternalKey_SC(session) = malloc(sizeof(AES_KEY));
+  ASN_GET_INTERNAL_KEY_CS(session) = malloc(sizeof(AES_KEY));
+  ASN_GET_INTERNAL_KEY_SC(session) = malloc(sizeof(AES_KEY));
 
-   memset(getInternalKey_CS(session), 0, sizeof(AES_KEY));
-   memset(getInternalKey_SC(session), 0, sizeof(AES_KEY));
+  memset(ASN_GET_INTERNAL_KEY_CS(session), 0, sizeof(AES_KEY));
+  memset(ASN_GET_INTERNAL_KEY_SC(session), 0, sizeof(AES_KEY));
 
-   // Initialize Server -> Client Encrypt Key
-   AES_set_encrypt_key(getInternalEKey_S(session), ASN_AES_KEY_LEN, getInternalKey_SC(session));
+  // Initialize Server -> Client Encrypt Key
+  AES_set_encrypt_key(ASN_GET_INTERNAL_EKEY_S(session), ASN_AES_KEY_LEN, ASN_GET_INTERNAL_KEY_SC(session));
 
-   // Initialize Client -> Server Decrypt Key
-   AES_set_decrypt_key(getInternalEKey_C(session), ASN_AES_KEY_LEN, getInternalKey_CS(session));
+  // Initialize Client -> Server Decrypt Key
+  AES_set_decrypt_key(ASN_GET_INTERNAL_EKEY_C(session), ASN_AES_KEY_LEN, ASN_GET_INTERNAL_KEY_CS(session));
 
-   {
-      const BIGNUM *priv_key = NULL;
-      unsigned char *Ks = NULL;
-      int Ks_len = 0;
-      int len = 0;
+  {
+    const BIGNUM *priv_key = NULL;
+    unsigned char *ks = NULL;
+    int ks_len = 0;
+    int len = 0;
 
-      DH_get0_key(getInternalDH(session), NULL, &priv_key);
+    DH_get0_key(ASN_GET_INTERNAL_DH(session), NULL, &priv_key);
 
-      len = BN_num_bytes(priv_key);
+    len = BN_num_bytes(priv_key);
 
-      unsigned char *data = malloc(len);
+    unsigned char *data = malloc(len);
 
-      len = BN_bn2bin(priv_key, data);
+    len = BN_bn2bin(priv_key, data);
 
-      asnUtils_debug_binary("y", data, len);
+    asnutils_debug_binary("y", data, len);
 
-      Ks_len = i2d_RSAPrivateKey(getInternalRSA_S(session), &Ks);
+    ks_len = i2d_RSAPrivateKey(ASN_GET_INTERNAL_RSA_S(session), &ks);
 
-      asnUtils_debug_binary("Ks", Ks, Ks_len);
-   }
+    asnutils_debug_binary("ks", ks, ks_len);
+  }
 
-   next_stage = AUTH_DONE;
+  next_stage = AUTH_DONE;
 
-   debug("authServerFinish END");
+  debug("authserver_finish END");
 
-   return next_stage;
+  return next_stage;
 }
 
 /*
  *
  */
 
-/* ASN_ERRORS */int asnInternal_server_authenticate(asnSession_t *session)
-{
-   int ret = ASN_ERROR;
+int asninternal_server_authenticate(asn_ctx_t *session) {
+  int ret = ASN_ERROR;
 
-   int authStage = AUTH_INIT;
+  int auth_stage = AUTH_INIT;
 
-   debug("asnInternal_server_authenticate START");
+  debug("asninternal_server_authenticate START");
 
-   while ((AUTH_DONE != authStage) && (AUTH_ERROR != authStage))
-   {
-      switch (authStage) {
-         case AUTH_INIT:
-            authStage = authServerInit(session);
-            break;
-         case AUTH_COMPUTE:
-            authStage = authServerCompute(session);
-            break;
-         case AUTH_VERIFY:
-            authStage = authServerVerify(session);
-            break;
-         case AUTH_FINISH:
-            authStage = authServerFinish(session);
-            break;
-         default:
-            break;
-      }
-   }
+  while ((AUTH_DONE != auth_stage) && (AUTH_ERROR != auth_stage)) {
+    switch (auth_stage) {
+      case AUTH_INIT:
+        auth_stage = authserver_init(session);
+        break;
+      case AUTH_COMPUTE:
+        auth_stage = authserver_compute(session);
+        break;
+      case AUTH_VERIFY:
+        auth_stage = authserver_verify(session);
+        break;
+      case AUTH_FINISH:
+        auth_stage = authserver_finish(session);
+        break;
+      default:
+        break;
+    }
+  }
 
-   if(AUTH_DONE == authStage)
-   {
-      ret = ASN_OK;
-   }
+  if (AUTH_DONE == auth_stage) {
+    ret = ASN_OK;
+  }
 
-   debug("asnInternal_server_authenticate END");
+  debug("asninternal_server_authenticate END");
 
-   return ret;
+  return ret;
 }
 
-/* ASN_ERRORS */int asnInternal_server_send(asnSession_t *session, const unsigned char *data, unsigned short  data_len)
-{
-   return asnUtils_send(session, getInternalIKey_S(session), getInternalKey_SC(session),
-         getInternalIV_S(session), data, data_len);
+int asninternal_server_send(asn_ctx_t *session, const unsigned char *data, unsigned short data_len) {
+  return asnutils_send(session, ASN_GET_INTERNAL_IKEY_S(session), ASN_GET_INTERNAL_KEY_SC(session),
+                       ASN_GET_INTERNAL_IV_S(session), data, data_len);
 }
 
-/* ASN_ERRORS */int asnInternal_server_receive(asnSession_t *session, unsigned char **data, unsigned short  *data_len)
-{
-   return asnUtils_receive(session, getInternalIKey_C(session), getInternalKey_CS(session),
-         getInternalIV_C(session), data, data_len);
+int asninternal_server_receive(asn_ctx_t *session, unsigned char **data, unsigned short *data_len) {
+  return asnutils_receive(session, ASN_GET_INTERNAL_IKEY_C(session), ASN_GET_INTERNAL_KEY_CS(session),
+                          ASN_GET_INTERNAL_IV_C(session), data, data_len);
 }
 
-void asnInternal_release_server(asnSession_t *session)
-{
+void asninternal_release_server(asn_ctx_t *session) {}
 
-}
-
-int asnInternal_server_set_option(asnSession_t *session, const char *key, unsigned char *value)
-{
-	return 0;
-}
+int asninternal_server_set_option(asn_ctx_t *session, const char *key, unsigned char *value) { return 0; }

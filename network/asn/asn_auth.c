@@ -17,186 +17,117 @@
  * limitations under the License.
  */
 
-/****************************************************************************
- * \project Decentralized Access Control
- * \file asn_auth.c
- * \brief
- *    Central source file implementing the authentication module core
- *
- * @Author Nikola Kuzmanovic
- *
- * \notes
- *
- * \history
- * 31.07.2018. Initial version.
- ****************************************************************************/
-
-//#define NDEBUG
-
-#include "asn_debug.h"
 #include "asn_auth.h"
+#include "asn_debug.h"
 #include "asn_internal.h"
 
-static asnStruct_t internal;
+typedef struct asn_struct asn_struct_t;
 
-/* ASN_ERRORS */static int asnAuth_init(asnSession_t *session, void *ext, int type)
-{
-   int ret = ASN_ERROR;
+static asn_struct_t internal;
 
-   if (NULL != session)
-   {
-      memset((void *) session, 0, sizeof(asnSession_t));
+static int asnauth_init(asn_ctx_t *session, void *ext, int type) {
+  int ret = ASN_ERROR;
 
-      getInternal(session) = &internal;//(asnStruct_t *) malloc(sizeof(asnStruct_t));
+  if (NULL != session) {
+    memset((void *)session, 0, sizeof(asn_ctx_t));
 
-      if(NULL != getInternal(session))
-      {
-         memset((void *) getInternal(session), 0, sizeof(asnStruct_t));
+    ASN_GET_INTERNAL(session) = &internal;
 
-         getInternalType(session) = type;
-         session->ext = ext;
+    if (NULL != ASN_GET_INTERNAL(session)) {
+      memset((void *)ASN_GET_INTERNAL(session), 0, sizeof(asn_struct_t));
 
-         ret = ASN_OK;
-      }
-   }
-
-   return ret;
-}
-
-/* ASN_ERRORS */int asnAuth_init_client(asnSession_t *session, void *ext)
-{
-   return asnAuth_init(session, ext, ASN_TYPE_CLIENT);
-}
-
-/* ASN_ERRORS */int asnAuth_init_server(asnSession_t *session, void *ext)
-{
-   return asnAuth_init(session, ext, ASN_TYPE_SERVER);
-}
-
-/* ASN_ERRORS */int asnAuth_set_option(asnSession_t *session, const char *key, unsigned char *value)
-{
-	int ret = ASN_ERROR;
-
-	//debug("asnAuth_set_option START");
-
-	if (NULL != session)
-	{
-		if(ASN_TYPE_SERVER == getInternalType(session))
-		{
-			ret = asnInternal_server_set_option(session, key, value);
-		}
-		else if(ASN_TYPE_CLIENT == getInternalType(session))
-		{
-			ret = asnInternal_client_set_option(session, key, value);
-		}
-	}
-
-	// debug("asnAuth_set_option END");
-
-	return ret;
-}
-
-/* ASN_ERRORS */int asnAuth_authenticate(asnSession_t *session)
-{
-   int ret = ASN_ERROR;
-
-   //debug("asnAuth_authenticate START");
-
-   if (NULL != session)
-   {
-      if(ASN_TYPE_SERVER == getInternalType(session))
-      {
-         ret = asnInternal_server_authenticate(session);
-      } else if(ASN_TYPE_CLIENT == getInternalType(session))
-      {
-         ret = asnInternal_client_authenticate(session);
-      }
-   }
-
-  // debug("asnAuth_authenticate END");
-
-   return ret;
-}
-
-/* ASN_ERRORS */int asnAuth_send(asnSession_t *session, const unsigned char *data, unsigned short  len)
-{
-   int ret = ASN_ERROR;
-
-   //debug("asnAuth_send START");
-
-   if ((NULL != session) && (NULL != data) && (len > 0))
-   {
-      /* Encrypt and send */
-      if (ASN_TYPE_SERVER == getInternalType(session))
-      {
-         ret = asnInternal_server_send(session, data, len);
-      } else if (ASN_TYPE_CLIENT == getInternalType(session))
-      {
-         ret = asnInternal_client_send(session, data, len);
-      }
-   }
-
-   //debug("asnAuth_send END");
-
-   return ret;
-}
-
-/* ASN_ERRORS */int asnAuth_receive(asnSession_t *session, unsigned char **data, unsigned short  *len)
-{
-   int ret = ASN_ERROR;
-
-   //debug("asnAuth_receive START");
-
-   if (NULL != session)
-   {
-      /* Decrypt and receive */
-      if (ASN_TYPE_SERVER == getInternalType(session))
-      {
-         ret = asnInternal_server_receive(session, data, len);
-      } else if (ASN_TYPE_CLIENT == getInternalType(session))
-      {
-         ret = asnInternal_client_receive(session, data, len);
-      }
-   }
-
-  // debug("asnAuth_receive END");
-
-   return ret;
-
-}
-
-/* ASN_ERRORS */int asnAuth_release(asnSession_t *session)
-{
-   int ret = ASN_ERROR;
-
-   //debug("asnAuth_release START");
-
-   if (NULL != getInternal(session))
-   {
-      if (ASN_TYPE_SERVER == getInternalType(session))
-      {
-         asnInternal_release_server(session);
-      } else if (ASN_TYPE_CLIENT == getInternalType(session))
-      {
-         asnInternal_release_client(session);
-      }
-
-//      free((void *) getInternal(session));
-      getInternal(session) = NULL;
+      ASN_GET_INTERNAL_TYPE(session) = type;
+      session->ext = ext;
 
       ret = ASN_OK;
-   }
+    }
+  }
 
-   if (NULL != session)
-   {
-      session = NULL;
+  return ret;
+}
 
-      ret = ASN_OK;
-   }
+int asnauth_init_client(asn_ctx_t *session, void *ext) { return asnauth_init(session, ext, ASN_TYPE_CLIENT); }
 
+int asnauth_init_server(asn_ctx_t *session, void *ext) { return asnauth_init(session, ext, ASN_TYPE_SERVER); }
 
+int asnauth_set_option(asn_ctx_t *session, const char *key, unsigned char *value) {
+  int ret = ASN_ERROR;
 
-   //debug("asnAuth_release END");
+  if (NULL != session) {
+    if (ASN_TYPE_SERVER == ASN_GET_INTERNAL_TYPE(session)) {
+      ret = asninternal_server_set_option(session, key, value);
+    } else if (ASN_TYPE_CLIENT == ASN_GET_INTERNAL_TYPE(session)) {
+      ret = asninternal_client_set_option(session, key, value);
+    }
+  }
 
-   return ret;
+  return ret;
+}
+
+int asnauth_authenticate(asn_ctx_t *session) {
+  int ret = ASN_ERROR;
+
+  if (NULL != session) {
+    if (ASN_TYPE_SERVER == ASN_GET_INTERNAL_TYPE(session)) {
+      ret = asninternal_server_authenticate(session);
+    } else if (ASN_TYPE_CLIENT == ASN_GET_INTERNAL_TYPE(session)) {
+      ret = asninternal_client_authenticate(session);
+    }
+  }
+
+  return ret;
+}
+
+int asnauth_send(asn_ctx_t *session, const unsigned char *data, unsigned short len) {
+  int ret = ASN_ERROR;
+
+  if ((NULL != session) && (NULL != data) && (len > 0)) {
+    /* Encrypt and send */
+    if (ASN_TYPE_SERVER == ASN_GET_INTERNAL_TYPE(session)) {
+      ret = asninternal_server_send(session, data, len);
+    } else if (ASN_TYPE_CLIENT == ASN_GET_INTERNAL_TYPE(session)) {
+      ret = asninternal_client_send(session, data, len);
+    }
+  }
+
+  return ret;
+}
+
+int asnauth_receive(asn_ctx_t *session, unsigned char **data, unsigned short *len) {
+  int ret = ASN_ERROR;
+
+  if (NULL != session) {
+    /* Decrypt and receive */
+    if (ASN_TYPE_SERVER == ASN_GET_INTERNAL_TYPE(session)) {
+      ret = asninternal_server_receive(session, data, len);
+    } else if (ASN_TYPE_CLIENT == ASN_GET_INTERNAL_TYPE(session)) {
+      ret = asninternal_client_receive(session, data, len);
+    }
+  }
+
+  return ret;
+}
+
+int asnauth_release(asn_ctx_t *session) {
+  int ret = ASN_ERROR;
+
+  if (NULL != ASN_GET_INTERNAL(session)) {
+    if (ASN_TYPE_SERVER == ASN_GET_INTERNAL_TYPE(session)) {
+      asninternal_release_server(session);
+    } else if (ASN_TYPE_CLIENT == ASN_GET_INTERNAL_TYPE(session)) {
+      asninternal_release_client(session);
+    }
+
+    ASN_GET_INTERNAL(session) = NULL;
+
+    ret = ASN_OK;
+  }
+
+  if (NULL != session) {
+    session = NULL;
+
+    ret = ASN_OK;
+  }
+
+  return ret;
 }

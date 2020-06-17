@@ -48,29 +48,21 @@
 #endif
 
 #define PIP_MAX_STR_LEN 256
-#define PIP_MAX_AUTH_CALLBACKS 1 //After each new authority is added, this must be incremented
+#define PIP_MAX_AUTH_CALLBACKS 1  // After each new authority is added, this must be incremented
 
 /****************************************************************************
  * ENUMERATIONS
  ****************************************************************************/
-typedef enum
-{
-    PIP_NO_ERROR,
-    PIP_ERROR
-} pip_error_e;
+typedef enum { PIP_NO_ERROR, PIP_ERROR } pip_error_e;
 
-typedef enum
-{
-    PIP_IOTA = 0
-} pip_authorities_e;
+typedef enum { PIP_IOTA = 0 } pip_authorities_e;
 
 /****************************************************************************
  * TYPES
  ****************************************************************************/
-typedef struct attribute_object
-{
-    char type[PIP_MAX_STR_LEN];
-    char value[PIP_MAX_STR_LEN];
+typedef struct attribute_object {
+  char type[PIP_MAX_STR_LEN];
+  char value[PIP_MAX_STR_LEN];
 } pip_attribute_object_t;
 
 /****************************************************************************

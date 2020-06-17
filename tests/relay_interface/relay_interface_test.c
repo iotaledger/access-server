@@ -31,44 +31,37 @@
  * 04.03.2020. Initial version.
  ****************************************************************************/
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 #include "relay_interface.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-int main(int argc, char** argv)
-{
-    if (argc < 3)
-    {
-        printf("usage: %s <command> <relay_idx>\n"
-               " - command: on, off, toggle, pulse\n"
-               " - relay_idx: relay index\n", argv[0]);
-        return -1;
-    }
+int main(int argc, char **argv) {
+  if (argc < 3) {
+    printf(
+        "usage: %s <command> <relay_idx>\n"
+        " - command: on, off, toggle, pulse\n"
+        " - relay_idx: relay index\n",
+        argv[0]);
+    return -1;
+  }
 
-    if (strncmp(argv[1], "on", strlen("on")) == 0)
-    {
-        RelayInterface_on(atoi(argv[2]));
-    }
-    else if (strncmp(argv[1], "off", strlen("off")) == 0)
-    {
-        RelayInterface_off(atoi(argv[2]));
-    }
-    else if (strncmp(argv[1], "toggle", strlen("toggle")) == 0)
-    {
-        RelayInterface_toggle(atoi(argv[2]));
-    }
-    else if (strncmp(argv[1], "pulse", strlen("pulse")) == 0)
-    {
-        RelayInterface_pulse(atoi(argv[2]));
-    }
-    else
-    {
-        printf("unrecognized command: '%s'\n", argv[1]);
-        printf("usage: %s <command> <relay_idx>\n"
-               " - command: on, off, toggle, pulse\n"
-               " - relay_idx: relay index\n", argv[0]);
-    }
+  if (strncmp(argv[1], "on", strlen("on")) == 0) {
+    RelayInterface_on(atoi(argv[2]));
+  } else if (strncmp(argv[1], "off", strlen("off")) == 0) {
+    RelayInterface_off(atoi(argv[2]));
+  } else if (strncmp(argv[1], "toggle", strlen("toggle")) == 0) {
+    RelayInterface_toggle(atoi(argv[2]));
+  } else if (strncmp(argv[1], "pulse", strlen("pulse")) == 0) {
+    RelayInterface_pulse(atoi(argv[2]));
+  } else {
+    printf("unrecognized command: '%s'\n", argv[1]);
+    printf(
+        "usage: %s <command> <relay_idx>\n"
+        " - command: on, off, toggle, pulse\n"
+        " - relay_idx: relay index\n",
+        argv[0]);
+  }
 
-    return 0;
+  return 0;
 }

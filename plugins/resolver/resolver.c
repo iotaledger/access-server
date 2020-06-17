@@ -36,13 +36,13 @@
 /****************************************************************************
  * INCLUDES
  ****************************************************************************/
-#include <string.h>
 #include "resolver.h"
-#include "Dlog.h"
-#include "json_interface.h"
-#include "timer.h"
-#include "time_manager.h"
+#include <string.h>
+#include "datadumper.h"
+#include "dlog.h"
 #include "pep.h"
+#include "time_manager.h"
+#include "timer.h"
 
 /****************************************************************************
  * MACROS
@@ -66,145 +66,122 @@ static resolver_plugin_t resolver_action_set = {0};
 static int start_data_sharing(const char *action, unsigned long end_time);
 static int stop_data_sharing();
 
-static void timer_handler(size_t timer_id, void * user_data)
-{
-    stop_data_sharing();
+static void timer_handler(size_t timer_id, void *user_data) { stop_data_sharing(); }
+
+static int start_data_sharing(const char *action, unsigned long end_time) {
+  if (action == NULL) {
+    dlog_printf("\nERROR[%s] - Wrong input parameter\n", __FUNCTION__);
+    return -1;
+  }
+
+  // Initialize interface
+  resolver_action_set.init_ds_interface_cb(g_dstate);
+
+  // Chose dataset
+  char *dataset;
+  char dataset_num[RES_DATASET_NUM_SIZE];
+
+  memcpy(dataset_num, &action[RES_DATASET_NUM_POSITION], RES_DATASET_NUM_SIZE);
+
+  dataset = dataset_options[atoi(dataset_num) - 1];
+
+  // Tokenize dataset
+  char *tok = NULL;
+
+  tok = strtok(dataset, "|");
+
+  while (tok != NULL) {
+    for (int i = 0; i < g_dstate->options_count; i++) {
+      // Set options that needs to ne acquried
+      if (strncmp(g_dstate->tokens[i].name, tok,
+                  strlen(tok) < strlen(g_dstate->tokens[i].name) ? strlen(tok) : strlen(g_dstate->tokens[i].name)) ==
+          0) {
+        g_dstate->tokens[i].val = 1;
+      }
+    }
+
+    tok = strtok(NULL, "|");
+  }
+
+  unsigned char *dataset_uint8 = (unsigned char *)g_dstate->dataset;
+
+  for (int i = 0; i < g_dstate->options_count; i++) {
+    dataset_uint8[i] = g_dstate->tokens[i].val;
+  }
+
+  timerId = timer_start(end_time - timemanager_get_time_epoch(), (time_handler)timer_handler, TIMER_SINGLE_SHOT, NULL);
+  resolver_action_set.start_ds_interface_cb();
+
+  return 0;
 }
 
-static int start_data_sharing(const char *action, unsigned long end_time)
-{
-    if (action == NULL)
-    {
-        Dlog_printf("\nERROR[%s] - Wrong input parameter\n", __FUNCTION__);
-        return -1;
-    }
+static int stop_data_sharing() {
+  timer_stop(timerId);
+  resolver_action_set.stop_ds_interface_cb();
 
-    // Initialize interface
-    resolver_action_set.init_ds_interface_cb(g_dstate);
-
-    // Chose dataset
-    char* dataset;
-    char dataset_num[RES_DATASET_NUM_SIZE];
-
-    memcpy(dataset_num, &action[RES_DATASET_NUM_POSITION], RES_DATASET_NUM_SIZE);
-
-    dataset = dataset_options[atoi(dataset_num) - 1];
-
-    // Tokenize dataset
-    char* tok = NULL;
-
-    tok = strtok(dataset, "|");
-
-    while (tok != NULL)
-    {
-        for (int i = 0; i < g_dstate->options_count; i++)
-        {
-            // Set options that needs to ne acquried
-            if (strncmp(g_dstate->tokens[i].name, tok, strlen(tok) < strlen(g_dstate->tokens[i].name) ? strlen(tok) : strlen(g_dstate->tokens[i].name)) == 0)
-            {
-                g_dstate->tokens[i].val = 1;
-            }
-        }
-
-        tok = strtok(NULL, "|");
-    }
-
-    unsigned char *dataset_uint8 = (unsigned char*)g_dstate->dataset;
-
-    for (int i = 0; i < g_dstate->options_count; i ++)
-    {
-        dataset_uint8[i] = g_dstate->tokens[i].val;
-    }
-
-    timerId = Timer_start(end_time - getEpochTime(), (time_handler)timer_handler, TIMER_SINGLE_SHOT, NULL);
-    resolver_action_set.start_ds_interface_cb();
-
-    return 0;
+  return 0;
 }
 
-static int stop_data_sharing()
-{
-    Timer_stop(timerId);
-    resolver_action_set.stop_ds_interface_cb();
+static int action_resolve(resolver_action_data_t *action, int should_log) {
+  char buf[RES_BUFF_LEN];
+  int retval = -1;
 
-    return 0;
+  if (0 == memcmp(action->value, "start_ds_", strlen("start_ds_") - 1)) {
+    retval = start_data_sharing(action->value, action->stop_time);
+  } else if (0 == memcmp(action->value, "stop_ds", strlen("stop_ds"))) {
+    retval = stop_data_sharing();
+  } else {
+    for (int i = 0; i < resolver_action_set.count; i++) {
+      if (memcmp(action->value, resolver_action_set.action_names[i], strlen(resolver_action_set.action_names[i])) ==
+          0) {
+        timemanager_get_time_string(buf, RES_BUFF_LEN);
+        dlog_printf("%s %s\t%s\n", buf, action, action_s);
+        retval = resolver_action_set.actions[i](action, should_log);
+        break;
+      }
+    }
+  }
+  return retval;
 }
 
-static int action_resolve(resolver_action_data_t* action, int should_log)
-{
-    char buf[RES_BUFF_LEN];
-    int retval = -1;
+static bool pep_request(char *obligation, void *action) {
+  bool should_log = FALSE;
+  resolver_action_data_t *action_r;
 
-    if (0 == memcmp(action->value, "start_ds_", strlen("start_ds_") - 1))
-    {
-        retval = start_data_sharing(action->value, action->stop_time);
-    }
-    else if (0 == memcmp(action->value, "stop_ds", strlen("stop_ds")))
-    {
-        retval = stop_data_sharing();
-    }
-    else
-    {
-        for (int i = 0; i < resolver_action_set.count; i++)
-        {
-            if (memcmp(action->value, resolver_action_set.action_names[i], strlen(resolver_action_set.action_names[i])) == 0)
-            {
-                getStringTime(buf, RES_BUFF_LEN);
-                Dlog_printf("%s %s\t%s\n", buf, action, action_s);
-                retval = resolver_action_set.actions[i](action, should_log);
-                break;
-            }
-        }
-    }
-    return retval;
-}
+  if (action == NULL) {
+    dlog_printf("\nERROR[%s]: Bad input parameter.\n", __FUNCTION__);
+    return FALSE;
+  } else {
+    action_r = (resolver_action_data_t *)action;
+  }
 
-static bool pep_request(char *obligation, void *action)
-{
-    bool should_log = FALSE;
-    resolver_action_data_t *action_r;
+  // TODO: only "log_event" obligation is supported currently
+  if (0 == memcmp(obligation, "log_event", strlen("log_event"))) {
+    should_log = TRUE;
+  }
 
-    if (action == NULL)
-    {
-        Dlog_printf("\nERROR[%s]: Bad input parameter.\n", __FUNCTION__);
-        return FALSE;
-    }
-    else
-    {
-        action_r = (resolver_action_data_t*)action;
-    }
-    
-    //TODO: only "log_event" obligation is supported currently
-    if (0 == memcmp(obligation, "log_event", strlen("log_event")))
-    {
-        should_log = TRUE;
-    }
-    
-    // TODO: better handling of end_time parameter
-    if (action_resolve(action_r, should_log) == -1)
-    {
-        Dlog_printf("\nERROR[%s]: Resolving action failed.\n", __FUNCTION__);
-        return FALSE;
-    }
+  // TODO: better handling of end_time parameter
+  if (action_resolve(action_r, should_log) == -1) {
+    dlog_printf("\nERROR[%s]: Resolving action failed.\n", __FUNCTION__);
+    return FALSE;
+  }
 
-    return TRUE;
+  return TRUE;
 }
 
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
-void resolver_init(resolver_plugin_initializer_t initializer, dataset_state_t *dstate, void *options)
-{
-    initializer(&resolver_action_set, options);
-    g_dstate = dstate;
+void resolver_init(resolver_plugin_initializer_t initializer, dataset_state_t *dstate, void *options) {
+  initializer(&resolver_action_set, options);
+  g_dstate = dstate;
 
-    pep_register_callback((resolver_fn) pep_request);
+  pep_register_callback((resolver_fn)pep_request);
 }
 
-void resolver_term(resolver_plugin_terminizer_t terminizer)
-{
-    terminizer(&resolver_action_set);
-    g_dstate = NULL;
+void resolver_term(resolver_plugin_terminizer_t terminizer) {
+  terminizer(&resolver_action_set);
+  g_dstate = NULL;
 
-    pep_unregister_callback();
+  pep_unregister_callback();
 }

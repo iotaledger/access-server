@@ -22,10 +22,10 @@ cmake_minimum_required(VERSION 3.11)
 set(target misc)
 
 set(sources
-  utils_string.c
+  utils.c
   time_manager.c
   timer.c
-  json_interface.c)
+  datadumper.c)
 
 set(libs
   -pthread

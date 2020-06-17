@@ -47,16 +47,15 @@
 #define FALSE 0
 #endif
 
-//Set R-Pi as used platform
+// Set R-Pi as used platform
 #define USE_RPI 1
 
 /****************************************************************************
  * TYPES
  ****************************************************************************/
-typedef enum
-{
-    STORAGE_OK,
-    STORAGE_ERROR,
+typedef enum {
+  STORAGE_OK,
+  STORAGE_ERROR,
 } storage_error_t;
 
 /****************************************************************************
@@ -84,5 +83,4 @@ storage_error_t storage_init(void);
  */
 storage_error_t storage_term(void);
 
-
-#endif //_STORAGE_H_
+#endif  //_STORAGE_H_
