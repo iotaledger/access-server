@@ -13,14 +13,14 @@
 extern "C" {
 #endif
 
-#include <stdio.h>
-#include <stdint.h>
-#include <stdbool.h>
 #include <errno.h>
+#include <math.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
 #include <time.h>
-#include <math.h>
 #ifdef MINMEA_INCLUDE_COMPAT
 #include <minmea_compat.h>
 #endif
@@ -28,141 +28,143 @@ extern "C" {
 #define MINMEA_MAX_LENGTH 80
 
 enum minmea_sentence_id {
-    MINMEA_INVALID = -1,
-    MINMEA_UNKNOWN = 0,
-    MINMEA_SENTENCE_RMC,
-    MINMEA_SENTENCE_GGA,
-    MINMEA_SENTENCE_GSA,
-    MINMEA_SENTENCE_GLL,
-    MINMEA_SENTENCE_GST,
-    MINMEA_SENTENCE_GSV,
-    MINMEA_SENTENCE_VTG,
-    MINMEA_SENTENCE_ZDA,
+  MINMEA_INVALID = -1,
+  MINMEA_UNKNOWN = 0,
+  MINMEA_SENTENCE_RMC,
+  MINMEA_SENTENCE_GGA,
+  MINMEA_SENTENCE_GSA,
+  MINMEA_SENTENCE_GLL,
+  MINMEA_SENTENCE_GST,
+  MINMEA_SENTENCE_GSV,
+  MINMEA_SENTENCE_VTG,
+  MINMEA_SENTENCE_ZDA,
 };
 
 struct minmea_float {
-    int_least32_t value;
-    int_least32_t scale;
+  int_least32_t value;
+  int_least32_t scale;
 };
 
 struct minmea_date {
-    int day;
-    int month;
-    int year;
+  int day;
+  int month;
+  int year;
 };
 
 struct minmea_time {
-    int hours;
-    int minutes;
-    int seconds;
-    int microseconds;
+  int hours;
+  int minutes;
+  int seconds;
+  int microseconds;
 };
 
 struct minmea_sentence_rmc {
-    struct minmea_time time;
-    bool valid;
-    struct minmea_float latitude;
-    struct minmea_float longitude;
-    struct minmea_float speed;
-    struct minmea_float course;
-    struct minmea_date date;
-    struct minmea_float variation;
+  struct minmea_time time;
+  bool valid;
+  struct minmea_float latitude;
+  struct minmea_float longitude;
+  struct minmea_float speed;
+  struct minmea_float course;
+  struct minmea_date date;
+  struct minmea_float variation;
 };
 
 struct minmea_sentence_gga {
-    struct minmea_time time;
-    struct minmea_float latitude;
-    struct minmea_float longitude;
-    int fix_quality;
-    int satellites_tracked;
-    struct minmea_float hdop;
-    struct minmea_float altitude; char altitude_units;
-    struct minmea_float height; char height_units;
-    struct minmea_float dgps_age;
+  struct minmea_time time;
+  struct minmea_float latitude;
+  struct minmea_float longitude;
+  int fix_quality;
+  int satellites_tracked;
+  struct minmea_float hdop;
+  struct minmea_float altitude;
+  char altitude_units;
+  struct minmea_float height;
+  char height_units;
+  struct minmea_float dgps_age;
 };
 
 enum minmea_gll_status {
-    MINMEA_GLL_STATUS_DATA_VALID = 'A',
-    MINMEA_GLL_STATUS_DATA_NOT_VALID = 'V',
+  MINMEA_GLL_STATUS_DATA_VALID = 'A',
+  MINMEA_GLL_STATUS_DATA_NOT_VALID = 'V',
 };
 
 // FAA mode added to some fields in NMEA 2.3.
 enum minmea_faa_mode {
-    MINMEA_FAA_MODE_AUTONOMOUS = 'A',
-    MINMEA_FAA_MODE_DIFFERENTIAL = 'D',
-    MINMEA_FAA_MODE_ESTIMATED = 'E',
-    MINMEA_FAA_MODE_MANUAL = 'M',
-    MINMEA_FAA_MODE_SIMULATED = 'S',
-    MINMEA_FAA_MODE_NOT_VALID = 'N',
-    MINMEA_FAA_MODE_PRECISE = 'P',
+  MINMEA_FAA_MODE_AUTONOMOUS = 'A',
+  MINMEA_FAA_MODE_DIFFERENTIAL = 'D',
+  MINMEA_FAA_MODE_ESTIMATED = 'E',
+  MINMEA_FAA_MODE_MANUAL = 'M',
+  MINMEA_FAA_MODE_SIMULATED = 'S',
+  MINMEA_FAA_MODE_NOT_VALID = 'N',
+  MINMEA_FAA_MODE_PRECISE = 'P',
 };
 
 struct minmea_sentence_gll {
-    struct minmea_float latitude;
-    struct minmea_float longitude;
-    struct minmea_time time;
-    char status;
-    char mode;
+  struct minmea_float latitude;
+  struct minmea_float longitude;
+  struct minmea_time time;
+  char status;
+  char mode;
 };
 
 struct minmea_sentence_gst {
-    struct minmea_time time;
-    struct minmea_float rms_deviation;
-    struct minmea_float semi_major_deviation;
-    struct minmea_float semi_minor_deviation;
-    struct minmea_float semi_major_orientation;
-    struct minmea_float latitude_error_deviation;
-    struct minmea_float longitude_error_deviation;
-    struct minmea_float altitude_error_deviation;
+  struct minmea_time time;
+  struct minmea_float rms_deviation;
+  struct minmea_float semi_major_deviation;
+  struct minmea_float semi_minor_deviation;
+  struct minmea_float semi_major_orientation;
+  struct minmea_float latitude_error_deviation;
+  struct minmea_float longitude_error_deviation;
+  struct minmea_float altitude_error_deviation;
 };
 
 enum minmea_gsa_mode {
-    MINMEA_GPGSA_MODE_AUTO = 'A',
-    MINMEA_GPGSA_MODE_FORCED = 'M',
+  MINMEA_GPGSA_MODE_AUTO = 'A',
+  MINMEA_GPGSA_MODE_FORCED = 'M',
 };
 
 enum minmea_gsa_fix_type {
-    MINMEA_GPGSA_FIX_NONE = 1,
-    MINMEA_GPGSA_FIX_2D = 2,
-    MINMEA_GPGSA_FIX_3D = 3,
+  MINMEA_GPGSA_FIX_NONE = 1,
+  MINMEA_GPGSA_FIX_2D = 2,
+  MINMEA_GPGSA_FIX_3D = 3,
 };
 
 struct minmea_sentence_gsa {
-    char mode;
-    int fix_type;
-    int sats[12];
-    struct minmea_float pdop;
-    struct minmea_float hdop;
-    struct minmea_float vdop;
+  char mode;
+  int fix_type;
+  int sats[12];
+  struct minmea_float pdop;
+  struct minmea_float hdop;
+  struct minmea_float vdop;
 };
 
 struct minmea_sat_info {
-    int nr;
-    int elevation;
-    int azimuth;
-    int snr;
+  int nr;
+  int elevation;
+  int azimuth;
+  int snr;
 };
 
 struct minmea_sentence_gsv {
-    int total_msgs;
-    int msg_nr;
-    int total_sats;
-    struct minmea_sat_info sats[4];
+  int total_msgs;
+  int msg_nr;
+  int total_sats;
+  struct minmea_sat_info sats[4];
 };
 
 struct minmea_sentence_vtg {
-    struct minmea_float true_track_degrees;
-    struct minmea_float magnetic_track_degrees;
-    struct minmea_float speed_knots;
-    struct minmea_float speed_kph;
-    enum minmea_faa_mode faa_mode;
+  struct minmea_float true_track_degrees;
+  struct minmea_float magnetic_track_degrees;
+  struct minmea_float speed_knots;
+  struct minmea_float speed_kph;
+  enum minmea_faa_mode faa_mode;
 };
 
 struct minmea_sentence_zda {
-    struct minmea_time time;
-    struct minmea_date date;
-    int hour_offset;
-    int minute_offset;
+  struct minmea_time time;
+  struct minmea_date date;
+  int hour_offset;
+  int minute_offset;
 };
 
 /**
@@ -218,40 +220,33 @@ int minmea_gettime(struct timespec *ts, const struct minmea_date *date, const st
 /**
  * Rescale a fixed-point value to a different scale. Rounds towards zero.
  */
-static inline int_least32_t minmea_rescale(struct minmea_float *f, int_least32_t new_scale)
-{
-    if (f->scale == 0)
-        return 0;
-    if (f->scale == new_scale)
-        return f->value;
-    if (f->scale > new_scale)
-        return (f->value + ((f->value > 0) - (f->value < 0)) * f->scale/new_scale/2) / (f->scale/new_scale);
-    else
-        return f->value * (new_scale/f->scale);
+static inline int_least32_t minmea_rescale(struct minmea_float *f, int_least32_t new_scale) {
+  if (f->scale == 0) return 0;
+  if (f->scale == new_scale) return f->value;
+  if (f->scale > new_scale)
+    return (f->value + ((f->value > 0) - (f->value < 0)) * f->scale / new_scale / 2) / (f->scale / new_scale);
+  else
+    return f->value * (new_scale / f->scale);
 }
 
 /**
  * Convert a fixed-point value to a floating-point value.
  * Returns NaN for "unknown" values.
  */
-static inline float minmea_tofloat(struct minmea_float *f)
-{
-    if (f->scale == 0)
-        return NAN;
-    return (float) f->value / (float) f->scale;
+static inline float minmea_tofloat(struct minmea_float *f) {
+  if (f->scale == 0) return NAN;
+  return (float)f->value / (float)f->scale;
 }
 
 /**
  * Convert a raw coordinate to a floating point DD.DDD... value.
  * Returns NaN for "unknown" values.
  */
-static inline float minmea_tocoord(struct minmea_float *f)
-{
-    if (f->scale == 0)
-        return NAN;
-    int_least32_t degrees = f->value / (f->scale * 100);
-    int_least32_t minutes = f->value % (f->scale * 100);
-    return (float) degrees + (float) minutes / (60 * f->scale);
+static inline float minmea_tocoord(struct minmea_float *f) {
+  if (f->scale == 0) return NAN;
+  int_least32_t degrees = f->value / (f->scale * 100);
+  int_least32_t minutes = f->value % (f->scale * 100);
+  return (float)degrees + (float)minutes / (60 * f->scale);
 }
 
 #ifdef __cplusplus

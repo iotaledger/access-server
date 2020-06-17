@@ -37,7 +37,7 @@
 
 #include <pigpio.h>
 
-#define LOW	0
+#define LOW 0
 #define HIGH 1
 #define MIN_IDX 0
 #define MAX_IDX 3
@@ -46,114 +46,101 @@
 /* BCM Pinout: https://pinout.xyz/ */
 uint8_t idx2bcm[] = {4, 17, 27, 22};
 
-static int check_idx(int idx)
-{
-    if (idx < MIN_IDX || idx > MAX_IDX)
-    {
-        return -1;
-    }
+static int check_idx(int idx) {
+  if (idx < MIN_IDX || idx > MAX_IDX) {
+    return -1;
+  }
 }
 
-int relayinterface_on(int idx)
-{
-    printf("RELAY ON %d\n", idx);
+int relayinterface_on(int idx) {
+  printf("RELAY ON %d\n", idx);
 
-    if (gpioInitialise() < 0 || check_idx(idx) < 0)
-    {
-        fprintf(stderr, "pigpio initialisation failed\n");
-        return 1;
-    }
+  if (gpioInitialise() < 0 || check_idx(idx) < 0) {
+    fprintf(stderr, "pigpio initialisation failed\n");
+    return 1;
+  }
 
-    uint8_t bcm = idx2bcm[idx];
+  uint8_t bcm = idx2bcm[idx];
 
-    /* Set GPIO mode */
-    gpioSetMode(bcm, PI_OUTPUT);
+  /* Set GPIO mode */
+  gpioSetMode(bcm, PI_OUTPUT);
 
-    /* on */
-    gpioWrite(bcm, HIGH);
+  /* on */
+  gpioWrite(bcm, HIGH);
 
-    /* Stop DMA, release resources */
-    gpioTerminate();
+  /* Stop DMA, release resources */
+  gpioTerminate();
 
-    return 0;
+  return 0;
 }
 
-int relayinterface_off(int idx)
-{
-    printf("RELAY OFF %d\n", idx);
- 
-    if (gpioInitialise() < 0 || check_idx(idx) < 0)
-    {
-        fprintf(stderr, "pigpio initialisation failed\n");
-        return 1;
-    }
+int relayinterface_off(int idx) {
+  printf("RELAY OFF %d\n", idx);
 
-    uint8_t bcm = idx2bcm[idx];
+  if (gpioInitialise() < 0 || check_idx(idx) < 0) {
+    fprintf(stderr, "pigpio initialisation failed\n");
+    return 1;
+  }
 
-    /* Set GPIO modes */
-    gpioSetMode(bcm, PI_OUTPUT);
+  uint8_t bcm = idx2bcm[idx];
 
-    /* off */
-    gpioWrite(bcm, LOW);
+  /* Set GPIO modes */
+  gpioSetMode(bcm, PI_OUTPUT);
 
-    /* Stop DMA, release resources */
-    gpioTerminate();
+  /* off */
+  gpioWrite(bcm, LOW);
 
-    return 0;
+  /* Stop DMA, release resources */
+  gpioTerminate();
+
+  return 0;
 }
 
-int relayinterface_toggle(int idx)
-{
-    printf("RELAY TOGGLE %d\n", idx);
+int relayinterface_toggle(int idx) {
+  printf("RELAY TOGGLE %d\n", idx);
 
-    if (gpioInitialise() < 0 || check_idx(idx) < 0)
-    {
-        fprintf(stderr, "pigpio initialisation failed\n");
-        return 1;
-    }
+  if (gpioInitialise() < 0 || check_idx(idx) < 0) {
+    fprintf(stderr, "pigpio initialisation failed\n");
+    return 1;
+  }
 
-    uint8_t bcm = idx2bcm[idx];
+  uint8_t bcm = idx2bcm[idx];
 
-    /* Set GPIO modes */
-    gpioSetMode(bcm, PI_OUTPUT);
+  /* Set GPIO modes */
+  gpioSetMode(bcm, PI_OUTPUT);
 
-    int current_state = gpioRead(bcm);
-    if (current_state == LOW)
-    {
-        gpioWrite(bcm, HIGH); /* on */
-    }
-    else if (current_state == HIGH)
-    {
-        gpioWrite(bcm, LOW); /* off */
-    }
-
-    /* Stop DMA, release resources */
-    gpioTerminate();
-
-    return 0;
-}
-
-int relayinterface_pulse(int idx)
-{
-    printf("RELAY PULSE %d\n", idx);
-
-    if (gpioInitialise() < 0 || check_idx(idx) < 0)
-    {
-        fprintf(stderr, "pigpio initialisation failed\n");
-        return 1;
-    }
-
-    uint8_t bcm = idx2bcm[idx];
-
-    /* Set GPIO modes */
-    gpioSetMode(bcm, PI_OUTPUT);
-
+  int current_state = gpioRead(bcm);
+  if (current_state == LOW) {
     gpioWrite(bcm, HIGH); /* on */
-    time_sleep(SLEEP_TIME);
+  } else if (current_state == HIGH) {
     gpioWrite(bcm, LOW); /* off */
+  }
 
-    /* Stop DMA, release resources */
-    gpioTerminate();
+  /* Stop DMA, release resources */
+  gpioTerminate();
 
-    return 0;
+  return 0;
+}
+
+int relayinterface_pulse(int idx) {
+  printf("RELAY PULSE %d\n", idx);
+
+  if (gpioInitialise() < 0 || check_idx(idx) < 0) {
+    fprintf(stderr, "pigpio initialisation failed\n");
+    return 1;
+  }
+
+  uint8_t bcm = idx2bcm[idx];
+
+  /* Set GPIO modes */
+  gpioSetMode(bcm, PI_OUTPUT);
+
+  gpioWrite(bcm, HIGH); /* on */
+  time_sleep(SLEEP_TIME);
+  gpioWrite(bcm, LOW); /* off */
+
+  /* Stop DMA, release resources */
+  gpioTerminate();
+
+  return 0;
 }

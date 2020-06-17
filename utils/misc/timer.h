@@ -42,17 +42,16 @@
 #ifndef TRUE
 #define TRUE 1
 #endif
- 
-typedef enum
-{
-	TIMER_SINGLE_SHOT = 0, // Periodic Timer
-	TIMER_PERIODIC         // Single Shot Timer
+
+typedef enum {
+  TIMER_SINGLE_SHOT = 0,  // Periodic Timer
+  TIMER_PERIODIC          // Single Shot Timer
 } timer_mode_t;
- 
-typedef void (*time_handler)(int timer_id, void* user_data);
- 
-int Timer_init(void);
-void Timer_deinit(void);
-int Timer_start(unsigned int interval, time_handler handler, timer_mode_t type, void* user_data);
-void Timer_stop(int timer_id);
+
+typedef void (*time_handler)(int timer_id, void *user_data);
+
+int timer_init(void);
+void timer_deinit(void);
+int timer_start(unsigned int interval, time_handler handler, timer_mode_t type, void *user_data);
+void timer_stop(int timer_id);
 #endif

@@ -128,4 +128,4 @@ void protocol_register_payment_state_callback(payment_status_fn trans_fn);
  */
 void protocol_unregister_payment_state_callback(void);
 
-#endif //__PROTOCOL_H__
+#endif  //__PROTOCOL_H__

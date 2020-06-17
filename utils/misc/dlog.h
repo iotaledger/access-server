@@ -19,4 +19,4 @@
 
 #include <stdio.h>
 
-#define Dlog_printf printf
+#define dlog_printf printf

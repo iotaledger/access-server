@@ -39,27 +39,25 @@
 #define CANOPEN_SDO_NAME_LEN 64
 #define CANOPEN_SDO_UNIT_LEN 32
 
-typedef struct
-{
-    int index;
-    char name[CANOPEN_SDO_NAME_LEN];
-    char unit[CANOPEN_SDO_UNIT_LEN];
-    float factor;
-    float offset;
-    int min;
-    int max;
+typedef struct {
+  int index;
+  char name[CANOPEN_SDO_NAME_LEN];
+  char unit[CANOPEN_SDO_UNIT_LEN];
+  float factor;
+  float offset;
+  int min;
+  int max;
 } canopensdo_sdo_object_t;
 
 #define CANOPEN_SDO_DATA_TYPE_NONE 0
 #define CANOPEN_SDO_DATA_TYPE_INT 1
 #define CANOPEN_SDO_DATA_TYPE_FLOAT 2
 
-typedef struct
-{
-    double value;
-    char unit[CANOPEN_SDO_UNIT_LEN];
-    char name[CANOPEN_SDO_NAME_LEN];
-    int type;
+typedef struct {
+  double value;
+  char unit[CANOPEN_SDO_UNIT_LEN];
+  char name[CANOPEN_SDO_NAME_LEN];
+  int type;
 } canopensdo_parsed_data_t;
 
 #define CANOPEN_SDO_BMS_BAT_VOLTAGE_IDX 0x200136
@@ -86,7 +84,6 @@ typedef struct
 #define CANOPEN_SDO_TPDO0_MAPPING2_IDX 0x1a0002
 #define CANOPEN_SDO_TPDO0_MAPPING3_IDX 0x1a0003
 #define CANOPEN_SDO_TPDO0_MAPPING4_IDX 0x1a0004
-
 
 void canopensdo_init();
 void canopensdo_deinit();

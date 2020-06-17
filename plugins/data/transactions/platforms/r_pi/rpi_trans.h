@@ -97,4 +97,4 @@ bool rpitransaction_is_stored(char* policy_id);
  */
 bool rpitransaction_is_verified(char* policy_id, int policy_id_len);
 
-#endif //_RPI_TRANSACTION_H_
+#endif  //_RPI_TRANSACTION_H_

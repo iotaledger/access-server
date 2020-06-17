@@ -36,10 +36,10 @@
 
 #include "dataset.h"
 
-typedef void* Network_ctx_t;
+typedef void *network_ctx_t;
 
-int Network_init(dataset_state_t *_ddstate, Network_ctx_t* network_context);
-int Network_start(Network_ctx_t network_context);
-void Network_stop(Network_ctx_t network_context);
+int network_init(dataset_state_t *_ddstate, network_ctx_t *network_context);
+int network_start(network_ctx_t network_context);
+void network_stop(network_ctx_t network_context);
 
 #endif

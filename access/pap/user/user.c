@@ -19,35 +19,18 @@
 
 #include "user.h"
 
-int user_init()
-{
-    return userimplementation_init_cb();
-}
+int user_init() { return userimplementation_init_cb(); }
 
-void user_deinit()
-{
-    userimplementation_deinit_cb();
-}
+void user_deinit() { userimplementation_deinit_cb(); }
 
-void user_get_all(char* json_response)
-{
-    userimplementation_get_all_cb(json_response);
-}
+void user_get_all(char* json_response) { userimplementation_get_all_cb(json_response); }
 
-void user_get_obj(const char* username, char* json_response)
-{
-    userimplementation_get_obj_cb(username, json_response);
-}
+void user_get_obj(const char* username, char* json_response) { userimplementation_get_obj_cb(username, json_response); }
 
-void user_put_obj(const char* user_object, char* json_response)
-{
-    userimplementation_put_obj_cb(user_object, json_response);
+void user_put_obj(const char* user_object, char* json_response) {
+  userimplementation_put_obj_cb(user_object, json_response);
 }
-void user_get_user_id(const char* username, char* json_response)
-{
-    userimplementation_get_user_id_cb(username, json_response);
+void user_get_user_id(const char* username, char* json_response) {
+  userimplementation_get_user_id_cb(username, json_response);
 }
-void user_clear_all(char* json_response)
-{
-    userimplementation_clear_all_cb(json_response);
-}
+void user_clear_all(char* json_response) { userimplementation_clear_all_cb(json_response); }

@@ -35,19 +35,15 @@
 
 #include "time_manager.h"
 
-#define TIME_ZONE_SHIFT_S 7200 //UTC + 2h
+#define TIME_ZONE_SHIFT_S 7200  // UTC + 2h
 
-void getStringTime(char *buf, int size)
-{
-	time_t l_time = (time_t) (time(NULL) + TIME_ZONE_SHIFT_S);
-	struct tm tm;
+void timemanager_get_time_string(char *buf, int size) {
+  time_t l_time = (time_t)(time(NULL) + TIME_ZONE_SHIFT_S);
+  struct tm tm;
 
-	tm = *localtime(&l_time);
+  tm = *localtime(&l_time);
 
-	strftime(buf, size, "%a %Y-%m-%d %H:%M:%S ", &tm);
+  strftime(buf, size, "%a %Y-%m-%d %H:%M:%S ", &tm);
 }
 
-unsigned long getEpochTime()
-{
-	return time(NULL);
-}
+unsigned long timemanager_get_time_epoch() { return time(NULL); }

@@ -17,32 +17,35 @@
  * limitations under the License.
  */
 
-#include <stdio.h>
 #include <libfastjson/json.h>
 #include <sqlite3.h>
-#include "jsmn.h"
-
+#include <stdio.h>
 #include "user.h"
+
+#define JSMN_HEADER
+#include "jsmn.h"
 
 #define RESPONSE_LEN 4096
 
 static char response[RESPONSE_LEN];
 
-void main()
-{
-    user_init();
+void main() {
+  user_init();
 
-    user_get_all(response);
-    printf("get_all_users response: '%s'\n", response);
+  user_get_all(response);
+  printf("get_all_users response: '%s'\n", response);
 
-    user_get_obj("jamie", response);
-    printf("get jamie response: '%s'\n", response);
+  user_get_obj("jamie", response);
+  printf("get jamie response: '%s'\n", response);
 
-    user_put_obj("{ \"username\": \"djura\", \"firstName\": \"Djura\", \"lastName\": \"Djuric\", \"userId\": \"0x824717182474182747282812472724818\" }", response);
-    printf("put djura response: '%s'\n", response);
+  user_put_obj(
+      "{ \"username\": \"djura\", \"firstName\": \"Djura\", \"lastName\": \"Djuric\", \"userId\": "
+      "\"0x824717182474182747282812472724818\" }",
+      response);
+  printf("put djura response: '%s'\n", response);
 
-    user_get_obj("djura", response);
-    printf("get djura response: '%s'\n", response);
+  user_get_obj("djura", response);
+  printf("get djura response: '%s'\n", response);
 
-    user_deinit();
+  user_deinit();
 }

@@ -35,8 +35,8 @@
 #define _MODBUS_RECEIVER_H_
 
 #include <libfastjson/json.h>
-#include "vehicle_dataset.h"
 #include "modbus.h"
+#include "vehicle_dataset.h"
 
 void modbusreceiver_init(canopen01_vehicle_dataset_t *dataset, pthread_mutex_t *json_mutex);
 int modbusreceiver_start();

@@ -39,7 +39,7 @@
 
 /***************************************************************************
  * DEFINES
-****************************************************************************/
+ ****************************************************************************/
 #define VALIDATOR_MAX_TOKENS 256
 #ifndef bool
 #define bool _Bool
@@ -53,60 +53,44 @@
 
 /***************************************************************************
  * ENUMERATIONS
-****************************************************************************/
+ ****************************************************************************/
 
-typedef enum
-{
-    FL_HAS_NONE = 0x00,
-    FL_HAS_COST = 0x01,
-    FL_HAS_HASH = 0x02,
-    FL_HAS_POLID = 0x04,
-    FL_HAS_POLOB = 0x08,
-    FL_HAS_ALL = 0x0F
+typedef enum {
+  FL_HAS_NONE = 0x00,
+  FL_HAS_COST = 0x01,
+  FL_HAS_HASH = 0x02,
+  FL_HAS_POLID = 0x04,
+  FL_HAS_POLOB = 0x08,
+  FL_HAS_ALL = 0x0F
 } validator_policy_first_level_e;
 
-typedef enum
-{
-    DG_HAS_NONE = 0x00,
-    DG_HAS_DOC = 0x01,
-    DG_HAS_GOC = 0x02,
-    DG_HAS_ATTLIST = 0x04,
-    DG_HAS_OPP = 0x08,
-    DG_HAS_ALL = 0x0F
+typedef enum {
+  DG_HAS_NONE = 0x00,
+  DG_HAS_DOC = 0x01,
+  DG_HAS_GOC = 0x02,
+  DG_HAS_ATTLIST = 0x04,
+  DG_HAS_OPP = 0x08,
+  DG_HAS_ALL = 0x0F
 } validator_policy_docgoc_level_e;
 
-typedef enum
-{
-    CT_INT,
-    CT_FLOAT,
-    CT_HASH_FN,
-    CT_ID,
-    CT_TIME
-} validator_cmp_types_e;
+typedef enum { CT_INT, CT_FLOAT, CT_HASH_FN, CT_ID, CT_TIME } validator_cmp_types_e;
 
-typedef enum
-{
-    CR_FALSE,
-    CR_TRUE,
-    CR_NOT_SUPPORTED,
-    CR_BAD_ARG
-} validator_check_res_e;
+typedef enum { CR_FALSE, CR_TRUE, CR_NOT_SUPPORTED, CR_BAD_ARG } validator_check_res_e;
 
 /***************************************************************************
  * STRUCTURES
-****************************************************************************/
-typedef struct
-{
-    int valid_json;
-    int proper_format;
-    int no_dead_code;
-    int boundaries_met;
-    int suspicious_conditions;
+ ****************************************************************************/
+typedef struct {
+  int valid_json;
+  int proper_format;
+  int no_dead_code;
+  int boundaries_met;
+  int suspicious_conditions;
 } validator_report_t;
 
 /***************************************************************************
  * FUNCTION DECLARATIONS
-****************************************************************************/
+ ****************************************************************************/
 void validator_check(const char*, validator_report_t*);
 
 #endif

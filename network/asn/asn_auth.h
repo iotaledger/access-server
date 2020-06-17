@@ -34,63 +34,49 @@
 #ifndef ASN_AUTH_H
 #define ASN_AUTH_H
 
-//////////////////////////////////////////
-// Include files
-//////////////////////////////////////////
-
 #include <stdio.h>
 
-//////////////////////////////////////////
-// Macros and defines
-//////////////////////////////////////////
-
 /* ASN_ERRORS */
-#define ASN_OK    0
+#define ASN_OK 0
 #define ASN_ERROR 1
 
 #define AUTH_SERVER_PORT 9998
 
-//////////////////////////////////////////
-// Structure definitions
-//////////////////////////////////////////
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 typedef ssize_t f_asn_ext_t(void *, void *, unsigned short);
 
 typedef int f_asn_key_verify(unsigned char *, int);
 
-typedef struct asnStruct asnStruct_t;
+typedef struct asn_struct asn_struct_t;
 
 typedef struct {
-   asnStruct_t *internal;
+  asn_struct_t *internal;
 
-   void *ext; /* External data structure */
+  void *ext; /* External data structure */
 
-   f_asn_ext_t *f_write;
-   f_asn_ext_t *f_read;
+  f_asn_ext_t *f_write;
+  f_asn_ext_t *f_read;
 
-   f_asn_key_verify *f_verify;
+  f_asn_key_verify *f_verify;
 
-   int status;
-} asnSession_t;
+  int status;
+} asn_ctx_t;
 
-//////////////////////////////////////////
-// Function declarations and definitions
-//////////////////////////////////////////
+int asnauth_init_client(asn_ctx_t *, void *);
+int asnauth_init_server(asn_ctx_t *, void *);
 
-int asnAuth_init_client(asnSession_t *, void *);
-int asnAuth_init_server(asnSession_t *, void *);
+int asnauth_set_option(asn_ctx_t *, const char *, unsigned char *);
 
-int asnAuth_set_option(asnSession_t *, const  char *, unsigned char *);
+int asnauth_authenticate(asn_ctx_t *);
 
-int asnAuth_authenticate(asnSession_t *);
+int asnauth_send(asn_ctx_t *, const unsigned char *, unsigned short);
 
-int asnAuth_send(asnSession_t *, const unsigned char *, unsigned short);
+int asnauth_receive(asn_ctx_t *, unsigned char **, unsigned short *);
 
-int asnAuth_receive(asnSession_t *, unsigned char **, unsigned short *);
-
-int asnAuth_release(asnSession_t *);
+int asnauth_release(asn_ctx_t *);
 #ifdef __cplusplus
 };
 #endif

@@ -38,15 +38,14 @@
 
 #define CAN_BUS_LEN 64
 
-typedef struct
-{
-    char can_bus_name[CAN_BUS_LEN];
-    can_t can_connection;
-    pthread_t thread;
-    void (*can_frame_read_cb)(struct can_frame *frame);
+typedef struct {
+  char can_bus_name[CAN_BUS_LEN];
+  can_t can_connection;
+  pthread_t thread;
+  void (*can_frame_read_cb)(struct can_frame* frame);
 } canthread_instance_t;
 
-void canthread_init(canthread_instance_t* inst, const char* can_bus_name, void (*can_cb)(struct can_frame *frame));
+void canthread_init(canthread_instance_t* inst, const char* can_bus_name, void (*can_cb)(struct can_frame* frame));
 int canthread_start(canthread_instance_t* inst);
 int canthread_stop(canthread_instance_t* inst);
 
