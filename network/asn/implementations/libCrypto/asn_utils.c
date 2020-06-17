@@ -249,10 +249,10 @@ void asnutils_generate_keys(asn_ctx_t *session) {
  *    bytes       2         N          X        32
  *          ( pack_len || payload || var_pad || mac )
  */
-static unsigned char *asnutils_setup_out_packet(const void *data, unsigned short data_len, unsigned short *out_len,
+static unsigned char *asnutils_setup_out_packet(const void *data, unsigned short data_length, unsigned short *out_len,
                                                 int *padding_len) {
   unsigned char *ret_data = NULL;
-  unsigned short data_len = htons(data_len);
+  unsigned short data_len = htons(data_length);
   *padding_len = (ASN_AES_DIGEST_LEN - ((data_len + ASN_MESSAGE_NUMBER_LEN) % ASN_AES_DIGEST_LEN)) % ASN_AES_DIGEST_LEN;
 
   *out_len = ASN_MESSAGE_NUMBER_LEN + data_len + *padding_len + HMAC_DIGEST_LENGTH;
