@@ -19,7 +19,7 @@
 
 /****************************************************************************
  * \project IOTA Access
- * \file demo_02_plugin.c
+ * \file demo_resolver_can02.c
  * \brief
  * Resolver plugin for CANOpen demo using relay board connected directly to
  * rpi3.
@@ -32,7 +32,7 @@
  * 04.03.2020. Initial version.
  ****************************************************************************/
 
-#include "demo_resolver_02.h"
+#include "demo_resolver_can02.h"
 
 #include <string.h>
 
