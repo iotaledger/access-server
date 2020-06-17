@@ -58,7 +58,7 @@ typedef struct {
   dataset_state_t ddstate;
 } access_ctx_t_;
 
-void access_init(access_ctx_t *access_context, wallet_ctx_t *device_wallet) {
+void access_init(access_ctx_t *access_context, wallet_ctx_t *device_wallet, resolver_plugin_initializer_t resolver_init_fn) {
   if (device_wallet == NULL) {
     access_context = NULL;
     return;
@@ -78,8 +78,9 @@ void access_init(access_ctx_t *access_context, wallet_ctx_t *device_wallet) {
 
   ctx->json_mutex = datadumper_get_mutex();
 
+  pep_register_callback(resolver_init(resolver_init_fn, &ctx->ddstate, (void*)device_wallet));
+
   if (strncmp(ctx->client_name, CONFIG_CLIENT_CAN01, strlen(CONFIG_CLIENT_CAN01)) == 0) {
-    resolver_init(demowalletplugin_initializer, &ctx->ddstate, (void *)device_wallet);
 #ifdef TINY_EMBEDDED
     ctx->ddstate.options = &VehicleDatasetDemo01_options[0];
     ctx->ddstate.dataset = malloc(sizeof(can01_vehicle_dataset_t));

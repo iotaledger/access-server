@@ -41,6 +41,7 @@
 #include <stdlib.h>
 #include "dataset.h"
 #include "wallet.h"
+#include "pep.h"
 
 /****************************************************************************
  * MACROS
@@ -88,7 +89,7 @@ typedef void (*resolver_plugin_terminizer_t)(resolver_plugin_t*);
  * @brief   Initialize Resolver module
  *
  */
-void resolver_init(resolver_plugin_initializer_t initializer, dataset_state_t* dstate, void* options);
+resolver_fn resolver_init(resolver_plugin_initializer_t initializer, dataset_state_t* dstate, void* options);
 
 /**
  * @fn  void resolver_term(resolver_plugin_terminizer_t terminizer)

@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
 
   device_wallet = wallet_create(NODE_URL, NODE_PORT, NULL, NODE_DEPTH, NODE_MWM, WALLET_SEED);
 
-  access_init(&access_context, device_wallet);
+  access_init(&access_context, device_wallet, demowalletplugin_initializer);
   access_get_ddstate(access_context, &ddstate);
 
   network_init(ddstate, &network_context);

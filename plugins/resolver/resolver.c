@@ -40,7 +40,6 @@
 #include <string.h>
 #include "datadumper.h"
 #include "dlog.h"
-#include "pep.h"
 #include "time_manager.h"
 #include "timer.h"
 
@@ -144,7 +143,7 @@ static int action_resolve(resolver_action_data_t *action, int should_log) {
   return retval;
 }
 
-static bool pep_request(char *obligation, void *action) {
+static bool resolver_callback(char *obligation, void *action) {
   bool should_log = FALSE;
   resolver_action_data_t *action_r;
 
@@ -172,11 +171,11 @@ static bool pep_request(char *obligation, void *action) {
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
-void resolver_init(resolver_plugin_initializer_t initializer, dataset_state_t *dstate, void *options) {
+resolver_fn resolver_init(resolver_plugin_initializer_t initializer, dataset_state_t *dstate, void *options) {
   initializer(&resolver_action_set, options);
   g_dstate = dstate;
 
-  pep_register_callback((resolver_fn)pep_request);
+  return resolver_callback;
 }
 
 void resolver_term(resolver_plugin_terminizer_t terminizer) {
