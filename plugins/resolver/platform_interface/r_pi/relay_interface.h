@@ -34,7 +34,6 @@
 #ifndef __RELAY_INTERFACE_H__
 #define __RELAY_INTERFACE_H__
 
-int relayinterface_init();
 int relayinterface_on(int idx);
 int relayinterface_off(int idx);
 int relayinterface_toggle(int idx);
