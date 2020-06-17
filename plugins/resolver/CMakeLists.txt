@@ -26,7 +26,8 @@ set(sources
   platform_interface/r_pi/relay_interface.c
   demos/demo_resolver_can01.c
   demos/demo_resolver_can02.c
-  demos/demo_resolver_wallet.c)
+  demos/demo_resolver_wallet.c
+  demos/demo_resolver_relay.c)
 
 set(include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}
