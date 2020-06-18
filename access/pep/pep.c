@@ -185,7 +185,7 @@ static int list_to_string(pap_action_list_t *action_list, char *output_str) {
 /****************************************************************************
  * CALLBACK FUNCTIONS
  ****************************************************************************/
-static resolver_fn callback_resolver = NULL;
+static resolver_fn callback_resolver[PEP_MAX_ACT_CALLBACKS] = {0};
 
 /****************************************************************************
  * API FUNCTIONS
@@ -219,38 +219,45 @@ bool pep_term(void) {
   return TRUE;
 }
 
-bool pep_register_callback(resolver_fn resolver) {
+bool pep_register_callback(int actuator, resolver_fn resolver) {
+  pthread_mutex_lock(&pep_mutex);
+
   // Check input parameter
   if (resolver == NULL) {
     printf("\n\nERROR[%s]: Invalid input parameters.\n\n", __FUNCTION__);
-    return FALSE;
+    return PEP_ERROR;
   }
 
-  // Check if it's already registered
-  if (callback_resolver != NULL) {
-    printf("\n\nERROR[%s]: Callback already registered.\n\n", __FUNCTION__);
-    return FALSE;
+  if (actuator > PEP_MAX_ACT_CALLBACKS) {
+    printf("\nERROR[%s]: Non existing actuator.\n", __FUNCTION__);printf("\nERROR[%s]: Non existing actuator.\n", __FUNCTION__);
+    pthread_mutex_unlock(&pep_mutex);
+    return PEP_ERROR;
   }
-
-  pthread_mutex_lock(&pep_mutex);
 
   // Register callback
-  callback_resolver = resolver;
+  if (callback_resolver[actuator] == NULL) {
+    callback_resolver[actuator] = resolver;
+  } else {
+    printf("\nERROR[%s]: Callback is already registered.\n", __FUNCTION__);
+    pthread_mutex_unlock(&pep_mutex);
+    return PEP_ERROR;
+  }
 
   pthread_mutex_unlock(&pep_mutex);
 
-  return TRUE;
+  return PEP_NO_ERROR;
 }
 
 bool pep_unregister_callback(void) {
   pthread_mutex_lock(&pep_mutex);
 
-  // Unregister callback
-  callback_resolver = NULL;
+  for (int i = 0; i < PEP_MAX_ACT_CALLBACKS; i++) {
+    callback_resolver[i] = NULL;
+  }
 
   pthread_mutex_unlock(&pep_mutex);
 
-  return TRUE;
+  return PEP_NO_ERROR;
 }
 
 bool pep_request_access(char *request, void *response) {
@@ -296,9 +303,13 @@ bool pep_request_access(char *request, void *response) {
       free(temp);
     }
   } else {
+    
+    // ToDo: how to properly determine the value of actuator index????
+    int actuator = 0;
+
     // Resolver callback
     if (callback_resolver != NULL) {
-      callback_resolver(obligation, (void *)&action);
+      callback_resolver[actuator](obligation, (void *)&action);
     } else {
       printf("\n\nERROR[%s]: Callback is not regostered.\n\n", __FUNCTION__);
       ret = FALSE;

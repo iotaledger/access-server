@@ -43,7 +43,7 @@ typedef struct {
   dataset_state_t ddstate;
 } access_ctx_t_;
 
-void access_init(access_ctx_t *access_context, wallet_ctx_t *device_wallet, resolver_plugin_initializer_t resolver_init_fn) {
+void access_init(access_ctx_t *access_context, wallet_ctx_t *device_wallet, resolver_plugin_initializer_t resolver_init_fn[]) {
   if (device_wallet == NULL) {
     access_context = NULL;
     return;
@@ -60,7 +60,9 @@ void access_init(access_ctx_t *access_context, wallet_ctx_t *device_wallet, reso
 
   ctx->json_mutex = datadumper_get_mutex();
 
-  pep_register_callback(resolver_init(resolver_init_fn, &ctx->ddstate, (void*)device_wallet));
+  for (int i = 0; i < PEP_MAX_ACT_CALLBACKS; i++){
+    pep_register_callback(i, resolver_init(resolver_init_fn[i], &ctx->ddstate, (void*)device_wallet));
+  }
 
   *access_context = (access_ctx_t)ctx;
   datadumper_init();

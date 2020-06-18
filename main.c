@@ -65,7 +65,15 @@ int main(int argc, char **argv) {
 
   device_wallet = wallet_create(NODE_URL, NODE_PORT, NULL, NODE_DEPTH, NODE_MWM, WALLET_SEED);
 
-  access_init(&access_context, device_wallet, demorelayplugin_initializer);
+  // note how this is where the choice of resolver plugins is made
+  // inside main.c, part of Reference Implementation
+  // PEP implementation is agnostic in regards to which plugin will be used
+  resolver_plugin_initializer_t plugin_initializers[] = {
+    demorelayplugin_initializer,
+    demowalletplugin_initializer,
+  };
+
+  access_init(&access_context, device_wallet, plugin_initializers);
   access_get_ddstate(access_context, &ddstate);
 
   network_init(ddstate, &network_context);

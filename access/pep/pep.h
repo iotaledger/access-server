@@ -47,6 +47,22 @@
 #define TRUE 1
 #endif
 
+#define PEP_MAX_ACT_CALLBACKS 5  // high number, allow for unused callback slots
+
+/****************************************************************************
+ * ENUMERATIONS
+ ****************************************************************************/
+typedef enum { PEP_NO_ERROR, PEP_ERROR } pep_error_e;
+
+// Note: this should not be here since PEP is platform agnostic
+/*
+typedef enum {
+    PEP_CAN = 0,
+    PEP_RELAY = 1,
+    PEP_WALLET = 2,
+} pep_actuators_e;
+*/
+
 /****************************************************************************
  * CALLBACKS
  ****************************************************************************/
@@ -87,7 +103,7 @@ bool pep_term(void);
  *
  * @return  TRUE on success, FALSE on failure
  */
-bool pep_register_callback(resolver_fn resolver);
+bool pep_register_callback(int actuator, resolver_fn resolver);
 
 /**
  * @fn      pep_unregister_callback
