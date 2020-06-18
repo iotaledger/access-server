@@ -26,6 +26,12 @@
 #include "common/model/transaction.h"
 #include "wallet_errors.h"
 
+#define NODE_URL "nodes.comnet.thetangle.org"
+#define NODE_PORT 443
+#define NODE_DEPTH 3
+#define NODE_MWM 14
+#define WALLET_SEED "DEJUXV9ZQMIEXTWJJHJPLAWMOEKGAYDNALKSMCLG9APR9LCKHMLNZVCRFNFEPMGOBOYYIKJNYWSAKVPAI"
+
 #define IOTA_CLIENT_DEBUG 1
 #define DEFAULT_SECURITY_LEVEL 2
 #define DEFAULT_TAG "ACCESS999999999999999999999"

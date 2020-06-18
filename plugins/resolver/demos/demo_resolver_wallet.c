@@ -65,8 +65,8 @@ static void stop_ds_interface() {}
 
 static void term_ds_interface(dataset_state_t* vdstate) {}
 
-void demowalletplugin_initializer(resolver_plugin_t* action_set, void* options) {
-  if (action_set == NULL && options == NULL) {
+void demowalletplugin_initializer(resolver_plugin_t* action_set) {
+  if (action_set == NULL) {
     return;
   }
 
@@ -74,7 +74,7 @@ void demowalletplugin_initializer(resolver_plugin_t* action_set, void* options) 
     g_action_set = action_set;
   }
 
-  dev_wallet = (wallet_ctx_t*)options;
+  dev_wallet = wallet_create(NODE_URL, NODE_PORT, NULL, NODE_DEPTH, NODE_MWM, WALLET_SEED);
 
   g_action_set->actions[0] = demo_wallet_transfer_tokens;
   g_action_set->actions[1] = demo_wallet_store_transaction;
@@ -87,4 +87,7 @@ void demowalletplugin_initializer(resolver_plugin_t* action_set, void* options) 
   g_action_set->term_ds_interface_cb = term_ds_interface;
 }
 
-void demowalletplugin_terminizer() { g_action_set = NULL; }
+void demowalletplugin_terminizer() { 
+  g_action_set = NULL; 
+  dev_wallet = NULL;
+}

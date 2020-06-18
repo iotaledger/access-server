@@ -171,8 +171,8 @@ static bool resolver_callback(char *obligation, void *action) {
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
-resolver_fn resolver_init(resolver_plugin_initializer_t initializer, dataset_state_t *dstate, void *options) {
-  initializer(&resolver_action_set, options);
+resolver_fn resolver_init(resolver_plugin_initializer_t initializer, dataset_state_t *dstate) {
+  initializer(&resolver_action_set);
   g_dstate = dstate;
 
   return resolver_callback;

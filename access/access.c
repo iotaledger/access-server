@@ -61,7 +61,7 @@ void access_init(access_ctx_t *access_context, wallet_ctx_t *device_wallet, reso
   ctx->json_mutex = datadumper_get_mutex();
 
   for (int i = 0; i < PEP_MAX_ACT_CALLBACKS; i++){
-    pep_register_callback(i, resolver_init(resolver_init_fn[i], &ctx->ddstate, (void*)device_wallet));
+    pep_register_callback(i, resolver_init(resolver_init_fn[i], &ctx->ddstate));
   }
 
   *access_context = (access_ctx_t)ctx;

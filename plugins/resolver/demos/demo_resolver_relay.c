@@ -81,9 +81,9 @@ static void term_ds_interface(dataset_state_t* vdstate)
 
 }
 
-void demorelayplugin_initializer(resolver_plugin_t* action_set, void* options)
+void demorelayplugin_initializer(resolver_plugin_t* action_set)
 {
-    if (action_set == NULL && options == NULL)
+    if (action_set == NULL)
     {
         return;
     }

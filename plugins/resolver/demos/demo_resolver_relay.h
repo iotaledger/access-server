@@ -39,7 +39,7 @@
  * @fn void demorelayplugin_initializer(resolver_plugin_t* action_set)
  * @brief resolver plugin initializer callback
  */
-void demorelayplugin_initializer(resolver_plugin_t* action_set, void* options);
+void demorelayplugin_initializer(resolver_plugin_t* action_set);
 
 /**
  * @fn void DemoRelayPlugin_terminizer()

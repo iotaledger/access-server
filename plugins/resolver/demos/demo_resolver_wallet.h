@@ -39,7 +39,7 @@
  * @fn void demowalletplugin_initializer(resolver_plugin_t* action_set)
  * @brief resolver plugin initializer callback
  */
-void demowalletplugin_initializer(resolver_plugin_t* action_set, void* options);
+void demowalletplugin_initializer(resolver_plugin_t* action_set);
 
 /**
  * @fn void demowalletplugin_terminizer()
