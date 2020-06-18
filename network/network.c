@@ -46,7 +46,7 @@
 #include "pap.h"
 #include "pep.h"
 #include "policy_updater.h"
-#include "storage.h"
+#include "pap_plugin.h"
 #include "utils.h"
 
 #define dlog_printf printf

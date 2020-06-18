@@ -19,10 +19,10 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-set(target storage_plugin)
+set(target pap_plugin)
 
 set(sources
-  storage.c
+  pap_plugin.c
   test_internal.c
   platforms/r_pi/rpi_storage.c)
 

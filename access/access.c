@@ -29,7 +29,7 @@
 
 #include "protocol.h"
 #include "pep_plugin.h"
-#include "storage.h"
+#include "pap_plugin.h"
 #include "timer.h"
 #include "transaction.h"
 
@@ -52,7 +52,7 @@ void access_init(access_ctx_t *access_context, wallet_ctx_t *device_wallet, pep_
 
   // Register plugins
   timer_init();
-  storage_init();
+  pap_plugin_init();
 
   pep_init();
   protocol_init(device_wallet);
