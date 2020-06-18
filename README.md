@@ -62,6 +62,11 @@ $ make
 
 ```
 
+## Contributing  
+
+Pull Requests are welcomed.  
+This project uses clang-format to format C/C++ code. Before you make any changes please install the format script via running `./git_hooks/pre_commit_install.sh`.  
+
 ## XAIN FROST
 IOTA Access is based on [XAIN](https://www.xain.io/)'s **FROST** project, which is the byproduct of [Leif-Nissen Lundbeak](https://www.researchgate.net/profile/Leif_Nissen_Lundbaek)'s 2019 PhD Thesis at Imperial College London.
 
