@@ -28,7 +28,7 @@
 #include "policy_loader.h"
 
 #include "protocol.h"
-#include "resolver.h"
+#include "pep_plugin.h"
 #include "storage.h"
 #include "timer.h"
 #include "transaction.h"
@@ -43,7 +43,7 @@ typedef struct {
   dataset_state_t ddstate;
 } access_ctx_t_;
 
-void access_init(access_ctx_t *access_context, wallet_ctx_t *device_wallet, resolver_plugin_initializer_t resolver_init_fn[]) {
+void access_init(access_ctx_t *access_context, wallet_ctx_t *device_wallet, pep_plugin_initializer_t pep_plugin_init_fn[]) {
   if (device_wallet == NULL) {
     access_context = NULL;
     return;
@@ -61,7 +61,7 @@ void access_init(access_ctx_t *access_context, wallet_ctx_t *device_wallet, reso
   ctx->json_mutex = datadumper_get_mutex();
 
   for (int i = 0; i < PEP_MAX_ACT_CALLBACKS; i++){
-    pep_register_callback(i, resolver_init(resolver_init_fn[i], &ctx->ddstate));
+    pep_register_callback(i, pep_plugin_init(pep_plugin_init_fn[i], &ctx->ddstate));
   }
 
   *access_context = (access_ctx_t)ctx;

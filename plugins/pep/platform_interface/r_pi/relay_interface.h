@@ -19,10 +19,9 @@
 
 /****************************************************************************
  * \project IOTA Access
- * \file demo_resolver_can01.h
+ * \file relay_interface.h
  * \brief
- * Resolver plugin for CANOpen demo using relay board connected directly to
- * rpi3.
+ * Relay board interface to be used by pep_plugin
  *
  * @Author Djordje Golubovic
  *
@@ -32,22 +31,12 @@
  * 04.03.2020. Initial version.
  ****************************************************************************/
 
+#ifndef __RELAY_INTERFACE_H__
+#define __RELAY_INTERFACE_H__
 
-#ifndef __DEMO_02_PLUGIN_H__
-#define __DEMO_02_PLUGIN_H__
-
-#include "resolver.h"
-
-/**
- * @fn void demo02plugin_initializer(resolver_plugin_t* action_set)
- * @brief resolver plugin initializer callback
- */
-void demo02plugin_initializer(resolver_plugin_t* action_set, void* options);
-
-/**
- * @fn void demo02plugin_terminizer()
- * @brief resolver plugin terminizer callback
- */
-void demo02plugin_terminizer();
+int relayinterface_on(int idx);
+int relayinterface_off(int idx);
+int relayinterface_toggle(int idx);
+int relayinterface_pulse(int idx);
 
 #endif

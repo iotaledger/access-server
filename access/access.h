@@ -22,11 +22,11 @@
 
 #include "dataset.h"
 #include "wallet.h"
-#include "demo_resolver_wallet.h"
+#include "pep_plugin.h"
 
 typedef void *access_ctx_t;
 
-void access_init(access_ctx_t *access_context, wallet_ctx_t *device_wallet, resolver_plugin_initializer_t resolver_init_fn[]);
+void access_init(access_ctx_t *access_context, wallet_ctx_t *device_wallet, pep_plugin_initializer_t pep_plugin_init_fn[]);
 void access_start(access_ctx_t access_context);
 void access_deinit(access_ctx_t access_context);
 void access_get_ddstate(access_ctx_t access_context, dataset_state_t **ddstate);

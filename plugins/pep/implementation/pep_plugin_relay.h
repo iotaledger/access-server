@@ -19,32 +19,33 @@
 
 /****************************************************************************
  * \project IOTA Access
- * \file demo_resolver_wallet.h
+ * \file pep_plugin_gpio.h
  * \brief
- * Resolver plugin for wallet functionality.
- * @Author Strahinja Golic
+ * pep_plugin plugin for Raspberry Pi Relay Shield
+ * @Author Bernardo Araujo
  *
  * \notes
  *
  * \history
- * 15.06.2020. Initial version.
+ * 16.06.2020. Initial version.
+ * 19.06.2020. Refactoring
  ****************************************************************************/
 
-#ifndef __DEMO_WALLET_PLUGIN_H__
-#define __DEMO_WALLET_PLUGIN_H__
-#include "resolver.h"
-#include "wallet.h"
+#ifndef __RELAY_PEP_PLUGIN_H__
+#define __RELAY_PEP_PLUGIN_H__
+#include "pep_plugin.h"
+#include "relay_interface.h"
 
 /**
- * @fn void demowalletplugin_initializer(resolver_plugin_t* action_set)
- * @brief resolver plugin initializer callback
+ * @fn void relay_pep_plugin_initializer(pep_plugin_t* action_set)
+ * @brief pep_plugin plugin initializer callback
  */
-void demowalletplugin_initializer(resolver_plugin_t* action_set);
+void relay_pep_plugin_initializer(pep_plugin_t* action_set);
 
 /**
- * @fn void demowalletplugin_terminizer()
- * @brief resolver plugin terminizer callback
+ * @fn void relay_pep_Plugin_terminizer()
+ * @brief pep_plugin plugin terminizer callback
  */
-void demowalletplugin_terminizer();
+void relay_pep_plugin_terminizer();
 
-#endif
+#endif 

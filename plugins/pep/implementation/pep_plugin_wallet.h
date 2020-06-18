@@ -19,24 +19,33 @@
 
 /****************************************************************************
  * \project IOTA Access
- * \file relay_interface.h
+ * \file pep_plugin_wallet.h
  * \brief
- * Relay board interface to be used by resolver
- *
- * @Author Djordje Golubovic
+ * pep_plugin plugin for wallet functionality.
+ * @Author Strahinja Golic, Bernardo Araujo
  *
  * \notes
  *
  * \history
- * 04.03.2020. Initial version.
+ * 15.06.2020. Initial version.
+ * 19.06.2020. Refactoring
  ****************************************************************************/
 
-#ifndef __RELAY_INTERFACE_H__
-#define __RELAY_INTERFACE_H__
+#ifndef __WALLET_PEP_PLUGIN_H__
+#define __WALLET_PEP_PLUGIN_H__
+#include "pep_plugin.h"
+#include "wallet.h"
 
-int relayinterface_on(int idx);
-int relayinterface_off(int idx);
-int relayinterface_toggle(int idx);
-int relayinterface_pulse(int idx);
+/**
+ * @fn void wallet_pep_plugin_initializer(pep_plugin_t* action_set)
+ * @brief pep_plugin plugin initializer callback
+ */
+void wallet_pep_plugin_initializer(pep_plugin_t* action_set);
+
+/**
+ * @fn void wallet_pep_plugin_terminizer()
+ * @brief pep_plugin plugin terminizer callback
+ */
+void wallet_pep_plugin_terminizer();
 
 #endif

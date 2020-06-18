@@ -33,7 +33,8 @@
 #include "network.h"
 #include "timer.h"
 
-#include "demo_resolver_relay.h"
+#include "pep_plugin_relay.h"
+#include "pep_plugin_wallet.h"
 
 #define NODE_URL "nodes.comnet.thetangle.org"
 #define NODE_PORT 443
@@ -65,12 +66,12 @@ int main(int argc, char **argv) {
 
   device_wallet = wallet_create(NODE_URL, NODE_PORT, NULL, NODE_DEPTH, NODE_MWM, WALLET_SEED);
 
-  // note how this is where the choice of resolver plugins is made
+  // note how this is where the choice of pep_plugins is made
   // inside main.c, part of Reference Implementation
   // PEP implementation is agnostic in regards to which plugin will be used
-  resolver_plugin_initializer_t plugin_initializers[] = {
-    demorelayplugin_initializer,
-    demowalletplugin_initializer,
+  pep_plugin_initializer_t plugin_initializers[] = {
+    relay_pep_plugin_initializer,
+    wallet_pep_plugin_initializer,
   };
 
   access_init(&access_context, device_wallet, plugin_initializers);

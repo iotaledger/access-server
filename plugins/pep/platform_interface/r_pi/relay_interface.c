@@ -21,7 +21,7 @@
  * \project IOTA Access
  * \file relay_interface.c
  * \brief
- * Relay board interface to be used by resolver
+ * Relay board interface to be used by pep_plugin
  *
  * @Author Djordje Golubovic
  *

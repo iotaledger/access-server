@@ -19,32 +19,36 @@
 
 /****************************************************************************
  * \project IOTA Access
- * \file demo_resolver_gpio.h
+ * \file demo_pep_plugin_can01.h
  * \brief
- * Resolver plugin for Raspberry Pi Relay Shield
- * @Author Bernardo Araujo
+ * pep_plugin plugin for CANOpen demo using relay board connected directly to
+ * rpi3.
+ *
+ * @Author Djordje Golubovic, Bernardo Araujo
  *
  * \notes
  *
  * \history
- * 16.06.2020. Initial version.
+ * 04.03.2020. Initial version.
+ * 19.06.2020. Refactoring
  ****************************************************************************/
 
-#ifndef __DEMO_RELAY_PLUGIN_H__
-#define __DEMO_RELAY_PLUGIN_H__
-#include "resolver.h"
-#include "relay_interface.h"
+
+#ifndef __CAN_02_PEP_PLUGIN_H__
+#define __CAN_01_PEP_PLUGIN_H__
+
+#include "pep_plugin.h"
 
 /**
- * @fn void demorelayplugin_initializer(resolver_plugin_t* action_set)
- * @brief resolver plugin initializer callback
+ * @fn void can_02_pep_plugin_initializer(pep_plugin_t* action_set)
+ * @brief pep_plugin plugin initializer callback
  */
-void demorelayplugin_initializer(resolver_plugin_t* action_set);
+void can_02_pep_plugin_initializer(pep_plugin_t* action_set, void* options);
 
 /**
- * @fn void DemoRelayPlugin_terminizer()
- * @brief resolver plugin terminizer callback
+ * @fn void can_02_pep_plugin_terminizer()
+ * @brief pep_plugin plugin terminizer callback
  */
-void demorelayplugin_terminizer();
+void can_02_pep_plugin_terminizer();
 
-#endif 
+#endif
