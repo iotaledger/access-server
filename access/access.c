@@ -28,8 +28,6 @@
 #include "policy_loader.h"
 
 #include "protocol.h"
-#include "pep_plugin.h"
-#include "pap_plugin.h"
 #include "timer.h"
 #include "transaction.h"
 
@@ -43,11 +41,10 @@ typedef struct {
   dataset_state_t ddstate;
 } access_ctx_t_;
 
-void access_init(access_ctx_t *access_context, wallet_ctx_t *device_wallet, pep_plugin_initializer_t pep_plugin_init_fn[]) {
-  if (device_wallet == NULL) {
-    access_context = NULL;
-    return;
-  }
+void access_init(access_ctx_t *access_context,
+                 pep_plugin_initializer_t pep_plugin_init_fn[],
+                 pip_plugin_initializer_t pip_plugin_init_fn[]){
+
   access_ctx_t_ *ctx = calloc(1, sizeof(access_ctx_t_));
 
   // Register plugins
@@ -55,13 +52,17 @@ void access_init(access_ctx_t *access_context, wallet_ctx_t *device_wallet, pep_
   pap_plugin_init();
 
   pep_init();
-  protocol_init(device_wallet);
-  transaction_init(device_wallet);
 
   ctx->json_mutex = datadumper_get_mutex();
 
   for (int i = 0; i < PEP_MAX_ACT_CALLBACKS; i++){
+    if (pep_plugin_init_fn[i] == NULL) break;
     pep_register_callback(i, pep_plugin_init(pep_plugin_init_fn[i], &ctx->ddstate));
+  }
+
+  for (int i = 0; i < PIP_MAX_PROBE_CALLBACKS; i++){
+    if (pip_plugin_init_fn[i] == NULL) break;
+    pip_register_callback(i, pip_plugin_init(pip_plugin_init_fn[i], &ctx->ddstate));
   }
 
   *access_context = (access_ctx_t)ctx;

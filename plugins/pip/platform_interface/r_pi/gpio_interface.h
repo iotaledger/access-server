@@ -17,20 +17,22 @@
  * limitations under the License.
  */
 
-#ifndef _ACCESS_H_
-#define _ACCESS_H_
+/****************************************************************************
+ * \project IOTA Access
+ * \file gpio_interface.h
+ * \brief
+ * Raspberry Pi GPIO interface to be used by pip_plugin
+ *
+ * @Author Bernardo Araujo
+ *
+ * \notes
+ *
+ * \history
+ * 19.06.2020. Initial version.
+ ****************************************************************************/
+#ifndef __GPIO_INTERFACE_H__
+#define __GPIO_INTERFACE_H__
 
-#include "dataset.h"
-#include "wallet.h"
-#include "pep_plugin.h"
-#include "pap_plugin.h"
-#include "pip_plugin.h"
-
-typedef void *access_ctx_t;
-
-void access_init(access_ctx_t *access_context, pep_plugin_initializer_t pep_plugin_init_fn[], pip_plugin_initializer_t pip_plugin_init_fn[]);
-void access_start(access_ctx_t access_context);
-void access_deinit(access_ctx_t access_context);
-void access_get_ddstate(access_ctx_t access_context, dataset_state_t **ddstate);
+int gpio_interface_read(int idx);
 
 #endif

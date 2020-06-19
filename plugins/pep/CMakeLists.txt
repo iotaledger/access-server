@@ -37,6 +37,7 @@ set(include_dirs
 )
 
 set(libs
+  access_wallet
   pep
   data_acquisition_plugins
   data_transactions_plugins

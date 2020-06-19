@@ -34,7 +34,8 @@ set(libs
   data_acquisition_plugins
   data_transactions_plugins
   pep_plugin
-  pap_plugin)
+  pap_plugin
+  pip_plugin)
 
 add_library(${target} access.c)
 target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

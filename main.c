@@ -35,6 +35,8 @@
 
 #include "pep_plugin_relay.h"
 #include "pep_plugin_wallet.h"
+#include "pip_plugin_gpio.h"
+#include "pip_plugin_wallet.h"
 
 #define NODE_URL "nodes.comnet.thetangle.org"
 #define NODE_PORT 443
@@ -50,7 +52,7 @@ static volatile int running = 1;
 static void signal_handler(int _) { running = 0; }
 
 static network_ctx_t network_context = 0;
-static access_ctx_t access_context = 0;
+static access_ctx_t *access_context;
 static wallet_ctx_t *device_wallet;
 
 int main(int argc, char **argv) {
@@ -66,15 +68,20 @@ int main(int argc, char **argv) {
 
   device_wallet = wallet_create(NODE_URL, NODE_PORT, NULL, NODE_DEPTH, NODE_MWM, WALLET_SEED);
 
-  // note how this is where the choice of pep_plugins is made
+  // note how this is where the choice of plugins is made
   // inside main.c, part of Reference Implementation
-  // PEP implementation is agnostic in regards to which plugin will be used
-  pep_plugin_initializer_t plugin_initializers[] = {
+  // PEP and PIP implementation are agnostic in regards to which plugin will be used
+  pep_plugin_initializer_t pep_plugin_initializers[] = {
     relay_pep_plugin_initializer,
     wallet_pep_plugin_initializer,
   };
 
-  access_init(&access_context, device_wallet, plugin_initializers);
+  pip_plugin_initializer_t pip_plugin_initializers[] = {
+    gpio_pip_plugin_initializer,
+    wallet_pip_plugin_initializer,
+  };
+
+  access_init(&access_context, pep_plugin_initializers, pip_plugin_initializers);
   access_get_ddstate(access_context, &ddstate);
 
   network_init(ddstate, &network_context);

@@ -19,85 +19,80 @@
 
 /****************************************************************************
  * \project IOTA Access
- * \file pep_plugin.h
+ * \file pip_plugin.h
  * \brief
- * Implementation of PEP Plugin
+ * Implementation of PIP Plugin
  *
- * @Author Vladimir Vojnovic, Strahinja Golic, Bernardo Araujo
+ * @Author Bernardo Araujo
  *
  * \notes
  *
  * \history
- * 03.10.2018. Initial version.
- * 28.02.2020. Added data sharing through action functionality
- * 14.05.2020. Refactoring
- * 19.06.2020. Refactoring
+ * 19.06.2020. Initial version.
  ****************************************************************************/
-#ifndef _PEP_PLUGIN_H_
-#define _PEP_PLUGIN_H_
+#ifndef _PIP_PLUGIN_H_
+#define _PIP_PLUGIN_H_
 
 /****************************************************************************
  * INCLUDES
  ****************************************************************************/
 #include <stdlib.h>
 #include "dataset.h"
-#include "wallet.h"
-#include "pep.h"
+#include "pip.h"
 
 /****************************************************************************
  * MACROS
  ****************************************************************************/
-#define RES_MAX_STR_SIZE 256
-#define RES_MAX_PEP_PLUGIN_ACTIONS 10
-#define RES_ACTION_NAME_SIZE 16
-#define RES_POL_ID_STR_LEN 64
+#define MAX_STR_SIZE 256
+#define MAX_PIP_PLUGIN_PROBES 10
+#define PROBE_NAME_SIZE 16
+#define POL_ID_STR_LEN 64
 
 /****************************************************************************
  * TYPES & CALLBACKS
  ****************************************************************************/
-typedef struct action {
-  char pol_id_str[RES_POL_ID_STR_LEN + 1];
-  unsigned long start_time;
-  unsigned long stop_time;
+typedef struct probe {
+  char pol_id_str[POL_ID_STR_LEN + 1];
   unsigned long balance;
   char* wallet_address;
   char* transaction_hash;
   int transaction_hash_len;
   char* value;
-} pep_plugin_action_data_t;
+} pip_plugin_probe_data_t;
 
-typedef int (*pep_plugin_action_t)(pep_plugin_action_data_t* probe, int should_log);
+typedef int (*pip_plugin_probe_t)(pip_plugin_probe_data_t* probe, int should_log);
 
 typedef struct {
-  char action_names[RES_MAX_PEP_PLUGIN_ACTIONS][RES_ACTION_NAME_SIZE];
-  pep_plugin_action_t actions[RES_MAX_PEP_PLUGIN_ACTIONS];
+  char probe_names[MAX_PIP_PLUGIN_PROBES][PROBE_NAME_SIZE];
+  pip_plugin_probe_t probes[MAX_PIP_PLUGIN_PROBES];
   size_t count;
+  
   void (*init_ds_interface_cb)(dataset_state_t*);
   void (*start_ds_interface_cb)(void);
   void (*stop_ds_interface_cb)(void);
   void (*term_ds_interface_cb)(dataset_state_t*);
-} pep_plugin_t;
+} pip_plugin_t;
 
-typedef void (*pep_plugin_initializer_t)(pep_plugin_t*);
-typedef void (*pep_plugin_terminizer_t)(pep_plugin_t*);
+typedef void (*pip_plugin_initializer_t)(pip_plugin_t*);
+typedef void (*pip_plugin_terminator_t)(pip_plugin_t*);
 
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
 /**
- * @fn  void pep_plugin_init(pep_plugin_initializer_t initializer, Dataset_state_t *dstate)
+ * @fn  void pip_plugin_init(pip_plugin_initializer_t initializer, dataset_state_t *dstate)
  *
- * @brief   Initialize pep_plugin module
+ * @brief   Initialize pip_plugin module
  *
  */
-pep_plugin_fn pep_plugin_init(pep_plugin_initializer_t initializer, dataset_state_t* dstate);
+pip_plugin_fn pip_plugin_init(pip_plugin_initializer_t initializer, dataset_state_t* dstate);
 
 /**
- * @fn  void pep_plugin_term(pep_plugin_terminizer_t terminizer)
+ * @fn  void pip_plugin_term(pip_plugin_terminizer_t terminator)
  *
- * @brief   Terminate pep_plugin module
+ * @brief   Terminate pip_plugin module
  *
  */
-void pep_plugin_term(pep_plugin_terminizer_t terminizer);
+void pip_plugin_term(pip_plugin_terminator_t terminator);
 
-#endif  //_PEP_PLUGIN_H_
+#endif  //_PIP_PLUGIN_H_

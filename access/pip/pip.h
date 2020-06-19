@@ -48,13 +48,16 @@
 #endif
 
 #define PIP_MAX_STR_LEN 256
-#define PIP_MAX_AUTH_CALLBACKS 1  // After each new authority is added, this must be incremented
+#define PIP_MAX_PROBE_CALLBACKS 5  // Edit: large number while allowing for empty slots. ToDo: implement checks for empty
 
 /****************************************************************************
  * ENUMERATIONS
  ****************************************************************************/
 typedef enum { PIP_NO_ERROR, PIP_ERROR } pip_error_e;
 
+// authority/protocol can also be sensor
+// and we need PIP to be agnostic
+// so this should be eventually removed
 typedef enum { PIP_IOTA = 0 } pip_authorities_e;
 
 /****************************************************************************
@@ -68,7 +71,7 @@ typedef struct attribute_object {
 /****************************************************************************
  * CALLBACKS
  ****************************************************************************/
-typedef bool (*fetch_fn)(char* uri, pip_attribute_object_t* attribute_object);
+typedef bool (*pip_plugin_fn)(char* uri, pip_attribute_object_t* attribute_object);
 
 /****************************************************************************
  * API FUNCTIONS
@@ -98,25 +101,25 @@ pip_error_e pip_term(void);
 /**
  * @fn      pip_register_callback
  *
- * @brief   Register callback for authority
+ * @brief   Register callback for protocol
  *
- * @param   authority - Authority which needs to register callback
+ * @param   protocol - Protocol which needs to register callback
  * @param   fetch - Callback to register
  *
  * @return  pip_error_e error status
  */
-pip_error_e pip_register_callback(pip_authorities_e authority, fetch_fn fetch);
+pip_error_e pip_register_callback(int protocol, pip_plugin_fn fetch);
 
 /**
  * @fn      pip_unregister_callback
  *
- * @brief   Unregister callback for authority
+ * @brief   Unregister callback for protocol
  *
- * @param   authority - Authority which needs to unregister callback
+ * @param   protocol - Protocol which needs to unregister callback
  *
  * @return  pip_error_e error status
  */
-pip_error_e pip_unregister_callback(pip_authorities_e authority);
+pip_error_e pip_unregister_callback(int protocol);
 
 /**
  * @fn      pip_unregister_all_callbacks

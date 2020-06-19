@@ -18,7 +18,7 @@
  */
 
 /****************************************************************************
- * \project Decentralized Access Control
+ * \project IOTA Access
  * \file pip.c
  * \brief
  * Implementation of Policy Information Point
@@ -55,7 +55,7 @@ static pthread_mutex_t pip_mutex;
 /****************************************************************************
  * CALLBACK FUNCTIONS
  ****************************************************************************/
-static fetch_fn callback_fetch[PIP_MAX_AUTH_CALLBACKS] = {0};
+static pip_plugin_fn callback_probe[PIP_MAX_PROBE_CALLBACKS] = {0};
 
 /****************************************************************************
  * API FUNCTIONS
@@ -77,7 +77,7 @@ pip_error_e pip_term(void) {
   return PIP_NO_ERROR;
 }
 
-pip_error_e pip_register_callback(pip_authorities_e authority, fetch_fn fetch) {
+pip_error_e pip_register_callback(int protocol, pip_plugin_fn fetch) {
   pthread_mutex_lock(&pip_mutex);
 
   // Check input parameters
@@ -87,15 +87,15 @@ pip_error_e pip_register_callback(pip_authorities_e authority, fetch_fn fetch) {
     return PIP_ERROR;
   }
 
-  if (authority > PIP_MAX_AUTH_CALLBACKS) {
-    printf("\nERROR[%s]: Non existing authority.\n", __FUNCTION__);
+  if (protocol > PIP_MAX_PROBE_CALLBACKS) {
+    printf("\nERROR[%s]: Non existing protocol.\n", __FUNCTION__);
     pthread_mutex_unlock(&pip_mutex);
     return PIP_ERROR;
   }
 
   // Register callback
-  if (callback_fetch[authority] == NULL) {
-    callback_fetch[authority] = fetch;
+  if (callback_probe[protocol] == NULL) {
+    callback_probe[protocol] = fetch;
   } else {
     printf("\nERROR[%s]: Callback is already registered.\n", __FUNCTION__);
     pthread_mutex_unlock(&pip_mutex);
@@ -106,18 +106,18 @@ pip_error_e pip_register_callback(pip_authorities_e authority, fetch_fn fetch) {
   return PIP_NO_ERROR;
 }
 
-pip_error_e pip_unregister_callback(pip_authorities_e authority) {
+pip_error_e pip_unregister_callback(int protocol) {
   pthread_mutex_lock(&pip_mutex);
 
   // Check input parameters
-  if (authority > PIP_MAX_AUTH_CALLBACKS) {
+  if (protocol > PIP_MAX_PROBE_CALLBACKS) {
     printf("\nERROR[%s]: Non existing authority.\n", __FUNCTION__);
     pthread_mutex_unlock(&pip_mutex);
     return PIP_ERROR;
   }
 
   // Unregister callback
-  callback_fetch[authority] = NULL;
+  callback_probe[protocol] = NULL;
 
   pthread_mutex_unlock(&pip_mutex);
   return PIP_NO_ERROR;
@@ -126,9 +126,9 @@ pip_error_e pip_unregister_callback(pip_authorities_e authority) {
 pip_error_e pip_unregister_all_callbacks(void) {
   pthread_mutex_lock(&pip_mutex);
 
-  for (int i = 0; i < PIP_MAX_AUTH_CALLBACKS; i++) {
+  for (int i = 0; i < PIP_MAX_PROBE_CALLBACKS; i++) {
     // Unregister callback
-    callback_fetch[i] = NULL;
+    callback_probe[i] = NULL;
   }
 
   pthread_mutex_unlock(&pip_mutex);
@@ -140,7 +140,7 @@ pip_error_e pip_get_data(char* uri, pip_attribute_object_t* attribute) {
   char delimiter[PIP_DELIMITER_LEN] = ":";
   char temp[PIP_MAX_STR_LEN] = {0};
   char* ptr = NULL;
-  pip_authorities_e authority;
+  int protocol;
 
   pthread_mutex_lock(&pip_mutex);
 
@@ -165,18 +165,22 @@ pip_error_e pip_get_data(char* uri, pip_attribute_object_t* attribute) {
 
   ptr = strtok(temp, delimiter);
 
+  // commenting this out to allow for agnostic approach
+  /*
   if (memcmp(ptr, "iota", strlen("iota")) == 0)  // Only supported authority for now
   {
-    authority = PIP_IOTA;
+    protocol = PIP_IOTA;
   } else {
     printf("\nERROR[%s]: Non existing authority.\n", __FUNCTION__);
     pthread_mutex_unlock(&pip_mutex);
     return PIP_ERROR;
   }
+  */
 
-  // Fetch attribute from plugin
-  if (callback_fetch[authority] != NULL) {
-    callback_fetch[authority](uri, attribute);
+  // assume that protocol index will call appropriate callback
+  // if protocol is IOTA, than pip_plugin_wallet will be called
+  if (callback_probe[protocol] != NULL) {
+    callback_probe[protocol](uri, attribute);
   } else {
     printf("\nERROR[%s]: Callback not registered.\n", __FUNCTION__);
     pthread_mutex_unlock(&pip_mutex);

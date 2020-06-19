@@ -19,9 +19,26 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-add_subdirectory(data/acquisition)
-add_subdirectory(data/dataset/vehicle)
-add_subdirectory(data/transactions)
-add_subdirectory(pep)
-add_subdirectory(pap)
-add_subdirectory(pip)
+set(target pip_plugin)
+
+set(sources
+  pip_plugin.c
+  platform_interface/r_pi/gpio_interface.c
+  implementation/pip_plugin_wallet.c
+  implementation/pip_plugin_gpio.c)
+
+set(include_dirs
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/platform_interface/r_pi
+  ${CMAKE_CURRENT_SOURCE_DIR}/implementation
+  ${pigpio_SOURCE_DIR}
+)
+
+set(libs
+  access_wallet
+  pip
+  pigpio)
+
+add_library(${target} ${sources})
+target_include_directories(${target} PUBLIC ${include_dirs})
+target_link_libraries(${target} PUBLIC ${libs})
