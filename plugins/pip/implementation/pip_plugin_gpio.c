@@ -35,9 +35,9 @@
 
 static pip_plugin_t* g_probe_set = NULL;
 
-static int relay_pep_plugin_on(pip_plugin_probe_data_t *probe, int should_log)
+static int gpio_pep_plugin_read(pip_plugin_probe_data_t *probe, int should_log)
 {
-    relayinterface_on(0);
+    gpio_interface_read(0);
     return 0;
 }
 
@@ -72,7 +72,7 @@ void gpio_pip_plugin_initializer(pip_plugin_t* probe_set){
         g_probe_set = probe_set;
     }
 
-    g_probe_set->probes[0] = relay_pep_plugin_on;
+    g_probe_set->probes[0] = gpio_pep_plugin_read;
     strncpy(g_probe_set->probe_names[0], "read_gpio", PROBE_NAME_SIZE);
     g_probe_set->count = 1;
     g_probe_set->init_ds_interface_cb = init_ds_interface;
