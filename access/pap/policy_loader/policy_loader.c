@@ -348,7 +348,7 @@ static unsigned int receive_policies(void) {
     policyupdater_get_policy(g_policy_list + jsonhelper_get_token_start(3 + current_policy), g_policy, user_public_key);
     int status = parse_policy(g_policy, policy_buff, &policy_len);
     if (status == 1) {
-      pap_add_policy(policy_buff, policy_len, NULL);
+      pap_add_policy(policy_buff, policy_len, NULL, user_public_key);
     }
     if (policy_buff != NULL) {
       free(policy_buff);
