@@ -29,14 +29,14 @@
 
 #include "can_receiver.h"
 #include "canopen_receiver.h"
-#include "demo_resolver_can01.h"
-#include "demo_resolver_can02.h"
-#include "demo_resolver_wallet.h"
+#include "pep_plugin_can01.h"
+#include "pep_plugin_can02.h"
+#include "pep_plugin_wallet.h"
 #include "gps_receiver.h"
 #include "modbus_receiver.h"
 #include "obdii_receiver.h"
 #include "protocol.h"
-#include "resolver.h"
+#include "pep_plugin.h"
 #include "storage.h"
 #include "timer.h"
 #include "transaction.h"
@@ -79,7 +79,7 @@ void access_init(access_ctx_t *access_context, wallet_ctx_t *device_wallet) {
   ctx->json_mutex = datadumper_get_mutex();
 
   if (strncmp(ctx->client_name, CONFIG_CLIENT_CAN01, strlen(CONFIG_CLIENT_CAN01)) == 0) {
-    resolver_init(demowalletplugin_initializer, &ctx->ddstate, (void *)device_wallet);
+    pep_plugin_init(wallet_pep_plugin_initializer, &ctx->ddstate, (void *)device_wallet);
 #ifdef TINY_EMBEDDED
     ctx->ddstate.options = &VehicleDatasetDemo01_options[0];
     ctx->ddstate.dataset = malloc(sizeof(can01_vehicle_dataset_t));
@@ -92,7 +92,7 @@ void access_init(access_ctx_t *access_context, wallet_ctx_t *device_wallet) {
     canreceiver_pre_init_setup();
 #endif
   } else if (strncmp(ctx->client_name, CONFIG_CLIENT_CANOPEN01, strlen(CONFIG_CLIENT_CANOPEN01)) == 0) {
-    resolver_init(demowalletplugin_initializer, &ctx->ddstate, (void *)device_wallet);
+    pep_plugin_init(wallet_pep_plugin_initializer, &ctx->ddstate, (void *)device_wallet);
 #ifdef TINY_EMBEDDED
     ctx->ddstate.options = &VehicleDatasetDemo02_options[0];
     ctx->ddstate.dataset = malloc(sizeof(canopen01_vehicle_dataset_t));

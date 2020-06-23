@@ -19,19 +19,19 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-set(target resolver)
+set(target pep_plugin)
 
 set(sources
-  resolver.c
+  pep_plugin.c
   platform_interface/r_pi/relay_interface.c
-  demos/demo_resolver_can01.c
-  demos/demo_resolver_can02.c
-  demos/demo_resolver_wallet.c)
+  implementation/pep_plugin_can_01.c
+  implementation/pep_plugin_can_02.c
+  implementation/pep_plugin_wallet.c)
 
 set(include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/platform_interface/r_pi
-  ${CMAKE_CURRENT_SOURCE_DIR}/demos
+  ${CMAKE_CURRENT_SOURCE_DIR}/implementation
   ${pigpio_SOURCE_DIR}
 )
 

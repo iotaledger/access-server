@@ -19,48 +19,49 @@
 
 /****************************************************************************
  * \project IOTA Access
- * \file demo_resolver_can01.h
+ * \file demo_pep_plugin_can01.h
  * \brief
- * Resolver plugin for CAN demo. There are two variants, one is using relay
+ * pep_plugin plugin for CAN demo. There are two variants, one is using relay
  * board directly connected to rpi3, and other is using relay board
  * connected through TCP socket.
  *
- * @Author Djordje Golubovic
+ * @Author Djordje Golubovic, Bernardo Araujo, Strahinja Golic
  *
  * \notes
  *
  * \history
  * 04.03.2020. Initial version.
+ * 24.06.2020. Refactoring
  ****************************************************************************/
 
-#ifndef __DEMO_01_PLUGIN_H__
-#define __DEMO_01_PLUGIN_H__
+#ifndef __CAN_01_PEP_PLUGIN_H__
+#define __CAN_01_PEP_PLUGIN_H__
 
-#include "resolver.h"
+#include "pep_plugin.h"
 
 /**
- * @fn void demo01plugin_initializer(resolver_plugin_t* action_set)
- * @brief resolver plugin initializer callback
+ * @fn void can_01_pep_plugin_initializer(pep_plugin_t* action_set)
+ * @brief pep_plugin plugin initializer callback
  */
-void demo01plugin_initializer(resolver_plugin_t* action_set, void* options);
+void can_01_pep_plugin_initializer(pep_plugin_t* action_set, void* options);
 
 /**
- * @fn void demo01plugin_initializer_tcp(resolver_plugin_t* action_set)
- * @brief resolver plugin initializer callback
+ * @fn void can_01_pep_plugin_initializer_tcp(pep_plugin_t* action_set)
+ * @brief pep_plugin plugin initializer callback
  */
-void demo01plugin_initializer_tcp(resolver_plugin_t* action_set, void* options);
+void can_01_pep_plugin_initializer_tcp(pep_plugin_t* action_set, void* options);
 
 /**
- * @fn void demo01plugin_terminizer()
- * @brief resolver plugin terminizer callback
+ * @fn void can_01_pep_plugin_terminator()
+ * @brief pep_plugin plugin terminizer callback
  */
-void demo01plugin_terminizer();
+void can_01_pep_plugin_terminator();
 
 /**
- * @fn void demo01plugin_set_relayboard_addr(const char* addr)
+ * @fn void can_01_pep_plugin_set_relayboard_addr(const char* addr)
  * @brief sets 	IP address for relayboard access
  * @param addr 	IP address for relayboard access
  */
-void demo01plugin_set_relayboard_addr(const char* addr);
+void can_01_pep_plugin_set_relayboard_addr(const char* addr);
 
 #endif

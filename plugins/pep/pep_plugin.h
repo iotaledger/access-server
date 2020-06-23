@@ -18,12 +18,12 @@
  */
 
 /****************************************************************************
- * \project Decentralized Access Control
- * \file resolver.h
+ * \project IOTA Access
+ * \file pep_plugin.h
  * \brief
- * Implementation of Resolver
+ * Implementation of PEP Plugin
  *
- * @Author Vladimir Vojnovic, Strahinja Golic
+ * @Author Vladimir Vojnovic, Strahinja Golic, Bernardo Araujo
  *
  * \notes
  *
@@ -32,8 +32,8 @@
  * 28.02.2020. Added data sharing through action functionality
  * 14.05.2020. Refactoring
  ****************************************************************************/
-#ifndef _RESOLVER_H_
-#define _RESOLVER_H_
+#ifndef _PEP_PLUGIN_H_
+#define _PEP_PLUGIN_H_
 
 /****************************************************************************
  * INCLUDES
@@ -46,7 +46,7 @@
  * MACROS
  ****************************************************************************/
 #define RES_MAX_STR_SIZE 256
-#define RES_MAX_RESOLVER_ACTIONS 10
+#define RES_MAX_PEP_PLUGIN_ACTIONS 10
 #define RES_ACTION_NAME_SIZE 16
 #define RES_POL_ID_STR_LEN 64
 
@@ -62,40 +62,40 @@ typedef struct action {
   char* transaction_hash;
   int transaction_hash_len;
   char* value;
-} resolver_action_data_t;
+} pep_plugin_action_data_t;
 
-typedef int (*resolver_action_t)(resolver_action_data_t* action, int should_log);
+typedef int (*pep_plugin_action_t)(pep_plugin_action_data_t* action, int should_log);
 
 typedef struct {
-  char action_names[RES_MAX_RESOLVER_ACTIONS][RES_ACTION_NAME_SIZE];
-  resolver_action_t actions[RES_MAX_RESOLVER_ACTIONS];
+  char action_names[RES_MAX_PEP_PLUGIN_ACTIONS][RES_ACTION_NAME_SIZE];
+  pep_plugin_action_t actions[RES_MAX_PEP_PLUGIN_ACTIONS];
   size_t count;
   void (*init_ds_interface_cb)(dataset_state_t*);
   void (*start_ds_interface_cb)(void);
   void (*stop_ds_interface_cb)(void);
   void (*term_ds_interface_cb)(dataset_state_t*);
-} resolver_plugin_t;
+} pep_plugin_t;
 
-typedef void (*resolver_plugin_initializer_t)(resolver_plugin_t*, void*);
-typedef void (*resolver_plugin_terminizer_t)(resolver_plugin_t*);
+typedef void (*pep_plugin_initializer_t)(pep_plugin_t*, void*);
+typedef void (*pep_plugin_terminator_t)(pep_plugin_t*);
 
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
 /**
- * @fn  void resolver_init(resolver_plugin_initializer_t initializer, Dataset_state_t *dstate)
+ * @fn  void pep_plugin_init(pep_plugin_initializer_t initializer, Dataset_state_t *dstate)
  *
- * @brief   Initialize Resolver module
+ * @brief   Initialize pep_plugin module
  *
  */
-void resolver_init(resolver_plugin_initializer_t initializer, dataset_state_t* dstate, void* options);
+void pep_plugin_init(pep_plugin_initializer_t initializer, dataset_state_t* dstate, void* options);
 
 /**
- * @fn  void resolver_term(resolver_plugin_terminizer_t terminizer)
+ * @fn  void pep_plugin_term(pep_plugin_terminator_t terminator)
  *
- * @brief   Terminate Resolver module
+ * @brief   Terminate pep_plugin module
  *
  */
-void resolver_term(resolver_plugin_terminizer_t terminizer);
+void pep_plugin_term(pep_plugin_terminator_t terminator);
 
-#endif  //_RESOLVER_H_
+#endif  //_PEP_PLUGIN_H_
