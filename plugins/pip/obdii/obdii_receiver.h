@@ -1,8 +1,8 @@
 /*
- * This file is part of the IOTA Access Distribution
- * (https://github.com/iotaledger/access)
+ * This file is part of the Frost distribution
+ * (https://github.com/xainag/frost)
  *
- * Copyright (c) 2020 IOTA Stiftung
+ * Copyright (c) 2019 XAIN AG.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,13 @@
  * limitations under the License.
  */
 
-#ifndef _POLICY_LOADER_H_
-#define _POLICY_LOADER_H_
+#ifndef _OBDII_RECEIVER_H_
+#define _OBDII_RECEIVER_H_
 
-int policyloader_start();
-int policyloader_stop();
+#include <pthread.h>
+#include "pip_plugin.h"
+#include "plugin.h"
+
+int pipplugin_obdiireceiver_initializer(plugin_t* plugin, void* data);
 
 #endif

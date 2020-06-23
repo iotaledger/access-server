@@ -19,18 +19,49 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-set(target pap_plugin)
-
-set(sources
-  storage.c
-  test_internal.c)
-
-set(include_dirs
-  ${CMAKE_CURRENT_SOURCE_DIR})
+set(target pip_plugins)
 
 set(libs
-  pap
-  misc)
+  -pthread
+  access_wallet
+  pdp
+  pluginmanager
+  json_parser
+  pip
+  access_wallet
+  vehicle_dataset
+  config_manager
+  platform_interface)
+
+set(sources
+  can/can_linux.c
+  can/can_msgs.c
+  can/can_receiver.c
+  can/can_thread.c
+  can/lib.c
+  canopen/canopen_receiver.c
+  canopen/canopen_sdo.c
+  gps/gps_receiver.c
+  gps/minmea/minmea.c
+  modbus/modbus.c
+  modbus/modbus_receiver.c
+  obdii/obdii_receiver.c
+  obdii/ejv_obdii/OBDII.c
+  obdii/ejv_obdii/OBDIICommunication.c
+  obdii/ejv_obdii/OBDIIDaemon.c
+  wallet/pip_plugin_wallet.c
+)
+
+set(include_dirs
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/can
+  ${CMAKE_CURRENT_SOURCE_DIR}/canopen
+  ${CMAKE_CURRENT_SOURCE_DIR}/gps
+  ${CMAKE_CURRENT_SOURCE_DIR}/gps/minmea
+  ${CMAKE_CURRENT_SOURCE_DIR}/obdii
+  ${CMAKE_CURRENT_SOURCE_DIR}/obdii/ejv_obdii
+  ${CMAKE_CURRENT_SOURCE_DIR}/wallet
+)
 
 add_library(${target} ${sources})
 target_include_directories(${target} PUBLIC ${include_dirs})

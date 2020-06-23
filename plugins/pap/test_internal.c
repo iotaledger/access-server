@@ -173,7 +173,7 @@ bool test_policy_storage() {
     ret = FALSE;
   }
 
-  if (ret && (memcmp(policy_id_hex, policy.policy_ID, TEST_POL_ID_MAX_LEN / 2) != 0)) {
+  if (ret && (memcmp(policy_id_hex, policy.policy_id, TEST_POL_ID_MAX_LEN / 2) != 0)) {
     printf("\nSTORAGE TEST FAILED - Policy ID hex differ from recovered value\n");
     ret = FALSE;
   } else {

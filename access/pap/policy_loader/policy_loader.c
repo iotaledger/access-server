@@ -427,17 +427,14 @@ static int cycle_fsm() {
   return 0;
 }
 
-void policyloader_init() {
+static void *policy_loader_thread_function(void *arg);
+
+int policyloader_start() {
   configmanager_get_option_string("config", "device_id", g_device_id, POLICY_LOADER_STR_LEN);
   int status = configmanager_get_option_int("config", "thread_sleep_period", &g_task_sleep_time);
   if (status != CONFIG_MANAGER_OK) g_task_sleep_time = 1000;  // 1 second
   //Owner's public key should be stored on device, after owner is assigned to a device
   configmanager_get_option_string("config", "owner_public_key", g_owner_public_key, POLICY_LOADER_PUBLIC_KEY_B64_LEN);
-}
-
-static void *policy_loader_thread_function(void *arg);
-
-int policyloader_start() {
   g_end = 0;
   pthread_create(&g_thread, NULL, policy_loader_thread_function, NULL);
   return 0;
@@ -452,8 +449,7 @@ int policyloader_stop() {
 static void *policy_loader_thread_function(void *arg) {
   int period_counter = 0;
   while (!g_end) {
-    if (period_counter++ == (5000000 / g_task_sleep_time) || (5000000 / g_task_sleep_time) == 0)  // 5 seconds
-    {
+    if (period_counter++ == (5000000 / g_task_sleep_time) || (5000000 / g_task_sleep_time) == 0) {  // 5 seconds
       period_counter = 0;
       cycle_fsm();
     }

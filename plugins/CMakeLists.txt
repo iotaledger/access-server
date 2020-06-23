@@ -19,11 +19,11 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-add_subdirectory(data/acquisition)
-add_subdirectory(data/dataset/vehicle)
-add_subdirectory(data/transactions)
-add_subdirectory(pep)
+add_subdirectory(dataset)
+add_subdirectory(platform_interface)
 add_subdirectory(pap)
+add_subdirectory(pip)
+add_subdirectory(pep)
 
 set(target pluginmanager)
 
@@ -33,9 +33,5 @@ set(sources
 
 set(include_dirs ${CMAKE_CURRENT_SOURCE_DIR})
 
-#set(libs
-#  pdp)
-
 add_library(${target} ${sources})
 target_include_directories(${target} PUBLIC ${include_dirs})
-#target_link_libraries(${target} PUBLIC ${libs})

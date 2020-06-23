@@ -45,6 +45,7 @@
 #include "json_helper.h"
 #include "pap.h"
 #include "pep.h"
+#include "pip.h"
 #include "policy_updater.h"
 #include "pap_plugin.h"
 #include "utils.h"
@@ -91,13 +92,11 @@ typedef struct {
 
   int listenfd;
   int connfd;
-
-  dataset_state_t *ddstate;
 } network_ctx_internal_t;
 
 static void *network_thread_function(void *ptr);
 
-int network_init(dataset_state_t *_ddstate, network_ctx_t *network_context) {
+int network_init(network_ctx_t *network_context) {
   network_ctx_internal_t *ctx = malloc(sizeof(network_ctx_internal_t));
 
   configmanager_init("config.ini");
@@ -113,7 +112,6 @@ int network_init(dataset_state_t *_ddstate, network_ctx_t *network_context) {
   ctx->end = 0;
   ctx->listenfd = 0;
   ctx->connfd = 0;
-  ctx->ddstate = _ddstate;
 
   policyupdater_init();
 
@@ -284,14 +282,14 @@ static unsigned int calculate_decision(char **recv_data, network_ctx_internal_t 
       memcpy(ctx->send_buffer, deny, strlen(deny));
       buffer_position = strlen(deny);
     } else {
-      dataset_from_json(ctx->ddstate, *recv_data + jsonhelper_get_token_at(arr_start).start,
-                        jsonhelper_get_token_at(arr_start).end - jsonhelper_get_token_at(arr_start).start);
+      pip_set_dataset(*recv_data + jsonhelper_get_token_at(arr_start).start,
+                      jsonhelper_get_token_at(arr_start).end - jsonhelper_get_token_at(arr_start).start);
       memcpy(ctx->send_buffer, grant, strlen(grant));
       buffer_position = strlen(grant);
     }
     *recv_data = ctx->send_buffer;
   } else if (request_code == COMMAND_GET_DATASET) {
-    buffer_position = dataset_to_json(ctx->ddstate, (char *)ctx->send_buffer);
+    pip_get_dataset((char *)ctx->send_buffer, &buffer_position);
     *recv_data = ctx->send_buffer;
   } else if (request_code == COMMAND_GET_USER_OBJ) {
     char username[USERNAME_LEN] = "";

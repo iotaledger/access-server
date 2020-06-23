@@ -54,6 +54,9 @@
 static char g_policy_updater_address[POLICY_UPDATER_ADDRESS_SIZE] = "\0";
 static int g_policy_updater_port = 6007;
 
+static char g_user_address[POLICY_UPDATER_ADDRESS_SIZE] = "\0";
+static int g_user_port = 9998;
+
 static char g_module_name[] = "PolicyUpdater";
 
 static int hostname_to_ip(const char *hostname, char *ip_address);
@@ -146,6 +149,8 @@ void policyupdater_init() {
   configmanager_get_option_string("pap", "policy_store_service_ip", g_policy_updater_address,
                                   POLICY_UPDATER_ADDRESS_SIZE);
   configmanager_get_option_int("pap", "policy_store_service_port", &g_policy_updater_port);
+  configmanager_get_option_string("pap", "user_ip", g_user_address, POLICY_UPDATER_ADDRESS_SIZE);
+  configmanager_get_option_int("pap", "user_port", &g_user_port);
 }
 
 int policyupdater_start() {}
