@@ -18,21 +18,22 @@
  */
 
 /****************************************************************************
- * \project Decentralized Access Control
- * \file storage.h
+ * \project IOTA Access
+ * \file pap_plugin.h
  * \brief
  * Implementation of policy storage interface
  *
- * @Author Dejan Nedic, Strahinja Golic
+ * @Author Dejan Nedic, Strahinja Golic, Bernardo Araujo
  *
  * \notes
  *
  * \history
  * 24.08.2018. Initial version.
  * 25.05.2020. Refactoring.
+ * 24.06.2020. Refactoring
  ****************************************************************************/
-#ifndef _STORAGE_H_
-#define _STORAGE_H_
+#ifndef _PAP_PLUGIN_H_
+#define _PAP_PLUGIN_H_
 
 /****************************************************************************
  * MACROS
@@ -54,33 +55,33 @@
  * TYPES
  ****************************************************************************/
 typedef enum {
-  STORAGE_OK,
-  STORAGE_ERROR,
-} storage_error_t;
+  PAP_PLUGIN_OK,
+  PAP_PLUGIN_ERROR,
+} pap_plugin_error_t;
 
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
 /**
- * @fn      storage_init
+ * @fn      pap_plugin_init
  *
  * @brief   Initialize storage module
  *
  * @param   void
  *
- * @return  storage_error_t state.
+ * @return  pap_plugin_error_t state.
  */
-storage_error_t storage_init(void);
+pap_plugin_error_t pap_plugin_init(void);
 
 /**
- * @fn      storage_term
+ * @fn      pap_plugin_term
  *
  * @brief   Terminate storage module
  *
  * @param   void
  *
- * @return  storage_error_t state.
+ * @return  pap_plugin_error_t state.
  */
-storage_error_t storage_term(void);
+pap_plugin_error_t pap_plugin_term(void);
 
-#endif  //_STORAGE_H_
+#endif  //_PAP_PLUGIN_H_

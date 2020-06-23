@@ -18,12 +18,12 @@
  */
 
 /****************************************************************************
- * \project Decentralized Access Control
- * \file storage.c
+ * \project IOTA Access
+ * \file pap_plugin.c
  * \brief
  * Implementation of policy storage interface
  *
- * @Author Dejan Nedic, Strahinja Golic
+ * @Author Dejan Nedic, Strahinja Golic, Bernardo Araujo
  *
  * \notes
  *
@@ -31,11 +31,12 @@
  * 24.08.2018. Initial version.
  * 01.10.2018. Added new functions that work without JSON paresr.
  * 25.05.2020. Refactoring.
+ * 24.06.2020. Refactoring
  ****************************************************************************/
 /****************************************************************************
  * INCLUDES
  ****************************************************************************/
-#include "storage.h"
+#include "pap_plugin.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -245,23 +246,23 @@ bool acquire_all_policies(pap_policy_id_list_t** pol_list_head) {
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
-storage_error_t storage_init(void) {
+pap_plugin_error_t pap_plugin_init(void) {
   // Register PAP callback
   if (pap_register_callbacks(store_policy, acquire_policy, check_if_stored_policy, flush_policy, acquire_pol_obj_len,
                              acquire_all_policies) == PAP_ERROR) {
     printf("\nERROR[%s]: Error registering PAP callbacks.\n", __FUNCTION__);
-    return STORAGE_ERROR;
+    return PAP_PLUGIN_ERROR;
   }
 
-  return STORAGE_OK;
+  return PAP_PLUGIN_OK;
 }
 
-storage_error_t storage_term(void) {
-  // Unregoster PAP callback
+pap_plugin_error_t pap_plugin_term(void) {
+  // Unregister PAP callback
   if (pap_unregister_callbacks() == PAP_ERROR) {
     printf("\nERROR[%s]: Error unregistering PAP callbacks.\n", __FUNCTION__);
-    return STORAGE_ERROR;
+    return PAP_PLUGIN_ERROR;
   }
 
-  return STORAGE_OK;
+  return PAP_PLUGIN_OK;
 }

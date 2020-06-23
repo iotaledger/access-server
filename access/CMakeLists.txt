@@ -34,7 +34,7 @@ set(libs
   data_acquisition_plugins
   data_transactions_plugins
   resolver
-  storage_plugin)
+  pap_plugin)
 
 add_library(${target} access.c)
 target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

@@ -12,7 +12,7 @@
     + [Platform Plugins](#platform-plugins)
       - [Input](#input)
         * [Data Acquisition Plugins](#data-acquisition-plugins)
-        * [Policy Storage Plugins](#policy-storage-plugins)
+        * [PAP Plugins](#pap-plugins)
       - [Output](#output)
         * [Resolver Plugins](#resolver-plugins)
     + [Access Secure Network API](#access-secure-network-api)
@@ -121,7 +121,7 @@ The Access Core API is divided into 4 different modules (and a few submodules):
 
 ##### Policy Administration Point
 
-**PAP** is used for managing updates to policies and determining which policies apply to what requests. The API expects callback functions to be registered as **Policy Storage Plugins**.
+**PAP** is used for managing updates to policies and determining which policies apply to what requests. The API expects callback functions to be registered as **PAP Plugins**.
 
 ##### Policy Enforcement Point
 
@@ -160,12 +160,12 @@ For example, a Wallet-based Data Acquisition Plugin is used to verify whether an
 
 Another example is of a GPS-based Data Acquisition Plugin that checks device location and uses this Attribute as input for PDP to make its decisions.
 
-###### Policy Storage Plugins
+###### PAP Plugins
 Policies need to be stored on the device in a non-volatile manner.
 
 Embedded Systems can have different forms of permanent storage. It can be eMMC, SSD, SATA, USB, or many other examples. This variability implies the need for a modular approach for Policy Storage.
 
-Policy Storage Plugins are used by PAP to read and write Policies from non-volatile memory.
+PAP Plugins are used by PAP to read and write Policies from non-volatile memory.
 
 ##### Output
 ###### Resolver Plugins
@@ -323,7 +323,7 @@ The Figure below shows a visual representation of the Access Request Protocol:
 3. Access Actor's PEP Listener and Network Actor's Request Listener Daemon loop.
 4. Client and Server exchange keys and a secure connection is established. ASN Request Listener Daemon receives Access Request and forwards to Access Actor's PEP.
 5. PEP requests decision from PDP.
-6. PAP retrieves Policy from non-volatile memory via Policy Storage Plugin.
+6. PAP retrieves Policy from non-volatile memory via PAP Plugin.
 7. PIP retrieves Attributes via Data Acquisition Plugin.
 8. PDP decies actions + obligations.
 9. PEP enforces actions + obligations via Resolver Plugin.
@@ -336,10 +336,10 @@ The Figure below shows a visual representation of the Policy Update Protocol:
 1. Supervisor creates Access, Wallet and Network Actors. Network Actor starts Policy Update and Request Listener Daemons.
 2. Access Actor registers Platform Plugin callbacks.
 3. PAP sends Storage Checksum to Network Actor, who forwards it to the Tangle Policy Store (TPS). If ID sent by PAP matches with the Checksum of Policy List stored on the TPS, then TPS replies ok (nothing to update). If the ID differs, the TPS replies with Policy List (update required).
-4. PAP Updater compares the received Policy List with all Policies stored locally. This is done via Policy Storage Plugin.
+4. PAP Updater compares the received Policy List with all Policies stored locally. This is done via PAP Plugin.
 5. PAP initiates the request for the Policies that differ. Request is relayed to Network Actor, who forwards it to TPS. TPS fetches Policy from IOTA Permanode and replies back.
 6. PAP parses and validates the new Policies it receives.
-7. PAP stores new Policies via Policy Storage Plugin. PAP goes back to Checksum poll mode.
+7. PAP stores new Policies via PAP Plugin. PAP goes back to Checksum poll mode.
 
 Note: The protocol described in this section will eventually evolve into a different approach. The entity called `Tangle Policy Store` is a Cloud Server that was inherited by the Legacy Design of early FROST implementations. Eventually this centralized entity will be completely removed and Policy Updates will be done via interactions between Access Actor and Wallet Actor, where the Wallet communicates with an IOTA Permanode.
 
@@ -424,7 +424,7 @@ Requirements for functions:
 
 #### Policy Administration Point
 
-##### Callback Functions (Policy Storage Plugin)
+##### Callback Functions (PAP Plugin)
 ---
 ```
 typedef bool (*put_fn)(char* policy_id, PAP_policy_object_t policy_object, PAP_policy_id_signature_t policy_id_signature, PAP_hash_functions_e hash_fn);
@@ -515,7 +515,7 @@ Return values:
 ```
 PAP_error_e PAP_register_callbacks(put_fn put, get_fn get, has_fn has, del_fn del);
 ```
-Register callbacks for Policy Storage Plugin.
+Register callbacks for PAP Plugin.
 
 Return values:
 - `PAP_NO_ERROR`
@@ -531,7 +531,7 @@ Parameters:
 ```
 PAP_error_e PAP_unregister_callbacks(void);
 ```
-Unregister callbacks for Policy Storage Plugin.
+Unregister callbacks for PAP Plugin.
 
 Return values:
 - `PAP_NO_ERROR`
