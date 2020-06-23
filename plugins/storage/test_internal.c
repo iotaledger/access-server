@@ -62,12 +62,6 @@ static unsigned char private_key[TEST_PRIVATE_KEY_LEN];
 /****************************************************************************
  * LOCAL FUNCTIONS
  ****************************************************************************/
-void provide_public_key(char *pk) {
-  if (pk) {
-    memcpy(pk, public_key, TEST_PUBLIC_KEY_LEN * sizeof(char));
-  }
-}
-
 static int normalize_object(char *object, int object_len, char **object_normalized) {
   char temp[object_len];
   int charCnt = 0;
@@ -129,11 +123,6 @@ bool test_policy_storage() {
   // Generate keypair
   crypto_sign_keypair(public_key, private_key);
 
-#if PAP_STORAGE_TEST_ACIVE
-  // Register pk callback
-  pap_register_get_pk_cb(provide_public_key);
-#endif
-
   // Load test policy to a buffer
   f = fopen("../../access/pap/validator/policies_test_set/policy_no1_ok.json", "r");
   if (f == NULL) {
@@ -160,7 +149,7 @@ bool test_policy_storage() {
   crypto_sign(signed_policy_buffer, &signed_buff_len, policy_buffer, buff_len, private_key);
 
   // Add signed policy
-  if (ret && (pap_add_policy(signed_policy_buffer, signed_buff_len, policy_id) == PAP_ERROR)) {
+  if (ret && (pap_add_policy(signed_policy_buffer, signed_buff_len, policy_id, public_key) == PAP_ERROR)) {
     printf("\nSTORAGE TEST FAILED - Couldn't add policy\n");
     ret = FALSE;
   }

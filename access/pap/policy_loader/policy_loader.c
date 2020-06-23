@@ -59,6 +59,7 @@
 #define POLICY_LOADER_ARRAY_TOK_IDX 2
 #define POLICY_LOADER_TIME_BUF_LEN 80
 #define POLICY_LOADER_MAX_GET_TRY 3
+#define POLICY_LOADER_PUBLIC_KEY_LEN 32
 
 #define POLICY_LOADER_POL_RESPONSE_TYPE_ARRAY 2
 #define POLICY_LOADER_POL_RESPONSE_TYPE_STRING 3
@@ -337,16 +338,17 @@ static unsigned int fsm_get_policy_list_done(void) {
 
 static unsigned int receive_policies(void) {
   unsigned int ret = POLICY_LOADER_ERROR;
+  char user_public_key[POLICY_LOADER_PUBLIC_KEY_LEN] = {0};
   char *policy_buff = NULL;
   int policy_len = 0;
   int status = 0;
   while (num_of_policies > 0) {
     int current_policy = num_of_policies - 1;
 
-    policyupdater_get_policy(g_policy_list + jsonhelper_get_token_start(3 + current_policy), g_policy);
+    policyupdater_get_policy(g_policy_list + jsonhelper_get_token_start(3 + current_policy), g_policy, user_public_key);
     int status = parse_policy(g_policy, policy_buff, &policy_len);
     if (status == 1) {
-      pap_add_policy(policy_buff, policy_len, NULL);
+      pap_add_policy(policy_buff, policy_len, NULL, user_public_key);
     }
     if (policy_buff != NULL) {
       free(policy_buff);

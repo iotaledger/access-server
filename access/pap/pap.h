@@ -207,10 +207,11 @@ pap_error_e pap_unregister_callbacks(void);
  * @param   signed_policy - Signed policy string buffer
  * @param   signed_policy_size - Size of the signed policy string buffer
  * @param   parsed_policy_id - Buffer to store policy ID
+ * @param   user_public_key - User's public key, used to verify signed policy signature
  *
  * @return  pap_error_e error status
  */
-pap_error_e pap_add_policy(char *signed_policy, int signed_policy_size, char *parsed_policy_id);
+pap_error_e pap_add_policy(char *signed_policy, int signed_policy_size, char *parsed_policy_id, char *user_public_key);
 
 /**
  * @fn      pap_get_policy
@@ -275,19 +276,6 @@ pap_error_e pap_get_policy_obj_len(char *policy_id, int policy_id_len, int *pol_
  * @return  pap_error_e error status
  */
 pap_error_e pap_get_subjects_list_of_actions(char *subject_id, int subject_id_length, pap_action_list_t **action_list);
-
-#if PAP_STORAGE_TEST_ACIVE
-/**
- * @fn      pap_register_get_pk_cb
- *
- * @brief   Register callbacks for getting public key, if internal test is active
- *
- * @param   cb - Callback to register
- *
- * @return  void
- */
-void pap_register_get_pk_cb(get_pk cb);
-#endif
 
 /**
  * @fn      pap_user_management_action

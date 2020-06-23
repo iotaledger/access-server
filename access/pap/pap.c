@@ -59,11 +59,6 @@
 #define PAP_ASCII_TAB 9
 #define PAP_ASCII_CR 13
 #define PAP_ASCII_LF 10
-#define PAP_SERVER_IP "127.0.0.1"  // TODO: Set server IP
-#define PAP_PORT 9998
-#define PAP_PK_REQUEST "get_private_key"
-#define PAP_PK_REQUEST_LEN strlen("get_private_key")
-#define PAP_WAIT_TIME_S 10
 
 #define PAP_CHECK_WHITESPACE(x) \
   ((x == PAP_ASCII_SPACE) || (x == PAP_ASCII_TAB) || (x == PAP_ASCII_CR) || (x == PAP_ASCII_LF) ? TRUE : FALSE)
@@ -84,70 +79,10 @@ static has_fn callback_has = NULL;
 static del_fn callback_del = NULL;
 static get_pol_obj_len_fn callback_get_pol_obj_len = NULL;
 static get_all_fn callback_get_all = NULL;
-#if PAP_STORAGE_TEST_ACIVE
-static get_pk callback_get_pk = NULL;
-#endif
 
 /****************************************************************************
  * LOCAL FUNCTIONS
  ****************************************************************************/
-static void get_public_key_from_user(char *pk) {
-#if PAP_STORAGE_TEST_ACIVE
-  if (callback_get_pk) {
-    callback_get_pk(pk);
-  }
-  return;
-#endif
-  int wait = PAP_WAIT_TIME_S;
-  int sockfd = 0;
-  struct sockaddr_in serv_addr;
-
-  // Check input parameter
-  if (pk == NULL) {
-    printf("\nERROR[%s]: Bad input parameters.\n", __FUNCTION__);
-    return;
-  }
-
-  // Create socket
-  sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-  if (sockfd < 0) {
-    printf("\nERROR[%s]: Socket creating failed.\n", __FUNCTION__);
-    return;
-  }
-
-  memset(&serv_addr, '0', sizeof(serv_addr));
-
-  serv_addr.sin_family = AF_INET;
-  serv_addr.sin_port = htons(PAP_PORT);
-
-  if (inet_pton(AF_INET, PAP_SERVER_IP, &serv_addr.sin_addr) <= 0) {
-    printf("\nERROR[%s]: inet_pton failed.\n", __FUNCTION__);
-    return;
-  }
-
-  // Connect to socket
-  if (connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
-    printf("\nERROR[%s]: Connection failed.\n", __FUNCTION__);
-    return;
-  }
-
-  while (wait) {
-    // Request public key
-    write(sockfd, PAP_PK_REQUEST, PAP_PK_REQUEST_LEN);
-
-    // Read the response
-    read(sockfd, pk, PAP_PUBLIC_KEY_LEN);
-
-    // If no response is received, wait for 1s, then, try another request
-    if (pk == NULL) {
-      wait--;
-      sleep(1);
-    } else {
-      wait = 0;
-    }
-  }
-}
-
 static int normalize_JSON_object(char *json_object, int object_len, char **json_object_normalized) {
   char temp[object_len];
   int charCnt = 0;
@@ -257,10 +192,9 @@ pap_error_e pap_unregister_callbacks(void) {
   return PAP_NO_ERROR;
 }
 
-pap_error_e pap_add_policy(char *signed_policy, int signed_policy_size, char *parsed_policy_id) {
+pap_error_e pap_add_policy(char *signed_policy, int signed_policy_size, char *parsed_policy_id, char *user_public_key) {
   char policy_id[PAP_POL_ID_MAX_LEN + 1] = {0};
   char policy_obj_hash[PAP_POL_ID_MAX_LEN + 1] = {0};
-  char public_key_user[PAP_PUBLIC_KEY_LEN] = {0};
   char signed_policy_id[PAP_SIGNATURE_LEN + PAP_POL_ID_MAX_LEN + 1] = {0};
   char *policy = NULL;
   char *policy_object_buff = NULL;
@@ -288,8 +222,7 @@ pap_error_e pap_add_policy(char *signed_policy, int signed_policy_size, char *pa
   policy = malloc(signed_policy_size * sizeof(char));  // Worst case scenario
 
   // Verify policy signature
-  get_public_key_from_user(public_key_user);
-  if (crypto_sign_open(policy, &policy_size, signed_policy, signed_policy_size, public_key_user) != 0) {
+  if (crypto_sign_open(policy, &policy_size, signed_policy, signed_policy_size, user_public_key) != 0) {
     // Signature verification failed
     printf("\nERROR[%s]: Policy signature can not be verified.\n", __FUNCTION__);
     free(policy);
@@ -701,10 +634,6 @@ pap_error_e pap_get_subjects_list_of_actions(char *subject_id, int subject_id_le
   pthread_mutex_unlock(&pap_mutex);
   return PAP_NO_ERROR;
 }
-
-#if PAP_STORAGE_TEST_ACIVE
-void pap_register_get_pk_cb(get_pk cb) { callback_get_pk = cb; }
-#endif
 
 void pap_user_management_action(pap_user_mng_req_e request, ...) {
   va_list valist;

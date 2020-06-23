@@ -22,7 +22,7 @@
 
 void policyupdater_init();
 
-void policyupdater_get_policy(char *policy_id, char *policy_buff);
+void policyupdater_get_policy(char *policy_id, char *policy_buff, char *user_public_key);
 
 unsigned int policyupdater_get_policy_list(const char *policy_store_version, const char *device_id, char *policy_list,
                                            int *policy_list_len, int *new_policy_list_flag);
