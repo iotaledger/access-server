@@ -24,8 +24,8 @@ set(target resolver)
 set(sources
   resolver.c
   platform_interface/r_pi/relay_interface.c
-  demos/demo_resolver_01.c
-  demos/demo_resolver_02.c
+  demos/demo_resolver_can01.c
+  demos/demo_resolver_can02.c
   demos/demo_resolver_wallet.c)
 
 set(include_dirs

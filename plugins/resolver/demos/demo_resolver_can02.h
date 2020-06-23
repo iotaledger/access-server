@@ -19,11 +19,10 @@
 
 /****************************************************************************
  * \project IOTA Access
- * \file demo_01_plugin.h
+ * \file demo_resolver_can02.h
  * \brief
- * Resolver plugin for CAN demo. There are two variants, one is using relay
- * board directly connected to rpi3, and other is using relay board
- * connected through TCP socket.
+ * Resolver plugin for CANOpen demo using relay board connected directly to
+ * rpi3.
  *
  * @Author Djordje Golubovic
  *
@@ -33,34 +32,21 @@
  * 04.03.2020. Initial version.
  ****************************************************************************/
 
-#ifndef __DEMO_01_PLUGIN_H__
-#define __DEMO_01_PLUGIN_H__
+#ifndef __DEMO_02_PLUGIN_H__
+#define __DEMO_02_PLUGIN_H__
 
 #include "resolver.h"
 
 /**
- * @fn void demo01plugin_initializer(resolver_plugin_t* action_set)
+ * @fn void demo02plugin_initializer(resolver_plugin_t* action_set)
  * @brief resolver plugin initializer callback
  */
-void demo01plugin_initializer(resolver_plugin_t* action_set, void* options);
+void demo02plugin_initializer(resolver_plugin_t* action_set, void* options);
 
 /**
- * @fn void demo01plugin_initializer_tcp(resolver_plugin_t* action_set)
- * @brief resolver plugin initializer callback
- */
-void demo01plugin_initializer_tcp(resolver_plugin_t* action_set, void* options);
-
-/**
- * @fn void demo01plugin_terminizer()
+ * @fn void demo02plugin_terminizer()
  * @brief resolver plugin terminizer callback
  */
-void demo01plugin_terminizer();
-
-/**
- * @fn void demo01plugin_set_relayboard_addr(const char* addr)
- * @brief sets 	IP address for relayboard access
- * @param addr 	IP address for relayboard access
- */
-void demo01plugin_set_relayboard_addr(const char* addr);
+void demo02plugin_terminizer();
 
 #endif

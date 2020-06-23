@@ -19,7 +19,7 @@
 
 /****************************************************************************
  * \project IOTA Access
- * \file demo_01_plugin.c
+ * \file demo_resolver_can01.c
  * \brief
  * Resolver plugin for CAN demo. There are two variants, one is using relay
  * board directly connected to rpi3, and other is using relay board
@@ -33,7 +33,7 @@
  * 04.03.2020. Initial version.
  ****************************************************************************/
 
-#include "demo_resolver_01.h"
+#include "demo_resolver_can01.h"
 
 #include <arpa/inet.h>
 #include <string.h>

@@ -29,8 +29,8 @@
 
 #include "can_receiver.h"
 #include "canopen_receiver.h"
-#include "demo_resolver_01.h"
-#include "demo_resolver_02.h"
+#include "demo_resolver_can01.h"
+#include "demo_resolver_can02.h"
 #include "demo_resolver_wallet.h"
 #include "gps_receiver.h"
 #include "modbus_receiver.h"
