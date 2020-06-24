@@ -177,7 +177,7 @@ void pep_plugin_init(pep_plugin_initializer_t initializer, dataset_state_t *dsta
   initializer(&pep_plugin_action_set, options);
   g_dstate = dstate;
 
-  pep_register_callback((resolver_fn)pep_request);
+  pep_register_callback((pep_plugin_fn)pep_request);
 }
 
 void pep_plugin_term(pep_plugin_terminator_t terminator) {

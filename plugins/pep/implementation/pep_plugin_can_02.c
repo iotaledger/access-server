@@ -75,7 +75,7 @@ static void init_cb(dataset_state_t* vdstate) {
   // Re-init receiver with new dataset
 #endif
 
-  vdstate->options = &vehicledatasetdemo02_options[0];
+  vdstate->options = &vehicledataset_can_02_options[0];
   dataset_init(vdstate);
   canopenreceiver_init(vdstate->dataset, datadumper_get_mutex());
 }

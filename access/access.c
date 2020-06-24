@@ -29,8 +29,8 @@
 
 #include "can_receiver.h"
 #include "canopen_receiver.h"
-#include "pep_plugin_can01.h"
-#include "pep_plugin_can02.h"
+#include "pep_plugin_can_01.h"
+#include "pep_plugin_can_02.h"
 #include "pep_plugin_wallet.h"
 #include "gps_receiver.h"
 #include "modbus_receiver.h"
