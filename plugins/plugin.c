@@ -23,8 +23,8 @@ int plugin_init(plugin_t *plugin, plugin_cb initializer, void *data) { initializ
 
 int plugin_destroy(plugin_t *plugin) { return plugin->destroy(plugin, NULL); }
 
-int plugin_call(plugin_t *plugin, size_t plugin_idx, void *user_data) {
+int plugin_call(plugin_t *plugin, size_t plugin_idx, void *data) {
   if (plugin_idx < plugin->callbacks_num && plugin->callbacks[plugin_idx] != NULL) {
-    plugin->callbacks[plugin_idx](plugin, user_data);
+    plugin->callbacks[plugin_idx](plugin, data);
   }
 }

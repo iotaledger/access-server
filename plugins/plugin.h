@@ -35,6 +35,6 @@ struct plugin_ {
 
 int plugin_init(plugin_t *plugin, plugin_cb initializer, void *data);
 int plugin_destroy(plugin_t *plugin);
-int plugin_call(plugin_t *plugin, size_t plugin_idx, void *user_data);
+int plugin_call(plugin_t *plugin, size_t plugin_idx, void *data);
 
 #endif
