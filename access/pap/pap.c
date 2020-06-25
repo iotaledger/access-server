@@ -192,7 +192,7 @@ pap_error_e pap_unregister_callbacks(void) {
   return PAP_NO_ERROR;
 }
 
-pap_error_e pap_add_policy(char *signed_policy, int signed_policy_size, char *parsed_policy_id, char *user_public_key) {
+pap_error_e pap_add_policy(char *signed_policy, int signed_policy_size, char *parsed_policy_id, char *owner_public_key) {
   char policy_id[PAP_POL_ID_MAX_LEN + 1] = {0};
   char policy_obj_hash[PAP_POL_ID_MAX_LEN + 1] = {0};
   char signed_policy_id[PAP_SIGNATURE_LEN + PAP_POL_ID_MAX_LEN + 1] = {0};
@@ -222,7 +222,7 @@ pap_error_e pap_add_policy(char *signed_policy, int signed_policy_size, char *pa
   policy = malloc(signed_policy_size * sizeof(char));  // Worst case scenario
 
   // Verify policy signature
-  if (crypto_sign_open(policy, &policy_size, signed_policy, signed_policy_size, user_public_key) != 0) {
+  if (crypto_sign_open(policy, &policy_size, signed_policy, signed_policy_size, owner_public_key) != 0) {
     // Signature verification failed
     printf("\nERROR[%s]: Policy signature can not be verified.\n", __FUNCTION__);
     free(policy);
