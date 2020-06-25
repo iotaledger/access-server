@@ -24,7 +24,7 @@
 
 typedef struct plugin_ plugin_t;
 
-typedef int (*plugin_cb)(plugin_t *plugin, void *user_data);
+typedef int (*plugin_cb)(plugin_t *plugin, void *data);
 
 struct plugin_ {
   plugin_cb destroy;
