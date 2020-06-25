@@ -45,8 +45,8 @@
 #define vehicledataset_to_json dataset_to_json
 #define vehicledataset_checked_count dataset_checked_count
 
-extern char vehicledatasetdemo01_options[];
-extern char vehicledatasetdemo02_options[];
+extern char vehicledataset_can_01_options[];
+extern char vehicledataset_can_02_options[];
 
 typedef struct {
   uint8_t DoorDrvrSts;

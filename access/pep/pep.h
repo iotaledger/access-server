@@ -50,7 +50,7 @@
 /****************************************************************************
  * CALLBACKS
  ****************************************************************************/
-typedef bool (*resolver_fn)(char* obligation, void* action);
+typedef bool (*pep_plugin_fn)(char* obligation, void* action);
 
 /****************************************************************************
  * API FUNCTIONS
@@ -81,18 +81,18 @@ bool pep_term(void);
 /**
  * @fn      PEP_register_callback
  *
- * @brief   Register resolver callback
+ * @brief   Register pep_plugin callback
  *
- * @param   resolver - Resolver callback
+ * @param   pep_plugin - pep_plugin callback
  *
  * @return  TRUE on success, FALSE on failure
  */
-bool pep_register_callback(resolver_fn resolver);
+bool pep_register_callback(pep_plugin_fn pep_plugin);
 
 /**
  * @fn      pep_unregister_callback
  *
- * @brief   Unregister resolver callback
+ * @brief   Unregister pep_plugin callback
  *
  * @param   void
  *

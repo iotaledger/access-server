@@ -19,34 +19,33 @@
 
 /****************************************************************************
  * \project IOTA Access
- * \file demo_resolver_can02.h
+ * \file pep_plugin_wallet.h
  * \brief
- * Resolver plugin for CANOpen demo using relay board connected directly to
- * rpi3.
- *
- * @Author Djordje Golubovic
+ * pep_plugin plugin for wallet functionality.
+ * @Author Strahinja Golic, Bernardo Araujo
  *
  * \notes
  *
  * \history
- * 04.03.2020. Initial version.
+ * 15.06.2020. Initial version.
+ * 26.06.2020. Refactoring
  ****************************************************************************/
 
-#ifndef __DEMO_02_PLUGIN_H__
-#define __DEMO_02_PLUGIN_H__
-
-#include "resolver.h"
-
-/**
- * @fn void demo02plugin_initializer(resolver_plugin_t* action_set)
- * @brief resolver plugin initializer callback
- */
-void demo02plugin_initializer(resolver_plugin_t* action_set, void* options);
+#ifndef __WALLET_PEP_PLUGIN_H__
+#define __WALLET_PEP_PLUGIN_H__
+#include "pep_plugin.h"
+#include "wallet.h"
 
 /**
- * @fn void demo02plugin_terminizer()
- * @brief resolver plugin terminizer callback
+ * @fn void wallet_pep_plugin_initializer(pep_plugin_t* action_set)
+ * @brief pep_plugin plugin initializer callback
  */
-void demo02plugin_terminizer();
+void wallet_pep_plugin_initializer(pep_plugin_t* action_set, void* options);
+
+/**
+ * @fn void wallet_pep_plugin_terminator()
+ * @brief pep_plugin plugin terminizer callback
+ */
+void wallet_pep_plugin_terminator();
 
 #endif
