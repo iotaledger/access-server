@@ -60,6 +60,7 @@
 #define POLICY_LOADER_TIME_BUF_LEN 80
 #define POLICY_LOADER_MAX_GET_TRY 3
 #define POLICY_LOADER_PUBLIC_KEY_LEN 32
+#define POLICY_LOADER_PUBLIC_KEY_B64_LEN 44
 #define POLICY_LOADER_SIGNATURE_LEN 64
 
 #define POLICY_LOADER_POL_RESPONSE_TYPE_ARRAY 2
@@ -86,7 +87,7 @@ static char g_policy[POLICY_LOADER_REPLY_POLICY_SIZE] = {
     0,
 };
 
-static char g_owner_public_key[POLICY_LOADER_PUBLIC_KEY_LEN] = {0};
+static char g_owner_public_key[POLICY_LOADER_PUBLIC_KEY_B64_LEN] = {0};
 
 static char g_action_ps[] = "<policy service connection>";
 
@@ -365,6 +366,7 @@ static unsigned int fsm_get_policy_list_done(void) {
 
 static unsigned int receive_policies(void) {
   unsigned int ret = POLICY_LOADER_ERROR;
+  char owner_public_key[POLICY_LOADER_PUBLIC_KEY_LEN] = {0};
   char *policy_buff = NULL;
   int policy_len = 0;
   int status = 0;
@@ -374,7 +376,8 @@ static unsigned int receive_policies(void) {
     policyupdater_get_policy(g_policy_list + jsonhelper_get_token_start(3 + current_policy), g_policy);
     int status = parse_policy_struct(g_policy, policy_buff, &policy_len);
     if (status == 1) {
-      pap_add_policy(policy_buff, policy_len, NULL, g_owner_public_key);
+      if (!b64_decode(g_owner_public_key, POLICY_LOADER_PUBLIC_KEY_B64_LEN, owner_public_key)) return 0;
+      pap_add_policy(policy_buff, policy_len, NULL, owner_public_key);
     }
     if (policy_buff != NULL) {
       free(policy_buff);
@@ -429,7 +432,7 @@ void policyloader_init() {
   int status = configmanager_get_option_int("config", "thread_sleep_period", &g_task_sleep_time);
   if (status != CONFIG_MANAGER_OK) g_task_sleep_time = 1000;  // 1 second
   //Owner's public key should be stored on device, after owner is assigned to a device
-  configmanager_get_option_string("config", "owner_public_key", g_owner_public_key, POLICY_LOADER_PUBLIC_KEY_LEN);
+  configmanager_get_option_string("config", "owner_public_key", g_owner_public_key, POLICY_LOADER_PUBLIC_KEY_B64_LEN);
 }
 
 static void *policy_loader_thread_function(void *arg);
