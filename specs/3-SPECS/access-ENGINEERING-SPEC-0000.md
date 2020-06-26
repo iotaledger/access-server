@@ -14,7 +14,7 @@
         * [Data Acquisition Plugins](#data-acquisition-plugins)
         * [PAP Plugins](#pap-plugins)
       - [Output](#output)
-        * [Resolver Plugins](#resolver-plugins)
+        * [PEP Plugins](#pep-plugins)
     + [Access Secure Network API](#access-secure-network-api)
       - [libCrypto module](#libcrypto-module)
       - [Tiny Embedded module](#tiny-embedded-module)
@@ -125,7 +125,7 @@ The Access Core API is divided into 4 different modules (and a few submodules):
 
 ##### Policy Enforcement Point
 
-**PEP** routes the access request to the PDP for decision making, and acts on the received decision as appropriate within the system context. The API expects callback functions to be registered as **Resolver Plugins**.
+**PEP** routes the access request to the PDP for decision making, and acts on the received decision as appropriate within the system context. The API expects callback functions to be registered as **PEP Plugins**.
 
 ##### Policy Information Point
 
@@ -168,8 +168,8 @@ Embedded Systems can have different forms of permanent storage. It can be eMMC, 
 PAP Plugins are used by PAP to read and write Policies from non-volatile memory.
 
 ##### Output
-###### Resolver Plugins
-Resolver Plugins are used by PEP to enforce actions in the physical world. They are the main interface for actuators that need to behave in accordance to the Access being granted or denied.
+###### PEP Plugins
+PEP Plugins are used by PEP to enforce actions in the physical world. They are the main interface for actuators that need to behave in accordance to the Access being granted or denied.
 
 For example, imagine a door that is controlled by a relay attached to the board's GPIO. The board is running the Access Server, and PDP has decided to deny the incoming Access Request. That means that the GPIO needs to set the relay such that the door remains locked.
 
@@ -326,7 +326,7 @@ The Figure below shows a visual representation of the Access Request Protocol:
 6. PAP retrieves Policy from non-volatile memory via PAP Plugin.
 7. PIP retrieves Attributes via Data Acquisition Plugin.
 8. PDP decies actions + obligations.
-9. PEP enforces actions + obligations via Resolver Plugin.
+9. PEP enforces actions + obligations via PEP Plugin.
 10. Action is logged on the Tangle. Access and Network Actors go back to Listen mode.
 
 ### Policy Update Protocol

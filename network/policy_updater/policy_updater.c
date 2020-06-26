@@ -54,9 +54,6 @@
 static char g_policy_updater_address[POLICY_UPDATER_ADDRESS_SIZE] = "\0";
 static int g_policy_updater_port = 6007;
 
-static char g_user_address[POLICY_UPDATER_ADDRESS_SIZE] = "\0";
-static int g_user_port = 9998;
-
 static char g_module_name[] = "PolicyUpdater";
 
 static int hostname_to_ip(const char *hostname, char *ip_address);
@@ -126,7 +123,7 @@ static int tcp_send(char *msg, int msg_length, char *rec, int *rec_length, char 
   return 0;
 }
 
-void policyupdater_get_policy(char *policy_id, char *p_policy, char *user_public_key) {
+void policyupdater_get_policy(char *policy_id, char *p_policy) {
   static char policy_request[POLICY_UPDATER_REQ_GET_LIST_SIZE] = {
       0,
   };
@@ -143,25 +140,12 @@ void policyupdater_get_policy(char *policy_id, char *p_policy, char *user_public
            g_policy_updater_port);
 
   strncpy(p_policy, response, MIN((response_length + 1), (POLICY_UPDATER_RESPONSE_LEN - 1)));
-
-  response_length = 0;
-  memset(response, 0, POLICY_UPDATER_RESPONSE_LEN * sizeof(char));
-
-  char user_address[POLICY_UPDATER_SERV_ADDR_LEN];
-  hostname_to_ip(g_user_address, user_address);
-
-  tcp_send("get_public_key", strlen("get_public_key"), response, &response_length, user_address,
-           g_user_port);
-
-  strncpy(user_public_key, response, MIN((response_length + 1), (POLICY_UPDATER_RESPONSE_LEN - 1)));
 }
 
 void policyupdater_init() {
   configmanager_get_option_string("pap", "policy_store_service_ip", g_policy_updater_address,
                                   POLICY_UPDATER_ADDRESS_SIZE);
   configmanager_get_option_int("pap", "policy_store_service_port", &g_policy_updater_port);
-  configmanager_get_option_string("pap", "user_ip", g_user_address, POLICY_UPDATER_ADDRESS_SIZE);
-  configmanager_get_option_int("pap", "user_port", &g_user_port);
 }
 
 int policyupdater_start() {}

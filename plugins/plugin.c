@@ -17,14 +17,14 @@
  * limitations under the License.
  */
 
-#ifndef _POLICY_UPDATER_H_
-#define _POLICY_UPDATER_H_
+#include "plugin.h"
 
-void policyupdater_init();
+int plugin_init(plugin_t *plugin, plugin_cb initializer, void *data) { initializer(plugin, data); }
 
-void policyupdater_get_policy(char *policy_id, char *policy_buff);
+int plugin_destroy(plugin_t *plugin) { return plugin->destroy(plugin, NULL); }
 
-unsigned int policyupdater_get_policy_list(const char *policy_store_version, const char *device_id, char *policy_list,
-                                           int *policy_list_len, int *new_policy_list_flag);
-
-#endif /* _POLICY_UPDATER_H_ */
+int plugin_call(plugin_t *plugin, size_t plugin_idx, void *data) {
+  if (plugin_idx < plugin->callbacks_num && plugin->callbacks[plugin_idx] != NULL) {
+    plugin->callbacks[plugin_idx](plugin, data);
+  }
+}

@@ -29,7 +29,7 @@
  *
  * \history
  * 25.09.2018. Initial version.
- * 18.02.2019. Added enforce_request_action from resolver module.
+ * 18.02.2019. Added enforce_request_action from pep_plugin module.
  * 21.02.2020. Added obligations functionality.
  * 11.05.2020. Refactoring
  ****************************************************************************/
@@ -185,7 +185,7 @@ static int list_to_string(pap_action_list_t *action_list, char *output_str) {
 /****************************************************************************
  * CALLBACK FUNCTIONS
  ****************************************************************************/
-static resolver_fn callback_resolver = NULL;
+static pep_plugin_fn callback_pep_plugin = NULL;
 
 /****************************************************************************
  * API FUNCTIONS
@@ -219,15 +219,15 @@ bool pep_term(void) {
   return TRUE;
 }
 
-bool pep_register_callback(resolver_fn resolver) {
+bool pep_register_callback(pep_plugin_fn pep_plugin) {
   // Check input parameter
-  if (resolver == NULL) {
+  if (pep_plugin == NULL) {
     printf("\n\nERROR[%s]: Invalid input parameters.\n\n", __FUNCTION__);
     return FALSE;
   }
 
   // Check if it's already registered
-  if (callback_resolver != NULL) {
+  if (callback_pep_plugin != NULL) {
     printf("\n\nERROR[%s]: Callback already registered.\n\n", __FUNCTION__);
     return FALSE;
   }
@@ -235,7 +235,7 @@ bool pep_register_callback(resolver_fn resolver) {
   pthread_mutex_lock(&pep_mutex);
 
   // Register callback
-  callback_resolver = resolver;
+  callback_pep_plugin = pep_plugin;
 
   pthread_mutex_unlock(&pep_mutex);
 
@@ -246,7 +246,7 @@ bool pep_unregister_callback(void) {
   pthread_mutex_lock(&pep_mutex);
 
   // Unregister callback
-  callback_resolver = NULL;
+  callback_pep_plugin = NULL;
 
   pthread_mutex_unlock(&pep_mutex);
 
@@ -297,8 +297,8 @@ bool pep_request_access(char *request, void *response) {
     }
   } else {
     // Resolver callback
-    if (callback_resolver != NULL) {
-      callback_resolver(obligation, (void *)&action);
+    if (callback_pep_plugin != NULL) {
+      callback_pep_plugin(obligation, (void *)&action);
     } else {
       printf("\n\nERROR[%s]: Callback is not regostered.\n\n", __FUNCTION__);
       ret = FALSE;

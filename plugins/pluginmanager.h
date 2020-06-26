@@ -17,14 +17,19 @@
  * limitations under the License.
  */
 
-#ifndef _POLICY_UPDATER_H_
-#define _POLICY_UPDATER_H_
+#ifndef _PLUGINMANAGER_H_
+#define _PLUGINMANAGER_H_
 
-void policyupdater_init();
+#include "plugin.h"
 
-void policyupdater_get_policy(char *policy_id, char *policy_buff);
+typedef struct {
+  plugin_t* plugins;
+  size_t plugins_num;
+  size_t plugins_max_num;
+} pluginmanager_t;
 
-unsigned int policyupdater_get_policy_list(const char *policy_store_version, const char *device_id, char *policy_list,
-                                           int *policy_list_len, int *new_policy_list_flag);
+int pluginmanager_init(pluginmanager_t*, size_t plugins_max_num);
+int pluginmanager_register(pluginmanager_t*, plugin_t*);
+int pluginmanager_get(pluginmanager_t*, size_t idx, plugin_t**);
 
-#endif /* _POLICY_UPDATER_H_ */
+#endif

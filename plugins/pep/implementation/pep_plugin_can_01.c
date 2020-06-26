@@ -19,21 +19,22 @@
 
 /****************************************************************************
  * \project IOTA Access
- * \file demo_resolver_can01.c
+ * \file pep_plugin_can_01.c
  * \brief
- * Resolver plugin for CAN demo. There are two variants, one is using relay
+ * pep_plugin plugin for CAN demo. There are two variants, one is using relay
  * board directly connected to rpi3, and other is using relay board
  * connected through TCP socket.
  *
- * @Author Djordje Golubovic
+ * @Author Djordje Golubovic, Bernardo Araujo, Strahinja Golic
  *
  * \notes
  *
  * \history
  * 04.03.2020. Initial version.
+ * 24.06.2020. Refactoring
  ****************************************************************************/
 
-#include "demo_resolver_can01.h"
+#include "pep_plugin_can_01.h"
 
 #include <arpa/inet.h>
 #include <string.h>
@@ -50,24 +51,24 @@
 
 static char relayboard_addr[ADDR_SIZE] = "127.0.0.1";
 
-void demo01plugin_set_relayboard_addr(const char* addr) { strncpy(relayboard_addr, addr, sizeof(relayboard_addr)); }
+void can_01_set_relayboard_addr(const char* addr) { strncpy(relayboard_addr, addr, sizeof(relayboard_addr)); }
 
-static int demo01_car_lock(resolver_action_data_t* action, int should_log) {
+static int can_01_car_lock(pep_plugin_action_data_t* action, int should_log) {
   relayinterface_pulse(0);
   return 0;
 }
 
-static int demo01_car_unlock(resolver_action_data_t* action, int should_log) {
+static int can_01_car_unlock(pep_plugin_action_data_t* action, int should_log) {
   relayinterface_pulse(1);
   return 0;
 }
 
-static int demo01_start_engine(resolver_action_data_t* action, int should_log) {
+static int can_01_start_engine(pep_plugin_action_data_t* action, int should_log) {
   relayinterface_pulse(2);
   return 0;
 }
 
-static int demo01_open_trunk(resolver_action_data_t* action, int should_log) {
+static int can_01_open_trunk(pep_plugin_action_data_t* action, int should_log) {
   relayinterface_pulse(3);
   return 0;
 }
@@ -99,7 +100,7 @@ static void socket_send_byte_to_port(int portname) {
   servaddr.sin_port = htons(portname);
 
   if (connect(sockfd, (struct sockaddr*)&servaddr, sizeof(servaddr)) != 0) {
-    perror("Resolver connect failed");
+    perror("pep_plugin connect failed");
   } else {
     write(sockfd, &data, 1);
   }
@@ -107,27 +108,27 @@ static void socket_send_byte_to_port(int portname) {
   close(sockfd);
 }
 
-static int demo01_tcp_car_lock(resolver_action_data_t* action, int should_log) {
+static int can_01_tcp_car_lock(pep_plugin_action_data_t* action, int should_log) {
   socket_send_byte_to_port(2222);
   return 0;
 }
 
-static int demo01_tcp_car_unlock(resolver_action_data_t* action, int should_log) {
+static int can_01_tcp_car_unlock(pep_plugin_action_data_t* action, int should_log) {
   socket_send_byte_to_port(2223);
   return 0;
 }
 
-static int demo01_tcp_start_engine(resolver_action_data_t* action, int should_log) {
+static int can_01_tcp_start_engine(pep_plugin_action_data_t* action, int should_log) {
   socket_send_byte_to_port(2224);
   return 0;
 }
 
-static int demo01_tcp_open_trunk(resolver_action_data_t* action, int should_log) {
+static int can_01_tcp_open_trunk(pep_plugin_action_data_t* action, int should_log) {
   socket_send_byte_to_port(2225);
   return 0;
 }
 
-static resolver_plugin_t* g_action_set = NULL;
+static pep_plugin_t* g_action_set = NULL;
 
 static void init_ds_interface(dataset_state_t* vdstate) {
 #ifdef TINY_EMBEDDED
@@ -135,7 +136,7 @@ static void init_ds_interface(dataset_state_t* vdstate) {
   // Re-init receiver with new dataset
 #endif
 
-  vdstate->options = &vehicledatasetdemo01_options[0];
+  vdstate->options = &vehicledataset_can_01_options[0];
   dataset_init(vdstate);
   canreceiver_init(vdstate->dataset, datadumper_get_mutex());
 }
@@ -146,7 +147,7 @@ static void init_ds_interface_tcp(dataset_state_t* vdstate) {
   // Re-init receiver with new dataset
 #endif
 
-  vdstate->options = &vehicledatasetdemo01_options[0];
+  vdstate->options = &vehicledataset_can_01_options[0];
   dataset_init(vdstate);
   canreceiver_init(vdstate->dataset, datadumper_get_mutex());
 }
@@ -156,13 +157,13 @@ static void start_ds_interface() { canreceiver_start(); }
 static void stop_ds_interface() { canreceiver_deinit(); }
 
 static void term_ds_interface(dataset_state_t* vdstate) {
-  demo01plugin_terminizer();
+  can_01_pep_plugin_terminator();
   vdstate->options = NULL;
   dataset_deinit(vdstate);
 }
 
-void demo01plugin_initializer(resolver_plugin_t* action_set, void* options) {
-  int cfg_status = configmanager_get_option_string("demo01plugin", "relayboard_address", relayboard_addr, ADDR_SIZE);
+void can_01_pep_plugin_initializer(pep_plugin_t* action_set, void* options) {
+  int cfg_status = configmanager_get_option_string("can_01_pep_plugin", "relayboard_address", relayboard_addr, ADDR_SIZE);
 
   if (g_action_set == NULL && action_set == NULL && options == NULL) {
     return;
@@ -171,10 +172,10 @@ void demo01plugin_initializer(resolver_plugin_t* action_set, void* options) {
   if (action_set != NULL) {
     g_action_set = action_set;
   }
-  g_action_set->actions[0] = demo01_car_unlock;
-  g_action_set->actions[1] = demo01_car_lock;
-  g_action_set->actions[2] = demo01_open_trunk;
-  g_action_set->actions[3] = demo01_start_engine;
+  g_action_set->actions[0] = can_01_car_unlock;
+  g_action_set->actions[1] = can_01_car_lock;
+  g_action_set->actions[2] = can_01_open_trunk;
+  g_action_set->actions[3] = can_01_start_engine;
   strncpy(g_action_set->action_names[0], "open_door", RES_ACTION_NAME_SIZE);
   strncpy(g_action_set->action_names[1], "close_door", RES_ACTION_NAME_SIZE);
   strncpy(g_action_set->action_names[2], "open_trunk", RES_ACTION_NAME_SIZE);
@@ -186,7 +187,7 @@ void demo01plugin_initializer(resolver_plugin_t* action_set, void* options) {
   g_action_set->term_ds_interface_cb = term_ds_interface;
 }
 
-void demo01plugin_initializer_tcp(resolver_plugin_t* action_set, void* options) {
+void can_01_pep_plugin_initializer_tcp(pep_plugin_t* action_set, void* options) {
   if (g_action_set == NULL && action_set == NULL && options == NULL) {
     return;
   }
@@ -194,10 +195,10 @@ void demo01plugin_initializer_tcp(resolver_plugin_t* action_set, void* options) 
   if (action_set != NULL) {
     g_action_set = action_set;
   }
-  g_action_set->actions[0] = demo01_tcp_car_unlock;
-  g_action_set->actions[1] = demo01_tcp_car_lock;
-  g_action_set->actions[2] = demo01_tcp_open_trunk;
-  g_action_set->actions[3] = demo01_tcp_start_engine;
+  g_action_set->actions[0] = can_01_tcp_car_unlock;
+  g_action_set->actions[1] = can_01_tcp_car_lock;
+  g_action_set->actions[2] = can_01_tcp_open_trunk;
+  g_action_set->actions[3] = can_01_tcp_start_engine;
   strncpy(g_action_set->action_names[0], "open_door", RES_ACTION_NAME_SIZE);
   strncpy(g_action_set->action_names[1], "close_door", RES_ACTION_NAME_SIZE);
   strncpy(g_action_set->action_names[2], "open_trunk", RES_ACTION_NAME_SIZE);
@@ -209,4 +210,4 @@ void demo01plugin_initializer_tcp(resolver_plugin_t* action_set, void* options) 
   g_action_set->term_ds_interface_cb = term_ds_interface;
 }
 
-void demo01plugin_terminizer() { g_action_set = NULL; }
+void can_01_pep_plugin_terminator() { g_action_set = NULL; }

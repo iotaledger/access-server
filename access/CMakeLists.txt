@@ -33,7 +33,7 @@ set(libs
   fastjson
   data_acquisition_plugins
   data_transactions_plugins
-  resolver
+  pep_plugin
   pap_plugin)
 
 add_library(${target} access.c)
