@@ -23,7 +23,7 @@ add_subdirectory(data/acquisition)
 add_subdirectory(data/dataset/vehicle)
 add_subdirectory(data/transactions)
 add_subdirectory(pep)
-add_subdirectory(storage)
+add_subdirectory(pap)
 
 set(target pluginmanager)
 

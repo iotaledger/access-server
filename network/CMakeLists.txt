@@ -28,7 +28,7 @@ set(libs
   json_parser
   asn
   pep
-  storage_plugin
+  pap_plugin
   policy_updater)
 
 add_library(${target} network.c)
