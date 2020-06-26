@@ -47,6 +47,7 @@
 #include "sha256.h"
 #include "utils.h"
 #include "validator.h"
+#include "policy_loader.h"
 
 #define JSMN_HEADER
 #include "jsmn.h"
@@ -136,6 +137,9 @@ pap_error_e pap_init(void) {
 
   // Init User Management
   user_init();
+
+  // Init policy loader
+  policyloader_init();
 
   // Initalize mutex
   if (pthread_mutex_init(&pap_mutex, NULL) != 0) {

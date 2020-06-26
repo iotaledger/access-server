@@ -432,7 +432,7 @@ void policyloader_init() {
   int status = configmanager_get_option_int("config", "thread_sleep_period", &g_task_sleep_time);
   if (status != CONFIG_MANAGER_OK) g_task_sleep_time = 1000;  // 1 second
   //Owner's public key should be stored on device, after owner is assigned to a device
-  configmanager_get_option_string("config", "owner_public_key", g_owner_public_key, POLICY_LOADER_PUBLIC_KEY_B64_LEN);
+  configmanager_get_option_string("config", "owner_public_key", g_owner_public_key, POLICY_LOADER_PUBLIC_KEY_B64_LEN + 1);
 }
 
 static void *policy_loader_thread_function(void *arg);
