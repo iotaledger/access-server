@@ -214,7 +214,11 @@ Tiny Embedded is the internal ASN realization based on 3rd party libraries. It i
 
 ##### Server authentication key exchange
 
-After physical connection is established, client generates a [Diffie-Hellman](https://mathworld.wolfram.com/Diffie-HellmanProtocol.html) (DH) private key. Based on the private key, client computes DH public key. Client sends its DH public key to the server running on the Target Device.
+After physical connection is established, client generates a [Diffie-Hellman](https://mathworld.wolfram.com/Diffie-HellmanProtocol.html) (DH) private key. Based on the private key, client computes DH public key using following formula.
+
+![drawing](/specs/.images/formula.png)
+
+Client sends its DH public key to the server running on the Target Device.
 
 Server generates the DH key pair using the same algorithm used by client (dictated by the choice of either libCrypto or TinyEmbedded).
 
@@ -247,6 +251,7 @@ When both server and client have shared secret `K` and hash `H`, following encry
 - Encryption key server to client: `hash(K||H||”D”)`
 - Integrity key client to server: `hash(K||H||”E”)`
 - Integrity key server to client: `hash(K||H||”F”)`
+"A", "B", ... "F" are constants representing ASCII values of those characters.
 
 Encryption key is performed over packet length and payload:
 
