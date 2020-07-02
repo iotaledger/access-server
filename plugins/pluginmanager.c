@@ -40,8 +40,8 @@ int pluginmanager_register(pluginmanager_t* pm, plugin_t* plugin) {
 }
 
 int pluginmanager_get(pluginmanager_t* pm, size_t idx, plugin_t** plugin) {
-  if (pm->plugins_num > 0) {
-    *plugin = &pm->plugins[pm->plugins_num];
+  if ((pm->plugins_num > 0) && (idx < pm->plugins_num)) {
+    *plugin = &pm->plugins[idx];
     return 0;
   } else {
     return -1;

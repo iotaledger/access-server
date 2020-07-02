@@ -34,6 +34,9 @@
 #ifndef PEP_H
 #define PEP_H
 
+#include "pep_plugin.h"
+#include "plugin.h"
+
 /****************************************************************************
  * MACROS
  ****************************************************************************/
@@ -46,11 +49,6 @@
 #ifndef TRUE
 #define TRUE 1
 #endif
-
-/****************************************************************************
- * CALLBACKS
- ****************************************************************************/
-typedef bool (*pep_plugin_fn)(char* obligation, void* action);
 
 /****************************************************************************
  * API FUNCTIONS
@@ -87,18 +85,7 @@ bool pep_term(void);
  *
  * @return  TRUE on success, FALSE on failure
  */
-bool pep_register_callback(pep_plugin_fn pep_plugin);
-
-/**
- * @fn      pep_unregister_callback
- *
- * @brief   Unregister pep_plugin callback
- *
- * @param   void
- *
- * @return  TRUE on success, FALSE on failure
- */
-bool pep_unregister_callback(void);
+bool pep_register_callback(plugin_t* plugin);
 
 /**
  * @fn      int pep_request_access(JSON_Value *request)

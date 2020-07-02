@@ -44,6 +44,8 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include "apiorig.h"
+#include "pap_plugin.h"
+#include "pluginmanager.h"
 #include "sha256.h"
 #include "utils.h"
 #include "validator.h"
@@ -69,16 +71,7 @@
 static unsigned char public_key[PAP_PUBLIC_KEY_LEN];
 static unsigned char private_key[PAP_PRIVATE_KEY_LEN];
 static pthread_mutex_t pap_mutex;
-
-/****************************************************************************
- * CALLBACK FUNCTIONS
- ****************************************************************************/
-static put_fn callback_put = NULL;
-static get_fn callback_get = NULL;
-static has_fn callback_has = NULL;
-static del_fn callback_del = NULL;
-static get_pol_obj_len_fn callback_get_pol_obj_len = NULL;
-static get_all_fn callback_get_all = NULL;
+static pluginmanager_t g_plugin_manager;
 
 /****************************************************************************
  * LOCAL FUNCTIONS
@@ -131,6 +124,8 @@ static void get_SHA256_hash(char *msg, int msg_len, char *hash_val) {
  * API FUNCTIONS
  ****************************************************************************/
 pap_error_e pap_init(void) {
+  pluginmanager_init(&g_plugin_manager, PAPPLUGIN_MAX_COUNT);
+
   // Generate keypair
   crypto_sign_keypair(public_key, private_key);
 
@@ -143,10 +138,14 @@ pap_error_e pap_init(void) {
     return PAP_ERROR;
   }
 
+  policyloader_start();
+
   return PAP_NO_ERROR;
 }
 
 pap_error_e pap_term(void) {
+  policyloader_stop();
+
   // Term User Management
   user_deinit();
 
@@ -156,44 +155,16 @@ pap_error_e pap_term(void) {
   return PAP_NO_ERROR;
 }
 
-pap_error_e pap_register_callbacks(put_fn put, get_fn get, has_fn has, del_fn del, get_pol_obj_len_fn get_pol_obj_len,
-                                   get_all_fn get_all) {
-  /*
-  Plugin doesn't need to use all callbacks, so any of parrameters can be NULL.
-  Therefore, we will not check input parameters at function entry.
-  */
-
+pap_error_e pap_register_plugin(plugin_t *plugin) {
   pthread_mutex_lock(&pap_mutex);
 
-  callback_put = put;
-  callback_get = get;
-  callback_has = has;
-  callback_del = del;
-  callback_get_pol_obj_len = get_pol_obj_len;
-  callback_get_all = get_all;
+  pluginmanager_register(&g_plugin_manager, plugin);
 
   pthread_mutex_unlock(&pap_mutex);
-
-  return PAP_NO_ERROR;
-}
-
-pap_error_e pap_unregister_callbacks(void) {
-  pthread_mutex_lock(&pap_mutex);
-
-  callback_put = NULL;
-  callback_get = NULL;
-  callback_has = NULL;
-  callback_del = NULL;
-  callback_get_pol_obj_len = NULL;
-  callback_get_all = NULL;
-
-  pthread_mutex_unlock(&pap_mutex);
-
   return PAP_NO_ERROR;
 }
 
 pap_error_e pap_add_policy(char *signed_policy, int signed_policy_size, char *parsed_policy_id, char *owner_public_key) {
-  char policy_id[PAP_POL_ID_MAX_LEN + 1] = {0};
   char policy_obj_hash[PAP_POL_ID_MAX_LEN + 1] = {0};
   char signed_policy_id[PAP_SIGNATURE_LEN + PAP_POL_ID_MAX_LEN + 1] = {0};
   char *policy = NULL;
@@ -204,12 +175,10 @@ pap_error_e pap_add_policy(char *signed_policy, int signed_policy_size, char *pa
   int tok_num = 0;
   unsigned long long policy_size = 0;
   unsigned long long smlen;
-  pap_policy_object_t policy_object;
-  pap_policy_id_signature_t policy_id_signature;
-  pap_hash_functions_e hash_fn;
   jsmn_parser parser;
   jsmntok_t tokens[PAP_MAX_TOKENS];
   validator_report_t report;
+  pap_policy_t put_args = {0};
 
   // Check input parameters (parsed_policy_id is optional)
   if (signed_policy == NULL || signed_policy_size == 0) {
@@ -259,7 +228,7 @@ pap_error_e pap_add_policy(char *signed_policy, int signed_policy_size, char *pa
           memcpy(parsed_policy_id, &policy[tokens[i + 1].start], (tokens[i + 1].end - tokens[i + 1].start));
         }
 
-        if (str_to_hex(&policy[tokens[i + 1].start], policy_id, (tokens[i + 1].end - tokens[i + 1].start)) !=
+        if (str_to_hex(&policy[tokens[i + 1].start], put_args.policy_id, (tokens[i + 1].end - tokens[i + 1].start)) !=
             UTILS_STRING_SUCCESS) {
           printf("\nERROR[%s]: Could not convert string to hex value.\n", __FUNCTION__);
           free(policy);
@@ -268,13 +237,32 @@ pap_error_e pap_add_policy(char *signed_policy, int signed_policy_size, char *pa
         }
 
         // If policy with this ID is already in the storage, abort the action
-        if (callback_has) {
-          if (callback_has(policy_id)) {
-            printf("\nERROR[%s]: This policy is already stored.\n", __FUNCTION__);
-            free(policy);
-            pthread_mutex_unlock(&pap_mutex);
-            return PAP_ERROR;
+        plugin_t *plugin = NULL;
+        papplugin_has_args_t has_args;
+        has_args.policy_id = put_args.policy_id;
+        int callback_fired = 0;
+        for (int i = 0; i < g_plugin_manager.plugins_num; i++) {
+          pluginmanager_get(&g_plugin_manager, i, &plugin);
+          int callback_status = -1;
+          if (plugin != NULL) {
+            callback_status = plugin_call(plugin, PAPPLUGIN_HAS_CB, &has_args);
+            callback_fired = 1;
           }
+          // TODO: check status
+        }
+
+        if (callback_fired == 0) {
+          printf("\nERROR[%s]: No callback for PAPPLUGIN_HAS_CB.\n", __FUNCTION__);
+          free(policy);
+          pthread_mutex_unlock(&pap_mutex);
+          return PAP_ERROR;
+        }
+
+        if (has_args.does_have == 1) {
+          printf("\nERROR[%s]: This policy is already stored.\n", __FUNCTION__);
+          free(policy);
+          pthread_mutex_unlock(&pap_mutex);
+          return PAP_ERROR;
         }
       } else {
         printf("\nERROR[%s]: Size of policy id does not match supported hash functions.\n", __FUNCTION__);
@@ -293,20 +281,20 @@ pap_error_e pap_add_policy(char *signed_policy, int signed_policy_size, char *pa
       // Policy object should be normalized
       policy_object_norm_len = normalize_JSON_object(policy_object_buff, policy_object_len, &policy_object_norm);
 
-      policy_object.policy_object = policy_object_norm;
-      policy_object.policy_object_size = policy_object_norm_len;
+      put_args.policy_object.policy_object = policy_object_norm;
+      put_args.policy_object.policy_object_size = policy_object_norm_len;
     }
 
     // Get policy cost
     if (strncmp(&policy[tokens[i].start], "cost", strlen("cost")) == 0) {
-      memset(policy_object.cost, 0, PAP_MAX_COST_LEN * sizeof(char));
-      memcpy(policy_object.cost, &policy[tokens[i + 1].start], (tokens[i + 1].end - tokens[i + 1].start));
+      memset(put_args.policy_object.cost, 0, PAP_MAX_COST_LEN * sizeof(char));
+      memcpy(put_args.policy_object.cost, &policy[tokens[i + 1].start], (tokens[i + 1].end - tokens[i + 1].start));
     }
 
     // Get hash_fn
     if (strncmp(&policy[tokens[i].start], "hash_function", strlen("hash_function")) == 0) {
       if (strncmp(&policy[tokens[i + 1].start], "sha-256", strlen("sha-256")) == 0) {
-        hash_fn = PAP_SHA_256;
+        put_args.hash_function = PAP_SHA_256;
       } else {
         printf("\nERROR[%s]: Hash function not supported.\n", __FUNCTION__);
         free(policy_object_buff);
@@ -322,7 +310,7 @@ pap_error_e pap_add_policy(char *signed_policy, int signed_policy_size, char *pa
   get_SHA256_hash(policy_object_buff, policy_object_len, policy_obj_hash);
   free(policy_object_buff);
 
-  if (memcmp(policy_id, policy_obj_hash, PAP_POL_ID_MAX_LEN * sizeof(char)) != 0) {
+  if (memcmp(put_args.policy_id, policy_obj_hash, PAP_POL_ID_MAX_LEN * sizeof(char)) != 0) {
     printf("\nERROR[%s]: Policy ID is not coresponding to policy object.\n", __FUNCTION__);
     free(policy_object_norm);
     free(policy);
@@ -331,20 +319,30 @@ pap_error_e pap_add_policy(char *signed_policy, int signed_policy_size, char *pa
   }
 
   // Signe policy ID and save signature, this will be use in order to verify policy on acquisition from storage
-  crypto_sign(signed_policy_id, &smlen, policy_id, PAP_POL_ID_MAX_LEN, private_key);
+  crypto_sign(signed_policy_id, &smlen, put_args.policy_id, PAP_POL_ID_MAX_LEN, private_key);
 
-  memset(policy_id_signature.public_key, 0, PAP_PUBLIC_KEY_LEN * sizeof(char));
-  memset(policy_id_signature.signature, 0, PAP_SIGNATURE_LEN * sizeof(char));
-  memcpy(policy_id_signature.public_key, public_key, PAP_PUBLIC_KEY_LEN * sizeof(char));
-  memcpy(policy_id_signature.signature, signed_policy_id,
+  memset(put_args.policy_id_signature.public_key, 0, PAP_PUBLIC_KEY_LEN * sizeof(char));
+  memset(put_args.policy_id_signature.signature, 0, PAP_SIGNATURE_LEN * sizeof(char));
+  memcpy(put_args.policy_id_signature.public_key, public_key, PAP_PUBLIC_KEY_LEN * sizeof(char));
+  memcpy(put_args.policy_id_signature.signature, signed_policy_id,
          PAP_SIGNATURE_LEN * sizeof(char));  // Signature is preppend to message
-  policy_id_signature.signature_algorithm = PAP_ECDSA;
+  put_args.policy_id_signature.signature_algorithm = PAP_ECDSA;
 
   // Put policy in storage
-  if (callback_put != NULL) {
-    callback_put(policy_id, policy_object, policy_id_signature, hash_fn);
-  } else {
-    printf("\nERROR[%s]: Callback is not registered.\n", __FUNCTION__);
+  plugin_t *plugin = NULL;
+  int callback_fired = 0;
+  for (int i = 0; i < g_plugin_manager.plugins_num; i++) {
+    pluginmanager_get(&g_plugin_manager, i, &plugin);
+    int callback_status = -1;
+    if (plugin != NULL) {
+      callback_status = plugin_call(plugin, PAPPLUGIN_PUT_CB, &put_args);
+      callback_fired = 1;
+    }
+    // TODO: check status
+  }
+
+  if (callback_fired == 0) {
+    printf("\nERROR[%s]: No callback for PAPPLUGIN_PUT_CB.\n", __FUNCTION__);
     free(policy_object_norm);
     free(policy);
     pthread_mutex_unlock(&pap_mutex);
@@ -358,10 +356,11 @@ pap_error_e pap_add_policy(char *signed_policy, int signed_policy_size, char *pa
 }
 
 pap_error_e pap_get_policy(char *policy_id, int policy_id_len, pap_policy_t *policy) {
-  char policy_id_hex[PAP_POL_ID_MAX_LEN + 1] = {0};
   char calc_policy_id[PAP_POL_ID_MAX_LEN + 1] = {0};
   char signed_policy_id[PAP_SIGNATURE_LEN + PAP_POL_ID_MAX_LEN + 1] = {0};
   unsigned long long smlen;
+  papplugin_get_args_t get_args = {0};
+  get_args.policy = policy;
 
   // Check input parameters
   if (policy_id == NULL || policy_id_len == 0 || policy == NULL) {
@@ -372,19 +371,27 @@ pap_error_e pap_get_policy(char *policy_id, int policy_id_len, pap_policy_t *pol
   pthread_mutex_lock(&pap_mutex);
 
   // Get policy ID hex value
-  if (str_to_hex(policy_id, policy_id_hex, policy_id_len) != UTILS_STRING_SUCCESS) {
+  if (str_to_hex(policy_id, get_args.policy_id, policy_id_len) != UTILS_STRING_SUCCESS) {
     printf("\nERROR[%s]: Could not convert string to hex value.\n", __FUNCTION__);
     pthread_mutex_unlock(&pap_mutex);
     return PAP_ERROR;
   }
 
-  memcpy(policy->policy_ID, policy_id_hex, PAP_POL_ID_MAX_LEN + 1);
-
   // Get policy from storage
-  if (callback_get != NULL) {
-    callback_get(policy_id_hex, &(policy->policy_object), &(policy->policy_id_signature), &(policy->hash_function));
-  } else {
-    printf("\nERROR[%s]: Callback is not registered.\n", __FUNCTION__);
+  plugin_t *plugin = NULL;
+  int callback_fired = 0;
+  for (int i = 0; i < g_plugin_manager.plugins_num; i++) {
+    pluginmanager_get(&g_plugin_manager, i, &plugin);
+    int callback_status = -1;
+    if (plugin != NULL) {
+      callback_status = plugin_call(plugin, PAPPLUGIN_GET_CB, &get_args);
+      callback_fired = 1;
+    }
+    // TODO: check status
+  }
+
+  if (callback_fired == 0) {
+    printf("\nERROR[%s]: No callback for PAPPLUGIN_GET_CB.\n", __FUNCTION__);
     pthread_mutex_unlock(&pap_mutex);
     return PAP_ERROR;
   }
@@ -438,13 +445,30 @@ bool pap_has_policy(char *policy_id, int policy_id_len) {
   }
 
   // Check if policy is already in the storage
-  if (callback_has != NULL) {
+  plugin_t *plugin = NULL;
+  papplugin_has_args_t has_args;
+  has_args.policy_id = policy_id_hex;
+  int callback_fired = 0;
+  for (int i = 0; i < g_plugin_manager.plugins_num; i++) {
+    pluginmanager_get(&g_plugin_manager, i, &plugin);
+    int callback_status = -1;
+    if (plugin != NULL) {
+      callback_status = plugin_call(plugin, PAPPLUGIN_HAS_CB, &has_args);
+      callback_fired = 1;
+    }
+    // TODO: check status
+  }
+
+  if (callback_fired == 0) {
+    printf("\nERROR[%s]: No callback for PAPPLUGIN_HAS_CB.\n", __FUNCTION__);
     pthread_mutex_unlock(&pap_mutex);
-    return callback_has(policy_id_hex);
-  } else {
-    printf("\nERROR[%s]: Callback is not registered.\n", __FUNCTION__);
+    return PAP_ERROR;
+  }
+
+  if (has_args.does_have == 1) {
+    printf("\nERROR[%s]: This policy is already stored.\n", __FUNCTION__);
     pthread_mutex_unlock(&pap_mutex);
-    return FALSE;
+    return PAP_ERROR;
   }
 }
 
@@ -467,10 +491,20 @@ pap_error_e pap_remove_policy(char *policy_id, int policy_id_len) {
   }
 
   // Delete policy from storage
-  if (callback_del != NULL) {
-    callback_del(policy_id_hex);
-  } else {
-    printf("\nERROR[%s]: Callback is not registered.\n", __FUNCTION__);
+  plugin_t *plugin = NULL;
+  int callback_fired = 0;
+  for (int i = 0; i < g_plugin_manager.plugins_num; i++) {
+    pluginmanager_get(&g_plugin_manager, i, &plugin);
+    int callback_status = -1;
+    if (plugin != NULL) {
+      callback_status = plugin_call(plugin, PAPPLUGIN_DEL_CB, policy_id_hex);
+      callback_fired = 1;
+    }
+    // TODO: check status
+  }
+
+  if (callback_fired == 0) {
+    printf("\nERROR[%s]: No callback for PAPPLUGIN_GET_CB.\n", __FUNCTION__);
     pthread_mutex_unlock(&pap_mutex);
     return PAP_ERROR;
   }
@@ -497,12 +531,27 @@ pap_error_e pap_get_policy_obj_len(char *policy_id, int policy_id_len, int *pol_
     return PAP_ERROR;
   }
 
-  // Get obj. len
-  if (callback_get_pol_obj_len) {
-    callback_get_pol_obj_len(policy_id_hex, pol_obj_len);
+  plugin_t *plugin = NULL;
+  papplugin_len_args_t args;
+  args.policy_id = policy_id_hex;
+  int callback_fired = 0;
+  for (int i = 0; i < g_plugin_manager.plugins_num; i++) {
+    pluginmanager_get(&g_plugin_manager, i, &plugin);
+    int callback_status = -1;
+    if (plugin != NULL) {
+      callback_status = plugin_call(plugin, PAPPLUGIN_GET_POL_OBJ_LEN_CB, &args);
+      callback_fired = 1;
+    }
+    // TODO: check status
   }
 
-  if (*pol_obj_len == 0) {
+  if (callback_fired == 0) {
+    printf("\nERROR[%s]: No callback for PAPPLUGIN_GET_CB.\n", __FUNCTION__);
+    pthread_mutex_unlock(&pap_mutex);
+    return PAP_ERROR;
+  }
+
+  if (args.len == 0) {
     printf("\nERROR[%s]: Invalida object length.\n", __FUNCTION__);
     pthread_mutex_unlock(&pap_mutex);
     return PAP_ERROR;
@@ -528,10 +577,20 @@ pap_error_e pap_get_subjects_list_of_actions(char *subject_id, int subject_id_le
   pthread_mutex_lock(&pap_mutex);
 
   // Get all stored policy IDs
-  if (callback_get_all) {
-    callback_get_all(&pol_id_list);
-  } else {
-    printf("\nERROR[%s]: Callback get_all is not registered.\n", __FUNCTION__);
+  plugin_t *plugin = NULL;
+  int callback_fired = 0;
+  for (int i = 0; i < g_plugin_manager.plugins_num; i++) {
+    pluginmanager_get(&g_plugin_manager, i, &plugin);
+    int callback_status = -1;
+    if (plugin != NULL) {
+      callback_status = plugin_call(plugin, PAPPLUGIN_GET_ALL_CB, &pol_id_list);
+      callback_fired = 1;
+    }
+    // TODO: check status
+  }
+
+  if (callback_fired == 0) {
+    printf("\nERROR[%s]: No callback for PAPPLUGIN_GET_CB.\n", __FUNCTION__);
     pthread_mutex_unlock(&pap_mutex);
     return PAP_ERROR;
   }
@@ -544,47 +603,68 @@ pap_error_e pap_get_subjects_list_of_actions(char *subject_id, int subject_id_le
 
   while (pol_id_list) {
     char *pol_obj = NULL;
-    int pol_obj_len;
     int action = -1;
-    pap_policy_object_t policy_object;
-    pap_policy_id_signature_t policy_id_signature;
-    pap_hash_functions_e hash_fn;
     pap_action_list_t *action_elem = NULL;
     pap_action_list_t *action_temp = NULL;
+    papplugin_get_args_t get_args = {0};
+    pap_policy_t policy = {0};
 
     // Get obj. len
-    if (callback_get_pol_obj_len) {
-      callback_get_pol_obj_len(pol_id_list->policy_ID, &pol_obj_len);
-    } else {
-      printf("\nERROR[%s]: Callback get pol. obj. len is not registered.\n", __FUNCTION__);
+    plugin = NULL;
+    papplugin_len_args_t args;
+    args.policy_id = pol_id_list->policy_id;
+    int callback_fired = 0;
+    for (int i = 0; i < g_plugin_manager.plugins_num; i++) {
+      pluginmanager_get(&g_plugin_manager, i, &plugin);
+      int callback_status = -1;
+      if (plugin != NULL) {
+        callback_status = plugin_call(plugin, PAPPLUGIN_GET_POL_OBJ_LEN_CB, &args);
+        callback_fired = 1;
+      }
+      // TODO: check status
+    }
+
+    if (callback_fired == 0) {
+      printf("\nERROR[%s]: No callback for PAPPLUGIN_GET_CB.\n", __FUNCTION__);
       pthread_mutex_unlock(&pap_mutex);
       return PAP_ERROR;
     }
 
-    pol_obj = malloc(pol_obj_len * sizeof(char));
+    pol_obj = malloc(args.len * sizeof(char));
 
-    policy_object.policy_object = pol_obj;
+    get_args.policy = &policy;
+    policy.policy_object.policy_object = pol_obj;
+    strncpy(get_args.policy_id, pol_id_list->policy_id, PAP_POL_ID_MAX_LEN + 1);
 
-    // Get policy
-    if (callback_get) {
-      callback_get(pol_id_list->policy_ID, &policy_object, &policy_id_signature, &hash_fn);
-    } else {
-      printf("\nERROR[%s]: Callback get is not registered.\n", __FUNCTION__);
+    plugin = NULL;
+    callback_fired = 0;
+    for (int i = 0; i < g_plugin_manager.plugins_num; i++) {
+      pluginmanager_get(&g_plugin_manager, i, &plugin);
+      int callback_status = -1;
+      if (plugin != NULL) {
+        callback_status = plugin_call(plugin, PAPPLUGIN_GET_CB, &get_args);
+        callback_fired = 1;
+      }
+      // TODO: check status
+    }
+
+    if (callback_fired == 0) {
+      printf("\nERROR[%s]: No callback for PAPPLUGIN_GET_CB.\n", __FUNCTION__);
       pthread_mutex_unlock(&pap_mutex);
-      free(pol_obj);
       return PAP_ERROR;
     }
 
     jsmn_init(&parser);
-    tok_num = jsmn_parse(&parser, policy_object.policy_object, policy_object.policy_object_size, tokens,
+    tok_num = jsmn_parse(&parser, policy.policy_object.policy_object, policy.policy_object.policy_object_size, tokens,
                          sizeof(tokens) / sizeof(tokens[0]));
 
     for (int i = 0; i < tok_num; i++) {
       if (((subject_id_length + strlen("0x")) == (tokens[i].end - tokens[i].start)) &&
-          (memcmp(policy_object.policy_object + tokens[i].start + strlen("0x"), subject_id, subject_id_length) == 0)) {
+          (memcmp(policy.policy_object.policy_object + tokens[i].start + strlen("0x"), subject_id, subject_id_length) ==
+           0)) {
         for (int j = 0; j < tok_num; j++) {
           if (((tokens[j].end - tokens[j].start) == strlen("action")) &&
-              (memcmp(policy_object.policy_object + tokens[j].start, "action", strlen("action")) == 0)) {
+              (memcmp(policy.policy_object.policy_object + tokens[j].start, "action", strlen("action")) == 0)) {
             action = j + 2;  // Skip 'value' token and return requested token
             break;
           }
@@ -599,17 +679,17 @@ pap_error_e pap_get_subjects_list_of_actions(char *subject_id, int subject_id_le
       action_elem = malloc(sizeof(pap_action_list_t));
       memset(action_elem, 0, sizeof(pap_action_list_t));
 
-      if (hex_to_str(pol_id_list->policy_ID, pol_id_str, PAP_POL_ID_MAX_LEN) != UTILS_STRING_SUCCESS) {
+      if (hex_to_str(pol_id_list->policy_id, pol_id_str, PAP_POL_ID_MAX_LEN) != UTILS_STRING_SUCCESS) {
         printf("\nERROR[%s]: Could not convert hex value to string.\n", __FUNCTION__);
         pthread_mutex_unlock(&pap_mutex);
         free(pol_obj);
         return PAP_ERROR;
       }
 
-      memcpy(action_elem->action, policy_object.policy_object + tokens[action].start,
+      memcpy(action_elem->action, policy.policy_object.policy_object + tokens[action].start,
              tokens[action].end - tokens[action].start);
-      memcpy(action_elem->policy_ID_str, pol_id_str, PAP_POL_ID_MAX_LEN * 2);
-      memcpy(action_elem->is_available.cost, policy_object.cost, strlen(policy_object.cost));
+      memcpy(action_elem->policy_id_str, pol_id_str, PAP_POL_ID_MAX_LEN * 2);
+      memcpy(action_elem->is_available.cost, policy.policy_object.cost, strlen(policy.policy_object.cost));
       action_elem->next = NULL;
 
       if (*action_list == NULL) {
@@ -640,7 +720,6 @@ void pap_user_management_action(pap_user_mng_req_e request, ...) {
 
   va_start(valist, request);
 
-  // Ceck request
   switch (request) {
     case PAP_USERMNG_GET_ALL_USR: {
       char *response;

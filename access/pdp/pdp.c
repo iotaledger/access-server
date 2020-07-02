@@ -52,7 +52,6 @@
 #define PDP_DATA_VAL_SIZE 131
 #define PDP_DATA_TYPE_SIZE 21
 #define PDP_STRTOUL_BASE 10
-#define PDP_MAX_STR_LEN 256
 #define PDP_USER_LEN 128
 #define PDP_WALLET_ADDR_LEN 81
 
@@ -345,9 +344,7 @@ static void get_time_from_attr(char *policy_object, int atribute_position, pdp_o
             *start_time = strtoul(val_str, NULL, PDP_STRTOUL_BASE) + 1;  // Must be greater then value
             break;
           }
-          default: {
-            break;
-          }
+          default: { break; }
         }
 
         free(val_str);
@@ -700,7 +697,7 @@ pdp_decision_e pdp_calculate_decision(char *request_norm, char *obligation, pdp_
       action_elem = action->action_list;
       while (action_elem) {
         memset(&attribute, 0, sizeof(pip_attribute_object_t));
-        sprintf(uri, "iota:%s/request.isPayed.type?request.isPayed.value", action_elem->policy_ID_str);
+        sprintf(uri, "iota:%s/request.isPayed.type?request.isPayed.value", action_elem->policy_id_str);
         pip_get_data(uri, &attribute);
         if (memcmp(attribute.value, "verified", strlen("verified")) == 0) {
           action_elem->is_available.is_payed = PAP_PAYED_VERIFIED;
@@ -711,7 +708,7 @@ pdp_decision_e pdp_calculate_decision(char *request_norm, char *obligation, pdp_
         }
 
         memset(&attribute, 0, sizeof(pip_attribute_object_t));
-        sprintf(uri, "iota:%s/request.walletAddress.type?request.walletAddress.value", action_elem->policy_ID_str);
+        sprintf(uri, "iota:%s/request.walletAddress.type?request.walletAddress.value", action_elem->policy_id_str);
         pip_get_data(uri, &attribute);
         memcpy(action_elem->is_available.wallet_address, attribute.value, PDP_WALLET_ADDR_LEN);
 
