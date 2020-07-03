@@ -6,6 +6,7 @@
 #define PROTOCOL_TRANSACTION_PAID 1
 #define PROTOCOL_TRANSACTION_PAID_VERIFIED 2
 #define PROTOCOL_WALLET_ADDR_LEN 81
+#define PROTOCOL_MAX_STR_LEN 256
 
 /****************************************************************************
  * ENUMERATIONS

@@ -19,28 +19,26 @@
 
 /****************************************************************************
  * \project IOTA Access
- * \file demo_resolver_can02.h
+ * \file pepplugin_wallet_demo.h
  * \brief
- * Resolver plugin for CANOpen demo using relay board connected directly to
- * rpi3.
- *
- * @Author Djordje Golubovic
+ * Resolver plugin for wallet functionality.
+ * @Author Strahinja Golic
  *
  * \notes
  *
  * \history
- * 04.03.2020. Initial version.
+ * 15.06.2020. Initial version.
  ****************************************************************************/
 
-#ifndef __DEMO_02_PLUGIN_H__
-#define __DEMO_02_PLUGIN_H__
+#ifndef _PEP_PLUGIN_WALLET_DEMO_H_
+#define _PEP_PLUGIN_WALLET_DEMO_H_
 
 #include "pep_plugin.h"
 
 /**
- * @fn void demo02plugin_initializer(resolver_plugin_t* action_set)
+ * @fn void peppluginwalletdemo_initializer(resolver_plugin_t* action_set)
  * @brief resolver plugin initializer callback
  */
-int demo02plugin_initializer(plugin_t* action_set, void* options);
+int peppluginwalletdemo_initializer(plugin_t* plugin, void* options);
 
 #endif

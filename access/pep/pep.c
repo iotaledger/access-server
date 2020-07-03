@@ -225,7 +225,7 @@ bool pep_term(void) {
   return TRUE;
 }
 
-bool pep_register_callback(plugin_t *plugin) {
+bool pep_register_plugin(plugin_t *plugin) {
   pthread_mutex_lock(&pep_mutex);
 
   // Register plugin
@@ -233,10 +233,6 @@ bool pep_register_callback(plugin_t *plugin) {
 
   pthread_mutex_unlock(&pep_mutex);
 
-  return TRUE;
-}
-
-bool pep_unregister_callback(void) {
   return TRUE;
 }
 

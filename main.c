@@ -32,12 +32,12 @@
 #include "config_manager.h"
 #include "datadumper.h"
 #include "dataset.h"
-#include "demo_resolver_can01.h"
-#include "demo_resolver_can02.h"
-#include "demo_resolver_wallet.h"
 #include "globals_declarations.h"
 #include "network.h"
 #include "obdii_receiver.h"
+#include "pepplugin_can_demo.h"
+#include "pepplugin_canopen_demo.h"
+#include "pepplugin_wallet_demo.h"
 #include "pip_plugin_wallet.h"
 #include "storage.h"
 #include "timer.h"
@@ -89,7 +89,7 @@ int main(int argc, char **argv) {
   datadumper_init();
   plugin_t plugin;
 
-  plugin_init(&plugin, demowalletplugin_initializer, NULL);
+  plugin_init(&plugin, peppluginwalletdemo_initializer, NULL);
   access_register_pep_plugin(access_context, &plugin);
 
   plugin_init(&plugin, pippluginwallet_initializer, NULL);
@@ -101,7 +101,7 @@ int main(int argc, char **argv) {
   if (strncmp(client_name, CONFIG_CLIENT_CAN01, strlen(CONFIG_CLIENT_CAN01)) == 0) {
     plugin_init(&plugin, pipplugin_canreceiver_initializer, NULL);
     access_register_pip_plugin(access_context, &plugin);
-    plugin_init(&plugin, demo01plugin_initializer, NULL);
+    plugin_init(&plugin, pepplugincandemo_initializer, NULL);
     access_register_pep_plugin(access_context, &plugin);
     using_can = 1;
   } else if (strncmp(client_name, CONFIG_CLIENT_CANOPEN01, strlen(CONFIG_CLIENT_CANOPEN01)) == 0) {

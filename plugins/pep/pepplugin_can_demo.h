@@ -19,11 +19,9 @@
 
 /****************************************************************************
  * \project IOTA Access
- * \file demo_resolver_can01.h
+ * \file pepplugin_can_demo.h
  * \brief
- * Resolver plugin for CAN demo. There are two variants, one is using relay
- * board directly connected to rpi3, and other is using relay board
- * connected through TCP socket.
+ * PEP plugin for CAN demo. It uses relay board directly connected to rpi3 for control
  *
  * @Author Djordje Golubovic
  *
@@ -33,15 +31,15 @@
  * 04.03.2020. Initial version.
  ****************************************************************************/
 
-#ifndef __DEMO_01_PLUGIN_H__
-#define __DEMO_01_PLUGIN_H__
+#ifndef _PEP_PLUGIN_CAN_DEMO_H_
+#define _PEP_PLUGIN_CAN_DEMO_H_
 
 #include "pep_plugin.h"
 
 /**
- * @fn void demo01plugin_initializer(resolver_plugin_t* action_set)
+ * @fn void pepplugincandemo_initializer(plugin_t* plugin)
  * @brief resolver plugin initializer callback
  */
-int demo01plugin_initializer(plugin_t* action_set, void* options);
+int pepplugincandemo_initializer(plugin_t* plugin, void* options);
 
 #endif

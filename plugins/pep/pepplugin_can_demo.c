@@ -19,11 +19,9 @@
 
 /****************************************************************************
  * \project IOTA Access
- * \file demo_resolver_can01.c
+ * \file pepplugin_can_demo.c
  * \brief
- * Resolver plugin for CAN demo. There are two variants, one is using relay
- * board directly connected to rpi3, and other is using relay board
- * connected through TCP socket.
+ * PEP plugin for CAN demo. It uses relay board directly connected to rpi3 for control
  *
  * @Author Djordje Golubovic
  *
@@ -33,58 +31,49 @@
  * 04.03.2020. Initial version.
  ****************************************************************************/
 
-#include "demo_resolver_can01.h"
+#include "pepplugin_can_demo.h"
 
-#include <arpa/inet.h>
 #include <string.h>
 #include <unistd.h>
 
-#include "relay_interface.h"
-
-//#include "can_receiver.h"
 #include "config_manager.h"
 #include "datadumper.h"
 #include "dlog.h"
+#include "relay_interface.h"
 #include "time_manager.h"
 
-//#define RES_DATASET_NUM_SIZE 2
-//#define RES_DATASET_NUM_POSITION 9
 #define RES_BUFF_LEN 80
-#define RES_MAX_RESOLVER_ACTIONS 10
-#define RES_ACTION_NAME_SIZE 16
-#define RES_POL_ID_STR_LEN 64
+#define MAX_ACTIONS 10
+#define ACTION_NAME_SIZE 16
+#define POLICY_ID_SIZE 64
 #define ADDR_SIZE 128
 
 typedef int (*action_t)(pdp_action_t* action, int should_log);
 
 typedef struct {
-  char action_names[RES_MAX_RESOLVER_ACTIONS][RES_ACTION_NAME_SIZE];
-  action_t actions[RES_MAX_RESOLVER_ACTIONS];
+  char action_names[MAX_ACTIONS][ACTION_NAME_SIZE];
+  action_t actions[MAX_ACTIONS];
   size_t count;
 } action_set_t;
 
 static action_set_t g_action_set;
 
-static char relayboard_addr[ADDR_SIZE] = "127.0.0.1";
-
-void demo01plugin_set_relayboard_addr(const char* addr) { strncpy(relayboard_addr, addr, sizeof(relayboard_addr)); }
-
-static int demo01_car_lock(pdp_action_t* action, int should_log) {
+static int car_lock(pdp_action_t* action, int should_log) {
   relayinterface_pulse(0);
   return 0;
 }
 
-static int demo01_car_unlock(pdp_action_t* action, int should_log) {
+static int car_unlock(pdp_action_t* action, int should_log) {
   relayinterface_pulse(1);
   return 0;
 }
 
-static int demo01_start_engine(pdp_action_t* action, int should_log) {
+static int start_engine(pdp_action_t* action, int should_log) {
   relayinterface_pulse(2);
   return 0;
 }
 
-static int demo01_open_trunk(pdp_action_t* action, int should_log) {
+static int open_trunk(pdp_action_t* action, int should_log) {
   relayinterface_pulse(3);
   return 0;
 }
@@ -116,15 +105,15 @@ static int action_cb(plugin_t* plugin, void* data) {
   return status;
 }
 
-int demo01plugin_initializer(plugin_t* plugin, void* options) {
-  g_action_set.actions[0] = demo01_car_unlock;
-  g_action_set.actions[1] = demo01_car_lock;
-  g_action_set.actions[2] = demo01_open_trunk;
-  g_action_set.actions[3] = demo01_start_engine;
-  strncpy(g_action_set.action_names[0], "open_door", RES_ACTION_NAME_SIZE);
-  strncpy(g_action_set.action_names[1], "close_door", RES_ACTION_NAME_SIZE);
-  strncpy(g_action_set.action_names[2], "open_trunk", RES_ACTION_NAME_SIZE);
-  strncpy(g_action_set.action_names[3], "start_engine", RES_ACTION_NAME_SIZE);
+int pepplugincandemo_initializer(plugin_t* plugin, void* options) {
+  g_action_set.actions[0] = car_unlock;
+  g_action_set.actions[1] = car_lock;
+  g_action_set.actions[2] = open_trunk;
+  g_action_set.actions[3] = start_engine;
+  strncpy(g_action_set.action_names[0], "open_door", ACTION_NAME_SIZE);
+  strncpy(g_action_set.action_names[1], "close_door", ACTION_NAME_SIZE);
+  strncpy(g_action_set.action_names[2], "open_trunk", ACTION_NAME_SIZE);
+  strncpy(g_action_set.action_names[3], "start_engine", ACTION_NAME_SIZE);
   g_action_set.count = 4;
 
   plugin->destroy = destroy_cb;
