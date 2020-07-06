@@ -622,7 +622,7 @@ pdp_decision_e pdp_calculate_decision(char *request_norm, char *obligation, pdp_
       action_elem = action->action_list;
       while (action_elem) {
         memset(&attribute, 0, sizeof(pip_attribute_object_t));
-        sprintf(uri, "iota:%s/request.isPayed.type?request.isPayed.value", action_elem->policy_ID_str);
+        sprintf(uri, "iota:%s/request.isPayed.type?request.isPayed.value", action_elem->policy_id_str);
         pip_get_data(uri, &attribute);
         if (memcmp(attribute.value, "verified", strlen("verified")) == 0) {
           action_elem->is_available.is_payed = PAP_PAYED_VERIFIED;
@@ -633,7 +633,7 @@ pdp_decision_e pdp_calculate_decision(char *request_norm, char *obligation, pdp_
         }
 
         memset(&attribute, 0, sizeof(pip_attribute_object_t));
-        sprintf(uri, "iota:%s/request.walletAddress.type?request.walletAddress.value", action_elem->policy_ID_str);
+        sprintf(uri, "iota:%s/request.walletAddress.type?request.walletAddress.value", action_elem->policy_id_str);
         pip_get_data(uri, &attribute);
         memcpy(action_elem->is_available.wallet_address, attribute.value, PDP_WALLET_ADDR_LEN);
 

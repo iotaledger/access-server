@@ -37,9 +37,6 @@ typedef struct {
 void access_init(access_ctx_t *access_context) {
   access_ctx_t_ *ctx = calloc(1, sizeof(access_ctx_t_));
 
-  // Init policy loader
-  policyloader_init();
-
   timer_init();
 
   pep_init();
