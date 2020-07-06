@@ -19,25 +19,37 @@
 
 /****************************************************************************
  * \project Decentralized Access Control
- * \file network.h
+ * \file canopen_receiver.h
  * \brief
- * Header for network module
+ * Implementation of interface for CANOPEN receiver
  *
- * @Author Djordje Golubovic
+ * @Author
  *
  * \notes
  *
  * \history
- * 07.11.2019. Initial version.
+ * XX.YY.ZZZZ. Initial version.
  ****************************************************************************/
+#ifndef _CANOPEN_RECEIVER_H_
+#define _CANOPEN_RECEIVER_H_
 
-#ifndef _NETWORK_H_
-#define _NETWORK_H_
+#include <pthread.h>
+#include "vehicle_dataset.h"
 
-typedef void *network_ctx_t;
+#include "pip_plugin.h"
+#include "plugin.h"
 
-int network_init(network_ctx_t *network_context);
-int network_start(network_ctx_t network_context);
-void network_stop(network_ctx_t network_context);
+#ifndef bool
+#define bool _Bool
+#endif
+
+int pipplugin_canopenreceiver_initializer(plugin_t *plugin, void *data);
+
+void canopenreceiver_init(canopen01_vehicle_dataset_t *dataset, pthread_mutex_t *json_mutex);
+int canopenreceiver_start();
+void canopenreceiver_deinit();
+bool canopenreceiver_is_in_use();
+void canopenreceiver_get_port_name(char *p_name_buff, int p_name_buff_len);
+int canopenreceiver_get_node_id(void);
 
 #endif

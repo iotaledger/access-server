@@ -17,10 +17,26 @@
  * limitations under the License.
  */
 
-#ifndef _POLICY_LOADER_H_
-#define _POLICY_LOADER_H_
+/****************************************************************************
+ * \project Decentralized Access Control
+ * \file storage.h
+ * \brief
+ * Implementation of policy storage interface
+ *
+ * @Author Dejan Nedic, Strahinja Golic
+ *
+ * \notes
+ *
+ * \history
+ * 24.08.2018. Initial version.
+ * 25.05.2020. Refactoring.
+ ****************************************************************************/
+#ifndef _STORAGE_H_
+#define _STORAGE_H_
 
-int policyloader_start();
-int policyloader_stop();
+#include "pap_plugin.h"
+#include "plugin.h"
 
-#endif
+int pappluginrpi_initializer(plugin_t *plugin, void *user_data);
+
+#endif  //_STORAGE_H_

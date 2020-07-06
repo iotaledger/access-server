@@ -19,6 +19,8 @@
 
 #include "plugin.h"
 
+#include <stdio.h>
+
 int plugin_init(plugin_t *plugin, plugin_cb initializer, void *data) { initializer(plugin, data); }
 
 int plugin_destroy(plugin_t *plugin) { return plugin->destroy(plugin, NULL); }

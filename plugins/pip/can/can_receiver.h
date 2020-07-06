@@ -19,25 +19,24 @@
 
 /****************************************************************************
  * \project Decentralized Access Control
- * \file network.h
+ * \file can_receiver.h
  * \brief
- * Header for network module
+ * CAN receiver server header file
  *
  * @Author Djordje Golubovic
  *
  * \notes
  *
  * \history
- * 07.11.2019. Initial version.
+ * 04.15.2019. Initial version.
  ****************************************************************************/
 
-#ifndef _NETWORK_H_
-#define _NETWORK_H_
+#ifndef _CAN_RECEIVER_H_
+#define _CAN_RECEIVER_H_
 
-typedef void *network_ctx_t;
+#include "pip_plugin.h"
+#include "plugin.h"
 
-int network_init(network_ctx_t *network_context);
-int network_start(network_ctx_t network_context);
-void network_stop(network_ctx_t network_context);
+int pipplugin_canreceiver_initializer(plugin_t* plugin, void* data);
 
 #endif

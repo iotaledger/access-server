@@ -19,29 +19,20 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-set(target pep_plugin)
-
-set(sources
-  pep_plugin.c
-  platform_interface/r_pi/relay_interface.c
-  implementation/pep_plugin_can_01.c
-  implementation/pep_plugin_can_02.c
-  implementation/pep_plugin_wallet.c)
-
-set(include_dirs
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/platform_interface/r_pi
-  ${CMAKE_CURRENT_SOURCE_DIR}/implementation
-  ${pigpio_SOURCE_DIR}
-)
+set(target pep_plugins)
 
 set(libs
-  pep
-  data_acquisition_plugins
-  data_transactions_plugins
-  pap
-  pigpio)
+  access_wallet
+  pdp
+  pluginmanager
+  platform_interface)
+
+set(sources
+  pepplugin_can_demo.c
+  pepplugin_canopen_demo.c
+  pepplugin_wallet_demo.c
+)
 
 add_library(${target} ${sources})
-target_include_directories(${target} PUBLIC ${include_dirs})
+target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(${target} PUBLIC ${libs})

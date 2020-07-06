@@ -19,18 +19,18 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-set(target pap_plugin)
+set(target vehicle_dataset)
 
 set(sources
-  storage.c
-  test_internal.c)
+  vehicle/vehicle_dataset.c
+  vehicle/vehicle_datasharing_dataset.c)
+
+set(libs json_parser)
 
 set(include_dirs
-  ${CMAKE_CURRENT_SOURCE_DIR})
-
-set(libs
-  pap
-  misc)
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/vehicle
+)
 
 add_library(${target} ${sources})
 target_include_directories(${target} PUBLIC ${include_dirs})

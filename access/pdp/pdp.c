@@ -52,7 +52,6 @@
 #define PDP_DATA_VAL_SIZE 131
 #define PDP_DATA_TYPE_SIZE 21
 #define PDP_STRTOUL_BASE 10
-#define PDP_MAX_STR_LEN 256
 #define PDP_USER_LEN 128
 #define PDP_WALLET_ADDR_LEN 81
 
@@ -345,9 +344,7 @@ static void get_time_from_attr(char *policy_object, int atribute_position, pdp_o
             *start_time = strtoul(val_str, NULL, PDP_STRTOUL_BASE) + 1;  // Must be greater then value
             break;
           }
-          default: {
-            break;
-          }
+          default: { break; }
         }
 
         free(val_str);

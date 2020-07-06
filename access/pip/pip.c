@@ -41,11 +41,14 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
+#include "pip_plugin.h"
+#include "pluginmanager.h"
 
 /****************************************************************************
  * MACROS
  ****************************************************************************/
 #define PIP_DELIMITER_LEN 2
+#define MAX_PIP_PLUGINS 5
 
 /****************************************************************************
  * GLOBAL VARIABLES
@@ -55,7 +58,7 @@ static pthread_mutex_t pip_mutex;
 /****************************************************************************
  * CALLBACK FUNCTIONS
  ****************************************************************************/
-static fetch_fn callback_fetch[PIP_MAX_AUTH_CALLBACKS] = {0};
+static pluginmanager_t plugin_manager;
 
 /****************************************************************************
  * API FUNCTIONS
@@ -67,36 +70,74 @@ pip_error_e pip_init(void) {
     return PIP_ERROR;
   }
 
+  pluginmanager_init(&plugin_manager, MAX_PIP_PLUGINS);
+
   return PIP_NO_ERROR;
 }
 
 pip_error_e pip_term(void) {
+  // stop and destroy plugins
+  plugin_t* plugin;
+  for (int i = 0; i < plugin_manager.plugins_num; i++) {
+    pluginmanager_get(&plugin_manager, i, &plugin);
+    int callback_status = -1;
+    if (plugin != NULL) {
+      callback_status = plugin_destroy(plugin);
+    }
+    // TODO: check status
+  }
+
   // Destroy mutex
   pthread_mutex_destroy(&pip_mutex);
 
   return PIP_NO_ERROR;
 }
 
-pip_error_e pip_register_callback(pip_authorities_e authority, fetch_fn fetch) {
+pip_error_e pip_get_dataset(char* dataset_json, size_t* string_len) {
+  plugin_t* plugin;
+  for (int i = 0; i < plugin_manager.plugins_num; i++) {
+    pluginmanager_get(&plugin_manager, i, &plugin);
+    int callback_status = -1;
+    pipplugin_string_arg_t attr;
+    attr.string = dataset_json;
+    attr.len = 0;
+    if (plugin != NULL) {
+      callback_status = plugin_call(plugin, PIPPLUGIN_GET_DATASET_CB, &attr);
+      *string_len = attr.len;
+    }
+    // TODO: check status
+  }
+  return PIP_NO_ERROR;
+}
+
+pip_error_e pip_set_dataset(char* dataset_json, size_t string_len) {
+  plugin_t* plugin;
+  for (int i = 0; i < plugin_manager.plugins_num; i++) {
+    pluginmanager_get(&plugin_manager, i, &plugin);
+    pipplugin_string_arg_t attr;
+    attr.string = dataset_json;
+    attr.len = string_len;
+    int callback_status = -1;
+    if (plugin != NULL) {
+      callback_status = plugin_call(plugin, PIPPLUGIN_SET_DATASET_CB, &attr);
+    }
+    // TODO: check status
+  }
+  return PIP_NO_ERROR;
+}
+
+pip_error_e pip_register_plugin(plugin_t* plugin) {
   pthread_mutex_lock(&pip_mutex);
 
   // Check input parameters
-  if (fetch == NULL) {
+  if (plugin == NULL) {
     printf("\nERROR[%s]: Bad input parameter.\n", __FUNCTION__);
     pthread_mutex_unlock(&pip_mutex);
     return PIP_ERROR;
   }
 
-  if (authority > PIP_MAX_AUTH_CALLBACKS) {
-    printf("\nERROR[%s]: Non existing authority.\n", __FUNCTION__);
-    pthread_mutex_unlock(&pip_mutex);
-    return PIP_ERROR;
-  }
-
   // Register callback
-  if (callback_fetch[authority] == NULL) {
-    callback_fetch[authority] = fetch;
-  } else {
+  if (pluginmanager_register(&plugin_manager, plugin) != 0) {
     printf("\nERROR[%s]: Callback is already registered.\n", __FUNCTION__);
     pthread_mutex_unlock(&pip_mutex);
     return PIP_ERROR;
@@ -106,41 +147,9 @@ pip_error_e pip_register_callback(pip_authorities_e authority, fetch_fn fetch) {
   return PIP_NO_ERROR;
 }
 
-pip_error_e pip_unregister_callback(pip_authorities_e authority) {
-  pthread_mutex_lock(&pip_mutex);
-
-  // Check input parameters
-  if (authority > PIP_MAX_AUTH_CALLBACKS) {
-    printf("\nERROR[%s]: Non existing authority.\n", __FUNCTION__);
-    pthread_mutex_unlock(&pip_mutex);
-    return PIP_ERROR;
-  }
-
-  // Unregister callback
-  callback_fetch[authority] = NULL;
-
-  pthread_mutex_unlock(&pip_mutex);
-  return PIP_NO_ERROR;
-}
-
-pip_error_e pip_unregister_all_callbacks(void) {
-  pthread_mutex_lock(&pip_mutex);
-
-  for (int i = 0; i < PIP_MAX_AUTH_CALLBACKS; i++) {
-    // Unregister callback
-    callback_fetch[i] = NULL;
-  }
-
-  pthread_mutex_unlock(&pip_mutex);
-
-  return PIP_NO_ERROR;
-}
-
 pip_error_e pip_get_data(char* uri, pip_attribute_object_t* attribute) {
-  char delimiter[PIP_DELIMITER_LEN] = ":";
   char temp[PIP_MAX_STR_LEN] = {0};
-  char* ptr = NULL;
-  pip_authorities_e authority;
+  pipplugin_args_t attrs = {0};
 
   pthread_mutex_lock(&pip_mutex);
 
@@ -160,29 +169,29 @@ pip_error_e pip_get_data(char* uri, pip_attribute_object_t* attribute) {
     pthread_mutex_unlock(&pip_mutex);
     return PIP_ERROR;
   } else {
-    memcpy(temp, uri, strlen(uri));
-  }
-
-  ptr = strtok(temp, delimiter);
-
-  if (memcmp(ptr, "iota", strlen("iota")) == 0)  // Only supported authority for now
-  {
-    authority = PIP_IOTA;
-  } else {
-    printf("\nERROR[%s]: Non existing authority.\n", __FUNCTION__);
-    pthread_mutex_unlock(&pip_mutex);
-    return PIP_ERROR;
+    strncpy(attrs.uri, uri, PIP_MAX_STR_LEN);
   }
 
   // Fetch attribute from plugin
-  if (callback_fetch[authority] != NULL) {
-    callback_fetch[authority](uri, attribute);
-  } else {
-    printf("\nERROR[%s]: Callback not registered.\n", __FUNCTION__);
-    pthread_mutex_unlock(&pip_mutex);
-    return PIP_ERROR;
+  plugin_t* plugin;
+  for (int i = 0; i < plugin_manager.plugins_num; i++) {
+    pluginmanager_get(&plugin_manager, i, &plugin);
+    int ret = plugin_call(plugin, PIPPLUGIN_ACQUIRE_CB, &attrs);
+    // TODO: check status
   }
 
   pthread_mutex_unlock(&pip_mutex);
   return PIP_NO_ERROR;
+}
+
+pip_error_e pip_start(void) {
+  plugin_t* plugin;
+  for (int i = 0; i < plugin_manager.plugins_num; i++) {
+    pluginmanager_get(&plugin_manager, i, &plugin);
+    int callback_status = -1;
+    if (plugin != NULL) {
+      callback_status = plugin_call(plugin, PIPPLUGIN_START_CB, NULL);
+    }
+    // TODO: check status
+  }
 }
