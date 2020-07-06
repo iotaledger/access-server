@@ -19,7 +19,7 @@
 
 /****************************************************************************
  * \project IOTA Access
- * \file demo_resolver_wallet.c
+ * \file pepplugin_wallet_demo.c
  * \brief
  * Resolver plugin for wallet functionality.
  * @Author Strahinja Golic
@@ -30,7 +30,7 @@
  * 15.06.2020. Initial version.
  ****************************************************************************/
 
-#include "demo_resolver_wallet.h"
+#include "pepplugin_wallet_demo.h"
 
 #include <arpa/inet.h>
 #include <string.h>
@@ -42,8 +42,6 @@
 #include "rpi_trans.h"
 #include "time_manager.h"
 #include "wallet.h"
-
-typedef enum { TRANS_NOT_PAYED, TRANS_PAYED, TRANS_PAYED_VERIFIED } transaction_payment_state_e;
 
 /****************************************************************************
  * MACROS
@@ -132,7 +130,7 @@ static int action_cb(plugin_t* plugin, void* data) {
   return status;
 }
 
-int demowalletplugin_initializer(plugin_t* plugin, void* options) {
+int peppluginwalletdemo_initializer(plugin_t* plugin, void* options) {
   if (plugin == NULL && options == NULL) {
     return -1;
   }

@@ -77,15 +77,15 @@ bool pep_init(void);
 bool pep_term(void);
 
 /**
- * @fn      PEP_register_callback
+ * @fn      pep_register_plugin
  *
- * @brief   Register pep_plugin callback
+ * @brief   Register PEP plugin
  *
- * @param   pep_plugin - pep_plugin callback
+ * @param   plugin - plugin object
  *
  * @return  TRUE on success, FALSE on failure
  */
-bool pep_register_callback(plugin_t* plugin);
+bool pep_register_plugin(plugin_t* plugin);
 
 /**
  * @fn      int pep_request_access(JSON_Value *request)

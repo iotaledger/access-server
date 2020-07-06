@@ -34,10 +34,8 @@
 #ifndef _CAN_RECEIVER_H_
 #define _CAN_RECEIVER_H_
 
-#include "can_thread.h"
 #include "pip_plugin.h"
 #include "plugin.h"
-#include "vehicle_dataset.h"
 
 int pipplugin_canreceiver_initializer(plugin_t* plugin, void* data);
 

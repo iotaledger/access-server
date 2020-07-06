@@ -36,8 +36,10 @@
 #include "can_msgs.h"
 
 #include "can_receiver.h"
+#include "can_thread.h"
 #include "config_manager.h"
 #include "datadumper.h"
+#include "vehicle_dataset.h"
 
 #ifndef bool
 #define bool _Bool

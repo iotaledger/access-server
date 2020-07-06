@@ -58,7 +58,6 @@ static pthread_mutex_t pip_mutex;
 /****************************************************************************
  * CALLBACK FUNCTIONS
  ****************************************************************************/
-static fetch_fn callback_fetch[PIP_MAX_AUTH_CALLBACKS] = {0};
 static pluginmanager_t plugin_manager;
 
 /****************************************************************************
@@ -127,7 +126,7 @@ pip_error_e pip_set_dataset(char* dataset_json, size_t string_len) {
   return PIP_NO_ERROR;
 }
 
-pip_error_e pip_register_callback(plugin_t* plugin) {
+pip_error_e pip_register_plugin(plugin_t* plugin) {
   pthread_mutex_lock(&pip_mutex);
 
   // Check input parameters

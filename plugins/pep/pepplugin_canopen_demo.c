@@ -19,7 +19,7 @@
 
 /****************************************************************************
  * \project IOTA Access
- * \file demo_resolver_can02.c
+ * \file pepplugin_canopen_demo.c
  * \brief
  * Resolver plugin for CANOpen demo using relay board connected directly to
  * rpi3.
@@ -32,7 +32,7 @@
  * 04.03.2020. Initial version.
  ****************************************************************************/
 
-#include "demo_resolver_can02.h"
+#include "pepplugin_canopen_demo.h"
 
 #include <string.h>
 
@@ -42,32 +42,32 @@
 #include "relay_interface.h"
 #include "time_manager.h"
 
-#define RES_MAX_RESOLVER_ACTIONS 10
-#define RES_ACTION_NAME_SIZE 16
-#define RES_POL_ID_STR_LEN 64
-#define RES_BUFF_LEN 80
+#define MAX_ACTIONS 10
+#define ACTION_NAME_SIZE 16
+#define POLICY_ID_SIZE 64
+#define BUFF_LEN 80
 
-static int demo02_vehicle_lock(pdp_action_t* action, int should_log) {
+static int vehicle_lock(pdp_action_t* action, int should_log) {
   relayinterface_off(3);
   return 0;
 }
 
-static int demo02_vehicle_unlock(pdp_action_t* action, int should_log) {
+static int vehicle_unlock(pdp_action_t* action, int should_log) {
   relayinterface_on(3);
   return 0;
 }
 
-static int demo02_honk(pdp_action_t* action, int should_log) {
+static int honk(pdp_action_t* action, int should_log) {
   relayinterface_pulse(2);
   return 0;
 }
 
-static int demo02_alarm_on(pdp_action_t* action, int should_log) {
+static int alarm_on(pdp_action_t* action, int should_log) {
   relayinterface_on(1);
   return 0;
 }
 
-static int demo02_alarm_off(pdp_action_t* action, int should_log) {
+static int alarm_off(pdp_action_t* action, int should_log) {
   relayinterface_off(1);
   return 0;
 }
@@ -75,12 +75,12 @@ static int demo02_alarm_off(pdp_action_t* action, int should_log) {
 typedef int (*action_t)(pdp_action_t* action, int should_log);
 
 typedef struct {
-  char action_names[RES_MAX_RESOLVER_ACTIONS][RES_ACTION_NAME_SIZE];
-  action_t actions[RES_MAX_RESOLVER_ACTIONS];
+  char action_names[MAX_ACTIONS][ACTION_NAME_SIZE];
+  action_t actions[MAX_ACTIONS];
   size_t count;
 } action_set_t;
 
-action_set_t g_action_set;
+static action_set_t g_action_set;
 
 static int destroy_cb(plugin_t* plugin, void* data) {
   free(plugin->callbacks);
@@ -92,7 +92,7 @@ static int action_cb(plugin_t* plugin, void* data) {
   pdp_action_t* action = &args->action;
   char* obligation = args->obligation;
   bool should_log = FALSE;
-  char buf[RES_BUFF_LEN];
+  char buf[BUFF_LEN];
   int status = 0;
 
   // handle obligations
@@ -103,7 +103,7 @@ static int action_cb(plugin_t* plugin, void* data) {
   // execute action
   for (int i = 0; i < g_action_set.count; i++) {
     if (memcmp(action->value, g_action_set.action_names[i], strlen(g_action_set.action_names[i])) == 0) {
-      timemanager_get_time_string(buf, RES_BUFF_LEN);
+      timemanager_get_time_string(buf, BUFF_LEN);
       dlog_printf("%s %s\t<Action performed>\n", buf, action->value);
       status = g_action_set.actions[i](action, should_log);
       break;
@@ -112,21 +112,21 @@ static int action_cb(plugin_t* plugin, void* data) {
   return status;
 }
 
-int demo02plugin_initializer(plugin_t* plugin, void* options) {
+int pepplugincanopendemo_initializer(plugin_t* plugin, void* options) {
   if (plugin == NULL) {
     return -1;
   }
 
-  g_action_set.actions[0] = demo02_vehicle_unlock;
-  g_action_set.actions[1] = demo02_vehicle_lock;
-  g_action_set.actions[2] = demo02_honk;
-  g_action_set.actions[3] = demo02_alarm_on;
-  g_action_set.actions[4] = demo02_alarm_off;
-  strncpy(g_action_set.action_names[0], "open_door", RES_ACTION_NAME_SIZE);
-  strncpy(g_action_set.action_names[1], "close_door", RES_ACTION_NAME_SIZE);
-  strncpy(g_action_set.action_names[2], "honk", RES_ACTION_NAME_SIZE);
-  strncpy(g_action_set.action_names[3], "alarm_on", RES_ACTION_NAME_SIZE);
-  strncpy(g_action_set.action_names[4], "alarm_off", RES_ACTION_NAME_SIZE);
+  g_action_set.actions[0] = vehicle_unlock;
+  g_action_set.actions[1] = vehicle_lock;
+  g_action_set.actions[2] = honk;
+  g_action_set.actions[3] = alarm_on;
+  g_action_set.actions[4] = alarm_off;
+  strncpy(g_action_set.action_names[0], "open_door", ACTION_NAME_SIZE);
+  strncpy(g_action_set.action_names[1], "close_door", ACTION_NAME_SIZE);
+  strncpy(g_action_set.action_names[2], "honk", ACTION_NAME_SIZE);
+  strncpy(g_action_set.action_names[3], "alarm_on", ACTION_NAME_SIZE);
+  strncpy(g_action_set.action_names[4], "alarm_off", ACTION_NAME_SIZE);
   g_action_set.count = 5;
 
   plugin->destroy = destroy_cb;

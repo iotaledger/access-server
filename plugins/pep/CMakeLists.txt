@@ -28,9 +28,9 @@ set(libs
   platform_interface)
 
 set(sources
-  demo_resolver_can01.c
-  demo_resolver_can02.c
-  demo_resolver_wallet.c
+  pepplugin_can_demo.c
+  pepplugin_canopen_demo.c
+  pepplugin_wallet_demo.c
 )
 
 add_library(${target} ${sources})

@@ -67,11 +67,6 @@ typedef struct {
 } pip_attribute_object_t;
 
 /****************************************************************************
- * CALLBACKS
- ****************************************************************************/
-typedef bool (*fetch_fn)(char* uri, pip_attribute_object_t* attribute_object);
-
-/****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
 /**
@@ -103,7 +98,7 @@ pip_error_e pip_get_dataset(char* dataset_json, size_t* string_len);
 pip_error_e pip_set_dataset(char* dataset_json, size_t string_len);
 
 /**
- * @fn      pip_register_callback
+ * @fn      pip_register_plugin
  *
  * @brief   Register callback for authority
  *
@@ -112,29 +107,7 @@ pip_error_e pip_set_dataset(char* dataset_json, size_t string_len);
  *
  * @return  pip_error_e error status
  */
-pip_error_e pip_register_callback(plugin_t*);
-
-/**
- * @fn      pip_unregister_callback
- *
- * @brief   Unregister callback for authority
- *
- * @param   authority - Authority which needs to unregister callback
- *
- * @return  pip_error_e error status
- */
-// pip_error_e pip_unregister_callback(pip_authorities_e authority);
-
-/**
- * @fn      pip_unregister_all_callbacks
- *
- * @brief   Unregister callbacka for every authority
- *
- * @param   void
- *
- * @return  pip_error_e error status
- */
-pip_error_e pip_unregister_all_callbacks(void);
+pip_error_e pip_register_plugin(plugin_t*);
 
 /**
  * @fn      pip_get_data
