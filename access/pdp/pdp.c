@@ -587,6 +587,7 @@ pdp_decision_e pdp_calculate_decision(char *request_norm, char *obligation, pdp_
   char user_str[PDP_USER_LEN] = {0};
   char *policy_object = NULL;
   int request_policy_id = -1;
+  int request_policy_list = -1;
   int request_balance = -1;
   int request_wallet_addr = -1;
   int user = -1;
@@ -602,8 +603,51 @@ pdp_decision_e pdp_calculate_decision(char *request_norm, char *obligation, pdp_
     return ret;
   }
 
-  // Get policy ID from request
   jsonhelper_parser_init(request_norm);
+
+  // Check if get_policy_list request is received
+  request_policy_list = jsonhelper_get_value(request_norm, 0, "cmd");
+  if ((request_policy_list != -1) &&
+      (memcmp(request_norm + jsonhelper_get_token_start(request_policy_list), "get_policy_list", strlen("get_policy_list")) == 0)) {
+    // Get user id
+    user = jsonhelper_get_value(request_norm, 0, "user_id");
+    if (user != -1) {
+      char uri[PDP_MAX_STR_LEN] = {0};
+      pap_action_list_t *action_elem = NULL;
+      pip_attribute_object_t attribute;
+
+      memcpy(user_str, request_norm + jsonhelper_get_token_start(user), jsonhelper_token_size(user));
+
+      // Get action list
+      pap_get_subjects_list_of_actions(user_str, strlen(user_str), &action->action_list);
+
+      // Fill is payed value
+      action_elem = action->action_list;
+      while (action_elem) {
+        memset(&attribute, 0, sizeof(pip_attribute_object_t));
+        sprintf(uri, "iota:%s/request.isPayed.type?request.isPayed.value", action_elem->policy_ID_str);
+        pip_get_data(uri, &attribute);
+        if (memcmp(attribute.value, "verified", strlen("verified")) == 0) {
+          action_elem->is_available.is_payed = PAP_PAYED_VERIFIED;
+        } else if (memcmp(attribute.value, "paid", strlen("paid")) == 0) {
+          action_elem->is_available.is_payed = PAP_PAYED_PENDING;
+        } else {
+          action_elem->is_available.is_payed = PAP_NOT_PAYED;
+        }
+
+        memset(&attribute, 0, sizeof(pip_attribute_object_t));
+        sprintf(uri, "iota:%s/request.walletAddress.type?request.walletAddress.value", action_elem->policy_ID_str);
+        pip_get_data(uri, &attribute);
+        memcpy(action_elem->is_available.wallet_address, attribute.value, PDP_WALLET_ADDR_LEN);
+
+        action_elem = action_elem->next;
+      }
+    }
+
+    return PDP_GRANT;
+  }
+
+  // Get policy ID from request
   request_policy_id = jsonhelper_get_value(request_norm, 0, "policy_id");
   size = jsonhelper_token_size(request_policy_id);
 
@@ -618,27 +662,21 @@ pdp_decision_e pdp_calculate_decision(char *request_norm, char *obligation, pdp_
   // Check if any wallet action is requested
   request_balance = jsonhelper_get_value(request_norm, 0, "balance");
   if (request_balance != -1) {
-    action->balance = strtoul(request_norm + jsonhelper_get_token_start(request_balance + 1), NULL, PDP_STRTOUL_BASE);
+    action->balance = strtoul(request_norm + jsonhelper_get_token_start(request_balance), NULL, PDP_STRTOUL_BASE);
   }
 
   request_wallet_addr = jsonhelper_get_value(request_norm, 0, "user_wallet");
   if (request_wallet_addr != -1 && action->wallet_address != NULL) {
-    memcpy(action->wallet_address, request_norm + jsonhelper_get_token_start(request_wallet_addr + 1),
-           jsonhelper_token_size(request_wallet_addr + 1));
-  }
-
-  // Check if user is given in request
-  user = jsonhelper_get_value(request_norm, 0, "user");
-  if (user != -1) {
-    memcpy(user_str, request_norm + jsonhelper_get_token_start(user + 1), jsonhelper_token_size(user + 1));
+    memcpy(action->wallet_address, request_norm + jsonhelper_get_token_start(request_wallet_addr),
+           jsonhelper_token_size(request_wallet_addr));
   }
 
   // Check if transaction hash is given in request
   tr_hash = jsonhelper_get_value(request_norm, 0, "transaction_hash");
   if (tr_hash != -1) {
-    memcpy(action->transaction_hash, request_norm + jsonhelper_get_token_start(tr_hash + 1),
-           jsonhelper_token_size(tr_hash + 1));
-    action->transaction_hash_len = jsonhelper_token_size(tr_hash + 1);
+    memcpy(action->transaction_hash, request_norm + jsonhelper_get_token_start(tr_hash),
+           jsonhelper_token_size(tr_hash));
+    action->transaction_hash_len = jsonhelper_token_size(tr_hash);
   }
 
   policy_object = malloc(pol_obj_len * sizeof(char));
@@ -688,36 +726,7 @@ pdp_decision_e pdp_calculate_decision(char *request_norm, char *obligation, pdp_
     // FIXME: Should action be taken for deny case also?
     int number_of_tokens = jsonhelper_get_token_num();
     jsonhelper_get_action(action->value, policy.policy_object.policy_object, number_of_tokens);
-    if (memcmp(action->value, "get_actions", strlen("get_actions"))) {
-      char uri[PDP_MAX_STR_LEN] = {0};
-      pap_action_list_t *action_elem = NULL;
-      pip_attribute_object_t attribute;
 
-      // Get action list
-      pap_get_subjects_list_of_actions(user_str, strlen(user_str), &action->action_list);
-
-      // Fill is payed value
-      action_elem = action->action_list;
-      while (action_elem) {
-        memset(&attribute, 0, sizeof(pip_attribute_object_t));
-        sprintf(uri, "iota:%s/request.isPayed.type?request.isPayed.value", action_elem->policy_ID_str);
-        pip_get_data(uri, &attribute);
-        if (memcmp(attribute.value, "verified", strlen("verified")) == 0) {
-          action_elem->is_available.is_payed = PAP_PAYED_VERIFIED;
-        } else if (memcmp(attribute.value, "paid", strlen("paid")) == 0) {
-          action_elem->is_available.is_payed = PAP_PAYED_PENDING;
-        } else {
-          action_elem->is_available.is_payed = PAP_NOT_PAYED;
-        }
-
-        memset(&attribute, 0, sizeof(pip_attribute_object_t));
-        sprintf(uri, "iota:%s/request.walletAddress.type?request.walletAddress.value", action_elem->policy_ID_str);
-        pip_get_data(uri, &attribute);
-        memcpy(action_elem->is_available.wallet_address, attribute.value, PDP_WALLET_ADDR_LEN);
-
-        action_elem = action_elem->next;
-      }
-    }
     action->start_time = 0;
     action->stop_time = 0;
     get_time_from_attr(policy.policy_object.policy_object, policy_goc, UNDEFINED, &(action->start_time),

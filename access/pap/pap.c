@@ -47,7 +47,6 @@
 #include "sha256.h"
 #include "utils.h"
 #include "validator.h"
-#include "policy_loader.h"
 
 #define JSMN_HEADER
 #include "jsmn.h"
@@ -138,9 +137,6 @@ pap_error_e pap_init(void) {
   // Init User Management
   user_init();
 
-  // Init policy loader
-  policyloader_init();
-
   // Initalize mutex
   if (pthread_mutex_init(&pap_mutex, NULL) != 0) {
     printf("\nERROR[%s]: Mutex init failed.\n", __FUNCTION__);
@@ -197,6 +193,7 @@ pap_error_e pap_unregister_callbacks(void) {
 }
 
 pap_error_e pap_add_policy(char *signed_policy, int signed_policy_size, char *parsed_policy_id, char *owner_public_key) {
+  char signature[PAP_SIGNATURE_LEN];
   char policy_id[PAP_POL_ID_MAX_LEN + 1] = {0};
   char policy_obj_hash[PAP_POL_ID_MAX_LEN + 1] = {0};
   char signed_policy_id[PAP_SIGNATURE_LEN + PAP_POL_ID_MAX_LEN + 1] = {0};
@@ -223,9 +220,16 @@ pap_error_e pap_add_policy(char *signed_policy, int signed_policy_size, char *pa
 
   pthread_mutex_lock(&pap_mutex);
 
-  policy = malloc(signed_policy_size * sizeof(char));  // Worst case scenario
-
+#ifndef PAP_SIGNED_POLICY_ALL
+  policy_size = signed_policy_size - PAP_SIGNATURE_LEN;
+  policy = malloc((policy_size + 1) * sizeof(char));
+  memset(policy, 0, policy_size * sizeof(char));
+  memcpy(signature, signed_policy, PAP_SIGNATURE_LEN);
+  memcpy(policy, &signed_policy[PAP_SIGNATURE_LEN], policy_size);
+#else
   // Verify policy signature
+  policy = malloc(signed_policy_size * sizeof(char));  // Worst case scenario
+  memset(policy, 0, signed_policy_size * sizeof(char));
   if (crypto_sign_open(policy, &policy_size, signed_policy, signed_policy_size, owner_public_key) != 0) {
     // Signature verification failed
     printf("\nERROR[%s]: Policy signature can not be verified.\n", __FUNCTION__);
@@ -233,6 +237,7 @@ pap_error_e pap_add_policy(char *signed_policy, int signed_policy_size, char *pa
     pthread_mutex_unlock(&pap_mutex);
     return PAP_ERROR;
   }
+#endif
 
   // Check policy validity
   memset(&report, 0, sizeof(validator_report_t));
@@ -259,6 +264,23 @@ pap_error_e pap_add_policy(char *signed_policy, int signed_policy_size, char *pa
     // Get policy_id
     if (strncmp(&policy[tokens[i].start], "policy_id", strlen("policy_id")) == 0) {
       if ((tokens[i + 1].end - tokens[i + 1].start) <= PAP_POL_ID_MAX_LEN * 2) {
+#ifndef PAP_SIGNED_POLICY_ALL
+        char temp[PAP_POL_ID_MAX_LEN * 2 + PAP_SIGNATURE_LEN] = {0};
+        char verified_policy_id[PAP_POL_ID_MAX_LEN * 2];
+        unsigned long long verified_policy_id_len;
+
+        memcpy(temp, signature, PAP_SIGNATURE_LEN);
+        memcpy(&temp[PAP_SIGNATURE_LEN], &policy[tokens[i + 1].start], PAP_POL_ID_MAX_LEN * 2);
+
+        //Verify signature
+        if (crypto_sign_open(verified_policy_id, &verified_policy_id_len, temp, PAP_POL_ID_MAX_LEN * 2 + PAP_SIGNATURE_LEN, owner_public_key) != 0) {
+          // Signature verification failed
+          printf("\nERROR[%s]: Policy signature can not be verified.\n", __FUNCTION__);
+          free(policy);
+          pthread_mutex_unlock(&pap_mutex);
+          return PAP_ERROR;
+        }
+#endif
         if (parsed_policy_id) {
           memcpy(parsed_policy_id, &policy[tokens[i + 1].start], (tokens[i + 1].end - tokens[i + 1].start));
         }
@@ -507,7 +529,7 @@ pap_error_e pap_get_policy_obj_len(char *policy_id, int policy_id_len, int *pol_
   }
 
   if (*pol_obj_len == 0) {
-    printf("\nERROR[%s]: Invalida object length.\n", __FUNCTION__);
+    printf("\nERROR[%s]: Invalid object length.\n", __FUNCTION__);
     pthread_mutex_unlock(&pap_mutex);
     return PAP_ERROR;
   }

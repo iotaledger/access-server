@@ -68,6 +68,9 @@ void access_init(access_ctx_t *access_context, wallet_ctx_t *device_wallet) {
   configmanager_init("config.ini");
   configmanager_get_option_string("config", "client", ctx->client_name, MAX_CLIENT_NAME);
 
+  // Init policy loader
+  policyloader_init();
+
   // Register plugins
   timer_init();
   pap_plugin_init();

@@ -272,6 +272,7 @@ bool pep_request_access(char *request, void *response) {
 
   memset(obligation, 0, PEP_ACTION_LEN * sizeof(char));
 
+  action.action_list = NULL;
   action.value = action_value;
   action.wallet_address = tangle_address;
 
@@ -285,7 +286,7 @@ bool pep_request_access(char *request, void *response) {
   // Calculate decision and get action + obligation
   ret = pdp_calculate_decision(norm_request, obligation, &action);
 
-  if (memcmp(action.value, "get_actions", strlen("get_actions"))) {
+  if (action.action_list != NULL) {
     pap_action_list_t *temp = NULL;
 
     list_to_string(action.action_list, (char *)response);
