@@ -676,7 +676,7 @@ pdp_decision_e pdp_calculate_decision(char *request_norm, char *obligation, pdp_
     action->transaction_hash_len = jsonhelper_token_size(tr_hash);
   }
 
-  policy_object = malloc(pol_obj_len * sizeof(char));
+  policy_object = calloc(pol_obj_len * sizeof(char), 1);
 
   policy.policy_object.policy_object = policy_object;
 

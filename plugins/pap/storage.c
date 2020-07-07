@@ -469,7 +469,7 @@ static bool acquire_all_policies(pap_policy_id_list_t** pol_list_head) {
   pap_policy_id_list_t* temp = NULL;
   FILE* f;
 
-  f = fopen("../../plugins/storage/platforms/r_pi/policies/stored_policies.txt", "r");
+  f = fopen("../plugins/pap/platforms/r_pi/policies/stored_policies.txt", "r");
   if (f == NULL) {
     printf("\nERROR[%s]: No stored policies info file.\n", __FUNCTION__);
     return FALSE;
@@ -479,7 +479,7 @@ static bool acquire_all_policies(pap_policy_id_list_t** pol_list_head) {
   pol_id_buff_len = ftell(f);
   fseek(f, 0L, SEEK_SET);
 
-  pol_id_buff = malloc(pol_id_buff_len * sizeof(char));
+  pol_id_buff = calloc(pol_id_buff_len * sizeof(char), 1);
 
   fread(pol_id_buff, pol_id_buff_len, 1, f);
 
@@ -557,8 +557,8 @@ static int get_len_cb(plugin_t* plugin, void* data) {
 }
 
 static int get_all_cb(plugin_t* plugin, void* data) {
-  pap_policy_id_list_t* id_list = (pap_policy_id_list_t*)data;
-  acquire_all_policies(&id_list);
+  pap_policy_id_list_t** id_list = (pap_policy_id_list_t**)data;
+  acquire_all_policies(id_list);
   return 0;
 }
 

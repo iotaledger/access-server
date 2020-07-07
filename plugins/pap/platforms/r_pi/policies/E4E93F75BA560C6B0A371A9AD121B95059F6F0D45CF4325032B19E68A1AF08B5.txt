@@ -1,0 +1,7 @@
+policy id:E4E93F75BA560C6B0A371A9AD121B95059F6F0D45CF4325032B19E68A1AF08B5
+policy object:{"obligation_deny":{},"obligation_grant":{},"policy_doc":{},"policy_goc":{"attribute_list":[{"attribute_list":[{"type":"public_id","value":"0x3c9d985c5d630e6e02f676997c5e9f03b45c6b7529b2491e8de03c18af3c9d87f0a65ecb5dd8f390dee13835354b222df414104684ce9f1079a059f052ca6e51"},{"type":"request.subject.type","value":"request.subject.value"}],"operation":"eq"},{"attribute_list":[{"type":"action","value":"action#1"},{"type":"action","value":"action#1"}],"operation":"eq"}],"operation":"and"}}
+policy cost:0.0
+policy id signature:²å=µÈÖ«ò<T*Gbêé­ìtWGòTŠYIþðÞ+Šç…»+\ßyz/bŸmþv&†ê;n3,—'¯ÍSD;y*ïEÈ¾¼=¦"Oû’ª€L_c(ãäI'../plugins/pap/platforms/r_pi/policies/E4E93F75BA560C6B0A371A9AD121B95059F6F0D45CF4325032B19E68A1AF08B5.txt
+policy id signature public key:¯ÍSD;y*ïEÈ¾¼=¦"Oû’ª€L_c(ãäI'../plugins/pap/platforms/r_pi/policies/E4E93F75BA560C6B0A371A9AD121B95059F6F0D45CF4325032B19E68A1AF08B5.txt
+policy id signature sign. algorithm:ECDSA
+hash function:sha-256
