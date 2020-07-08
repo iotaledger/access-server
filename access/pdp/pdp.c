@@ -536,7 +536,7 @@ static int resolve_obligation(char *policy_object, char *policy_id, char *user, 
     // TODO: For now, only IF operation is supported
     switch (opt) {
       case IF:
-        if (!resolve_attribute(policy_object, policy_id, attribute_list, *user)) {
+        if (!resolve_attribute(policy_object, policy_id, attribute_list, user)) {
           // Take second obligation if condition is false (else branch)
           obl_value = jsonhelper_get_token_index_from_pos(policy_object, obl_value + 1, "obligations");
         }
