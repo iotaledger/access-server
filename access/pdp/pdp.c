@@ -58,7 +58,7 @@
 /****************************************************************************
  * LOCAL FUNCTIONS DECLARATION
  ****************************************************************************/
-static int resolve_attribute(char *pol, char *policy_id, int atribute_position);
+static int resolve_attribute(char *pol, char *policy_id, int atribute_position, char *user);
 
 /****************************************************************************
  * LOCAL FUNCTIONS DEFINITION
@@ -93,7 +93,7 @@ static pdp_operation_e get_operation_new(const char *operation, int size) {
   return ret;
 }
 
-static int and (char *policy_object, char *policy_id, int attribute_list) {
+static int and (char *policy_object, char *policy_id, int attribute_list, char *user) {
   int decision = TRUE;
 
   int i = 0;
@@ -106,7 +106,7 @@ static int and (char *policy_object, char *policy_id, int attribute_list) {
   for (i = 0; i < attribute_count; i++) {
     attribute = jsonhelper_get_attribute_from_array(attribute_list, i);
 
-    res = resolve_attribute(policy_object, policy_id, attribute_list + attribute);
+    res = resolve_attribute(policy_object, policy_id, attribute_list + attribute, user);
 
     if (res != FALSE) {
       decision = decision && res;
@@ -119,7 +119,7 @@ static int and (char *policy_object, char *policy_id, int attribute_list) {
   return decision;
 }
 
-static int or (char *policy_object, char *policy_id, int attribute_list) {
+static int or (char *policy_object, char *policy_id, int attribute_list, char *user) {
   int decision = FALSE;
 
   int i = 0;
@@ -132,7 +132,7 @@ static int or (char *policy_object, char *policy_id, int attribute_list) {
   for (i = 0; i < attribute_count; i++) {
     attribute = jsonhelper_get_attribute_from_array(attribute_list, i);
 
-    res = resolve_attribute(policy_object, policy_id, attribute_list + attribute);
+    res = resolve_attribute(policy_object, policy_id, attribute_list + attribute, user);
 
     if (res != FALSE) {
       decision = decision || res;
@@ -145,7 +145,7 @@ static int or (char *policy_object, char *policy_id, int attribute_list) {
   return decision;
 }
 
-static int resolve_condition(char *policy_object, char *policy_id, int attribute_list, pdp_operation_e condition) {
+static int resolve_condition(char *policy_object, char *policy_id, int attribute_list, pdp_operation_e condition, char *user) {
   char uri[PDP_MAX_STR_LEN] = {0};
   char data_value[PDP_DATA_VAL_SIZE] = {0};
   char data_type[PDP_DATA_TYPE_SIZE] = {0};
@@ -176,82 +176,93 @@ static int resolve_condition(char *policy_object, char *policy_id, int attribute
   memcpy(data_type, policy_object + jsonhelper_get_token_start(type2), jsonhelper_token_size(type2));
   memcpy(data_value, policy_object + jsonhelper_get_token_start(value2), jsonhelper_token_size(value2));
 
-  // If any authority other than iota is to be supported, this needs to be modified
-  sprintf(uri, "iota:%s/%s?%s", policy_id, data_type, data_value);
+  if (memcmp(data_type, "request.subject.type", strlen("request.subject.type")) == 0 &&
+      memcmp(data_value, "request.subject.value", strlen("request.subject.value")) == 0) {
+        /* TODO: This is a temporary solution, untill authentication of the user is implemented.
+           When it's done, PIP module will use credentials, in order to verify subject. */
+        memcpy(attribute.type, "public_id", strlen("public_id"));
+        sprintf(attribute.value, "0x%s", user);
+  } else {
+    // If any authority other than iota is to be supported, this needs to be modified
+    sprintf(uri, "iota:%s/%s?%s", policy_id, data_type, data_value);
 
-  if (pip_get_data(uri, &attribute) == PIP_NO_ERROR) {
-    size_of_type1 = jsonhelper_token_size(type1);
-    size_of_type2 = strlen(attribute.type);
-    size_of_value1 = jsonhelper_token_size(value1);
-    size_of_value2 = strlen(attribute.value);
-
-    switch (condition) {
-      case EQ: {
-        if (((size_of_type1 == size_of_type2) &&
-             (strncasecmp(policy_object + jsonhelper_get_token_start(type1), attribute.type, size_of_type1) == 0)) &&
-            ((size_of_value1 == size_of_value2) &&
-             (strncasecmp(policy_object + jsonhelper_get_token_start(value1), attribute.value, size_of_value1) == 0))) {
-          ret = TRUE;
-        } else {
-          dlog_printf("\n FALSE \n");
-        }
-        break;
-      }
-      case LEQ: {
-        if (((size_of_type1 == size_of_type2) &&
-             (strncasecmp(policy_object + jsonhelper_get_token_start(type1), attribute.type, size_of_type1) == 0))) {
-          if (size_of_value1 < size_of_value2) {
-            ret = TRUE;
-          } else if ((size_of_value1 == size_of_value2) &&
-                     strncasecmp(policy_object + jsonhelper_get_token_start(value1), attribute.value, size_of_value1) <=
-                         0) {
-            ret = TRUE;
-          }
-        }
-        break;
-      }
-      case LT: {
-        if (((size_of_type1 == size_of_type2) &&
-             (strncasecmp(policy_object + jsonhelper_get_token_start(type1), attribute.type, size_of_type1) == 0))) {
-          if (size_of_value1 < size_of_value2) {
-            ret = TRUE;
-          } else if ((size_of_value1 == size_of_value2) &&
-                     strncasecmp(policy_object + jsonhelper_get_token_start(value1), attribute.value, size_of_value1) <
-                         0) {
-            ret = TRUE;
-          }
-        }
-        break;
-      }
-      case GEQ: {
-        if (((size_of_type1 == size_of_type2) &&
-             (strncasecmp(policy_object + jsonhelper_get_token_start(type1), attribute.type, size_of_type1) == 0))) {
-          if (size_of_value1 > size_of_value2) {
-            ret = TRUE;
-          } else if ((size_of_value1 == size_of_value2) &&
-                     strncasecmp(policy_object + jsonhelper_get_token_start(value1), attribute.value, size_of_value1) >=
-                         0) {
-            ret = TRUE;
-          }
-        }
-        break;
-      }
-      case GT: {
-        if (((size_of_type1 == size_of_type2) &&
-             (strncasecmp(policy_object + jsonhelper_get_token_start(type1), attribute.type, size_of_type1) == 0))) {
-          if (size_of_value1 > size_of_value2) {
-            ret = TRUE;
-          } else if ((size_of_value1 == size_of_value2) &&
-                     strncasecmp(policy_object + jsonhelper_get_token_start(value1), attribute.value, size_of_value1) >
-                         0) {
-            ret = TRUE;
-          }
-        }
-        break;
-      }
-      default:
-        break;
+    if (pip_get_data(uri, &attribute) != PIP_NO_ERROR) {
+      dlog_printf("\n\nERROR[%s]: Getting data from PIP failed.\n\n", __FUNCTION__);
+      return FALSE;
     }
+  }
+
+  size_of_type1 = jsonhelper_token_size(type1);
+  size_of_type2 = strlen(attribute.type);
+  size_of_value1 = jsonhelper_token_size(value1);
+  size_of_value2 = strlen(attribute.value);
+
+  switch (condition) {
+    case EQ: {
+      if (((size_of_type1 == size_of_type2) &&
+            (strncasecmp(policy_object + jsonhelper_get_token_start(type1), attribute.type, size_of_type1) == 0)) &&
+          ((size_of_value1 == size_of_value2) &&
+            (strncasecmp(policy_object + jsonhelper_get_token_start(value1), attribute.value, size_of_value1) == 0))) {
+        ret = TRUE;
+      } else {
+        dlog_printf("\n FALSE \n");
+      }
+      break;
+    }
+    case LEQ: {
+      if (((size_of_type1 == size_of_type2) &&
+            (strncasecmp(policy_object + jsonhelper_get_token_start(type1), attribute.type, size_of_type1) == 0))) {
+        if (size_of_value1 < size_of_value2) {
+          ret = TRUE;
+        } else if ((size_of_value1 == size_of_value2) &&
+                    strncasecmp(policy_object + jsonhelper_get_token_start(value1), attribute.value, size_of_value1) <=
+                        0) {
+          ret = TRUE;
+        }
+      }
+      break;
+    }
+    case LT: {
+      if (((size_of_type1 == size_of_type2) &&
+            (strncasecmp(policy_object + jsonhelper_get_token_start(type1), attribute.type, size_of_type1) == 0))) {
+        if (size_of_value1 < size_of_value2) {
+          ret = TRUE;
+        } else if ((size_of_value1 == size_of_value2) &&
+                    strncasecmp(policy_object + jsonhelper_get_token_start(value1), attribute.value, size_of_value1) <
+                        0) {
+          ret = TRUE;
+        }
+      }
+      break;
+    }
+    case GEQ: {
+      if (((size_of_type1 == size_of_type2) &&
+            (strncasecmp(policy_object + jsonhelper_get_token_start(type1), attribute.type, size_of_type1) == 0))) {
+        if (size_of_value1 > size_of_value2) {
+          ret = TRUE;
+        } else if ((size_of_value1 == size_of_value2) &&
+                    strncasecmp(policy_object + jsonhelper_get_token_start(value1), attribute.value, size_of_value1) >=
+                        0) {
+          ret = TRUE;
+        }
+      }
+      break;
+    }
+    case GT: {
+      if (((size_of_type1 == size_of_type2) &&
+            (strncasecmp(policy_object + jsonhelper_get_token_start(type1), attribute.type, size_of_type1) == 0))) {
+        if (size_of_value1 > size_of_value2) {
+          ret = TRUE;
+        } else if ((size_of_value1 == size_of_value2) &&
+                    strncasecmp(policy_object + jsonhelper_get_token_start(value1), attribute.value, size_of_value1) >
+                        0) {
+          ret = TRUE;
+        }
+      }
+      break;
+    }
+    default:
+      break;
   }
 
   return ret;
@@ -353,8 +364,8 @@ static void get_time_from_attr(char *policy_object, int atribute_position, pdp_o
   }
 }
 
-static int resolve_attribute(char *policy_object, char *policy_id, int atribute_position) {
-  int ret = -1;
+static int resolve_attribute(char *policy_object, char *policy_id, int atribute_position, char *user) {
+  int ret = FALSE;
   pdp_operation_e opt;
 
   int operation = jsonhelper_get_token_index_from_pos(policy_object, atribute_position, "operation");
@@ -390,31 +401,31 @@ static int resolve_attribute(char *policy_object, char *policy_id, int atribute_
 
     switch (opt) {
       case OR: {
-        ret = or (policy_object, policy_id, attribute_list);
+        ret = or (policy_object, policy_id, attribute_list, user);
         break;
       }
       case AND: {
-        ret = and(policy_object, policy_id, attribute_list);
+        ret = and(policy_object, policy_id, attribute_list, user);
         break;
       }
       case EQ: {
-        ret = resolve_condition(policy_object, policy_id, attribute_list, EQ);
+        ret = resolve_condition(policy_object, policy_id, attribute_list, EQ, user);
         break;
       }
       case LEQ: {
-        ret = resolve_condition(policy_object, policy_id, attribute_list, LEQ);
+        ret = resolve_condition(policy_object, policy_id, attribute_list, LEQ, user);
         break;
       }
       case GEQ: {
-        ret = resolve_condition(policy_object, policy_id, attribute_list, GEQ);
+        ret = resolve_condition(policy_object, policy_id, attribute_list, GEQ, user);
         break;
       }
       case LT: {
-        ret = resolve_condition(policy_object, policy_id, attribute_list, LT);
+        ret = resolve_condition(policy_object, policy_id, attribute_list, LT, user);
         break;
       }
       case GT: {
-        ret = resolve_condition(policy_object, policy_id, attribute_list, GT);
+        ret = resolve_condition(policy_object, policy_id, attribute_list, GT, user);
         break;
       }
       default: {
@@ -479,7 +490,7 @@ static int get_obligation(char *policy_object, int obl_position, char *obligatio
 }
 
 // TODO: obligations should be linked list of the elements of the 'obligation_s' structure type
-static int resolve_obligation(char *policy_object, char *policy_id, int obl_position, char *obligation) {
+static int resolve_obligation(char *policy_object, char *policy_id, char *user, int obl_position, char *obligation) {
   int ret = PDP_ERROR_RET;
   int operation = -1;
   int attribute_list = -1;
@@ -525,7 +536,7 @@ static int resolve_obligation(char *policy_object, char *policy_id, int obl_posi
     // TODO: For now, only IF operation is supported
     switch (opt) {
       case IF:
-        if (!resolve_attribute(policy_object, policy_id, attribute_list)) {
+        if (!resolve_attribute(policy_object, policy_id, attribute_list, *user)) {
           // Take second obligation if condition is false (else branch)
           obl_value = jsonhelper_get_token_index_from_pos(policy_object, obl_value + 1, "obligations");
         }
@@ -602,43 +613,47 @@ pdp_decision_e pdp_calculate_decision(char *request_norm, char *obligation, pdp_
 
   jsonhelper_parser_init(request_norm);
 
+  // Get user id
+  user = jsonhelper_get_value(request_norm, 0, "user_id");
+  if (user == -1) {
+    dlog_printf("\n\nERROR[%s]: Invalid request. No user id.\n\n", __FUNCTION__);
+    return ret;
+  }
+  else {
+    memcpy(user_str, request_norm + jsonhelper_get_token_start(user), jsonhelper_token_size(user));
+  }
+
   // Check if get_policy_list request is received
   request_policy_list = jsonhelper_get_value(request_norm, 0, "cmd");
   if ((request_policy_list != -1) &&
       (memcmp(request_norm + jsonhelper_get_token_start(request_policy_list), "get_policy_list", strlen("get_policy_list")) == 0)) {
-    // Get user id
-    user = jsonhelper_get_value(request_norm, 0, "user_id");
-    if (user != -1) {
-      char uri[PDP_MAX_STR_LEN] = {0};
-      pap_action_list_t *action_elem = NULL;
-      pip_attribute_object_t attribute;
+    char uri[PDP_MAX_STR_LEN] = {0};
+    pap_action_list_t *action_elem = NULL;
+    pip_attribute_object_t attribute;
 
-      memcpy(user_str, request_norm + jsonhelper_get_token_start(user), jsonhelper_token_size(user));
+    // Get action list
+    pap_get_subjects_list_of_actions(user_str, strlen(user_str), &action->action_list);
 
-      // Get action list
-      pap_get_subjects_list_of_actions(user_str, strlen(user_str), &action->action_list);
-
-      // Fill is payed value
-      action_elem = action->action_list;
-      while (action_elem) {
-        memset(&attribute, 0, sizeof(pip_attribute_object_t));
-        sprintf(uri, "iota:%s/request.isPayed.type?request.isPayed.value", action_elem->policy_id_str);
-        pip_get_data(uri, &attribute);
-        if (memcmp(attribute.value, "verified", strlen("verified")) == 0) {
-          action_elem->is_available.is_payed = PAP_PAYED_VERIFIED;
-        } else if (memcmp(attribute.value, "paid", strlen("paid")) == 0) {
-          action_elem->is_available.is_payed = PAP_PAYED_PENDING;
-        } else {
-          action_elem->is_available.is_payed = PAP_NOT_PAYED;
-        }
-
-        memset(&attribute, 0, sizeof(pip_attribute_object_t));
-        sprintf(uri, "iota:%s/request.walletAddress.type?request.walletAddress.value", action_elem->policy_id_str);
-        pip_get_data(uri, &attribute);
-        memcpy(action_elem->is_available.wallet_address, attribute.value, PDP_WALLET_ADDR_LEN);
-
-        action_elem = action_elem->next;
+    // Fill is payed value
+    action_elem = action->action_list;
+    while (action_elem) {
+      memset(&attribute, 0, sizeof(pip_attribute_object_t));
+      sprintf(uri, "iota:%s/request.isPayed.type?request.isPayed.value", action_elem->policy_id_str);
+      pip_get_data(uri, &attribute);
+      if (memcmp(attribute.value, "verified", strlen("verified")) == 0) {
+        action_elem->is_available.is_payed = PAP_PAYED_VERIFIED;
+      } else if (memcmp(attribute.value, "paid", strlen("paid")) == 0) {
+        action_elem->is_available.is_payed = PAP_PAYED_PENDING;
+      } else {
+        action_elem->is_available.is_payed = PAP_NOT_PAYED;
       }
+
+      memset(&attribute, 0, sizeof(pip_attribute_object_t));
+      sprintf(uri, "iota:%s/request.walletAddress.type?request.walletAddress.value", action_elem->policy_id_str);
+      pip_get_data(uri, &attribute);
+      memcpy(action_elem->is_available.wallet_address, attribute.value, PDP_WALLET_ADDR_LEN);
+
+      action_elem = action_elem->next;
     }
 
     return PDP_GRANT;
@@ -712,8 +727,8 @@ pdp_decision_e pdp_calculate_decision(char *request_norm, char *obligation, pdp_
   }
 
   // Resolve attributes
-  int pol_goc = resolve_attribute(policy.policy_object.policy_object, action->pol_id_str, policy_goc);
-  int pol_doc = resolve_attribute(policy.policy_object.policy_object, action->pol_id_str, policy_doc);
+  int pol_goc = resolve_attribute(policy.policy_object.policy_object, action->pol_id_str, policy_goc, user_str);
+  int pol_doc = resolve_attribute(policy.policy_object.policy_object, action->pol_id_str, policy_doc, user_str);
 
   // Calculate decision
   ret = pol_goc + 2 * pol_doc;  // => (0, 1, 2, 3) <=> (gap, grant, deny, conflict)
@@ -730,11 +745,11 @@ pdp_decision_e pdp_calculate_decision(char *request_norm, char *obligation, pdp_
                        &(action->stop_time));
 
     if (policy_gobl >= 0) {
-      resolve_obligation(policy.policy_object.policy_object, action->pol_id_str, policy_gobl, obligation);
+      resolve_obligation(policy.policy_object.policy_object, action->pol_id_str, user_str, policy_gobl, obligation);
     }
   } else if (ret == PDP_DENY) {
     if (policy_dobl >= 0) {
-      resolve_obligation(policy.policy_object.policy_object, action->pol_id_str, policy_dobl, obligation);
+      resolve_obligation(policy.policy_object.policy_object, action->pol_id_str, user_str, policy_dobl, obligation);
     }
   }
 
