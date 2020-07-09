@@ -19,7 +19,7 @@ grant if (object == vehicle) && (subject == vehicle.owner.daughter) &&
 
 This rule implicitly refers to the request made by the daughter of the owner of the vehicle to drive that car. This rule applies only if the requested resource is that vehicle, the action is to drive that vehicle, and the requester is the daughter of the owner of that vehicle. In those circumstances, access is granted if the daughter is insured and the local time is between 9am and 8pm. The intuition is that this rule does not apply whenever its condition `cond` evaluates to `false`, including in cases in which the request is not of that type.
 
-![drawing](/specs/.images/policy.png)
+![drawing](/docs/images/policy.png)
 
 The language does not proscribe the semantics of attributes. For example, the attribute `owner.daughter` may be evaluated through a multi-factor authentication method whereas `daughter.insured` may consult the state of a smart contract.
 
@@ -102,7 +102,7 @@ These compilations provide also the formal underpinnings for a whole range of po
 
 The four possible decisions `grant`, `deny`, `undef` and `conflict` can be represented in the 4-valued Belnap bi-lattice depicted in the Figure below. On this bi-lattice, we can define two subsets: `GoC = {grant, conflict}`  and `DoC = {deny, conflict}`. We can uniquely identify an element of that bi-lattice by saying whether or not  it is a member of `GoC`  and of `DoC`. For example, the element `undef`  is the unique one that is neither in `GoC` nor in `DoC`. And `grant` is the unique element that is in `GoC` but not in `DoC`.
 
-![drawing](/specs/.images/belnap.png)
+![drawing](/docs/images/belnap.png)
 
 This simple observation holds the key to representing a policy pol in a join normal form as
 ```

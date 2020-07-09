@@ -1,9 +1,8 @@
 # Engineering Specification
 
-- [Frontmatter](#frontmatter)
 - [Summary](#summary)
-- [Logical System Design](#logical-system-design)
-  * [Access Core Software Development Kit (ACSDK)](#access-core-software-development-kit-acsdk)
+- [Architecture](#architecture)
+  * [Access Core Software Development Kit (ACSDK)](#access-core-software-development-kit--acsdk-)
     + [Access Core API](#access-core-api)
       - [Policy Administration Point](#policy-administration-point)
       - [Policy Enforcement Point](#policy-enforcement-point)
@@ -21,7 +20,7 @@
       - [Server authentication key exchange](#server-authentication-key-exchange)
       - [Client public key authentication protocol](#client-public-key-authentication-protocol)
       - [Data encryption, decryption and validation](#data-encryption--decryption-and-validation)
-  * [Access Server Reference Implementation (ASRI)](#access-server-reference-implementation-asri)
+  * [Access Server Reference Implementation (ASRI)](#access-server-reference-implementation--asri-)
     + [Access Actor](#access-actor)
     + [Wallet Actor](#wallet-actor)
     + [Network Actor](#network-actor)
@@ -31,60 +30,24 @@
   * [Policy Update Protocol](#policy-update-protocol)
     + [Policy Validation](#policy-validation)
 - [Programming Language](#programming-language)
-- [Environment](#environment)
-- [Schema](#schema)
-- [Functional API](#functional-api)
-  * [Access Core API](#access-core-api-1)
-    + [Policy Administration Point](#policy-administration-point-1)
+- [Access Core API](#access-core-api-1)
+  * [Policy Administration Point](#policy-administration-point-1)
+    + [Callback Functions (PAP Plugin)](#callback-functions--pap-plugin-)
+    + [Internal Functions](#internal-functions)
+    + [External API Functions](#external-api-functions)
     + [Policy Enforcement Point](#policy-enforcement-point-1)
     + [Policy Information Point](#policy-information-point-1)
     + [Policy Decision Point](#policy-decision-point-1)
   * [Access Secure Network API](#access-secure-network-api-1)
 
-## Frontmatter
-[frontmatter]: #frontmatter
-
-```yaml
-title: Access
-stub: access
-document: Engineering Specification
-version: 0000
-maintainer: Bernardo A. Rodrigues <bernardo.araujo@iota.org>
-contributors: [Vladimir Vojnovic <vladimir.vojnovic@nttdata.ro>, Golic, Strahinja <strahinja.golic.bp@nttdata.ro>, Sam Chen <sam.chen@iota.org>, Djordje Golubovic <djordje.golubovic@nttdata.ro>]
-sponsor: [Jakub Cech <jakub.cech@iota.org>, Mathew Yarger <mathew.yarger@iota.org>]
-licenses: ["Apache-2.0"]
-updated: 2020-05-21
-```
-
-<!--
-Engineering Specifications inform developers about the exact shape of
-the way the piece of software was built, using paradigms relevant to the
-programming language that this project has been built with. The document
-seeks to describe in exacting detail "how it works". It describes a
-specific implementation of a logical design.
-
-In some cases there may not be a separate logical specification, so the
-Implementation Specification documents the design of a reference
-implementation that satisfies the requirements set out in the
-Behavioral and Structural Requirements Specifications.
--->
 
 ## Summary
-[summary]: #summary
-<!--
-Short summary of this document.
--->
 
 This document contains technical information about **Access Server**. It is meant to guide engineers willing to collaborate with the project.
 
 Apart from Access Server, the Access framework also includes the [Access Client](https://github.com/iotaledger/access-mobile), which is used to create the user experience for Policy Creation and Access Requests.
 
-## Logical System Design
-[system-design]: #system-design
-<!--
-Please describe all of the current components of the system from a logical
-perspective.
--->
+## Architecture
 
 The Figure below demonstrates the conceptual relationship between different Access components.
 
@@ -94,7 +57,7 @@ It can be divided in 4 stacked layers:
 - API Layer
 - Portability Layer
 
-![drawing](/specs/.images/access_structure.png)
+![drawing](/docs/images/access_structure.png)
 
 The **Portability Layer** implements platform-dependent code. Anything related to drivers, Operating Systems and base libraries.
 
@@ -117,7 +80,7 @@ The Access Core API is divided into 4 different modules (and a few submodules):
 - Policy Enforcement Point (PEP)
 - Policy Decision Point (PDP)
 
-![drawing](/specs/.images/pxp.png)
+![drawing](/docs/images/pxp.png)
 
 ##### Policy Administration Point
 
@@ -137,11 +100,11 @@ The Access Core API is divided into 4 different modules (and a few submodules):
 
 On action request, Policy Enforcement Point (PEP) requests decision from Policy Decision Point (PDP), providing a `policyID` from the request. Based on the requested `policyID`, PDP  requests policy from the policy store and, if response is valid policy, it proceeds with calculation of decision. For both `policy goc` and `policy doc`, PDP calculates result of the policy, `true` or `false`, and then combines those results into decision, which can be one of four defined values: `grant`, `deny`, `conflict` or `undef`, and returns this result to PEP.
 
-![drawing](/specs/.images/pdp.png)
+![drawing](/docs/images/pdp.png)
 
 Calculation of `policy goc` and `policy doc` are modules that recursively solve every operation in the policy and return result at the end. The module is executed recursively as long as attributes in the attribute list of the policy contain predefined operations.
 
-![drawing](/specs/.images/pdp2.png)
+![drawing](/docs/images/pdp2.png)
 
 #### Platform Plugins
 Since IOTA Access can be used for different use cases, the underlying hardware used for resolving access decisions or for acquisition of data can take many different shapes and forms.
@@ -153,12 +116,12 @@ Platform Plugins are written as callback functions. They talk to hardware driver
 Platform Plugins can be divided into Input and Output categories:
 
 ##### Input
-###### Data Acquisition Plugins
-Data Acquisition Plugins are used by PIP to gather information (Attributes) about the external environment.
+###### PIP Plugins
+PIP Plugins are used by PIP to gather information (Attributes) about the external environment.
 
-For example, a Wallet-based Data Acquisition Plugin is used to verify whether an IOTA transaction was indeed performed. That allows PDP to calculate whether to grant access to the device renter.
+For example, a Wallet-based PIP Plugin is used to verify whether an IOTA transaction was indeed performed. That allows PDP to calculate whether to grant access to the device renter.
 
-Another example is of a GPS-based Data Acquisition Plugin that checks device location and uses this Attribute as input for PDP to make its decisions.
+Another example is of a GPS-based PIP Plugin that checks device location and uses this Attribute as input for PDP to make its decisions.
 
 ###### PAP Plugins
 Policies need to be stored on the device in a non-volatile manner.
@@ -187,7 +150,7 @@ The ASN authentication protocol is designed as a module that can be used by both
 
 Client and server use-cases require different paths in authentication methodology. This leads to diversification of authentication steps for each case.
 
-![drawing](/specs/.images/ASN.png)
+![drawing](/docs/images/ASN.png)
 
 In order to meet requirements on different Embedded Systems, two versions of internal module realizations have been defined:
 
@@ -216,7 +179,7 @@ Tiny Embedded is the internal ASN realization based on 3rd party libraries. It i
 
 After physical connection is established, client generates a [Diffie-Hellman](https://mathworld.wolfram.com/Diffie-HellmanProtocol.html) (DH) private key. Based on the private key, client computes DH public key using following formula.
 
-![drawing](/specs/.images/formula.png)
+![drawing](/docs/images/formula.png)
 
 Client sends its DH public key to the server running on the Target Device.
 
@@ -230,7 +193,7 @@ Server sends server public key, server DH public key, and signature to client.
 
 Client first verifies the server's public key. It computes DH-shared secret `K`, hash `H = hash (client ID || server ID || server public key || client DH public key || server DH public key || shared secret K)` and verifies signature.
 
-![drawing](/specs/.images/key_exchange.png)
+![drawing](/docs/images/key_exchange.png)
 
 ##### Client public key authentication protocol
 
@@ -240,7 +203,7 @@ Client calculates hash `H = hash (client ID || server ID || client public key ||
 
 Server verifies the Client's public key and computes hash `H = hash (client ID || server ID || client public key || client DH public key || server DH public key || shared secret K)`. Then, the server verifies signature `S` on hash.
 
-![drawing](/specs/.images/client_key.png)
+![drawing](/docs/images/client_key.png)
 
 ##### Data encryption, decryption and validation
 
@@ -321,7 +284,7 @@ This rule implicitly refers to the request made by the daughter of the owner of 
 
 The Figure below shows a visual representation of the Access Request Protocol:
 
-![drawing](/specs/.images/request.png)
+![drawing](/docs/images/request.png)
 
 1. Supervisor creates Access, Wallet and Network Actors. Network Actor starts Policy Update and Request Listener Daemons.
 2. Access Actor registers Platform Plugin callbacks.
@@ -337,7 +300,7 @@ The Figure below shows a visual representation of the Access Request Protocol:
 ### Policy Update Protocol
 The Figure below shows a visual representation of the Policy Update Protocol:
 
-![drawing](/specs/.images/update.png)
+![drawing](/docs/images/update.png)
 1. Supervisor creates Access, Wallet and Network Actors. Network Actor starts Policy Update and Request Listener Daemons.
 2. Access Actor registers Platform Plugin callbacks.
 3. PAP sends Storage Checksum to Network Actor, who forwards it to the Tangle Policy Store (TPS). If ID sent by PAP matches with the Checksum of Policy List stored on the TPS, then TPS replies ok (nothing to update). If the ID differs, the TPS replies with Policy List (update required).
@@ -356,10 +319,6 @@ Policy Validation is the process where Policy structure is checked in order to:
   - Check for suspicious conditions.
 
 ## Programming Language
-[language]: #language
-<!--
-Please describe the language, minimal version and any other details necessary.
--->
 
 IOTA Access Server is designed to run on Embedded Systems and IoT devices. Thus, it is imperative that it is implemented in the C programming language ([C99](http://www.open-std.org/jtc1/sc22/WG14/www/docs/n1256.pdf)), in order to ensure compatibility with these target devices.
 
@@ -379,57 +338,11 @@ SpaceBeforeParens: ControlStatements
 
 ```
 
-## Environment
-[environment]: #environment
-<!--
-Please describe the environment and any other details necessary.
--->
+## Access Core API
 
-Access Server Reference Implementation is originally designed to run on:
-- [Raspbian Buster](https://www.raspberrypi.org/blog/buster-the-new-version-of-raspbian/)
-- [Yocto Project](https://www.yoctoproject.org/) and [OpenEmbedded](http://www.openembedded.org/wiki/Main_Page) based Linux Distributions.
-- [FreeRTOS](https://www.freertos.org/)
+### Policy Administration Point
 
-## Schema
-[schema]: #schema
-<!--
-If appropriate, please add the schema here.
--->
-
-Policies are objects with the following data structure:
-
-- **Policy ID**: Hash of the compiled policy object.
-- **Policy object**: Object that defines the rules and actions of a policy.
-- **Signature object**: The signature algorithm, the resource owner's signature, and the permitted user's public key
-- **Hash function**: The hash function that was used to generate the policy ID
-
-<!--
-ToDo: verify if this is correct
--->
-
-## Functional API
-[api]: #api
-<!--
-Please use the structural needs of the language used. This may be entirely
-generated from code / code comments but must always be kept up to date as
-the project grows.
-
-Requirements for functions:
-- function name
-- parameters with:
-  - handle
-  - description
-  - explicit type / length
-  - example
-- returns
-- errors
--->
-
-### Access Core API
-
-#### Policy Administration Point
-
-##### Callback Functions (PAP Plugin)
+#### Callback Functions (PAP Plugin)
 ---
 ```
 typedef bool (*put_fn)(char* policy_id, PAP_policy_object_t policy_object, PAP_policy_id_signature_t policy_id_signature, PAP_hash_functions_e hash_fn);
@@ -467,7 +380,7 @@ ToDo: write description
 -->
 xxx
 
-##### Internal Functions
+#### Internal Functions
 ---
 ```
 static void get_public_key_from_user(char *pk);
@@ -495,7 +408,7 @@ ToDo: write description
 -->
 xxx
 
-##### External API Functions
+#### External API Functions
 ---
 ```
 PAP_error_e PAP_init(void);
