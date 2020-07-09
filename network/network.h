@@ -34,11 +34,9 @@
 #ifndef _NETWORK_H_
 #define _NETWORK_H_
 
-#include "dataset.h"
-
 typedef void *network_ctx_t;
 
-int network_init(dataset_state_t *_ddstate, network_ctx_t *network_context);
+int network_init(network_ctx_t *network_context);
 int network_start(network_ctx_t network_context);
 void network_stop(network_ctx_t network_context);
 

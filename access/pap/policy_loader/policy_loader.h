@@ -20,7 +20,6 @@
 #ifndef _POLICY_LOADER_H_
 #define _POLICY_LOADER_H_
 
-void policyloader_init();
 int policyloader_start();
 int policyloader_stop();
 

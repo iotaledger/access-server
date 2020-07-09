@@ -31,10 +31,9 @@ set(libs
   pep
   misc
   fastjson
-  data_acquisition_plugins
-  data_transactions_plugins
-  resolver
-  storage_plugin)
+  platform_interface
+  pip_plugins
+  pep_plugins)
 
 add_library(${target} access.c)
 target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

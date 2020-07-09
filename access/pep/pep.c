@@ -29,7 +29,7 @@
  *
  * \history
  * 25.09.2018. Initial version.
- * 18.02.2019. Added enforce_request_action from resolver module.
+ * 18.02.2019. Added enforce_request_action from pep_plugin module.
  * 21.02.2020. Added obligations functionality.
  * 11.05.2020. Refactoring
  ****************************************************************************/
@@ -43,6 +43,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "pdp.h"
+#include "pep_plugin.h"
+#include "pluginmanager.h"
 #include "utils.h"
 
 /****************************************************************************
@@ -110,7 +112,7 @@ static int normalize_request(char *request, int request_len, char **request_norm
 static int append_action_item_to_str(char *str, int pos, pap_action_list_t *action_item) {
   if (action_item == NULL) {
     return 0;
-  } else if (action_item->policy_ID_str == NULL) {
+  } else if (action_item->policy_id_str == NULL) {
     return 0;
   }
 
@@ -127,7 +129,7 @@ static int append_action_item_to_str(char *str, int pos, pap_action_list_t *acti
   buffer_position += strlen("\"policy_id\":\"");
 
   // add "policy_id" value
-  hex_to_str(action_item->policy_ID_str, str + buffer_position, PEP_POL_ID_HEX_LEN);
+  hex_to_str(action_item->policy_id_str, str + buffer_position, PEP_POL_ID_HEX_LEN);
   buffer_position += PEP_POL_ID_STR_LEN;
   str[buffer_position++] = '\"';
 
@@ -185,7 +187,8 @@ static int list_to_string(pap_action_list_t *action_list, char *output_str) {
 /****************************************************************************
  * CALLBACK FUNCTIONS
  ****************************************************************************/
-static resolver_fn callback_resolver = NULL;
+#define MAX_PEP_PLUGINS 5
+static pluginmanager_t plugin_manager;
 
 /****************************************************************************
  * API FUNCTIONS
@@ -203,6 +206,9 @@ bool pep_init() {
     return FALSE;
   }
 
+  // initialize plugin manager for pep
+  pluginmanager_init(&plugin_manager, MAX_PEP_PLUGINS);
+
   return TRUE;
 }
 
@@ -219,34 +225,11 @@ bool pep_term(void) {
   return TRUE;
 }
 
-bool pep_register_callback(resolver_fn resolver) {
-  // Check input parameter
-  if (resolver == NULL) {
-    printf("\n\nERROR[%s]: Invalid input parameters.\n\n", __FUNCTION__);
-    return FALSE;
-  }
-
-  // Check if it's already registered
-  if (callback_resolver != NULL) {
-    printf("\n\nERROR[%s]: Callback already registered.\n\n", __FUNCTION__);
-    return FALSE;
-  }
-
+bool pep_register_plugin(plugin_t *plugin) {
   pthread_mutex_lock(&pep_mutex);
 
-  // Register callback
-  callback_resolver = resolver;
-
-  pthread_mutex_unlock(&pep_mutex);
-
-  return TRUE;
-}
-
-bool pep_unregister_callback(void) {
-  pthread_mutex_lock(&pep_mutex);
-
-  // Unregister callback
-  callback_resolver = NULL;
+  // Register plugin
+  pluginmanager_register(&plugin_manager, plugin);
 
   pthread_mutex_unlock(&pep_mutex);
 
@@ -256,11 +239,12 @@ bool pep_unregister_callback(void) {
 bool pep_request_access(char *request, void *response) {
   char action_value[PEP_ACTION_LEN];
   // TODO: obligations should be linked list of the elements of the 'obligation_s' structure type
-  char obligation[PDP_OBLIGATION_LEN];
+  // char obligation[PDP_OBLIGATION_LEN];
   char tangle_address[PEP_IOTA_ADDR_LEN];
   char *norm_request = NULL;
-  pdp_action_t action;
+  // pdp_action_t action;
   pdp_decision_e ret = PDP_ERROR;
+  pepplugin_args_t plugin_args = {0};
 
   // Check input parameter
   if (request == NULL || response == NULL) {
@@ -270,10 +254,8 @@ bool pep_request_access(char *request, void *response) {
 
   pthread_mutex_lock(&pep_mutex);
 
-  memset(obligation, 0, PEP_ACTION_LEN * sizeof(char));
-
-  action.value = action_value;
-  action.wallet_address = tangle_address;
+  plugin_args.action.value = action_value;
+  plugin_args.action.wallet_address = tangle_address;
 
   // Get normalized request
   if (normalize_request(request, strlen(request), &norm_request) == 0) {
@@ -283,25 +265,23 @@ bool pep_request_access(char *request, void *response) {
   }
 
   // Calculate decision and get action + obligation
-  ret = pdp_calculate_decision(norm_request, obligation, &action);
+  ret = pdp_calculate_decision(norm_request, plugin_args.obligation, &plugin_args.action);
 
-  if (memcmp(action.value, "get_actions", strlen("get_actions"))) {
+  if (memcmp(plugin_args.action.value, "get_actions", strlen("get_actions"))) {
     pap_action_list_t *temp = NULL;
 
-    list_to_string(action.action_list, (char *)response);
+    list_to_string(plugin_args.action.action_list, (char *)response);
 
-    while (action.action_list) {
-      temp = action.action_list;
-      action.action_list = action.action_list->next;
+    while (plugin_args.action.action_list) {
+      temp = plugin_args.action.action_list;
+      plugin_args.action.action_list = plugin_args.action.action_list->next;
       free(temp);
     }
   } else {
-    // Resolver callback
-    if (callback_resolver != NULL) {
-      callback_resolver(obligation, (void *)&action);
-    } else {
-      printf("\n\nERROR[%s]: Callback is not regostered.\n\n", __FUNCTION__);
-      ret = FALSE;
+    plugin_t *plugin = NULL;
+    pluginmanager_get(&plugin_manager, 0, &plugin);
+    if (plugin != NULL) {
+      plugin_call(plugin, PEPPLUGIN_ACTION_CB, &plugin_args);
     }
 
     ret == PDP_GRANT ? memcpy(response, "grant", strlen("grant")) : memcpy(response, "deny", strlen("deny"));

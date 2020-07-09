@@ -21,16 +21,23 @@
 #define _ACCESS_H_
 
 #include "dataset.h"
+#include "plugin.h"
 #include "wallet.h"
 
 typedef void *access_ctx_t;
 
-void access_init(access_ctx_t *access_context, wallet_ctx_t *device_wallet);
+void access_init(access_ctx_t *access_context);
 
 void access_start(access_ctx_t access_context);
 
 void access_deinit(access_ctx_t access_context);
 
 void access_get_ddstate(access_ctx_t access_context, dataset_state_t **ddstate);
+
+int access_register_pep_plugin(access_ctx_t access_context, plugin_t *plugin);
+
+int access_register_pip_plugin(access_ctx_t access_context, plugin_t *plugin);
+
+int access_register_pap_plugin(access_ctx_t access_context, plugin_t *plugin);
 
 #endif

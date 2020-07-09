@@ -59,6 +59,8 @@
 this will have to be adjusted accordingly. */
 #define PDP_POL_ID_MAX_LEN 32
 
+#define PDP_MAX_STR_LEN 256
+
 /****************************************************************************
  * ENUMERATIONS
  ****************************************************************************/
@@ -77,7 +79,7 @@ typedef struct attribute_value {
   int size;
 } pdp_attribute_value_t;
 
-typedef struct action {
+typedef struct {
   char pol_id_str[2 * PDP_POL_ID_MAX_LEN + 1];
   unsigned long start_time;
   unsigned long stop_time;

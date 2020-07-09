@@ -34,6 +34,9 @@
 #ifndef _PIP_H_
 #define _PIP_H_
 
+#include "pdp.h"
+#include "plugin.h"
+
 /****************************************************************************
  * MACROS
  ****************************************************************************/
@@ -55,20 +58,13 @@
  ****************************************************************************/
 typedef enum { PIP_NO_ERROR, PIP_ERROR } pip_error_e;
 
-typedef enum { PIP_IOTA = 0 } pip_authorities_e;
-
 /****************************************************************************
  * TYPES
  ****************************************************************************/
-typedef struct attribute_object {
+typedef struct {
   char type[PIP_MAX_STR_LEN];
   char value[PIP_MAX_STR_LEN];
 } pip_attribute_object_t;
-
-/****************************************************************************
- * CALLBACKS
- ****************************************************************************/
-typedef bool (*fetch_fn)(char* uri, pip_attribute_object_t* attribute_object);
 
 /****************************************************************************
  * API FUNCTIONS
@@ -95,8 +91,14 @@ pip_error_e pip_init(void);
  */
 pip_error_e pip_term(void);
 
+pip_error_e pip_start(void);
+
+pip_error_e pip_get_dataset(char* dataset_json, size_t* string_len);
+
+pip_error_e pip_set_dataset(char* dataset_json, size_t string_len);
+
 /**
- * @fn      pip_register_callback
+ * @fn      pip_register_plugin
  *
  * @brief   Register callback for authority
  *
@@ -105,29 +107,7 @@ pip_error_e pip_term(void);
  *
  * @return  pip_error_e error status
  */
-pip_error_e pip_register_callback(pip_authorities_e authority, fetch_fn fetch);
-
-/**
- * @fn      pip_unregister_callback
- *
- * @brief   Unregister callback for authority
- *
- * @param   authority - Authority which needs to unregister callback
- *
- * @return  pip_error_e error status
- */
-pip_error_e pip_unregister_callback(pip_authorities_e authority);
-
-/**
- * @fn      pip_unregister_all_callbacks
- *
- * @brief   Unregister callbacka for every authority
- *
- * @param   void
- *
- * @return  pip_error_e error status
- */
-pip_error_e pip_unregister_all_callbacks(void);
+pip_error_e pip_register_plugin(plugin_t*);
 
 /**
  * @fn      pip_get_data
