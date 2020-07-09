@@ -25,10 +25,9 @@ For newcomers, documentation is the ideal place to start. It will give you an ov
 
 The [docs](/docs) directory contains markdown files for documentation:
  - [Introduction](/docs/01-introduction.md)
- - [Architecture](/docs/02-architecture.md)
+ - [Engineering Specification](/docs/02-engineering-specs.md)
  - [Policy Language](/docs/03-policy-language.md)
- - [Engineering Specification](/docs/04-engineering-specs.md)
- - [Getting Started](/docs/05-getting-started.md)
+ - [Getting Started](/docs/04-getting-started.md)
 
  ## Disclaimer
 ## Build Instructions
