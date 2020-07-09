@@ -55,6 +55,9 @@
 #define RES_POL_ID_STR_LEN 64
 #define RES_BUFF_LEN 80
 
+#define RES_MAX_STR_LEN 512
+#define RES_SEED_LEN 81
+
 /****************************************************************************
  * TYPES
  ****************************************************************************/
@@ -131,11 +134,27 @@ static int action_cb(plugin_t* plugin, void* data) {
 }
 
 int peppluginwalletdemo_initializer(plugin_t* plugin, void* options) {
-  if (plugin == NULL && options == NULL) {
+  if (plugin == NULL) {
     return -1;
   }
 
-  dev_wallet = (wallet_ctx_t*)options;
+  char node_url[RES_MAX_STR_LEN] = {0};
+  char seed[RES_SEED_LEN + 1] = {0};
+  uint8_t node_mwm;
+  uint16_t port;
+  uint32_t node_depth;
+
+  configmanager_get_option_string("wallet", "url", node_url, RES_MAX_STR_LEN);
+  configmanager_get_option_string("wallet", "seed", seed, RES_SEED_LEN);
+  configmanager_get_option_int("wallet", "mwm", &node_mwm);
+  configmanager_get_option_int("wallet", "port", &port);
+  configmanager_get_option_int("wallet", "depth", &node_depth);
+
+  dev_wallet = wallet_create(node_url, port, NULL, node_depth, node_mwm, seed);
+  if (dev_wallet == NULL) {
+    printf("\nERROR[%s]: Wallet creation failed.\n", __FUNCTION__);
+    return -1;
+  }
 
   // Initalize mutex
   if (pthread_mutex_init(&trans_mutex, NULL) != 0) {

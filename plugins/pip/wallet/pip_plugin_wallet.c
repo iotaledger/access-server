@@ -29,6 +29,8 @@ typedef struct serv_confirm {
 #define TRANS_CONF_SERV_MAX_NUM 64
 #define TRANS_INTERVAL_S 30
 #define TRANS_TIMEOUT_S 120
+#define TRANS_MAX_STR_LEN 512
+#define TRANS_SEED_LEN 81
 
 /****************************************************************************
  * GLOBAL VARIBLES
@@ -165,6 +167,24 @@ static int acquire_cb(plugin_t *plugin, void *user_data) {
 }
 
 int pippluginwallet_initializer(plugin_t *plugin, void *user_data) {
+  char node_url[TRANS_MAX_STR_LEN] = {0};
+  char seed[TRANS_SEED_LEN + 1] = {0};
+  uint8_t node_mwm;
+  uint16_t port;
+  uint32_t node_depth;
+
+  configmanager_get_option_string("wallet", "url", node_url, TRANS_MAX_STR_LEN);
+  configmanager_get_option_string("wallet", "seed", seed, TRANS_SEED_LEN);
+  configmanager_get_option_int("wallet", "mwm", &node_mwm);
+  configmanager_get_option_int("wallet", "port", &port);
+  configmanager_get_option_int("wallet", "depth", &node_depth);
+
+  dev_wallet = wallet_create(node_url, port, NULL, node_depth, node_mwm, seed);
+  if (dev_wallet == NULL) {
+    printf("\nERROR[%s]: Wallet creation failed.\n", __FUNCTION__);
+    return -1;
+  }
+
   plugin->destroy = destroy_cb;
   plugin->callbacks = malloc(sizeof(void *) * PIPPLUGIN_CALLBACK_COUNT);
   plugin->callbacks[PIPPLUGIN_ACQUIRE_CB] = acquire_cb;
