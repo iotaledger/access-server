@@ -1,5 +1,4 @@
 <h1 align="center">
-  <br>IOTA Access<br>
   <img src="access.png">
 </h1>
 <h2 align="center">
@@ -27,16 +26,9 @@ For newcomers, documentation is the ideal place to start. It will give you an ov
 The [docs](/docs) directory contains markdown files for documentation:
  - [Introduction](/docs/01-introduction.md)
  - [Architecture](/docs/02-architecture.md)
- - [Getting Started](/docs/03-getting_started.md)
-
-## Specification
-[Specification](/specs/HOW-TO-SPEC.md) is the ideal place for those who want to actively interact and contribute with the project. It contains templates for:
- - [Project Scope](/specs/1-SCOPE/access-SCOPE-0000.md)
- - [Request for Proposal](/specs/2-RFP/access-detail-RFP-0000.md)
- - [Engineering Specification](/specs/3-SPECS/access-ENGINEERING-SPEC-0000.md)
- - [Requirements Specification](specs/3-SPECS/access-REQUIREMENTS-SPEC-0000.md)
- - [Request for Comments](/specs/4-RFC/0000-access-RFC.md)
- - [Software Bill of Materials](/specs/5-BOM/access-BOM-0000.md)
+ - [Policy Language](/docs/03-policy-language.md)
+ - [Engineering Specification](/docs/04-engineering-specs.md)
+ - [Getting Started](/docs/05-getting-started.md)
 
  ## Disclaimer
 ## Build Instructions
