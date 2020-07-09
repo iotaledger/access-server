@@ -71,9 +71,11 @@ typedef enum {
 /****************************************************************************
  * MACROS
  ****************************************************************************/
-#define RPI_MAX_STR_LEN 1024
+#define RPI_MAX_STR_LEN 2*1024
 #define RPI_ACCESS_ERR -1
 #define RPI_POL_ID_MAX_LEN 32
+#define RPI_PUBLIC_KEY_LEN 32
+#define RPI_SIGNATURE_LEN 64
 
 /****************************************************************************
  * API FUNCTIONS
@@ -111,9 +113,9 @@ static bool rpistorage_store_policy(char* policy_id, char* policy_object, int po
   fwrite("\npolicy cost:", strlen("\npolicy cost:"), 1, f);
   fwrite(policy_cost, strlen(policy_cost), 1, f);
   fwrite("\npolicy id signature:", strlen("\npolicy id signature:"), 1, f);
-  fwrite(signature, strlen(signature), 1, f);
+  fwrite(signature, RPI_SIGNATURE_LEN, 1, f);
   fwrite("\npolicy id signature public key:", strlen("\npolicy id signature public key:"), 1, f);
-  fwrite(public_key, strlen(public_key), 1, f);
+  fwrite(public_key, RPI_PUBLIC_KEY_LEN, 1, f);
   fwrite("\npolicy id signature sign. algorithm:", strlen("\npolicy id signature sign. algorithm:"), 1, f);
   fwrite(signature_algorithm, strlen(signature_algorithm), 1, f);
   fwrite("\nhash function:", strlen("\nhash function:"), 1, f);
@@ -197,8 +199,7 @@ static bool rpistorage_acquire_policy(char* policy_id, char* policy_object, int*
   memcpy(signature, substr + strlen("policy id signature:"), substr_len);
 
   substr = strstr(buffer, "policy id signature public key:");
-  substr_len =
-      strstr(buffer, "\npolicy id signature sign. algorithm:") - (substr + strlen("policy id signature public key:"));
+  substr_len = strstr(buffer, "\npolicy id signature sign. algorithm:") - (substr + strlen("policy id signature public key:"));
   memcpy(public_key, substr + strlen("policy id signature public key:"), substr_len);
 
   substr = strstr(buffer, "policy id signature sign. algorithm:");

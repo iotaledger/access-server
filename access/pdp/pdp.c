@@ -52,7 +52,7 @@
 #define PDP_DATA_VAL_SIZE 131
 #define PDP_DATA_TYPE_SIZE 21
 #define PDP_STRTOUL_BASE 10
-#define PDP_USER_LEN 128
+#define PDP_USER_LEN 256
 #define PDP_WALLET_ADDR_LEN 81
 
 /****************************************************************************
@@ -181,8 +181,10 @@ static int resolve_condition(char *policy_object, char *policy_id, int attribute
         /* TODO: This is a temporary solution, untill authentication of the user is implemented.
            When it's done, PIP module will use credentials, in order to verify subject. */
         memcpy(attribute.type, "public_id", strlen("public_id"));
-        sprintf(attribute.value, "0x%s", user);
-  } else {
+        memcpy(attribute.value, "0x", strlen("0x"));
+        memcpy(&attribute.value[strlen("0x")], user, strlen(user));
+  } else if (memcmp(data_type, "request", strlen("request")) == 0 &&
+             memcmp(data_value, "request", strlen("request")) == 0) { // Request for PIP
     // If any authority other than iota is to be supported, this needs to be modified
     sprintf(uri, "iota:%s/%s?%s", policy_id, data_type, data_value);
 
@@ -190,6 +192,9 @@ static int resolve_condition(char *policy_object, char *policy_id, int attribute
       dlog_printf("\n\nERROR[%s]: Getting data from PIP failed.\n\n", __FUNCTION__);
       return FALSE;
     }
+  } else { // No request, just copy attribute 2
+      memcpy(attribute.type, data_type, jsonhelper_token_size(type2));
+      memcpy(attribute.value, data_value, jsonhelper_token_size(value2));
   }
 
   size_of_type1 = jsonhelper_token_size(type1);
