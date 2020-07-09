@@ -1,5 +1,4 @@
 <h1 align="center">
-  <br>IOTA Access<br>
   <img src="access.png">
 </h1>
 <h2 align="center">
