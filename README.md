@@ -27,7 +27,8 @@ For newcomers, documentation is the ideal place to start. It will give you an ov
 The [docs](/docs) directory contains markdown files for documentation:
  - [Introduction](/docs/01-introduction.md)
  - [Architecture](/docs/02-architecture.md)
- - [Getting Started](/docs/03-getting_started.md)
+ - [Policy Language](/docs/03-policy-language.md)
+ - [Getting Started](/docs/04-getting_started.md)
 
 ## Specification
 [Specification](/specs/HOW-TO-SPEC.md) is the ideal place for those who want to actively interact and contribute with the project. It contains templates for:
