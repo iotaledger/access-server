@@ -180,6 +180,9 @@ pip_error_e pip_get_data(char* uri, pip_attribute_object_t* attribute) {
     // TODO: check status
   }
 
+  memcpy(attribute->type, attrs.attribute.type, strlen(attrs.attribute.type));
+  memcpy(attribute->value, attrs.attribute.value, strlen(attrs.attribute.value));
+
   pthread_mutex_unlock(&pip_mutex);
   return PIP_NO_ERROR;
 }

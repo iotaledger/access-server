@@ -57,6 +57,7 @@
 
 #define RES_MAX_STR_LEN 512
 #define RES_SEED_LEN 81 + 1
+#define RES_MAX_PEM_LEN 4*1024
 
 /****************************************************************************
  * TYPES
@@ -143,14 +144,21 @@ int peppluginwalletdemo_initializer(plugin_t* plugin, void* options) {
   uint8_t node_mwm;
   uint16_t port;
   uint32_t node_depth;
+  char pem_file[RES_MAX_STR_LEN] = {0};
+  char ca_pem[RES_MAX_PEM_LEN] = {0};
 
   configmanager_get_option_string("wallet", "url", node_url, RES_MAX_STR_LEN);
   configmanager_get_option_string("wallet", "seed", seed, RES_SEED_LEN);
+  configmanager_get_option_string("wallet", "pem_file_path", pem_file, RES_MAX_STR_LEN);
   configmanager_get_option_int("wallet", "mwm", (int *)&node_mwm);
   configmanager_get_option_int("wallet", "port", (int*)&port);
   configmanager_get_option_int("wallet", "depth", (int*)&node_depth);
 
-  dev_wallet = wallet_create(node_url, port, NULL, node_depth, node_mwm, seed);
+  FILE *f = fopen(pem_file, "r");
+  fread(ca_pem, RES_MAX_PEM_LEN, 1, f);
+  fclose(f);
+
+  dev_wallet = wallet_create(node_url, port, ca_pem, node_depth, node_mwm, seed);
   if (dev_wallet == NULL) {
     printf("\nERROR[%s]: Wallet creation failed.\n", __FUNCTION__);
     return -1;

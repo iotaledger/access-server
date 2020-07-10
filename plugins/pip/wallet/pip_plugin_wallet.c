@@ -32,6 +32,7 @@ typedef struct serv_confirm {
 #define TRANS_TIMEOUT_S 120
 #define TRANS_MAX_STR_LEN 512
 #define TRANS_SEED_LEN 81 + 1
+#define TRANS_MAX_PEM_LEN 4*1024
 
 /****************************************************************************
  * GLOBAL VARIBLES
@@ -111,7 +112,6 @@ static int acquire_cb(plugin_t *plugin, void *user_data) {
 
   pipplugin_args_t *args = (pipplugin_args_t *)user_data;
   char *uri = args->uri;
-  pip_attribute_object_t attribute_object = args->attribute;
 
   char temp[PROTOCOL_MAX_STR_LEN];
   char pol_id[PROTOCOL_MAX_STR_LEN];
@@ -143,16 +143,16 @@ static int acquire_cb(plugin_t *plugin, void *user_data) {
   memcpy(value, ptr, strlen(ptr) > PROTOCOL_MAX_STR_LEN ? PROTOCOL_MAX_STR_LEN : strlen(ptr));
 
   if (memcmp(type, "request.isPayed.type", strlen("request.isPayed.type")) == 0) {
-    memcpy(attribute_object.type, "string", strlen("string"));
+    memcpy(args->attribute.type, "string", strlen("string"));
     if (recover_transaction != NULL) {
       int ret = recover_transaction(pol_id, strlen(pol_id));
 
       if (ret == PROTOCOL_TRANSACTION_PAID_VERIFIED) {
-        memcpy(attribute_object.value, "verified", strlen("verified"));
+        memcpy(args->attribute.value, "verified", strlen("verified"));
       } else if (ret == PROTOCOL_TRANSACTION_PAID) {
-        memcpy(attribute_object.value, "paid", strlen("paid"));
+        memcpy(args->attribute.value, "paid", strlen("paid"));
       } else {
-        memcpy(attribute_object.value, "not_paid", strlen("not_paid"));
+        memcpy(args->attribute.value, "not_paid", strlen("not_paid"));
       }
     }
   } else if (memcmp(type, "request.walletAddress.type", strlen("request.walletAddress.type")) == 0) {
@@ -160,8 +160,8 @@ static int acquire_cb(plugin_t *plugin, void *user_data) {
     uint64_t index;
     wallet_get_address(dev_wallet, addr_buf, &index);
 
-    memcpy(attribute_object.type, "string", strlen("string"));
-    memcpy(attribute_object.value, addr_buf, PROTOCOL_WALLET_ADDR_LEN);
+    memcpy(args->attribute.type, "string", strlen("string"));
+    memcpy(args->attribute.value, addr_buf, PROTOCOL_WALLET_ADDR_LEN);
   }
 
   return 0;
@@ -173,14 +173,21 @@ int pippluginwallet_initializer(plugin_t *plugin, void *user_data) {
   uint8_t node_mwm;
   uint16_t port;
   uint32_t node_depth;
+  char pem_file[TRANS_MAX_STR_LEN] = {0};
+  char ca_pem[TRANS_MAX_PEM_LEN] = {0};
 
   configmanager_get_option_string("wallet", "url", node_url, TRANS_MAX_STR_LEN);
   configmanager_get_option_string("wallet", "seed", seed, TRANS_SEED_LEN);
+  configmanager_get_option_string("wallet", "pem_file_path", pem_file, TRANS_MAX_STR_LEN);
   configmanager_get_option_int("wallet", "mwm", (int*)&node_mwm);
   configmanager_get_option_int("wallet", "port", (int*)&port);
   configmanager_get_option_int("wallet", "depth", (int*)&node_depth);
 
-  dev_wallet = wallet_create(node_url, port, NULL, node_depth, node_mwm, seed);
+  FILE *f = fopen(pem_file, "r");
+  fread(ca_pem, TRANS_MAX_PEM_LEN, 1, f);
+  fclose(f);
+
+  dev_wallet = wallet_create(node_url, port, ca_pem, node_depth, node_mwm, seed);
   if (dev_wallet == NULL) {
     printf("\nERROR[%s]: Wallet creation failed.\n", __FUNCTION__);
     return -1;
