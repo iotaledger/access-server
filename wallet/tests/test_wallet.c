@@ -147,7 +147,7 @@ void test_wallet_check_confirmation(void) {
 }
 
 static void confirmation_notifier(uint32_t time, bool is_confirmed, pthread_t thread_id) {
-  printf("transaction is %s in %d \n", is_confirmed == TRUE ? "confirmed" : "not confirmed", time);
+  printf("transaction is %s in %d \n", is_confirmed ? "confirmed" : "not confirmed", time);
 }
 
 void test_confirmation_service(void) {
