@@ -348,11 +348,25 @@ pap_error_e pap_add_policy(char *signed_policy, int signed_policy_size, char *pa
   // Signe policy ID and save signature, this will be use in order to verify policy on acquisition from storage
   crypto_sign(signed_policy_id, &smlen, put_args.policy_id, PAP_POL_ID_MAX_LEN, private_key);
 
-  memset(put_args.policy_id_signature.public_key, 0, PAP_PUBLIC_KEY_LEN * sizeof(char));
-  memset(put_args.policy_id_signature.signature, 0, PAP_SIGNATURE_LEN * sizeof(char));
-  memcpy(put_args.policy_id_signature.public_key, public_key, PAP_PUBLIC_KEY_LEN * sizeof(char));
-  memcpy(put_args.policy_id_signature.signature, signed_policy_id,
-         PAP_SIGNATURE_LEN * sizeof(char));  // Signature is preppend to message
+  memset(put_args.policy_id_signature.public_key, 0, PAP_PUBLIC_KEY_LEN * 2 * sizeof(char));
+  memset(put_args.policy_id_signature.signature, 0, PAP_SIGNATURE_LEN * 2 * sizeof(char));
+
+  if (hex_to_str(public_key, put_args.policy_id_signature.public_key, PAP_PUBLIC_KEY_LEN) != UTILS_STRING_SUCCESS) {
+    printf("\nERROR[%s]: Could not convert hex value to string.\n", __FUNCTION__);
+    free(policy_object_norm);
+    free(policy);
+    pthread_mutex_unlock(&pap_mutex);
+    return PAP_ERROR;
+  }
+
+  if (hex_to_str(signed_policy_id, put_args.policy_id_signature.signature, PAP_SIGNATURE_LEN) != UTILS_STRING_SUCCESS) {
+    printf("\nERROR[%s]: Could not convert hex value to string.\n", __FUNCTION__);
+    free(policy_object_norm);
+    free(policy);
+    pthread_mutex_unlock(&pap_mutex);
+    return PAP_ERROR;
+  }
+
   put_args.policy_id_signature.signature_algorithm = PAP_ECDSA;
 
   // Put policy in storage
@@ -385,6 +399,7 @@ pap_error_e pap_add_policy(char *signed_policy, int signed_policy_size, char *pa
 pap_error_e pap_get_policy(char *policy_id, int policy_id_len, pap_policy_t *policy) {
   char calc_policy_id[PAP_POL_ID_MAX_LEN + 1] = {0};
   char signed_policy_id[PAP_SIGNATURE_LEN + PAP_POL_ID_MAX_LEN + 1] = {0};
+  char recovered_signature[PAP_SIGNATURE_LEN + 1] = {0};
   unsigned long long smlen;
   papplugin_get_args_t get_args = {0};
   get_args.policy = policy;
@@ -432,8 +447,14 @@ pap_error_e pap_get_policy(char *policy_id, int policy_id_len, pap_policy_t *pol
       // Sign policy ID with module private key
       crypto_sign(signed_policy_id, &smlen, calc_policy_id, PAP_POL_ID_MAX_LEN, private_key);
 
+      if (str_to_hex(policy->policy_id_signature.signature, recovered_signature, PAP_SIGNATURE_LEN * 2) != UTILS_STRING_SUCCESS) {
+        printf("\nERROR[%s]: Could not convert string to hex value.\n", __FUNCTION__);
+        pthread_mutex_unlock(&pap_mutex);
+        return PAP_ERROR;
+      }
+
       // Check if that signature matches with acquired one
-      if (memcmp(signed_policy_id, policy->policy_id_signature.signature, PAP_SIGNATURE_LEN) != 0) {
+      if (memcmp(signed_policy_id, recovered_signature, PAP_SIGNATURE_LEN) != 0) {
         printf("\nERROR[%s]: Invalid policy ID signature.\n", __FUNCTION__);
         pthread_mutex_unlock(&pap_mutex);
         return PAP_ERROR;

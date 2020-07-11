@@ -74,8 +74,8 @@ typedef enum {
 #define RPI_MAX_STR_LEN 2*1024
 #define RPI_ACCESS_ERR -1
 #define RPI_POL_ID_MAX_LEN 32
-#define RPI_PUBLIC_KEY_LEN 32
-#define RPI_SIGNATURE_LEN 64
+#define RPI_PUBLIC_KEY_LEN 32 * 2
+#define RPI_SIGNATURE_LEN 64 * 2
 
 /****************************************************************************
  * API FUNCTIONS
