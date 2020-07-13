@@ -21,7 +21,7 @@ cmake_minimum_required(VERSION 3.11)
 
 set(target asn)
 
-set(asn_implementation libCrypto CACHE STRING "ASN implementation choice")
+set(asn_implementation tinyembedded CACHE STRING "ASN implementation choice")
 
 set(libs json_parser cryptography)
 
