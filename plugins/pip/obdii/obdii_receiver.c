@@ -99,6 +99,8 @@ int pipplugin_obdiireceiver_initializer(plugin_t* plugin, void* data) {
   plugin->plugin_specific_data = NULL;
 
   obdiireceiver_init("can0", NULL);
+
+  return 0;
 }
 
 static int end_thread = 0;

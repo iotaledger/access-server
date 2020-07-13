@@ -210,4 +210,6 @@ int pippluginwallet_initializer(plugin_t *plugin, void *user_data) {
   plugin->callbacks[PIPPLUGIN_SET_DATASET_CB] = NULL;
   plugin->callbacks_num = PIPPLUGIN_CALLBACK_COUNT;
   plugin->plugin_specific_data = NULL;
+
+  return 0;
 }

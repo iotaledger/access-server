@@ -549,6 +549,8 @@ int pipplugin_canopenreceiver_initializer(plugin_t *plugin, void *data) {
   dataset_init(&ddstate);
 
   canopenreceiver_init(ddstate.dataset, NULL);
+
+  return 0;
 }
 
 static void *canopen_bg_thread_func(void *_) {
