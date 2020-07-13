@@ -1,7 +1,7 @@
 #include "pip_plugin_wallet.h"
 
-#include "pthread.h"
 #include "config_manager.h"
+#include "pthread.h"
 
 #define PROTOCOL_TRANSACTION_NOT_PAID 0
 #define PROTOCOL_TRANSACTION_PAID 1
@@ -32,7 +32,7 @@ typedef struct serv_confirm {
 #define TRANS_TIMEOUT_S 120
 #define TRANS_MAX_STR_LEN 512
 #define TRANS_SEED_LEN 81 + 1
-#define TRANS_MAX_PEM_LEN 4*1024
+#define TRANS_MAX_PEM_LEN 4 * 1024
 
 /****************************************************************************
  * GLOBAL VARIBLES
@@ -179,11 +179,20 @@ int pippluginwallet_initializer(plugin_t *plugin, void *user_data) {
   configmanager_get_option_string("wallet", "url", node_url, TRANS_MAX_STR_LEN);
   configmanager_get_option_string("wallet", "seed", seed, TRANS_SEED_LEN);
   configmanager_get_option_string("wallet", "pem_file_path", pem_file, TRANS_MAX_STR_LEN);
-  configmanager_get_option_int("wallet", "mwm", (int*)&node_mwm);
-  configmanager_get_option_int("wallet", "port", (int*)&port);
-  configmanager_get_option_int("wallet", "depth", (int*)&node_depth);
+  configmanager_get_option_int("wallet", "mwm", (int *)&node_mwm);
+  configmanager_get_option_int("wallet", "port", (int *)&port);
+  configmanager_get_option_int("wallet", "depth", (int *)&node_depth);
+
+  if (strlen(pem_file) == 0) {
+    printf("\nERROR[%s]: PEM file for wallet not defined in config.\n", __FUNCTION__);
+    return -1;
+  }
 
   FILE *f = fopen(pem_file, "r");
+  if (f == NULL) {
+    printf("\nERROR[%s]: PEM file (%s) not found.\n", __FUNCTION__, pem_file);
+    return -1;
+  }
   fread(ca_pem, TRANS_MAX_PEM_LEN, 1, f);
   fclose(f);
 

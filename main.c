@@ -89,28 +89,35 @@ int main(int argc, char **argv) {
   datadumper_init();
   plugin_t plugin;
 
-  plugin_init(&plugin, peppluginwalletdemo_initializer, NULL);
-  access_register_pep_plugin(access_context, &plugin);
+  if (plugin_init(&plugin, peppluginwalletdemo_initializer, NULL) == 0) {
+    access_register_pep_plugin(access_context, &plugin);
+  }
 
-  plugin_init(&plugin, pippluginwallet_initializer, NULL);
-  access_register_pip_plugin(access_context, &plugin);
+  if (plugin_init(&plugin, pippluginwallet_initializer, NULL) == 0) {
+    access_register_pip_plugin(access_context, &plugin);
+  }
 
-  plugin_init(&plugin, pappluginrpi_initializer, NULL);
-  access_register_pap_plugin(access_context, &plugin);
+  if (plugin_init(&plugin, pappluginrpi_initializer, NULL) == 0) {
+    access_register_pap_plugin(access_context, &plugin);
+  }
 
   if (strncmp(client_name, CONFIG_CLIENT_CAN01, strlen(CONFIG_CLIENT_CAN01)) == 0) {
-    plugin_init(&plugin, pipplugin_canreceiver_initializer, NULL);
-    access_register_pip_plugin(access_context, &plugin);
-    plugin_init(&plugin, pepplugincandemo_initializer, NULL);
-    access_register_pep_plugin(access_context, &plugin);
+    if (plugin_init(&plugin, pipplugin_canreceiver_initializer, NULL) == 0) {
+      access_register_pip_plugin(access_context, &plugin);
+    }
+    if (plugin_init(&plugin, pepplugincandemo_initializer, NULL) == 0) {
+      access_register_pep_plugin(access_context, &plugin);
+    }
     using_can = 1;
   } else if (strncmp(client_name, CONFIG_CLIENT_CANOPEN01, strlen(CONFIG_CLIENT_CANOPEN01)) == 0) {
-    plugin_init(&plugin, pipplugin_canopenreceiver_initializer, NULL);
-    access_register_pip_plugin(access_context, &plugin);
+    if (plugin_init(&plugin, pipplugin_canopenreceiver_initializer, NULL) == 0) {
+      access_register_pip_plugin(access_context, &plugin);
+    }
     using_canopen = 1;
   } else if (strncmp(client_name, CONFIG_CLIENT_OBDII, strlen(CONFIG_CLIENT_OBDII)) == 0) {
-    plugin_init(&plugin, pipplugin_obdiireceiver_initializer, NULL);
-    access_register_pip_plugin(access_context, &plugin);
+    if (plugin_init(&plugin, pipplugin_obdiireceiver_initializer, NULL) == 0) {
+      access_register_pip_plugin(access_context, &plugin);
+    }
     using_obdii = 1;
   }
 
