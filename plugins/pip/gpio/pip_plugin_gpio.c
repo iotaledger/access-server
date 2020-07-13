@@ -42,8 +42,10 @@ static int acquire_cb(plugin_t *plugin, void *user_data) {
   char *uri = args->uri;
   pip_attribute_object_t attribute_object = args->attribute;
 
-  memcpy(attribute_object.type, "int", strlen("int"));
-  memcpy(attribute_object.value, gpio_interface_read(0), 1);
+  memcpy(attribute_object.type, "boolean", strlen("boolean"));
+  char *ret;
+  ret = gpio_interface_read(0) ? "true" : "false";
+  memcpy(attribute_object.value, ret, strlen(ret));
 
   return 0;
 }
