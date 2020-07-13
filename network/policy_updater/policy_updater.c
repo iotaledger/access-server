@@ -127,7 +127,7 @@ static int tcp_send(char *msg, int msg_length, char *rec, int *rec_length, char 
 }
 
 void policyupdater_get_policy(char *policy_id, char *p_policy) {
-  static char policy_request[POLICY_UPDATER_REQ_GET_LIST_SIZE] = {
+  char policy_request[POLICY_UPDATER_REQ_GET_LIST_SIZE] = {
       0,
   };
 

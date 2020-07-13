@@ -98,7 +98,7 @@ static int normalize_request(char *request, int request_len, char **request_norm
     *request_normalized = NULL;
   }
 
-  *request_normalized = malloc(charCnt * sizeof(char));
+  *request_normalized = calloc(charCnt * sizeof(char), 1);
   if (*request_normalized == NULL) {
     return 0;
   }
@@ -129,7 +129,7 @@ static int append_action_item_to_str(char *str, int pos, pap_action_list_t *acti
   buffer_position += strlen("\"policy_id\":\"");
 
   // add "policy_id" value
-  hex_to_str(action_item->policy_id_str, str + buffer_position, PEP_POL_ID_HEX_LEN);
+  memcpy(str + buffer_position, action_item->policy_id_str, PEP_POL_ID_STR_LEN);
   buffer_position += PEP_POL_ID_STR_LEN;
   str[buffer_position++] = '\"';
 
@@ -254,6 +254,9 @@ bool pep_request_access(char *request, void *response) {
 
   pthread_mutex_lock(&pep_mutex);
 
+  memset(plugin_args.obligation, 0, PEP_ACTION_LEN * sizeof(char));
+
+  plugin_args.action.action_list = NULL;
   plugin_args.action.value = action_value;
   plugin_args.action.wallet_address = tangle_address;
 
@@ -267,7 +270,7 @@ bool pep_request_access(char *request, void *response) {
   // Calculate decision and get action + obligation
   ret = pdp_calculate_decision(norm_request, plugin_args.obligation, &plugin_args.action);
 
-  if (memcmp(plugin_args.action.value, "get_actions", strlen("get_actions"))) {
+  if (plugin_args.action.action_list != NULL) {
     pap_action_list_t *temp = NULL;
 
     list_to_string(plugin_args.action.action_list, (char *)response);

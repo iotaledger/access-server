@@ -60,7 +60,7 @@ bool rpitransaction_store(char *policy_id, int policy_id_len) {
   sprintf(line, "policy_id:%s,validated:0\n", policy_id);
 
   // Write transaction to file
-  f = fopen("../../plugins/data/transactions/platforms/r_pi/bill", "a");
+  f = fopen("../plugins/data/transactions/platforms/r_pi/bill", "a");
   if (f == NULL) {
     printf("\nERROR[%s]: Invalida path to file.\n", __FUNCTION__);
     return FALSE;
@@ -88,7 +88,7 @@ bool rpitransaction_update_payment_status(char *policy_id, int policy_id_len, bo
   }
 
   // Read transaction from file
-  f = fopen("../../plugins/data/transactions/platforms/r_pi/bill", "r");
+  f = fopen("../plugins/data/transactions/platforms/r_pi/bill", "r");
   if (f == NULL) {
     printf("\nERROR[%s]: Invalida path to file.\n", __FUNCTION__);
     return FALSE;
@@ -114,7 +114,7 @@ bool rpitransaction_update_payment_status(char *policy_id, int policy_id_len, bo
   }
 
   // Write changed buffer to file
-  f = fopen("../../plugins/data/transactions/platforms/r_pi/bill", "w");
+  f = fopen("../plugins/data/transactions/platforms/r_pi/bill", "w");
   if (f == NULL) {
     printf("\nERROR[%s]: Invalida path to file.\n", __FUNCTION__);
     free(buff);
@@ -142,7 +142,7 @@ bool rpitransaction_is_stored(char *policy_id) {
   }
 
   // Read transactions from file
-  f = fopen("../../plugins/data/transactions/platforms/r_pi/bill", "r");
+  f = fopen("../plugins/data/transactions/platforms/r_pi/bill", "r");
   if (f == NULL) {
     // Non of the transactions occured
     return FALSE;
@@ -180,7 +180,7 @@ bool rpitransaction_is_verified(char *policy_id, int policy_id_len) {
   }
 
   // Read transactions from file
-  f = fopen("../../plugins/data/transactions/platforms/r_pi/bill", "r");
+  f = fopen("../plugins/data/transactions/platforms/r_pi/bill", "r");
   if (f == NULL) {
     // Non of the transactions occured
     return FALSE;

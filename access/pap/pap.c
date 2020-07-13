@@ -165,6 +165,8 @@ pap_error_e pap_register_plugin(plugin_t *plugin) {
 }
 
 pap_error_e pap_add_policy(char *signed_policy, int signed_policy_size, char *parsed_policy_id, char *owner_public_key) {
+  char signature[PAP_SIGNATURE_LEN];
+  char policy_id[PAP_POL_ID_MAX_LEN + 1] = {0};
   char policy_obj_hash[PAP_POL_ID_MAX_LEN + 1] = {0};
   char signed_policy_id[PAP_SIGNATURE_LEN + PAP_POL_ID_MAX_LEN + 1] = {0};
   char *policy = NULL;
@@ -188,9 +190,16 @@ pap_error_e pap_add_policy(char *signed_policy, int signed_policy_size, char *pa
 
   pthread_mutex_lock(&pap_mutex);
 
-  policy = malloc(signed_policy_size * sizeof(char));  // Worst case scenario
-
+#ifndef PAP_SIGNED_POLICY_ALL
+  policy_size = signed_policy_size - PAP_SIGNATURE_LEN;
+  policy = malloc((policy_size + 1) * sizeof(char));
+  memset(policy, 0, policy_size * sizeof(char));
+  memcpy(signature, signed_policy, PAP_SIGNATURE_LEN);
+  memcpy(policy, &signed_policy[PAP_SIGNATURE_LEN], policy_size);
+#else
   // Verify policy signature
+  policy = malloc(signed_policy_size * sizeof(char));  // Worst case scenario
+  memset(policy, 0, signed_policy_size * sizeof(char));
   if (crypto_sign_open(policy, &policy_size, signed_policy, signed_policy_size, owner_public_key) != 0) {
     // Signature verification failed
     printf("\nERROR[%s]: Policy signature can not be verified.\n", __FUNCTION__);
@@ -198,6 +207,7 @@ pap_error_e pap_add_policy(char *signed_policy, int signed_policy_size, char *pa
     pthread_mutex_unlock(&pap_mutex);
     return PAP_ERROR;
   }
+#endif
 
   // Check policy validity
   memset(&report, 0, sizeof(validator_report_t));
@@ -224,6 +234,23 @@ pap_error_e pap_add_policy(char *signed_policy, int signed_policy_size, char *pa
     // Get policy_id
     if (strncmp(&policy[tokens[i].start], "policy_id", strlen("policy_id")) == 0) {
       if ((tokens[i + 1].end - tokens[i + 1].start) <= PAP_POL_ID_MAX_LEN * 2) {
+#ifndef PAP_SIGNED_POLICY_ALL
+        char temp[PAP_POL_ID_MAX_LEN * 2 + PAP_SIGNATURE_LEN] = {0};
+        char verified_policy_id[PAP_POL_ID_MAX_LEN * 2];
+        unsigned long long verified_policy_id_len;
+
+        memcpy(temp, signature, PAP_SIGNATURE_LEN);
+        memcpy(&temp[PAP_SIGNATURE_LEN], &policy[tokens[i + 1].start], PAP_POL_ID_MAX_LEN * 2);
+
+        //Verify signature
+        if (crypto_sign_open(verified_policy_id, &verified_policy_id_len, temp, PAP_POL_ID_MAX_LEN * 2 + PAP_SIGNATURE_LEN, owner_public_key) != 0) {
+          // Signature verification failed
+          printf("\nERROR[%s]: Policy signature can not be verified.\n", __FUNCTION__);
+          free(policy);
+          pthread_mutex_unlock(&pap_mutex);
+          return PAP_ERROR;
+        }
+#endif
         if (parsed_policy_id) {
           memcpy(parsed_policy_id, &policy[tokens[i + 1].start], (tokens[i + 1].end - tokens[i + 1].start));
         }
@@ -321,11 +348,25 @@ pap_error_e pap_add_policy(char *signed_policy, int signed_policy_size, char *pa
   // Signe policy ID and save signature, this will be use in order to verify policy on acquisition from storage
   crypto_sign(signed_policy_id, &smlen, put_args.policy_id, PAP_POL_ID_MAX_LEN, private_key);
 
-  memset(put_args.policy_id_signature.public_key, 0, PAP_PUBLIC_KEY_LEN * sizeof(char));
-  memset(put_args.policy_id_signature.signature, 0, PAP_SIGNATURE_LEN * sizeof(char));
-  memcpy(put_args.policy_id_signature.public_key, public_key, PAP_PUBLIC_KEY_LEN * sizeof(char));
-  memcpy(put_args.policy_id_signature.signature, signed_policy_id,
-         PAP_SIGNATURE_LEN * sizeof(char));  // Signature is preppend to message
+  memset(put_args.policy_id_signature.public_key, 0, PAP_PUBLIC_KEY_LEN * 2 * sizeof(char));
+  memset(put_args.policy_id_signature.signature, 0, PAP_SIGNATURE_LEN * 2 * sizeof(char));
+
+  if (hex_to_str(public_key, put_args.policy_id_signature.public_key, PAP_PUBLIC_KEY_LEN) != UTILS_STRING_SUCCESS) {
+    printf("\nERROR[%s]: Could not convert hex value to string.\n", __FUNCTION__);
+    free(policy_object_norm);
+    free(policy);
+    pthread_mutex_unlock(&pap_mutex);
+    return PAP_ERROR;
+  }
+
+  if (hex_to_str(signed_policy_id, put_args.policy_id_signature.signature, PAP_SIGNATURE_LEN) != UTILS_STRING_SUCCESS) {
+    printf("\nERROR[%s]: Could not convert hex value to string.\n", __FUNCTION__);
+    free(policy_object_norm);
+    free(policy);
+    pthread_mutex_unlock(&pap_mutex);
+    return PAP_ERROR;
+  }
+
   put_args.policy_id_signature.signature_algorithm = PAP_ECDSA;
 
   // Put policy in storage
@@ -358,6 +399,7 @@ pap_error_e pap_add_policy(char *signed_policy, int signed_policy_size, char *pa
 pap_error_e pap_get_policy(char *policy_id, int policy_id_len, pap_policy_t *policy) {
   char calc_policy_id[PAP_POL_ID_MAX_LEN + 1] = {0};
   char signed_policy_id[PAP_SIGNATURE_LEN + PAP_POL_ID_MAX_LEN + 1] = {0};
+  char recovered_signature[PAP_SIGNATURE_LEN + 1] = {0};
   unsigned long long smlen;
   papplugin_get_args_t get_args = {0};
   get_args.policy = policy;
@@ -405,8 +447,14 @@ pap_error_e pap_get_policy(char *policy_id, int policy_id_len, pap_policy_t *pol
       // Sign policy ID with module private key
       crypto_sign(signed_policy_id, &smlen, calc_policy_id, PAP_POL_ID_MAX_LEN, private_key);
 
+      if (str_to_hex(policy->policy_id_signature.signature, recovered_signature, PAP_SIGNATURE_LEN * 2) != UTILS_STRING_SUCCESS) {
+        printf("\nERROR[%s]: Could not convert string to hex value.\n", __FUNCTION__);
+        pthread_mutex_unlock(&pap_mutex);
+        return PAP_ERROR;
+      }
+
       // Check if that signature matches with acquired one
-      if (memcmp(signed_policy_id, policy->policy_id_signature.signature, PAP_SIGNATURE_LEN) != 0) {
+      if (memcmp(signed_policy_id, recovered_signature, PAP_SIGNATURE_LEN) != 0) {
         printf("\nERROR[%s]: Invalid policy ID signature.\n", __FUNCTION__);
         pthread_mutex_unlock(&pap_mutex);
         return PAP_ERROR;
@@ -552,10 +600,12 @@ pap_error_e pap_get_policy_obj_len(char *policy_id, int policy_id_len, int *pol_
   }
 
   if (args.len == 0) {
-    printf("\nERROR[%s]: Invalida object length.\n", __FUNCTION__);
+    printf("\nERROR[%s]: Invalid object length.\n", __FUNCTION__);
     pthread_mutex_unlock(&pap_mutex);
     return PAP_ERROR;
   }
+
+  *pol_obj_len = args.len;
 
   pthread_mutex_unlock(&pap_mutex);
   return PAP_NO_ERROR;

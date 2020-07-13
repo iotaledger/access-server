@@ -98,8 +98,8 @@ typedef enum {
  ****************************************************************************/
 typedef struct {
   pap_signature_algorithm_e signature_algorithm;
-  char signature[PAP_SIGNATURE_LEN];
-  char public_key[PAP_PUBLIC_KEY_LEN];
+  char signature[PAP_SIGNATURE_LEN * 2];
+  char public_key[PAP_PUBLIC_KEY_LEN * 2];
 } pap_policy_id_signature_t;
 
 typedef struct {

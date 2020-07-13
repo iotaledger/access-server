@@ -567,118 +567,123 @@ void validator_check(const char *policy_data, validator_report_t *report) {
 
   int proper_format = 1;
 
-  // Top level token is key string "policy"
-  if (strncmp(&policy_data[tokens[0].start], "policy", strlen("policy")) != 0 || tokens[0].size != 1) {
+  int policy_object_idx = -1;
+  int policy_object_end_idx = -1;
+  validator_policy_first_level_e found_everyone = FL_HAS_NONE;
+
+  for (int i = 0; i < n; i++) {
+    if (tokens[i].size != 1) {
+      continue;
+    }
+
+    // Check that token is a key, next token is value token and it is of correct type
+    if (strncmp(&policy_data[tokens[i].start], "cost", strlen("cost")) == 0 && tokens[i].size == 1 &&
+        tokens[i + 1].size == 0 && tokens[i + 1].type == JSMN_STRING) {
+      char cost_s[COST_STR_SIZE];
+      memcpy(cost_s, &policy_data[tokens[i + 1].start], COST_STR_SIZE * sizeof(char));
+      float cost_f = strtof(cost_s, NULL);
+      float cost_min = 0.0;
+
+      if (check_geq(&cost_f, &cost_min, CT_FLOAT) == CR_TRUE) {
+        found_everyone |= FL_HAS_COST;
+      }
+
+      int next_idx = parser_next_key_sibling_idx(tokens, i, n);
+      i = next_idx - 1;
+      if (next_idx < 0) {
+        break;
+      }
+    } else if (strncmp(&policy_data[tokens[i].start], "hash_function", strlen("hash_function")) == 0 &&
+               tokens[i].size == 1 && tokens[i + 1].size == 0 && tokens[i + 1].type == JSMN_STRING) {
+      char hash_fn_s[tokens[i + 1].end - tokens[i + 1].start];
+      memcpy(hash_fn_s, &policy_data[tokens[i + 1].start],
+             (tokens[i + 1].end - tokens[i + 1].start) * sizeof(char));
+
+      if (check_eq(&hash_fn_s, NULL, CT_HASH_FN) == CR_TRUE) {
+        found_everyone |= FL_HAS_HASH;
+      }
+
+      int next_idx = parser_next_key_sibling_idx(tokens, i, n);
+      i = next_idx - 1;
+      if (next_idx < 0) {
+        break;
+      }
+    } else if (strncmp(&policy_data[tokens[i].start], "policy_id", strlen("policy_id")) == 0 &&
+               tokens[i].size == 1 && tokens[i + 1].size == 0 && tokens[i + 1].type == JSMN_STRING) {
+      // @TODO check if value token is in valid range, type, etc
+      found_everyone |= FL_HAS_POLID;
+
+      int next_idx = parser_next_key_sibling_idx(tokens, i, n);
+      i = next_idx - 1;
+      if (next_idx < 0) {
+        break;
+      }
+    } else if (strncmp(&policy_data[tokens[i].start], "policy_object", strlen("policy_object")) == 0 &&
+               tokens[i].size == 1 && tokens[i + 1].type == JSMN_OBJECT) {
+      found_everyone |= FL_HAS_POLOB;
+      policy_object_idx = i;
+
+      int next_idx = -1;
+      policy_object_end_idx = parser_end_of_current_idx(tokens, i, n);
+      next_idx = parser_next_key_sibling_idx(tokens, i, n);
+      i = next_idx - 1;
+      if (next_idx < 0) {
+        break;
+      }
+    }
+  }
+
+  if (found_everyone != FL_HAS_ALL) {
     proper_format = 0;
   } else {
-    // Value token of top level "policy" token is object
-    if (tokens[1].type != JSMN_OBJECT || tokens[1].size != 4)  // TODO: Check can size of 4 differ
-    {
+    // policy_object top level tokens
+    if (tokens[policy_object_idx + 1].type != JSMN_OBJECT ||
+        tokens[policy_object_idx + 1].size < POL_OBJC_MIN_MEMBERS) {
       proper_format = 0;
     } else {
-      // Second level tokens
-      int policy_object_idx = -1;
-      int policy_object_end_idx = -1;
-      validator_policy_first_level_e found_everyone = FL_HAS_NONE;
-      for (int i = 2; i < n; i++) {
-        if (tokens[i].size != 1) {
-          continue;
-        }
+      bool empty_sibling = FALSE;
+      validator_policy_docgoc_level_e check_doc = DG_HAS_NONE;
+      validator_policy_docgoc_level_e check_goc = DG_HAS_NONE;
+      validator_policy_docgoc_level_e found_doc_goc = DG_HAS_NONE;
 
-        // Check that token is a key, next token is value token and it is of correct type
-        if (strncmp(&policy_data[tokens[i].start], "cost", strlen("cost")) == 0 && tokens[i].size == 1 &&
-            tokens[i + 1].size == 0 && tokens[i + 1].type == JSMN_STRING) {
-          char cost_s[COST_STR_SIZE];
-          memcpy(cost_s, &policy_data[tokens[i + 1].start], COST_STR_SIZE * sizeof(char));
-          float cost_f = strtof(cost_s, NULL);
-          float cost_min = 0.0;
+      /* policy_goc or policy_doc must contain keys "attribute_list" and "operation"
+         attribute_list value may be one of two types of arrays:
+          - array of attributes
+          - array of objects which contain attribute_list and operation */
+      for (int i = policy_object_idx; i < policy_object_end_idx; i++) {
+        if (strncmp(&policy_data[tokens[i].start], "policy_doc", strlen("policy_doc")) == 0 &&
+            tokens[i].size == 1 && tokens[i + 1].type == JSMN_OBJECT) {
+          found_doc_goc |= DG_HAS_DOC;
 
-          if (check_geq(&cost_f, &cost_min, CT_FLOAT) == CR_TRUE) {
-            found_everyone |= FL_HAS_COST;
+          if (tokens[i + 1].end - tokens[i + 1].start == 2) { // Empty DoC
+            if (!empty_sibling) {
+              // Valid situatuion, if GoC is non-empty
+              check_doc |= (DG_HAS_ATTLIST | DG_HAS_OPP);
+            }
+            empty_sibling = TRUE;
+          } else {
+            check_doc |= check_gocdoc_object(tokens, i + 2, parser_end_of_current_idx(tokens, i + 1, policy_object_end_idx), policy_data);
           }
-
-          int next_idx = parser_next_key_sibling_idx(tokens, i, n);
-          i = next_idx - 1;
-          if (next_idx < 0) {
-            break;
-          }
-        } else if (strncmp(&policy_data[tokens[i].start], "hash_function", strlen("hash_function")) == 0 &&
-                   tokens[i].size == 1 && tokens[i + 1].size == 0 && tokens[i + 1].type == JSMN_STRING) {
-          char hash_fn_s[tokens[i + 1].end - tokens[i + 1].start];
-          memcpy(hash_fn_s, &policy_data[tokens[i + 1].start],
-                 (tokens[i + 1].end - tokens[i + 1].start) * sizeof(char));
-
-          if (check_eq(&hash_fn_s, NULL, CT_HASH_FN) == CR_TRUE) {
-            found_everyone |= FL_HAS_HASH;
-          }
-
-          int next_idx = parser_next_key_sibling_idx(tokens, i, n);
-          i = next_idx - 1;
-          if (next_idx < 0) {
-            break;
-          }
-        } else if (strncmp(&policy_data[tokens[i].start], "policy_id", strlen("policy_id")) == 0 &&
-                   tokens[i].size == 1 && tokens[i + 1].size == 0 && tokens[i + 1].type == JSMN_STRING) {
-          // @TODO check if value token is in valid range, type, etc
-          found_everyone |= FL_HAS_POLID;
-
-          int next_idx = parser_next_key_sibling_idx(tokens, i, n);
-          i = next_idx - 1;
-          if (next_idx < 0) {
-            break;
-          }
-        } else if (strncmp(&policy_data[tokens[i].start], "policy_object", strlen("policy_object")) == 0 &&
+        } else if (strncmp(&policy_data[tokens[i].start], "policy_goc", strlen("policy_goc")) == 0 &&
                    tokens[i].size == 1 && tokens[i + 1].type == JSMN_OBJECT) {
-          found_everyone |= FL_HAS_POLOB;
-          policy_object_idx = i;
+          found_doc_goc |= DG_HAS_GOC;
 
-          int next_idx = -1;
-          policy_object_end_idx = parser_end_of_current_idx(tokens, i, n);
-          next_idx = parser_next_key_sibling_idx(tokens, i, n);
-          i = next_idx - 1;
-          if (next_idx < 0) {
-            break;
+          if (tokens[i + 1].end - tokens[i + 1].start == 2) { // Empty GoC
+            if (!empty_sibling) {
+              // Valid situatuion, if DoC is non-empty
+              check_goc |= (DG_HAS_ATTLIST | DG_HAS_OPP);
+            }
+            empty_sibling = TRUE;
+          } else {
+            check_goc |= check_gocdoc_object(tokens, i + 2, policy_object_end_idx, policy_data);
           }
         }
       }
 
-      if (found_everyone != FL_HAS_ALL) {
+      found_doc_goc |= (check_doc & check_goc);
+
+      if (found_doc_goc != DG_HAS_ALL) {
         proper_format = 0;
-      } else {
-        // policy_object top level tokens
-        if (tokens[policy_object_idx + 1].type != JSMN_OBJECT ||
-            tokens[policy_object_idx + 1].size < POL_OBJC_MIN_MEMBERS) {
-          proper_format = 0;
-        } else {
-          validator_policy_docgoc_level_e check_doc = DG_HAS_NONE;
-          validator_policy_docgoc_level_e check_goc = DG_HAS_NONE;
-          validator_policy_docgoc_level_e found_doc_goc = DG_HAS_NONE;
-
-          /* policy_goc or policy_doc must contain keys "attribute_list" and "operation"
-             attribute_list value may be one of two types of arrays:
-              - array of attributes
-              - array of objects which contain attribute_list and operation */
-          for (int i = policy_object_idx; i < policy_object_end_idx; i++) {
-            if (strncmp(&policy_data[tokens[i].start], "policy_doc", strlen("policy_doc")) == 0 &&
-                tokens[i].size == 1 && tokens[i + 1].type == JSMN_OBJECT) {
-              found_doc_goc |= DG_HAS_DOC;
-
-              check_doc |= check_gocdoc_object(
-                  tokens, i + 2, parser_end_of_current_idx(tokens, i + 1, policy_object_end_idx), policy_data);
-            } else if (strncmp(&policy_data[tokens[i].start], "policy_goc", strlen("policy_goc")) == 0 &&
-                       tokens[i].size == 1 && tokens[i + 1].type == JSMN_OBJECT) {
-              found_doc_goc |= DG_HAS_GOC;
-
-              check_goc |= check_gocdoc_object(tokens, i + 2, policy_object_end_idx, policy_data);
-            }
-          }
-
-          found_doc_goc |= (check_doc & check_goc);
-
-          if (found_doc_goc != DG_HAS_ALL) {
-            proper_format = 0;
-          }
-        }
       }
     }
   }
