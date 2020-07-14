@@ -188,7 +188,7 @@ static int list_to_string(pap_action_list_t *action_list, char *output_str) {
  * CALLBACK FUNCTIONS
  ****************************************************************************/
 #define MAX_PEP_PLUGINS 5
-static pluginmanager_t plugin_manager;
+static pluginmanager_t g_plugin_manager;
 
 /****************************************************************************
  * API FUNCTIONS
@@ -207,7 +207,7 @@ bool pep_init() {
   }
 
   // initialize plugin manager for pep
-  pluginmanager_init(&plugin_manager, MAX_PEP_PLUGINS);
+  pluginmanager_init(&g_plugin_manager, MAX_PEP_PLUGINS);
 
   return TRUE;
 }
@@ -229,7 +229,7 @@ bool pep_register_plugin(plugin_t *plugin) {
   pthread_mutex_lock(&pep_mutex);
 
   // Register plugin
-  pluginmanager_register(&plugin_manager, plugin);
+  pluginmanager_register(&g_plugin_manager, plugin);
 
   pthread_mutex_unlock(&pep_mutex);
 
@@ -282,9 +282,13 @@ bool pep_request_access(char *request, void *response) {
     }
   } else {
     plugin_t *plugin = NULL;
-    pluginmanager_get(&plugin_manager, 0, &plugin);
-    if (plugin != NULL) {
-      plugin_call(plugin, PEPPLUGIN_ACTION_CB, &plugin_args);
+    for (int i = 0; i < g_plugin_manager.plugins_num; i++) {
+      pluginmanager_get(&g_plugin_manager, i, &plugin);
+      int callback_status = -1;
+      if (plugin != NULL) {
+        callback_status = plugin_call(plugin, PEPPLUGIN_ACTION_CB, &plugin_args);
+      }
+      // TODO: check status
     }
 
     ret == PDP_GRANT ? memcpy(response, "grant", strlen("grant")) : memcpy(response, "deny", strlen("deny"));
