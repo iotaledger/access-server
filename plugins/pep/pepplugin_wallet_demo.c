@@ -57,7 +57,7 @@
 
 #define RES_MAX_STR_LEN 512
 #define RES_SEED_LEN 81 + 1
-#define RES_MAX_PEM_LEN 4*1024
+#define RES_MAX_PEM_LEN 4 * 1024
 
 /****************************************************************************
  * TYPES
@@ -150,11 +150,20 @@ int peppluginwalletdemo_initializer(plugin_t* plugin, void* options) {
   configmanager_get_option_string("wallet", "url", node_url, RES_MAX_STR_LEN);
   configmanager_get_option_string("wallet", "seed", seed, RES_SEED_LEN);
   configmanager_get_option_string("wallet", "pem_file_path", pem_file, RES_MAX_STR_LEN);
-  configmanager_get_option_int("wallet", "mwm", (int *)&node_mwm);
+  configmanager_get_option_int("wallet", "mwm", (int*)&node_mwm);
   configmanager_get_option_int("wallet", "port", (int*)&port);
   configmanager_get_option_int("wallet", "depth", (int*)&node_depth);
 
-  FILE *f = fopen(pem_file, "r");
+  if (strlen(pem_file) == 0) {
+    printf("\nERROR[%s]: PEM file for wallet not defined in config.\n", __FUNCTION__);
+    return -1;
+  }
+
+  FILE* f = fopen(pem_file, "r");
+  if (f == NULL) {
+    printf("\nERROR[%s]: PEM file (%s) not found.\n", __FUNCTION__, pem_file);
+    return -1;
+  }
   fread(ca_pem, RES_MAX_PEM_LEN, 1, f);
   fclose(f);
 

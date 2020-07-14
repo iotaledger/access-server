@@ -285,6 +285,7 @@ int pipplugin_canreceiver_initializer(plugin_t* plugin, void* data) {
   ddstate.dataset = malloc(sizeof(can01_vehicle_dataset_t));
   dataset_init(&ddstate);
   canreceiver_init(ddstate.dataset, NULL);
+  return 0;
 }
 
 void canreceiver_start() {
@@ -299,6 +300,7 @@ int canreceiver_deinit() {
     dataset_deinit(&ddstate);
   }
   is_in_use = FALSE;
+
   return 0;
 }
 
