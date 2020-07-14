@@ -31,6 +31,7 @@ set(sources
   pepplugin_can_demo.c
   pepplugin_canopen_demo.c
   pepplugin_wallet_demo.c
+  pepplugin_relay_demo.c
 )
 
 add_library(${target} ${sources})

@@ -50,6 +50,7 @@ set(sources
   obdii/ejv_obdii/OBDIICommunication.c
   obdii/ejv_obdii/OBDIIDaemon.c
   wallet/pip_plugin_wallet.c
+  gpio/pip_plugin_gpio.c
 )
 
 set(include_dirs
