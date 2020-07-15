@@ -18,12 +18,12 @@
  */
 
 /****************************************************************************
- * \project Decentralized Access Control
- * \file storage.c
+ * \project IOTa Access
+ * \file pap_plugin_unix.c
  * \brief
  * Implementation of policy storage interface
  *
- * @Author Dejan Nedic, Strahinja Golic
+ * @Author Dejan Nedic, Strahinja Golic, Bernardo Araujo.
  *
  * \notes
  *
@@ -31,11 +31,12 @@
  * 24.08.2018. Initial version.
  * 01.10.2018. Added new functions that work without JSON paresr.
  * 25.05.2020. Refactoring.
+ * 15.07.2020. Renaming.
  ****************************************************************************/
 /****************************************************************************
  * INCLUDES
  ****************************************************************************/
-#include "storage.h"
+#include "pap_plugin_unix.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -563,7 +564,7 @@ static int get_all_cb(plugin_t* plugin, void* data) {
   return 0;
 }
 
-int pappluginrpi_initializer(plugin_t* plugin, void* data) {
+int pap_plugin_unix_initializer(plugin_t* plugin, void* data) {
   plugin->destroy = destroy_cb;
   plugin->callbacks = malloc(sizeof(void*) * PAPPLUGIN_CALLBACK_COUNT);
   plugin->plugin_specific_data = NULL;

@@ -15,28 +15,28 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
-
-/****************************************************************************
- * \project Decentralized Access Control
- * \file can_receiver.h
+ /****************************************************************************
+ * \project IOTA Access
+ * \file pip_plugin_obdii.h
  * \brief
- * CAN receiver server header file
+ * PIP Plugin for OBDii
  *
- * @Author Djordje Golubovic
+ * @Author Djordje Golubovic, Bernardo Araujo
  *
  * \notes
  *
  * \history
- * 04.15.2019. Initial version.
- ****************************************************************************/
+ * 04.03.2020. Initial version.
+ * 15.07.2020. Renaming
+  ****************************************************************************/
 
-#ifndef _CAN_RECEIVER_H_
-#define _CAN_RECEIVER_H_
+  #ifndef _PIP_PLUGIN_OBDII_H_
+  #define _PIP_PLUGIN_OBDII_H_
 
+#include <pthread.h>
 #include "pip_plugin.h"
 #include "plugin.h"
 
-int pipplugin_canreceiver_initializer(plugin_t* plugin, void* data);
+int pip_plugin_obdii_initializer(plugin_t* plugin, void* data);
 
 #endif

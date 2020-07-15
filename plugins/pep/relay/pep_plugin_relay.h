@@ -19,9 +19,9 @@
 
 /****************************************************************************
  * \project IOTA Access
- * \file pepplugin_can_demo.h
+ * \file pep_plugin_relay.h
  * \brief
- * PEP plugin for relay demo.
+ * PEP plugin for relay.
  *
  * @Author Bernardo Araujo
  *
@@ -31,15 +31,15 @@
  * 12.07.2020. Initial version.
  ****************************************************************************/
 
-#ifndef _PEP_PLUGIN_RELAY_DEMO_H_
-#define _PEP_PLUGIN_RELAY_DEMO_H_
+#ifndef _PEP_PLUGIN_RELAY_H_
+#define _PEP_PLUGIN_RELAY_H_
 
 #include "pep_plugin.h"
 
 /**
- * @fn void pepplugincandemo_initializer(plugin_t* plugin)
+ * @fn void pep_plugin_relay_initializer(plugin_t* plugin)
  * @brief resolver plugin initializer callback
  */
-int peppluginrelaydemo_initializer(plugin_t* plugin, void* options);
+int pep_plugin_relay_initializer(plugin_t* plugin, void* options);
 
-#endif
+#endif //_PEP_PLUGIN_RELAY_H_

@@ -18,20 +18,21 @@
  */
 
 /****************************************************************************
- * \project Decentralized Access Control
- * \file canopen_receiver.c
- * \brief
- * Implementation of interface for CANOPEN receiver
- *
- * @Author
- *
- * \notes
- *
- * \history
- * XX.YY.ZZZZ. Initial version.
+* \project IOTA Access
+* \file pip_plugin_canopen.c
+* \brief
+* PIP Plugin for CAN open
+*
+ * @Author Djordje Golubovic, Bernardo Araujo
+*
+* \notes
+*
+* \history
+* 04.03.2020. Initial version.
+* 15.07.2020. Renaming
  ****************************************************************************/
 
-#include "canopen_receiver.h"
+#include "pip_plugin_canopen.h"
 #include "can_thread.h"
 #include "canopen_sdo.h"
 #include "datadumper.h"
@@ -534,7 +535,7 @@ static int get_dataset_cb(plugin_t *plugin, void *data) {
   return 0;
 }
 
-int pipplugin_canopenreceiver_initializer(plugin_t *plugin, void *data) {
+int pip_plugin_canopen_initializer(plugin_t *plugin, void *data) {
   plugin->destroy = destroy_cb;
   plugin->callbacks = malloc(sizeof(void *) * PIPPLUGIN_CALLBACK_COUNT);
   plugin->callbacks[PIPPLUGIN_ACQUIRE_CB] = NULL;

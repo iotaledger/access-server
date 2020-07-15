@@ -17,20 +17,21 @@
  * limitations under the License.
  */
 /****************************************************************************
- * \project Decentralized Access Control
- * \file obdii_receiver.c
- * \brief
- * OBDII interface implementation
- *
- * @Author
- *
- * \notes
- *
- * \history
- * XX.YY.ZZZZ. Initial version.
+* \project IOTA Access
+* \file pip_plugin_obdii.c
+* \brief
+* PIP Plugin for OBDii
+*
+* @Author Djordje Golubovic, Bernardo Araujo
+*
+* \notes
+*
+* \history
+* 04.03.2020. Initial version.
+* 15.07.2020. Renaming
  ****************************************************************************/
 
-#include "obdii_receiver.h"
+#include "pip_plugin_obdii.h"
 
 #include <errno.h>
 #include <string.h>
@@ -88,7 +89,7 @@ static int destroy_cb(plugin_t* plugin, void* data) {
   return 0;
 }
 
-int pipplugin_obdiireceiver_initializer(plugin_t* plugin, void* data) {
+int pip_plugin_obdii_initializer(plugin_t* plugin, void* data) {
   plugin->destroy = destroy_cb;
   plugin->callbacks = malloc(sizeof(void*) * PIPPLUGIN_CALLBACK_COUNT);
   plugin->callbacks[PIPPLUGIN_START_CB] = start_cb;

@@ -34,18 +34,18 @@ set(libs
   platform_interface)
 
 set(sources
+  can/pip_plugin_can.c
   can/can_linux.c
   can/can_msgs.c
-  can/can_receiver.c
   can/can_thread.c
   can/lib.c
-  canopen/canopen_receiver.c
+  canopen/pip_plugin_canopen.c
   canopen/canopen_sdo.c
-  gps/gps_receiver.c
+  gps/pip_plugin_gps.c
   gps/minmea/minmea.c
   modbus/modbus.c
-  modbus/modbus_receiver.c
-  obdii/obdii_receiver.c
+  modbus/pip_plugin_modbus.c
+  obdii/pip_plugin_obdii.c
   obdii/ejv_obdii/OBDII.c
   obdii/ejv_obdii/OBDIICommunication.c
   obdii/ejv_obdii/OBDIIDaemon.c

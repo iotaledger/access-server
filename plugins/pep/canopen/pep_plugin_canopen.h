@@ -19,27 +19,29 @@
 
 /****************************************************************************
  * \project IOTA Access
- * \file pepplugin_can_demo.h
+ * \file pep_plugin_canopen.h
  * \brief
- * PEP plugin for CAN demo. It uses relay board directly connected to rpi3 for control
+ * Resolver plugin for CANOpen demo using relay board connected directly to
+ * rpi3.
  *
- * @Author Djordje Golubovic
+ * @Author Djordje Golubovic, Bernardo Araujo
  *
  * \notes
  *
  * \history
  * 04.03.2020. Initial version.
+ * 15.07.2020. Renaming
  ****************************************************************************/
 
-#ifndef _PEP_PLUGIN_CAN_DEMO_H_
-#define _PEP_PLUGIN_CAN_DEMO_H_
+#ifndef _PEP_PLUGIN_CANOPEN_H_
+#define _PEP_PLUGIN_CANOPEN_H_
 
 #include "pep_plugin.h"
 
 /**
- * @fn void pepplugincandemo_initializer(plugin_t* plugin)
- * @brief resolver plugin initializer callback
+ * @fn void pep_plugin_canopen_initializer(plugin_t* action_set)
+ * @brief pep plugin initializer callback
  */
-int pepplugincandemo_initializer(plugin_t* plugin, void* options);
+int pep_plugin_canopen_initializer(plugin_t* action_set, void* options);
 
-#endif
+#endif //_PEP_PLUGIN_CANOPEN_H_

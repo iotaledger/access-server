@@ -19,19 +19,19 @@
 
 /****************************************************************************
  * \project IOTA Access
- * \file pepplugin_can_demo.c
+ * \file pep_plugin_relay.c
  * \brief
- * PEP plugin for CAN demo. It uses relay board directly connected to rpi3 for control
+ * PEP plugin for relay.
  *
- * @Author Djordje Golubovic
+ * @Author Bernardo Araujo
  *
  * \notes
  *
  * \history
- * 04.03.2020. Initial version.
+ * 12.07.2020. Initial version.
  ****************************************************************************/
 
-#include "pepplugin_can_demo.h"
+#include "pep_plugin_relay.h"
 
 #include <string.h>
 #include <unistd.h>
@@ -58,23 +58,27 @@ typedef struct {
 
 static action_set_t g_action_set;
 
-static int car_lock(pdp_action_t* action, int should_log) {
+static int relay_on(pdp_action_t *action, int should_log)
+{
+  relayinterface_on(0);
+  return 0;
+}
+
+static int relay_off(pdp_action_t *action, int should_log)
+{
+  relayinterface_off(0);
+  return 0;
+}
+
+static int relay_toggle(pdp_action_t *action, int should_log)
+{
+  relayinterface_toggle(0);
+  return 0;
+}
+
+static int relay_pulse(pdp_action_t *action, int should_log)
+{
   relayinterface_pulse(0);
-  return 0;
-}
-
-static int car_unlock(pdp_action_t* action, int should_log) {
-  relayinterface_pulse(1);
-  return 0;
-}
-
-static int start_engine(pdp_action_t* action, int should_log) {
-  relayinterface_pulse(2);
-  return 0;
-}
-
-static int open_trunk(pdp_action_t* action, int should_log) {
-  relayinterface_pulse(3);
   return 0;
 }
 
@@ -105,15 +109,15 @@ static int action_cb(plugin_t* plugin, void* data) {
   return status;
 }
 
-int pepplugincandemo_initializer(plugin_t* plugin, void* options) {
-  g_action_set.actions[0] = car_unlock;
-  g_action_set.actions[1] = car_lock;
-  g_action_set.actions[2] = open_trunk;
-  g_action_set.actions[3] = start_engine;
-  strncpy(g_action_set.action_names[0], "open_door", ACTION_NAME_SIZE);
-  strncpy(g_action_set.action_names[1], "close_door", ACTION_NAME_SIZE);
-  strncpy(g_action_set.action_names[2], "open_trunk", ACTION_NAME_SIZE);
-  strncpy(g_action_set.action_names[3], "start_engine", ACTION_NAME_SIZE);
+int pep_plugin_relay_initializer(plugin_t* plugin, void* options) {
+  g_action_set.actions[0] = relay_on;
+  g_action_set.actions[1] = relay_off;
+  g_action_set.actions[2] = relay_toggle;
+  g_action_set.actions[3] = relay_pulse;
+  strncpy(g_action_set.action_names[0], "relay_on", ACTION_NAME_SIZE);
+  strncpy(g_action_set.action_names[1], "relay_off", ACTION_NAME_SIZE);
+  strncpy(g_action_set.action_names[2], "relay_toggle", ACTION_NAME_SIZE);
+  strncpy(g_action_set.action_names[3], "relay_pulse", ACTION_NAME_SIZE);
   g_action_set.count = 4;
 
   plugin->destroy = destroy_cb;

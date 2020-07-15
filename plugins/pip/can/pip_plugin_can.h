@@ -1,8 +1,8 @@
 /*
- * This file is part of the IOTA Access Distribution
- * (https://github.com/iotaledger/access)
+ * This file is part of the Frost distribution
+ * (https://github.com/xainag/frost)
  *
- * Copyright (c) 2020 IOTA Stiftung
+ * Copyright (c) 2019 XAIN AG.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,25 +18,26 @@
  */
 
 /****************************************************************************
- * \project Decentralized Access Control
- * \file storage.h
+ * \project IOTA Access
+ * \file pip_plugin_can.h
  * \brief
- * Implementation of policy storage interface
+ * PIP Plugin for CAN
  *
- * @Author Dejan Nedic, Strahinja Golic
+ * @Author Djordje Golubovic, Bernardo Araujo
  *
  * \notes
  *
  * \history
- * 24.08.2018. Initial version.
- * 25.05.2020. Refactoring.
+ * 04.15.2019. Initial version.
+ * 15.07.2020. Renaming.
  ****************************************************************************/
-#ifndef _STORAGE_H_
-#define _STORAGE_H_
 
-#include "pap_plugin.h"
+#ifndef _PIP_PLUGIN_CAN_H_
+#define _PIP_PLUGIN_CAN_H_
+
+#include "pip_plugin.h"
 #include "plugin.h"
 
-int pappluginrpi_initializer(plugin_t *plugin, void *user_data);
+int pip_plugin_can_initializer(plugin_t* plugin, void* data);
 
-#endif  //_STORAGE_H_
+#endif

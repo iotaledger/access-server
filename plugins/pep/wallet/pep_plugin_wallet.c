@@ -19,18 +19,19 @@
 
 /****************************************************************************
  * \project IOTA Access
- * \file pepplugin_wallet_demo.c
+ * \file pep_plugin_wallet.c
  * \brief
  * Resolver plugin for wallet functionality.
- * @Author Strahinja Golic
+ * @Author Strahinja Golic, Bernardo Araujo
  *
  * \notes
  *
  * \history
  * 15.06.2020. Initial version.
+ * 15.07.2020. Renaming.
  ****************************************************************************/
 
-#include "pepplugin_wallet_demo.h"
+#include "pep_plugin_wallet.h"
 
 #include <arpa/inet.h>
 #include <string.h>
@@ -134,7 +135,7 @@ static int action_cb(plugin_t* plugin, void* data) {
   return status;
 }
 
-int peppluginwalletdemo_initializer(plugin_t* plugin, void* options) {
+int pep_plugin_wallet_initializer(plugin_t* plugin, void* options) {
   if (plugin == NULL) {
     return -1;
   }

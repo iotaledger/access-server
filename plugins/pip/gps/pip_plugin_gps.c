@@ -18,24 +18,25 @@
  */
 
 /****************************************************************************
- * \project Decentralized Access Control
- * \file gps_receiver.c
- * \brief
- * Implementation of interface for GPS module
- *
- * @Author Djordje Golubovic
- *
- * \notes
- *
- * \history
- * 04.15.2019. Initial version.
+* \project Decentralized Access Control
+* \file pip_plugin_gps.h
+* \brief
+* PIP plugin for GPS module
+*
+* @Author Djordje Golubovic, Bernardo Araujo
+*
+* \notes
+*
+* \history
+* 04.15.2019. Initial version.
+* 15.07.2020. Renaming.
  ****************************************************************************/
 #include <fcntl.h>
 #include <string.h>
 #include <termios.h>
 #include <unistd.h>
 
-#include "gps_receiver.h"
+#include "pip_plugin_gps.h"
 
 #include "minmea.h"
 

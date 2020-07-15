@@ -18,20 +18,21 @@
  */
 
 /****************************************************************************
- * \project Decentralized Access Control
- * \file modbus_receiver.c
- * \brief
- * Modbus receiver module implementation
- *
- * @Author Djordje Golubovic
- *
- * \notes
- *
- * \history
- * 07.29.2019. Initial version.
+* \project Decentralized Access Control
+* \file pip_plugin_modbus.c
+* \brief
+* Modbus receiver module interface
+*
+* @Author Djordje Golubovic, Bernardo Araujo
+*
+* \notes
+*
+* \history
+* 07.29.2019. Initial version.
+* 15.07.2020. Renaming.
  ****************************************************************************/
 
-#include "modbus_receiver.h"
+#include "pip_plugin_modbus.h"
 
 #include <string.h>
 #include <unistd.h>

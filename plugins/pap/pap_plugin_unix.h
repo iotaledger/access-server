@@ -1,8 +1,8 @@
 /*
- * This file is part of the IOTA Access distribution
+ * This file is part of the IOTA Access Distribution
  * (https://github.com/iotaledger/access)
  *
- * Copyright (c) 2020 IOTA Foundation
+ * Copyright (c) 2020 IOTA Stiftung
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,24 +19,25 @@
 
 /****************************************************************************
  * \project IOTA Access
- * \file pip_plugin_gpio.h
+ * \file pap_plugin_unix.h
  * \brief
- * PIP plugin for GPIO demo.
+ * Implementation of policy storage interface
  *
- * @Author Bernardo Araujo
+ * @Author Dejan Nedic, Strahinja Golic, Bernardo Araujo
  *
  * \notes
  *
  * \history
- * 12.07.2020. Initial version.
+ * 24.08.2018. Initial version.
+ * 25.05.2020. Refactoring.
+ * 15.07.2020. Renaming.
  ****************************************************************************/
+#ifndef _PAP_PLUGIN_UNIX_H_
+#define _PAP_PLUGIN_UNIX_H_
 
-#ifndef _PIP_PLUGIN_GPIO_H_
-#define _PIP_PLUGIN_GPIO_H_
+#include "pap_plugin.h"
+#include "plugin.h"
 
-#include "pip_plugin.h"
-#include "gpio_interface.h"
+int pap_plugin_unix_initializer(plugin_t *plugin, void *user_data);
 
-int pip_plugin_gpio_initializer(plugin_t *plugin, void *user_data);
-
-#endif //_PIP_PLUGIN_GPIO_H_
+#endif  //_PAP_PLUGIN_UNIX_H_
