@@ -18,24 +18,25 @@
  */
 
 /****************************************************************************
- * \project Decentralized Access Control
- * \file can_receiver.h
+ * \project IOTA Access
+ * \file pip_plugin_can.h
  * \brief
- * CAN receiver server implementation
+ * PIP Plugin for CAN
  *
- * @Author Djordje Golubovic
+ * @Author Djordje Golubovic, Bernardo Araujo
  *
  * \notes
  *
  * \history
  * 04.15.2019. Initial version.
+ * 15.07.2020. Renaming.
  ****************************************************************************/
 
 #include <string.h>
 
-#include "can_msgs.h"
+#include "pip_plugin_can.h"
 
-#include "can_receiver.h"
+#include "can_msgs.h"
 #include "can_thread.h"
 #include "config_manager.h"
 #include "datadumper.h"
@@ -271,7 +272,7 @@ static int get_dataset_cb(plugin_t* plugin, void* data) {
   return 0;
 }
 
-int pipplugin_canreceiver_initializer(plugin_t* plugin, void* data) {
+int pip_plugin_can_initializer(plugin_t* plugin, void* data) {
   plugin->destroy = destroy_cb;
   plugin->callbacks = malloc(sizeof(void*) * PIPPLUGIN_CALLBACK_COUNT);
   plugin->callbacks[PIPPLUGIN_ACQUIRE_CB] = NULL;

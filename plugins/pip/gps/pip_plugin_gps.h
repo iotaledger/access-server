@@ -1,8 +1,8 @@
 /*
- * This file is part of the IOTA Access distribution
- * (https://github.com/iotaledger/access)
+ * This file is part of the Frost distribution
+ * (https://github.com/xainag/frost)
  *
- * Copyright (c) 2020 IOTA Foundation
+ * Copyright (c) 2019 XAIN AG.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,29 +18,29 @@
  */
 
 /****************************************************************************
- * \project IOTA Access
- * \file pepplugin_canopen_demo.h
+ * \project Decentralized Access Control
+ * \file pip_plugin_gps.h
  * \brief
- * Resolver plugin for CANOpen demo using relay board connected directly to
- * rpi3.
+ * PIP plugin for GPS module
  *
- * @Author Djordje Golubovic
+ * @Author Djordje Golubovic, Bernardo Araujo
  *
  * \notes
  *
  * \history
- * 04.03.2020. Initial version.
+ * 04.15.2019. Initial version.
+ * 15.07.2020. Renaming.
  ****************************************************************************/
 
-#ifndef _PEP_PLUGIN_CANOPEN_DEMO_H_
-#define _PEP_PLUGIN_CANOPEN_DEMO_H_
+#ifndef _PIP_PLUGIN_GPS_H_
+#define _PIP_PLUGIN_GPS_H_
 
-#include "pep_plugin.h"
+#include <pthread.h>
 
-/**
- * @fn void pepplugincanopendemo_initializer(plugin_t* action_set)
- * @brief pep plugin initializer callback
- */
-int pepplugincanopendemo_initializer(plugin_t* action_set, void* options);
+typedef enum { GPS_NO_ERROR = 0, GPS_ERROR = -1, GPS_ERROR_START = -2 } gps_error_e;
 
-#endif
+int gpsreceiver_init(pthread_mutex_t* json_mutex);
+int gpsreceiver_start();
+int gpsreceiver_end();
+
+#endif //_PIP_PLUGIN_GPS_H_

@@ -27,19 +27,19 @@
 #include <unistd.h>
 
 #include "access.h"
-#include "can_receiver.h"
-#include "canopen_receiver.h"
+#include "pip_plugin_can.h"
+#include "pip_plugin_canopen.h"
 #include "config_manager.h"
 #include "datadumper.h"
 #include "dataset.h"
 #include "globals_declarations.h"
 #include "network.h"
-#include "obdii_receiver.h"
-#include "pepplugin_can_demo.h"
-#include "pepplugin_canopen_demo.h"
-#include "pepplugin_wallet_demo.h"
+#include "pip_plugin_obdii.h"
+#include "pep_plugin_can.h"
+#include "pep_plugin_canopen.h"
+#include "pep_plugin_wallet.h"
 #include "pip_plugin_wallet.h"
-#include "storage.h"
+#include "pap_plugin_unix.h"
 #include "timer.h"
 
 #define NODE_URL "nodes.comnet.thetangle.org"
@@ -89,33 +89,33 @@ int main(int argc, char **argv) {
   datadumper_init();
   plugin_t plugin;
 
-  if (plugin_init(&plugin, peppluginwalletdemo_initializer, NULL) == 0) {
+  if (plugin_init(&plugin, pep_plugin_wallet_initializer, NULL) == 0) {
     access_register_pep_plugin(access_context, &plugin);
   }
 
-  if (plugin_init(&plugin, pippluginwallet_initializer, NULL) == 0) {
+  if (plugin_init(&plugin, pip_plugin_wallet_initializer, NULL) == 0) {
     access_register_pip_plugin(access_context, &plugin);
   }
 
-  if (plugin_init(&plugin, pappluginrpi_initializer, NULL) == 0) {
+  if (plugin_init(&plugin, pap_plugin_unix_initializer, NULL) == 0) {
     access_register_pap_plugin(access_context, &plugin);
   }
 
   if (strncmp(client_name, CONFIG_CLIENT_CAN01, strlen(CONFIG_CLIENT_CAN01)) == 0) {
-    if (plugin_init(&plugin, pipplugin_canreceiver_initializer, NULL) == 0) {
+    if (plugin_init(&plugin, pip_plugin_can_initializer, NULL) == 0) {
       access_register_pip_plugin(access_context, &plugin);
     }
-    if (plugin_init(&plugin, pepplugincandemo_initializer, NULL) == 0) {
+    if (plugin_init(&plugin, pep_plugin_can_initializer, NULL) == 0) {
       access_register_pep_plugin(access_context, &plugin);
     }
     using_can = 1;
   } else if (strncmp(client_name, CONFIG_CLIENT_CANOPEN01, strlen(CONFIG_CLIENT_CANOPEN01)) == 0) {
-    if (plugin_init(&plugin, pipplugin_canopenreceiver_initializer, NULL) == 0) {
+    if (plugin_init(&plugin, pip_plugin_canopen_initializer, NULL) == 0) {
       access_register_pip_plugin(access_context, &plugin);
     }
     using_canopen = 1;
   } else if (strncmp(client_name, CONFIG_CLIENT_OBDII, strlen(CONFIG_CLIENT_OBDII)) == 0) {
-    if (plugin_init(&plugin, pipplugin_obdiireceiver_initializer, NULL) == 0) {
+    if (plugin_init(&plugin, pip_plugin_obdii_initializer, NULL) == 0) {
       access_register_pip_plugin(access_context, &plugin);
     }
     using_obdii = 1;

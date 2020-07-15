@@ -19,37 +19,28 @@
 
 /****************************************************************************
  * \project Decentralized Access Control
- * \file canopen_receiver.h
+ * \file pip_plugin_modbus.h
  * \brief
- * Implementation of interface for CANOPEN receiver
+ * Modbus receiver module interface
  *
- * @Author
+ * @Author Djordje Golubovic, Bernardo Araujo
  *
  * \notes
  *
  * \history
- * XX.YY.ZZZZ. Initial version.
+ * 07.29.2019. Initial version.
+ * 15.07.2020. Renaming.
  ****************************************************************************/
-#ifndef _CANOPEN_RECEIVER_H_
-#define _CANOPEN_RECEIVER_H_
 
-#include <pthread.h>
+#ifndef _PIP_PLUGIN_MODBUS_H_
+#define _PIP_PLUGIN_MODBUS_H_
+
+#include <libfastjson/json.h>
+#include "modbus.h"
 #include "vehicle_dataset.h"
 
-#include "pip_plugin.h"
-#include "plugin.h"
+void modbusreceiver_init(canopen01_vehicle_dataset_t *dataset, pthread_mutex_t *json_mutex);
+int modbusreceiver_start();
+void modbusreceiver_stop();
 
-#ifndef bool
-#define bool _Bool
-#endif
-
-int pipplugin_canopenreceiver_initializer(plugin_t *plugin, void *data);
-
-void canopenreceiver_init(canopen01_vehicle_dataset_t *dataset, pthread_mutex_t *json_mutex);
-int canopenreceiver_start();
-void canopenreceiver_deinit();
-bool canopenreceiver_is_in_use();
-void canopenreceiver_get_port_name(char *p_name_buff, int p_name_buff_len);
-int canopenreceiver_get_node_id(void);
-
-#endif
+#endif //_PIP_PLUGIN_MODBUS_H_

@@ -28,12 +28,19 @@ set(libs
   platform_interface)
 
 set(sources
-  pepplugin_can_demo.c
-  pepplugin_canopen_demo.c
-  pepplugin_wallet_demo.c
-  pepplugin_relay_demo.c
+  can/pep_plugin_can.c
+  canopen/pep_plugin_canopen.c
+  wallet/pep_plugin_wallet.c
+  relay/pep_plugin_relay.c
 )
 
 add_library(${target} ${sources})
-target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+set(include_dirs
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/can
+  ${CMAKE_CURRENT_SOURCE_DIR}/canopen
+  ${CMAKE_CURRENT_SOURCE_DIR}/wallet
+  ${CMAKE_CURRENT_SOURCE_DIR}/relay
+)
+target_include_directories(${target} PUBLIC ${include_dirs})
 target_link_libraries(${target} PUBLIC ${libs})

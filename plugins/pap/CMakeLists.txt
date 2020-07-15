@@ -22,7 +22,7 @@ cmake_minimum_required(VERSION 3.11)
 set(target pap_plugin)
 
 set(sources
-  storage.c
+  pap_plugin_unix
   test_internal.c)
 
 set(include_dirs

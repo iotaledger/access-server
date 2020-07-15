@@ -19,6 +19,16 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-add_subdirectory(asn_test)
-add_subdirectory(user_management)
-add_subdirectory(relay_interface)
+set(target relay_interface_test)
+
+set(sources relay_interface_test.c)
+
+add_executable(${target} ${sources})
+
+set(libs
+  platform_interface
+)
+
+set(include_dirs ${CMAKE_CURRENT_SOURCE_DIR}/../../plugins/platform_interface/r_pi)
+target_include_directories(${target} PUBLIC ${include_dirs})
+target_link_libraries(${target} PUBLIC ${libs})

@@ -167,7 +167,7 @@ static int acquire_cb(plugin_t *plugin, void *user_data) {
   return 0;
 }
 
-int pippluginwallet_initializer(plugin_t *plugin, void *user_data) {
+int pip_plugin_wallet_initializer(plugin_t *plugin, void *user_data) {
   char node_url[TRANS_MAX_STR_LEN] = {0};
   char seed[TRANS_SEED_LEN] = {0};
   uint8_t node_mwm;

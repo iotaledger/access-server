@@ -4,6 +4,6 @@
 #include "pip_plugin.h"
 #include "wallet.h"
 
-int pippluginwallet_initializer(plugin_t *plugin, void *user_data);
+int pip_plugin_wallet_initializer(plugin_t *plugin, void *user_data);
 
 #endif

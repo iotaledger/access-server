@@ -1,8 +1,8 @@
 /*
- * This file is part of the Frost distribution
- * (https://github.com/xainag/frost)
+ * This file is part of the IOTA Access distribution
+ * (https://github.com/iotaledger/access)
  *
- * Copyright (c) 2019 XAIN AG.
+ * Copyright (c) 2020 IOTA Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,28 +18,28 @@
  */
 
 /****************************************************************************
- * \project Decentralized Access Control
- * \file gps_receiver.h
+ * \project IOTA Access
+ * \file pep_plugin_wallet.h
  * \brief
- * Implementation of interface for GPS module
- *
- * @Author Djordje Golubovic
+ * Resolver plugin for wallet functionality.
+ * @Author Strahinja Golic, Bernardo Araujo
  *
  * \notes
  *
  * \history
- * 04.15.2019. Initial version.
+ * 15.06.2020. Initial version.
+ * 15.07.2020. Renaming.
  ****************************************************************************/
 
-#ifndef _GPS_RECEIVER_H_
-#define _GPS_RECEIVER_H_
+#ifndef _PEP_PLUGIN_WALLET_H_
+#define _PEP_PLUGIN_WALLET_H_
 
-#include <pthread.h>
+#include "pep_plugin.h"
 
-typedef enum { GPS_NO_ERROR = 0, GPS_ERROR = -1, GPS_ERROR_START = -2 } gps_error_e;
+/**
+ * @fn void pep_plugin_wallet_initializer(resolver_plugin_t* action_set)
+ * @brief resolver plugin initializer callback
+ */
+int pep_plugin_wallet_initializer(plugin_t* plugin, void* options);
 
-int gpsreceiver_init(pthread_mutex_t* json_mutex);
-int gpsreceiver_start();
-int gpsreceiver_end();
-
-#endif
+#endif //_PEP_PLUGIN_WALLET_H_
