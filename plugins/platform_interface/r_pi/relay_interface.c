@@ -50,6 +50,8 @@ static int check_idx(int idx) {
   if (idx < MIN_IDX || idx > MAX_IDX) {
     return -1;
   }
+
+  return 0;
 }
 
 int relayinterface_on(int idx) {
