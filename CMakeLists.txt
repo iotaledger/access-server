@@ -26,7 +26,7 @@ include(FetchContent)
 FetchContent_Declare(
   pigpio
   GIT_REPOSITORY https://github.com/joan2937/pigpio.git
-  GIT_TAG bb352d2000d8a4f38bab430927a85b7af4f70a01
+  GIT_TAG b6fe5874516eb67745fa6277d2060b715dac09a9
 )
 
 # fetch sqlite-amalgamation
