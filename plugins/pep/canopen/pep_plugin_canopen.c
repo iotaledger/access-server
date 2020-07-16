@@ -89,7 +89,7 @@ static int destroy_cb(plugin_t* plugin, void* data) {
 }
 
 static int action_cb(plugin_t* plugin, void* data) {
-  pepplugin_args_t* args = (pepplugin_args_t*)data;
+  pep_plugin_args_t* args = (pep_plugin_args_t*)data;
   pdp_action_t* action = &args->action;
   char* obligation = args->obligation;
   bool should_log = FALSE;
@@ -131,10 +131,10 @@ int pep_plugin_canopen_initializer(plugin_t* plugin, void* options) {
   g_action_set.count = 5;
 
   plugin->destroy = destroy_cb;
-  plugin->callbacks = malloc(sizeof(void*) * PEPPLUGIN_CALLBACK_COUNT);
-  plugin->callbacks_num = PEPPLUGIN_CALLBACK_COUNT;
+  plugin->callbacks = malloc(sizeof(void*) * PEP_PLUGIN_CALLBACK_COUNT);
+  plugin->callbacks_num = PEP_PLUGIN_CALLBACK_COUNT;
   plugin->plugin_specific_data = NULL;
-  plugin->callbacks[PEPPLUGIN_ACTION_CB] = action_cb;
+  plugin->callbacks[PEP_PLUGIN_ACTION_CB] = action_cb;
 
   return 0;
 }
