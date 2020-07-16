@@ -91,12 +91,12 @@ static int destroy_cb(plugin_t* plugin, void* data) {
 
 int pip_plugin_obdii_initializer(plugin_t* plugin, void* data) {
   plugin->destroy = destroy_cb;
-  plugin->callbacks = malloc(sizeof(void*) * PIPPLUGIN_CALLBACK_COUNT);
-  plugin->callbacks[PIPPLUGIN_START_CB] = start_cb;
-  plugin->callbacks[PIPPLUGIN_ACQUIRE_CB] = NULL;
-  plugin->callbacks[PIPPLUGIN_GET_DATASET_CB] = NULL;
-  plugin->callbacks[PIPPLUGIN_SET_DATASET_CB] = NULL;
-  plugin->callbacks_num = PIPPLUGIN_CALLBACK_COUNT;
+  plugin->callbacks = malloc(sizeof(void*) * PIP_PLUGIN_CALLBACK_COUNT);
+  plugin->callbacks[PIP_PLUGIN_START_CB] = start_cb;
+  plugin->callbacks[PIP_PLUGIN_ACQUIRE_CB] = NULL;
+  plugin->callbacks[PIP_PLUGIN_GET_DATASET_CB] = NULL;
+  plugin->callbacks[PIP_PLUGIN_SET_DATASET_CB] = NULL;
+  plugin->callbacks_num = PIP_PLUGIN_CALLBACK_COUNT;
   plugin->plugin_specific_data = NULL;
 
   obdiireceiver_init("can0", NULL);

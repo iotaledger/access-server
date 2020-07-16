@@ -524,25 +524,25 @@ static int start_cb(plugin_t *plugin, void *data) {
 }
 
 static int set_dataset_cb(plugin_t *plugin, void *data) {
-  pipplugin_string_arg_t *arg = (pipplugin_string_arg_t *)data;
+  pip_plugin_string_arg_t *arg = (pip_plugin_string_arg_t *)data;
   dataset_from_json(&ddstate, arg->string, arg->len);
   return 0;
 }
 
 static int get_dataset_cb(plugin_t *plugin, void *data) {
-  pipplugin_string_arg_t *arg = (pipplugin_string_arg_t *)data;
+  pip_plugin_string_arg_t *arg = (pip_plugin_string_arg_t *)data;
   arg->len = dataset_to_json(&ddstate, arg->string);
   return 0;
 }
 
 int pip_plugin_canopen_initializer(plugin_t *plugin, void *data) {
   plugin->destroy = destroy_cb;
-  plugin->callbacks = malloc(sizeof(void *) * PIPPLUGIN_CALLBACK_COUNT);
-  plugin->callbacks[PIPPLUGIN_ACQUIRE_CB] = NULL;
-  plugin->callbacks[PIPPLUGIN_START_CB] = start_cb;
-  plugin->callbacks[PIPPLUGIN_GET_DATASET_CB] = get_dataset_cb;
-  plugin->callbacks[PIPPLUGIN_SET_DATASET_CB] = set_dataset_cb;
-  plugin->callbacks_num = PIPPLUGIN_CALLBACK_COUNT;
+  plugin->callbacks = malloc(sizeof(void *) * PIP_PLUGIN_CALLBACK_COUNT);
+  plugin->callbacks[PIP_PLUGIN_ACQUIRE_CB] = NULL;
+  plugin->callbacks[PIP_PLUGIN_START_CB] = start_cb;
+  plugin->callbacks[PIP_PLUGIN_GET_DATASET_CB] = get_dataset_cb;
+  plugin->callbacks[PIP_PLUGIN_SET_DATASET_CB] = set_dataset_cb;
+  plugin->callbacks_num = PIP_PLUGIN_CALLBACK_COUNT;
   plugin->plugin_specific_data = NULL;
 
   ddstate.options = &vehicledatasetdemo01_options[0];
