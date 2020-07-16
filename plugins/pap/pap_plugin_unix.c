@@ -531,7 +531,7 @@ static int put_cb(plugin_t* plugin, void* data) {
 }
 
 static int get_cb(plugin_t* plugin, void* data) {
-  papplugin_get_args_t* args = (papplugin_get_args_t*)data;
+  pap_plugin_get_args_t* args = (pap_plugin_get_args_t*)data;
   acquire_policy(args->policy_id, &args->policy->policy_object, &args->policy->policy_id_signature,
                  &args->policy->hash_function);
   strncpy(args->policy->policy_id, args->policy_id, PAP_POL_ID_MAX_LEN);
@@ -540,7 +540,7 @@ static int get_cb(plugin_t* plugin, void* data) {
 }
 
 static int has_cb(plugin_t* plugin, void* data) {
-  papplugin_has_args_t* args = (papplugin_has_args_t*)data;
+  pap_plugin_has_args_t* args = (pap_plugin_has_args_t*)data;
   args->does_have = check_if_stored_policy(args->policy_id);
   return 0;
 }
@@ -553,7 +553,7 @@ static int del_cb(plugin_t* plugin, void* data) {
 }
 
 static int get_len_cb(plugin_t* plugin, void* data) {
-  papplugin_len_args_t* args = (papplugin_len_args_t*)data;
+  pap_plugin_len_args_t* args = (pap_plugin_len_args_t*)data;
   acquire_pol_obj_len(args->policy_id, &args->len);
   return 0;
 }
@@ -566,14 +566,14 @@ static int get_all_cb(plugin_t* plugin, void* data) {
 
 int pap_plugin_unix_initializer(plugin_t* plugin, void* data) {
   plugin->destroy = destroy_cb;
-  plugin->callbacks = malloc(sizeof(void*) * PAPPLUGIN_CALLBACK_COUNT);
+  plugin->callbacks = malloc(sizeof(void*) * PAP_PLUGIN_CALLBACK_COUNT);
   plugin->plugin_specific_data = NULL;
-  plugin->callbacks_num = PAPPLUGIN_CALLBACK_COUNT;
-  plugin->callbacks[PAPPLUGIN_PUT_CB] = put_cb;
-  plugin->callbacks[PAPPLUGIN_GET_CB] = get_cb;
-  plugin->callbacks[PAPPLUGIN_HAS_CB] = has_cb;
-  plugin->callbacks[PAPPLUGIN_DEL_CB] = del_cb;
-  plugin->callbacks[PAPPLUGIN_GET_POL_OBJ_LEN_CB] = get_len_cb;
-  plugin->callbacks[PAPPLUGIN_GET_ALL_CB] = get_all_cb;
+  plugin->callbacks_num = PAP_PLUGIN_CALLBACK_COUNT;
+  plugin->callbacks[PAP_PLUGIN_PUT_CB] = put_cb;
+  plugin->callbacks[PAP_PLUGIN_GET_CB] = get_cb;
+  plugin->callbacks[PAP_PLUGIN_HAS_CB] = has_cb;
+  plugin->callbacks[PAP_PLUGIN_DEL_CB] = del_cb;
+  plugin->callbacks[PAP_PLUGIN_GET_POL_OBJ_LEN_CB] = get_len_cb;
+  plugin->callbacks[PAP_PLUGIN_GET_ALL_CB] = get_all_cb;
   return 0;
 }
