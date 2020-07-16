@@ -41,12 +41,42 @@
 #include "dlog.h"
 #include "relay_interface.h"
 #include "time_manager.h"
+#include "wallet.h"
 
 #define RES_BUFF_LEN 80
 #define MAX_ACTIONS 10
 #define ACTION_NAME_SIZE 16
 #define POLICY_ID_SIZE 64
 #define ADDR_SIZE 128
+
+// wallet parameters for obligation of logging action on Tangle
+#define NODE_URL "nodes.comnet.thetangle.org"
+#define NODE_PORT 443
+#define NODE_DEPTH 3
+#define NODE_MWM 14
+#define WALLET_SEED "DEJUXV9ZQMIEXTWJJHJPLAWMOEKGAYDNALKSMCLG9APR9LCKHMLNZVCRFNFEPMGOBOYYIKJNYWSAKVPAI"
+#define ADDR "MXHYKULAXKWBY9JCNVPVSOSZHMBDJRWTTXZCTKHLHKSJARDADHJSTCKVQODBVWCYDNGWFGWVTUVENB9UA"
+static char const *amazon_ca1_pem =
+    "-----BEGIN CERTIFICATE-----\r\n"
+    "MIIDQTCCAimgAwIBAgITBmyfz5m/jAo54vB4ikPmljZbyjANBgkqhkiG9w0BAQsF\r\n"
+    "ADA5MQswCQYDVQQGEwJVUzEPMA0GA1UEChMGQW1hem9uMRkwFwYDVQQDExBBbWF6\r\n"
+    "b24gUm9vdCBDQSAxMB4XDTE1MDUyNjAwMDAwMFoXDTM4MDExNzAwMDAwMFowOTEL\r\n"
+    "MAkGA1UEBhMCVVMxDzANBgNVBAoTBkFtYXpvbjEZMBcGA1UEAxMQQW1hem9uIFJv\r\n"
+    "b3QgQ0EgMTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALJ4gHHKeNXj\r\n"
+    "ca9HgFB0fW7Y14h29Jlo91ghYPl0hAEvrAIthtOgQ3pOsqTQNroBvo3bSMgHFzZM\r\n"
+    "9O6II8c+6zf1tRn4SWiw3te5djgdYZ6k/oI2peVKVuRF4fn9tBb6dNqcmzU5L/qw\r\n"
+    "IFAGbHrQgLKm+a/sRxmPUDgH3KKHOVj4utWp+UhnMJbulHheb4mjUcAwhmahRWa6\r\n"
+    "VOujw5H5SNz/0egwLX0tdHA114gk957EWW67c4cX8jJGKLhD+rcdqsq08p8kDi1L\r\n"
+    "93FcXmn/6pUCyziKrlA4b9v7LWIbxcceVOF34GfID5yHI9Y/QCB/IIDEgEw+OyQm\r\n"
+    "jgSubJrIqg0CAwEAAaNCMEAwDwYDVR0TAQH/BAUwAwEB/zAOBgNVHQ8BAf8EBAMC\r\n"
+    "AYYwHQYDVR0OBBYEFIQYzIU07LwMlJQuCFmcx7IQTgoIMA0GCSqGSIb3DQEBCwUA\r\n"
+    "A4IBAQCY8jdaQZChGsV2USggNiMOruYou6r4lK5IpDB/G/wkjUu0yKGX9rbxenDI\r\n"
+    "U5PMCCjjmCXPI6T53iHTfIUJrU6adTrCC2qJeHZERxhlbI1Bjjt/msv0tadQ1wUs\r\n"
+    "N+gDS63pYaACbvXy8MWy7Vu33PqUXHeeE6V/Uq2V8viTO96LXFvKWlJbYK8U90vv\r\n"
+    "o/ufQJVtMVT8QtPHRh8jrdkPSHCa2XV4cdFyQzR1bldZwgJcJmApzyMZFo6IQ6XU\r\n"
+    "5MsI+yMRQ+hDKXJioaldXgjUkK642M4UwtBV8ob2xJNDd2ZhwLnoQdeXeGADbkpy\r\n"
+    "rqXRfboQnoZsG4q5WTP468SQvvG5\r\n"
+    "-----END CERTIFICATE-----\r\n";
 
 typedef int (*action_t)(pdp_action_t* action, int should_log);
 
@@ -56,29 +86,23 @@ typedef struct {
   size_t count;
 } action_set_t;
 
+static wallet_ctx_t* dev_wallet = NULL;
 static action_set_t g_action_set;
 
-static int relay_on(pdp_action_t *action, int should_log)
+static int log_tangle(){
+  char bundle[81];
+  wallet_send(dev_wallet, ADDR, 0, NULL, bundle);
+}
+
+static int relay_on()
 {
   relayinterface_on(0);
   return 0;
 }
 
-static int relay_off(pdp_action_t *action, int should_log)
+static int relay_off()
 {
   relayinterface_off(0);
-  return 0;
-}
-
-static int relay_toggle(pdp_action_t *action, int should_log)
-{
-  relayinterface_toggle(0);
-  return 0;
-}
-
-static int relay_pulse(pdp_action_t *action, int should_log)
-{
-  relayinterface_pulse(0);
   return 0;
 }
 
@@ -93,7 +117,7 @@ static int action_cb(plugin_t* plugin, void* data) {
   int status = 0;
 
   // handle obligations
-  if (0 == memcmp(obligation, "log_event", strlen("log_event"))) {
+  if (0 == memcmp(obligation, "obligation#1", strlen("obligation#1"))) {
     should_log = TRUE;
   }
 
@@ -110,15 +134,13 @@ static int action_cb(plugin_t* plugin, void* data) {
 }
 
 int pep_plugin_relay_initializer(plugin_t* plugin, void* options) {
+  dev_wallet = wallet_create(NODE_URL, NODE_PORT, amazon_ca1_pem, NODE_DEPTH, NODE_MWM, WALLET_SEED);
+
   g_action_set.actions[0] = relay_on;
   g_action_set.actions[1] = relay_off;
-  g_action_set.actions[2] = relay_toggle;
-  g_action_set.actions[3] = relay_pulse;
-  strncpy(g_action_set.action_names[0], "relay_on", ACTION_NAME_SIZE);
-  strncpy(g_action_set.action_names[1], "relay_off", ACTION_NAME_SIZE);
-  strncpy(g_action_set.action_names[2], "relay_toggle", ACTION_NAME_SIZE);
-  strncpy(g_action_set.action_names[3], "relay_pulse", ACTION_NAME_SIZE);
-  g_action_set.count = 4;
+  strncpy(g_action_set.action_names[0], "action#1", ACTION_NAME_SIZE);
+  strncpy(g_action_set.action_names[1], "action#2", ACTION_NAME_SIZE);
+  g_action_set.count = 2;
 
   plugin->destroy = destroy_cb;
   plugin->callbacks = malloc(sizeof(void*) * PEP_PLUGIN_CALLBACK_COUNT);
