@@ -76,3 +76,7 @@ set(libs
 add_executable(${target} main.c)
 target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(${target} PUBLIC ${libs})
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.ini
+  ${CMAKE_CURRENT_BINARY_DIR} COPYONLY
+)
