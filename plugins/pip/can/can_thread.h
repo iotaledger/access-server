@@ -18,7 +18,7 @@
  */
 
 /****************************************************************************
- * \project Decentralized Access Control
+ * \project IOTA Access
  * \file can_thread.h
  * \brief
  * CAN reader thread header

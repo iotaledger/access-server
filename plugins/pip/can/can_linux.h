@@ -18,7 +18,7 @@
  */
 
 /****************************************************************************
- * \project Decentralized Access Control
+ * \project IOTA Access
  * \file can_linux.h
  * \brief
  * Implementation of interface for linux CAN

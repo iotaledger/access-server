@@ -18,7 +18,7 @@
  */
 
 /****************************************************************************
- * \project Decentralized Access Control
+ * \project IOTA Access
  * \file test_internal.h
  * \brief
  * Header file with definition of test API for storage plugin

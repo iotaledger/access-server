@@ -9,7 +9,7 @@
  *  https://xain.io/
  *  -----------------------------------------------------
  *
- * \project Decentralized Access Control
+ * \project IOTA Access
  * \file asn_utils.h
  * \brief
  * Header file with function definitions for ASN authentication.

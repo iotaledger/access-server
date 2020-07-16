@@ -9,7 +9,7 @@
  *  https://xain.io/
  *  -----------------------------------------------------
  *
- * \project Decentralized Access Control
+ * \project IOTA Access
  * \file asn_debug.h
  * \brief
  * Definition of macros used for debugging.

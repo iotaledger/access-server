@@ -18,7 +18,7 @@
  */
 
 /****************************************************************************
- * \project Decentralized Access Control
+ * \project IOTA Access
  * \file vehicle_datasharing_dataset.c
  * \brief
  * Definitions of datasets which can be shared via policy action response.

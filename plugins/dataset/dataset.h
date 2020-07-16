@@ -18,7 +18,7 @@
  */
 
 /****************************************************************************
- * \project Decentralized Access Control
+ * \project IOTA Access
  * \file dataset.h
  * \brief
  * Interface for different, platform depended, datasets

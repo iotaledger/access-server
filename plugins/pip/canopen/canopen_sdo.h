@@ -18,7 +18,7 @@
  */
 
 /****************************************************************************
- * \project Decentralized Access Control
+ * \project IOTA Access
  * \file canopen_sdo.h
  * \brief
  * Implementation of interface for CANOPEN

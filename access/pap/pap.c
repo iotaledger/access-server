@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 /****************************************************************************
- * \project Decentralized Access Control
+ * \project IOTA Access
  * \file pap.c
  * \brief
  * Implementation of Policy Administration Point
