@@ -38,6 +38,7 @@
 #include "pep_plugin_can.h"
 #include "pep_plugin_canopen.h"
 #include "pep_plugin_wallet.h"
+#include "pep_plugin_print.h"
 #include "pip_plugin_wallet.h"
 #include "pap_plugin_unix.h"
 #include "timer.h"
@@ -88,6 +89,10 @@ int main(int argc, char **argv) {
   // register plugins
   datadumper_init();
   plugin_t plugin;
+
+  if (plugin_init(&plugin, pep_plugin_print_initializer, NULL) == 0) {
+    access_register_pep_plugin(access_context, &plugin);
+  }
 
   if (plugin_init(&plugin, pep_plugin_wallet_initializer, NULL) == 0) {
     access_register_pep_plugin(access_context, &plugin);
