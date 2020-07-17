@@ -16,7 +16,7 @@
  */
 
 /****************************************************************************
- * \project Decentralized Access Control
+ * \project IOTA Access
  * \file timer.h
  * \brief
  * Timer module

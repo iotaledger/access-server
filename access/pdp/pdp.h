@@ -18,7 +18,7 @@
  */
 
 /****************************************************************************
- * \project Decentralized Access Control
+ * \project IOTA Access
  * \file pdp.h
  * \brief
  * Implementation of Policy Decision Point

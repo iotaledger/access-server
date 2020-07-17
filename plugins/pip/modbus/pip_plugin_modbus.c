@@ -18,7 +18,7 @@
  */
 
 /****************************************************************************
-* \project Decentralized Access Control
+* \project IOTA Access
 * \file pip_plugin_modbus.c
 * \brief
 * Modbus receiver module interface

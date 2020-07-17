@@ -18,7 +18,7 @@
  */
 
 /****************************************************************************
- * \project Decentralized Access Control
+ * \project IOTA Access
  * \file pep.h
  * \brief
  * Implementation of Policy Enforcement Point

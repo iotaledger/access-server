@@ -18,7 +18,7 @@
  */
 
 /****************************************************************************
- * \project Decentralized Access Control
+ * \project IOTA Access
  * \file asn_utils.c
  * \brief
  * Implementation of key exchange and encryption key computation

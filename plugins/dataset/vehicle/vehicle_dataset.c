@@ -18,7 +18,7 @@
  */
 
 /****************************************************************************
- * \project Decentralized Access Control
+ * \project IOTA Access
  * \file vehicle_dataset.c
  * \brief
  * Vehicle dataset interface implementation

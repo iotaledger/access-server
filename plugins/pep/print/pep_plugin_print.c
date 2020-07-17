@@ -18,60 +18,36 @@
  */
 
 /****************************************************************************
- * \project IOTA Access
- * \file pep_plugin_canopen.c
- * \brief
- * Resolver plugin for CANOpen demo using relay board connected directly to
- * rpi3.
- *
- * @Author Djordje Golubovic, Bernardo Araujo
- *
- * \notes
- *
- * \history
- * 04.03.2020. Initial version.
- * 15.07.2020. Renaming
+* \project IOTA Access
+* \file pep_plugin_print.c
+* \brief
+* PEP plugin that only prints on the terminal (for development purposes).
+*
+* @Author Bernardo Araujo
+*
+* \notes
+*
+* \history
+* 17.07.2020. Initial version.
  ****************************************************************************/
 
-#include "pep_plugin_canopen.h"
+#include "pep_plugin_print.h"
 
 #include <string.h>
+#include <unistd.h>
 
+#include "config_manager.h"
 #include "datadumper.h"
 #include "dlog.h"
-#include "pep_plugin.h"
 #include "relay_interface.h"
 #include "time_manager.h"
+#include "wallet.h"
 
+#define RES_BUFF_LEN 80
 #define MAX_ACTIONS 10
 #define ACTION_NAME_SIZE 16
 #define POLICY_ID_SIZE 64
-#define BUFF_LEN 80
-
-static int vehicle_lock(pdp_action_t* action, int should_log) {
-  relayinterface_off(3);
-  return 0;
-}
-
-static int vehicle_unlock(pdp_action_t* action, int should_log) {
-  relayinterface_on(3);
-  return 0;
-}
-
-static int honk(pdp_action_t* action, int should_log) {
-  relayinterface_pulse(2);
-  return 0;
-}
-
-static int alarm_on(pdp_action_t* action, int should_log) {
-  relayinterface_on(1);
-  return 0;
-}
-
-static int alarm_off(pdp_action_t* action, int should_log) {
-  relayinterface_off(1);
-  return 0;
-}
+#define ADDR_SIZE 128
 
 typedef int (*action_t)(pdp_action_t* action, int should_log);
 
@@ -81,30 +57,48 @@ typedef struct {
   size_t count;
 } action_set_t;
 
+static wallet_ctx_t* dev_wallet = NULL;
 static action_set_t g_action_set;
 
-static int destroy_cb(plugin_t* plugin, void* data) {
-  free(plugin->callbacks);
+static int log_tangle(){
+  char bundle[81];
+  char buf[RES_BUFF_LEN];
+
+  wallet_send(dev_wallet,
+              "MXHYKULAXKWBY9JCNVPVSOSZHMBDJRWTTXZCTKHLHKSJARDADHJSTCKVQODBVWCYDNGWFGWVTUVENB9UA",
+              0,
+              "hello world from access!",
+              bundle);
+  timemanager_get_time_string(buf, RES_BUFF_LEN);
+  dlog_printf("%s Obligation of logging action to tangle. Bundle hash: %s \n", buf, bundle);
+}
+
+static int print_terminal(pdp_action_t* action){
+  char buf[RES_BUFF_LEN];
+  timemanager_get_time_string(buf, RES_BUFF_LEN);
+  dlog_printf("%s %s\tPrinting from PEP plugin\n", buf, action->value);
   return 0;
 }
+
+static int destroy_cb(plugin_t* plugin, void* data) { free(plugin->callbacks); }
 
 static int action_cb(plugin_t* plugin, void* data) {
   pep_plugin_args_t* args = (pep_plugin_args_t*)data;
   pdp_action_t* action = &args->action;
   char* obligation = args->obligation;
   bool should_log = FALSE;
-  char buf[BUFF_LEN];
+  char buf[RES_BUFF_LEN];
   int status = 0;
 
   // handle obligations
-  if (0 == memcmp(obligation, "log_event", strlen("log_event"))) {
-    should_log = TRUE;
+  if (0 == memcmp(obligation, "obligation#1", strlen("obligation#1"))) {
+    log_tangle();
   }
 
   // execute action
   for (int i = 0; i < g_action_set.count; i++) {
     if (memcmp(action->value, g_action_set.action_names[i], strlen(g_action_set.action_names[i])) == 0) {
-      timemanager_get_time_string(buf, BUFF_LEN);
+      timemanager_get_time_string(buf, RES_BUFF_LEN);
       dlog_printf("%s %s\t<Action performed>\n", buf, action->value);
       status = g_action_set.actions[i](action, should_log);
       break;
@@ -113,22 +107,16 @@ static int action_cb(plugin_t* plugin, void* data) {
   return status;
 }
 
-int pep_plugin_canopen_initializer(plugin_t* plugin, void* options) {
-  if (plugin == NULL) {
+int pep_plugin_print_initializer(plugin_t* plugin, void* options) {
+  dev_wallet = wallet_create(NODE_URL, NODE_PORT, amazon_ca1_pem, NODE_DEPTH, NODE_MWM, WALLET_SEED);
+  if (dev_wallet == NULL) {
+    printf("\nERROR[%s]: Wallet creation failed.\n", __FUNCTION__);
     return -1;
   }
 
-  g_action_set.actions[0] = vehicle_unlock;
-  g_action_set.actions[1] = vehicle_lock;
-  g_action_set.actions[2] = honk;
-  g_action_set.actions[3] = alarm_on;
-  g_action_set.actions[4] = alarm_off;
-  strncpy(g_action_set.action_names[0], "open_door", ACTION_NAME_SIZE);
-  strncpy(g_action_set.action_names[1], "close_door", ACTION_NAME_SIZE);
-  strncpy(g_action_set.action_names[2], "honk", ACTION_NAME_SIZE);
-  strncpy(g_action_set.action_names[3], "alarm_on", ACTION_NAME_SIZE);
-  strncpy(g_action_set.action_names[4], "alarm_off", ACTION_NAME_SIZE);
-  g_action_set.count = 5;
+  g_action_set.actions[0] = print_terminal;
+  strncpy(g_action_set.action_names[0], "action#1", ACTION_NAME_SIZE);
+  g_action_set.count = 1;
 
   plugin->destroy = destroy_cb;
   plugin->callbacks = malloc(sizeof(void*) * PEP_PLUGIN_CALLBACK_COUNT);

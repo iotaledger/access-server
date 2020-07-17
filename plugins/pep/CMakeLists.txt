@@ -32,6 +32,7 @@ set(sources
   canopen/pep_plugin_canopen.c
   wallet/pep_plugin_wallet.c
   relay/pep_plugin_relay.c
+  print/pep_plugin_print.c
 )
 
 add_library(${target} ${sources})
@@ -41,6 +42,7 @@ set(include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}/canopen
   ${CMAKE_CURRENT_SOURCE_DIR}/wallet
   ${CMAKE_CURRENT_SOURCE_DIR}/relay
+  ${CMAKE_CURRENT_SOURCE_DIR}/print
 )
 target_include_directories(${target} PUBLIC ${include_dirs})
 target_link_libraries(${target} PUBLIC ${libs})

@@ -18,7 +18,7 @@
  */
 
 /****************************************************************************
- * \project Decentralized Access Control
+ * \project IOTA Access
  * \file pip_plugin_gps.h
  * \brief
  * PIP plugin for GPS module

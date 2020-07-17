@@ -41,6 +41,7 @@
 #include "dlog.h"
 #include "relay_interface.h"
 #include "time_manager.h"
+#include "wallet.h"
 
 #define RES_BUFF_LEN 80
 #define MAX_ACTIONS 10
@@ -56,36 +57,30 @@ typedef struct {
   size_t count;
 } action_set_t;
 
+static wallet_ctx_t* dev_wallet = NULL;
 static action_set_t g_action_set;
 
-static int relay_on(pdp_action_t *action, int should_log)
+static int log_tangle(){
+  char bundle[81];
+  wallet_send(dev_wallet, ADDR, 0, NULL, bundle);
+}
+
+static int relay_on()
 {
   relayinterface_on(0);
   return 0;
 }
 
-static int relay_off(pdp_action_t *action, int should_log)
+static int relay_off()
 {
   relayinterface_off(0);
-  return 0;
-}
-
-static int relay_toggle(pdp_action_t *action, int should_log)
-{
-  relayinterface_toggle(0);
-  return 0;
-}
-
-static int relay_pulse(pdp_action_t *action, int should_log)
-{
-  relayinterface_pulse(0);
   return 0;
 }
 
 static int destroy_cb(plugin_t* plugin, void* data) { free(plugin->callbacks); }
 
 static int action_cb(plugin_t* plugin, void* data) {
-  pepplugin_args_t* args = (pepplugin_args_t*)data;
+  pep_plugin_args_t* args = (pep_plugin_args_t*)data;
   pdp_action_t* action = &args->action;
   char* obligation = args->obligation;
   bool should_log = FALSE;
@@ -93,7 +88,7 @@ static int action_cb(plugin_t* plugin, void* data) {
   int status = 0;
 
   // handle obligations
-  if (0 == memcmp(obligation, "log_event", strlen("log_event"))) {
+  if (0 == memcmp(obligation, "obligation#1", strlen("obligation#1"))) {
     should_log = TRUE;
   }
 
@@ -110,21 +105,19 @@ static int action_cb(plugin_t* plugin, void* data) {
 }
 
 int pep_plugin_relay_initializer(plugin_t* plugin, void* options) {
+  dev_wallet = wallet_create(NODE_URL, NODE_PORT, amazon_ca1_pem, NODE_DEPTH, NODE_MWM, WALLET_SEED);
+
   g_action_set.actions[0] = relay_on;
   g_action_set.actions[1] = relay_off;
-  g_action_set.actions[2] = relay_toggle;
-  g_action_set.actions[3] = relay_pulse;
-  strncpy(g_action_set.action_names[0], "relay_on", ACTION_NAME_SIZE);
-  strncpy(g_action_set.action_names[1], "relay_off", ACTION_NAME_SIZE);
-  strncpy(g_action_set.action_names[2], "relay_toggle", ACTION_NAME_SIZE);
-  strncpy(g_action_set.action_names[3], "relay_pulse", ACTION_NAME_SIZE);
-  g_action_set.count = 4;
+  strncpy(g_action_set.action_names[0], "action#1", ACTION_NAME_SIZE);
+  strncpy(g_action_set.action_names[1], "action#2", ACTION_NAME_SIZE);
+  g_action_set.count = 2;
 
   plugin->destroy = destroy_cb;
-  plugin->callbacks = malloc(sizeof(void*) * PEPPLUGIN_CALLBACK_COUNT);
-  plugin->callbacks_num = PEPPLUGIN_CALLBACK_COUNT;
+  plugin->callbacks = malloc(sizeof(void*) * PEP_PLUGIN_CALLBACK_COUNT);
+  plugin->callbacks_num = PEP_PLUGIN_CALLBACK_COUNT;
   plugin->plugin_specific_data = NULL;
-  plugin->callbacks[PEPPLUGIN_ACTION_CB] = action_cb;
+  plugin->callbacks[PEP_PLUGIN_ACTION_CB] = action_cb;
 
   return 0;
 }

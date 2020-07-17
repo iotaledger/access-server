@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 /****************************************************************************
- * \project Decentralized Access Control
+ * \project IOTA Access
  * \file pap.c
  * \brief
  * Implementation of Policy Administration Point
@@ -124,7 +124,7 @@ static void get_SHA256_hash(char *msg, int msg_len, char *hash_val) {
  * API FUNCTIONS
  ****************************************************************************/
 pap_error_e pap_init(void) {
-  pluginmanager_init(&g_plugin_manager, PAPPLUGIN_MAX_COUNT);
+  pluginmanager_init(&g_plugin_manager, PAP_PLUGIN_MAX_COUNT);
 
   // Generate keypair
   crypto_sign_keypair(public_key, private_key);
@@ -265,21 +265,21 @@ pap_error_e pap_add_policy(char *signed_policy, int signed_policy_size, char *pa
 
         // If policy with this ID is already in the storage, abort the action
         plugin_t *plugin = NULL;
-        papplugin_has_args_t has_args;
+        pap_plugin_has_args_t has_args;
         has_args.policy_id = put_args.policy_id;
         int callback_fired = 0;
         for (int i = 0; i < g_plugin_manager.plugins_num; i++) {
           pluginmanager_get(&g_plugin_manager, i, &plugin);
           int callback_status = -1;
           if (plugin != NULL) {
-            callback_status = plugin_call(plugin, PAPPLUGIN_HAS_CB, &has_args);
+            callback_status = plugin_call(plugin, PAP_PLUGIN_HAS_CB, &has_args);
             callback_fired = 1;
           }
           // TODO: check status
         }
 
         if (callback_fired == 0) {
-          printf("\nERROR[%s]: No callback for PAPPLUGIN_HAS_CB.\n", __FUNCTION__);
+          printf("\nERROR[%s]: No callback for PAP_PLUGIN_HAS_CB.\n", __FUNCTION__);
           free(policy);
           pthread_mutex_unlock(&pap_mutex);
           return PAP_ERROR;
@@ -376,14 +376,14 @@ pap_error_e pap_add_policy(char *signed_policy, int signed_policy_size, char *pa
     pluginmanager_get(&g_plugin_manager, i, &plugin);
     int callback_status = -1;
     if (plugin != NULL) {
-      callback_status = plugin_call(plugin, PAPPLUGIN_PUT_CB, &put_args);
+      callback_status = plugin_call(plugin, PAP_PLUGIN_PUT_CB, &put_args);
       callback_fired = 1;
     }
     // TODO: check status
   }
 
   if (callback_fired == 0) {
-    printf("\nERROR[%s]: No callback for PAPPLUGIN_PUT_CB.\n", __FUNCTION__);
+    printf("\nERROR[%s]: No callback for PAP_PLUGIN_PUT_CB.\n", __FUNCTION__);
     free(policy_object_norm);
     free(policy);
     pthread_mutex_unlock(&pap_mutex);
@@ -401,7 +401,7 @@ pap_error_e pap_get_policy(char *policy_id, int policy_id_len, pap_policy_t *pol
   char signed_policy_id[PAP_SIGNATURE_LEN + PAP_POL_ID_MAX_LEN + 1] = {0};
   char recovered_signature[PAP_SIGNATURE_LEN + 1] = {0};
   unsigned long long smlen;
-  papplugin_get_args_t get_args = {0};
+  pap_plugin_get_args_t get_args = {0};
   get_args.policy = policy;
 
   // Check input parameters
@@ -426,14 +426,14 @@ pap_error_e pap_get_policy(char *policy_id, int policy_id_len, pap_policy_t *pol
     pluginmanager_get(&g_plugin_manager, i, &plugin);
     int callback_status = -1;
     if (plugin != NULL) {
-      callback_status = plugin_call(plugin, PAPPLUGIN_GET_CB, &get_args);
+      callback_status = plugin_call(plugin, PAP_PLUGIN_GET_CB, &get_args);
       callback_fired = 1;
     }
     // TODO: check status
   }
 
   if (callback_fired == 0) {
-    printf("\nERROR[%s]: No callback for PAPPLUGIN_GET_CB.\n", __FUNCTION__);
+    printf("\nERROR[%s]: No callback for PAP_PLUGIN_GET_CB.\n", __FUNCTION__);
     pthread_mutex_unlock(&pap_mutex);
     return PAP_ERROR;
   }
@@ -494,21 +494,21 @@ bool pap_has_policy(char *policy_id, int policy_id_len) {
 
   // Check if policy is already in the storage
   plugin_t *plugin = NULL;
-  papplugin_has_args_t has_args;
+  pap_plugin_has_args_t has_args;
   has_args.policy_id = policy_id_hex;
   int callback_fired = 0;
   for (int i = 0; i < g_plugin_manager.plugins_num; i++) {
     pluginmanager_get(&g_plugin_manager, i, &plugin);
     int callback_status = -1;
     if (plugin != NULL) {
-      callback_status = plugin_call(plugin, PAPPLUGIN_HAS_CB, &has_args);
+      callback_status = plugin_call(plugin, PAP_PLUGIN_HAS_CB, &has_args);
       callback_fired = 1;
     }
     // TODO: check status
   }
 
   if (callback_fired == 0) {
-    printf("\nERROR[%s]: No callback for PAPPLUGIN_HAS_CB.\n", __FUNCTION__);
+    printf("\nERROR[%s]: No callback for PAP_PLUGIN_HAS_CB.\n", __FUNCTION__);
     pthread_mutex_unlock(&pap_mutex);
     return PAP_ERROR;
   }
@@ -545,14 +545,14 @@ pap_error_e pap_remove_policy(char *policy_id, int policy_id_len) {
     pluginmanager_get(&g_plugin_manager, i, &plugin);
     int callback_status = -1;
     if (plugin != NULL) {
-      callback_status = plugin_call(plugin, PAPPLUGIN_DEL_CB, policy_id_hex);
+      callback_status = plugin_call(plugin, PAP_PLUGIN_DEL_CB, policy_id_hex);
       callback_fired = 1;
     }
     // TODO: check status
   }
 
   if (callback_fired == 0) {
-    printf("\nERROR[%s]: No callback for PAPPLUGIN_GET_CB.\n", __FUNCTION__);
+    printf("\nERROR[%s]: No callback for PAP_PLUGIN_GET_CB.\n", __FUNCTION__);
     pthread_mutex_unlock(&pap_mutex);
     return PAP_ERROR;
   }
@@ -580,21 +580,21 @@ pap_error_e pap_get_policy_obj_len(char *policy_id, int policy_id_len, int *pol_
   }
 
   plugin_t *plugin = NULL;
-  papplugin_len_args_t args;
+  pap_plugin_len_args_t args;
   args.policy_id = policy_id_hex;
   int callback_fired = 0;
   for (int i = 0; i < g_plugin_manager.plugins_num; i++) {
     pluginmanager_get(&g_plugin_manager, i, &plugin);
     int callback_status = -1;
     if (plugin != NULL) {
-      callback_status = plugin_call(plugin, PAPPLUGIN_GET_POL_OBJ_LEN_CB, &args);
+      callback_status = plugin_call(plugin, PAP_PLUGIN_GET_POL_OBJ_LEN_CB, &args);
       callback_fired = 1;
     }
     // TODO: check status
   }
 
   if (callback_fired == 0) {
-    printf("\nERROR[%s]: No callback for PAPPLUGIN_GET_CB.\n", __FUNCTION__);
+    printf("\nERROR[%s]: No callback for PAP_PLUGIN_GET_CB.\n", __FUNCTION__);
     pthread_mutex_unlock(&pap_mutex);
     return PAP_ERROR;
   }
@@ -633,14 +633,14 @@ pap_error_e pap_get_subjects_list_of_actions(char *subject_id, int subject_id_le
     pluginmanager_get(&g_plugin_manager, i, &plugin);
     int callback_status = -1;
     if (plugin != NULL) {
-      callback_status = plugin_call(plugin, PAPPLUGIN_GET_ALL_CB, &pol_id_list);
+      callback_status = plugin_call(plugin, PAP_PLUGIN_GET_ALL_CB, &pol_id_list);
       callback_fired = 1;
     }
     // TODO: check status
   }
 
   if (callback_fired == 0) {
-    printf("\nERROR[%s]: No callback for PAPPLUGIN_GET_CB.\n", __FUNCTION__);
+    printf("\nERROR[%s]: No callback for PAP_PLUGIN_GET_CB.\n", __FUNCTION__);
     pthread_mutex_unlock(&pap_mutex);
     return PAP_ERROR;
   }
@@ -656,26 +656,26 @@ pap_error_e pap_get_subjects_list_of_actions(char *subject_id, int subject_id_le
     int action = -1;
     pap_action_list_t *action_elem = NULL;
     pap_action_list_t *action_temp = NULL;
-    papplugin_get_args_t get_args = {0};
+    pap_plugin_get_args_t get_args = {0};
     pap_policy_t policy = {0};
 
     // Get obj. len
     plugin = NULL;
-    papplugin_len_args_t args;
+    pap_plugin_len_args_t args;
     args.policy_id = pol_id_list->policy_id;
     int callback_fired = 0;
     for (int i = 0; i < g_plugin_manager.plugins_num; i++) {
       pluginmanager_get(&g_plugin_manager, i, &plugin);
       int callback_status = -1;
       if (plugin != NULL) {
-        callback_status = plugin_call(plugin, PAPPLUGIN_GET_POL_OBJ_LEN_CB, &args);
+        callback_status = plugin_call(plugin, PAP_PLUGIN_GET_POL_OBJ_LEN_CB, &args);
         callback_fired = 1;
       }
       // TODO: check status
     }
 
     if (callback_fired == 0) {
-      printf("\nERROR[%s]: No callback for PAPPLUGIN_GET_CB.\n", __FUNCTION__);
+      printf("\nERROR[%s]: No callback for PAP_PLUGIN_GET_CB.\n", __FUNCTION__);
       pthread_mutex_unlock(&pap_mutex);
       return PAP_ERROR;
     }
@@ -692,14 +692,14 @@ pap_error_e pap_get_subjects_list_of_actions(char *subject_id, int subject_id_le
       pluginmanager_get(&g_plugin_manager, i, &plugin);
       int callback_status = -1;
       if (plugin != NULL) {
-        callback_status = plugin_call(plugin, PAPPLUGIN_GET_CB, &get_args);
+        callback_status = plugin_call(plugin, PAP_PLUGIN_GET_CB, &get_args);
         callback_fired = 1;
       }
       // TODO: check status
     }
 
     if (callback_fired == 0) {
-      printf("\nERROR[%s]: No callback for PAPPLUGIN_GET_CB.\n", __FUNCTION__);
+      printf("\nERROR[%s]: No callback for PAP_PLUGIN_GET_CB.\n", __FUNCTION__);
       pthread_mutex_unlock(&pap_mutex);
       return PAP_ERROR;
     }

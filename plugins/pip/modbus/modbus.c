@@ -18,7 +18,7 @@
  */
 
 /****************************************************************************
- * \project Decentralized Access Control
+ * \project IOTA Access
  * \file modbus.h
  * \brief
  * Modbus RTU interface implementation

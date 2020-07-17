@@ -18,7 +18,7 @@
  */
 
 /****************************************************************************
- * \project Decentralized Access Control
+ * \project IOTA Access
  * \file datadumper.c
  * \brief
  * Data dumper and publisher interface

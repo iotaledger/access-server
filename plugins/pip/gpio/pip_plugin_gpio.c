@@ -38,7 +38,7 @@ static int acquire_cb(plugin_t *plugin, void *user_data) {
     printf("\nERROR[%s]: Bad input parameter.\n", __FUNCTION__);
     return -1;
   }
-  pipplugin_args_t *args = (pipplugin_args_t *)user_data;
+  pip_plugin_args_t *args = (pip_plugin_args_t *)user_data;
   char *uri = args->uri;
   pip_attribute_object_t attribute_object = args->attribute;
 
@@ -57,11 +57,11 @@ static int destroy_cb(plugin_t *plugin, void *not_used) {
 
 int pip_plugin_gpio_initializer(plugin_t *plugin, void *user_data) {
   plugin->destroy = destroy_cb;
-  plugin->callbacks = malloc(sizeof(void *) * PIPPLUGIN_CALLBACK_COUNT);
-  plugin->callbacks[PIPPLUGIN_ACQUIRE_CB] = acquire_cb;
-  plugin->callbacks[PIPPLUGIN_START_CB] = NULL;
-  plugin->callbacks[PIPPLUGIN_GET_DATASET_CB] = NULL;
-  plugin->callbacks[PIPPLUGIN_SET_DATASET_CB] = NULL;
-  plugin->callbacks_num = PIPPLUGIN_CALLBACK_COUNT;
+  plugin->callbacks = malloc(sizeof(void *) * PIP_PLUGIN_CALLBACK_COUNT);
+  plugin->callbacks[PIP_PLUGIN_ACQUIRE_CB] = acquire_cb;
+  plugin->callbacks[PIP_PLUGIN_START_CB] = NULL;
+  plugin->callbacks[PIP_PLUGIN_GET_DATASET_CB] = NULL;
+  plugin->callbacks[PIP_PLUGIN_SET_DATASET_CB] = NULL;
+  plugin->callbacks_num = PIP_PLUGIN_CALLBACK_COUNT;
   plugin->plugin_specific_data = NULL;
 }

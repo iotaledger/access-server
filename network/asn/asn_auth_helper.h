@@ -18,7 +18,7 @@
  */
 
 /****************************************************************************
- * \project Decentralized Access Control
+ * \project IOTA Access
  * \file asn_auth_helper.c
  * \brief
  * Implementation of helper functions for pep module

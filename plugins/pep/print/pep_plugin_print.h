@@ -1,8 +1,8 @@
 /*
- * This file is part of the Frost distribution
- * (https://github.com/xainag/frost)
+ * This file is part of the IOTA Access distribution
+ * (https://github.com/iotaledger/access)
  *
- * Copyright (c) 2019 XAIN AG.
+ * Copyright (c) 2020 IOTA Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,34 +19,27 @@
 
 /****************************************************************************
  * \project IOTA Access
- * \file can_thread.h
+ * \file pep_plugin_print.h
  * \brief
- * CAN reader thread header
+ * PEP plugin that only prints on the terminal (for development purposes).
  *
- * @Author Djordje Golubovic
+ * @Author Bernardo Araujo
  *
  * \notes
  *
  * \history
- * 04.15.2019. Initial version.
+ * 17.07.2020. Initial version.
  ****************************************************************************/
-#ifndef _CAN_THREAD_H_
-#define _CAN_THREAD_H_
 
-#include <pthread.h>
-#include "can_linux.h"
+#ifndef _PEP_PLUGIN_PRINT_H_
+#define _PEP_PLUGIN_PRINT_H_
 
-#define CAN_BUS_LEN 64
+#include "pep_plugin.h"
 
-typedef struct {
-  char can_bus_name[CAN_BUS_LEN];
-  can_t can_connection;
-  pthread_t thread;
-  void (*can_frame_read_cb)(struct can_frame* frame);
-} canthread_instance_t;
+/**
+ * @fn void pep_plugin_print_initializer(plugin_t* plugin)
+ * @brief resolver plugin initializer callback
+ */
+int pep_plugin_print_initializer(plugin_t* plugin, void* options);
 
-void canthread_init(canthread_instance_t* inst, const char* can_bus_name, void (*can_cb)(struct can_frame* frame));
-int canthread_start(canthread_instance_t* inst);
-int canthread_stop(canthread_instance_t* inst);
-
-#endif
+#endif //_PEP_PLUGIN_PRINT_H_

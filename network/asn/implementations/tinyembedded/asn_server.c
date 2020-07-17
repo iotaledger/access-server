@@ -18,7 +18,7 @@
  */
 
 /****************************************************************************
- * \project Decentralized Access Control
+ * \project IOTA Access
  * \file asn_server.c
  * \brief
  * Implementation of server side ASN authentication

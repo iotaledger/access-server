@@ -18,7 +18,7 @@
  */
 
 /****************************************************************************
- * \project Decentralized Access Control
+ * \project IOTA Access
  * \file rpi_trans.h
  * \brief
  * Implementation of API for transactions storage to RPI

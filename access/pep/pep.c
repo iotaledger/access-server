@@ -18,7 +18,7 @@
  */
 
 /****************************************************************************
- * \project Decentralized Access Control
+ * \project IOTA Access
  * \file pep.c
  * \brief
  * Implementation of Policy Enforcement Point
@@ -244,7 +244,7 @@ bool pep_request_access(char *request, void *response) {
   char *norm_request = NULL;
   // pdp_action_t action;
   pdp_decision_e ret = PDP_ERROR;
-  pepplugin_args_t plugin_args = {0};
+  pep_plugin_args_t plugin_args = {0};
 
   // Check input parameter
   if (request == NULL || response == NULL) {
@@ -286,7 +286,7 @@ bool pep_request_access(char *request, void *response) {
       pluginmanager_get(&g_plugin_manager, i, &plugin);
       int callback_status = -1;
       if (plugin != NULL) {
-        callback_status = plugin_call(plugin, PEPPLUGIN_ACTION_CB, &plugin_args);
+        callback_status = plugin_call(plugin, PEP_PLUGIN_ACTION_CB, &plugin_args);
       }
       // TODO: check status
     }

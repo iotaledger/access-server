@@ -18,7 +18,7 @@
  */
 
 /****************************************************************************
- * \project Decentralized Access Control
+ * \project IOTA Access
  * \file pip.c
  * \brief
  * Implementation of Policy Information Point
@@ -98,11 +98,11 @@ pip_error_e pip_get_dataset(char* dataset_json, size_t* string_len) {
   for (int i = 0; i < plugin_manager.plugins_num; i++) {
     pluginmanager_get(&plugin_manager, i, &plugin);
     int callback_status = -1;
-    pipplugin_string_arg_t attr;
+    pip_plugin_string_arg_t attr;
     attr.string = dataset_json;
     attr.len = 0;
     if (plugin != NULL) {
-      callback_status = plugin_call(plugin, PIPPLUGIN_GET_DATASET_CB, &attr);
+      callback_status = plugin_call(plugin, PIP_PLUGIN_GET_DATASET_CB, &attr);
       *string_len = attr.len;
     }
     // TODO: check status
@@ -114,12 +114,12 @@ pip_error_e pip_set_dataset(char* dataset_json, size_t string_len) {
   plugin_t* plugin;
   for (int i = 0; i < plugin_manager.plugins_num; i++) {
     pluginmanager_get(&plugin_manager, i, &plugin);
-    pipplugin_string_arg_t attr;
+    pip_plugin_string_arg_t attr;
     attr.string = dataset_json;
     attr.len = string_len;
     int callback_status = -1;
     if (plugin != NULL) {
-      callback_status = plugin_call(plugin, PIPPLUGIN_SET_DATASET_CB, &attr);
+      callback_status = plugin_call(plugin, PIP_PLUGIN_SET_DATASET_CB, &attr);
     }
     // TODO: check status
   }
@@ -149,7 +149,7 @@ pip_error_e pip_register_plugin(plugin_t* plugin) {
 
 pip_error_e pip_get_data(char* uri, pip_attribute_object_t* attribute) {
   char temp[PIP_MAX_STR_LEN] = {0};
-  pipplugin_args_t attrs = {0};
+  pip_plugin_args_t attrs = {0};
 
   pthread_mutex_lock(&pip_mutex);
 
@@ -176,7 +176,7 @@ pip_error_e pip_get_data(char* uri, pip_attribute_object_t* attribute) {
   plugin_t* plugin;
   for (int i = 0; i < plugin_manager.plugins_num; i++) {
     pluginmanager_get(&plugin_manager, i, &plugin);
-    int ret = plugin_call(plugin, PIPPLUGIN_ACQUIRE_CB, &attrs);
+    int ret = plugin_call(plugin, PIP_PLUGIN_ACQUIRE_CB, &attrs);
     // TODO: check status
   }
 
@@ -193,7 +193,7 @@ pip_error_e pip_start(void) {
     pluginmanager_get(&plugin_manager, i, &plugin);
     int callback_status = -1;
     if (plugin != NULL) {
-      callback_status = plugin_call(plugin, PIPPLUGIN_START_CB, NULL);
+      callback_status = plugin_call(plugin, PIP_PLUGIN_START_CB, NULL);
     }
     // TODO: check status
   }
