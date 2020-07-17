@@ -43,12 +43,6 @@
 #include "pap_plugin_unix.h"
 #include "timer.h"
 
-#define NODE_URL "nodes.comnet.thetangle.org"
-#define NODE_PORT 443
-#define NODE_DEPTH 3
-#define NODE_MWM 14
-#define WALLET_SEED "DEJUXV9ZQMIEXTWJJHJPLAWMOEKGAYDNALKSMCLG9APR9LCKHMLNZVCRFNFEPMGOBOYYIKJNYWSAKVPAI"
-
 int g_task_sleep_time;
 
 #define dlog_printf printf
