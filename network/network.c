@@ -32,6 +32,7 @@
  ****************************************************************************/
 
 #include "network.h"
+#include "network_logger.h"
 
 #include <arpa/inet.h>
 #include <pthread.h>
@@ -116,6 +117,9 @@ int network_init(network_ctx_t *network_context) {
   policyupdater_init();
 
   *network_context = (void *)ctx;
+
+  logger_helper_init(LOGGER_INFO);
+  logger_init_network(LOGGER_INFO);
 
   return 0;
 }
@@ -384,7 +388,7 @@ static void *network_thread_function(void *ptr) {
       ts = *localtime(&now);
       strftime(buf, sizeof(buf), "%h:%M:%S", &ts);
 
-      printf("\n%s <Network status>\tClient connected", buf);
+      log_info(network_logger_id, "[%s:%d] Client connected.\n", __func__, __LINE__);
 
       // START
 
