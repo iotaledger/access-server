@@ -53,9 +53,9 @@
 #define NODE_URL "nodes.comnet.thetangle.org"
 #define NODE_PORT 443
 #define NODE_DEPTH 3
-#define NODE_MWM 14
+#define NODE_MWM 10
 #define WALLET_SEED "DEJUXV9ZQMIEXTWJJHJPLAWMOEKGAYDNALKSMCLG9APR9LCKHMLNZVCRFNFEPMGOBOYYIKJNYWSAKVPAI"
-#define ADDR "MXHYKULAXKWBY9JCNVPVSOSZHMBDJRWTTXZCTKHLHKSJARDADHJSTCKVQODBVWCYDNGWFGWVTUVENB9UA"
+#define ADDR ""
 static char const *amazon_ca1_pem =
     "-----BEGIN CERTIFICATE-----\r\n"
     "MIIDQTCCAimgAwIBAgITBmyfz5m/jAo54vB4ikPmljZbyjANBgkqhkiG9w0BAQsF\r\n"
@@ -91,7 +91,15 @@ static action_set_t g_action_set;
 
 static int log_tangle(){
   char bundle[81];
-  wallet_send(dev_wallet, ADDR, 0, NULL, bundle);
+  char buf[RES_BUFF_LEN];
+
+  wallet_send(dev_wallet,
+              "MXHYKULAXKWBY9JCNVPVSOSZHMBDJRWTTXZCTKHLHKSJARDADHJSTCKVQODBVWCYDNGWFGWVTUVENB9UA",
+              0,
+              "hello world from access!",
+              bundle);
+  timemanager_get_time_string(buf, RES_BUFF_LEN);
+  dlog_printf("%s Obligation of logging action to tangle. Bundle hash: %s \n", buf, bundle);
 }
 
 static int print_terminal(pdp_action_t* action){
@@ -113,7 +121,7 @@ static int action_cb(plugin_t* plugin, void* data) {
 
   // handle obligations
   if (0 == memcmp(obligation, "obligation#1", strlen("obligation#1"))) {
-    should_log = TRUE;
+    log_tangle();
   }
 
   // execute action
@@ -130,6 +138,10 @@ static int action_cb(plugin_t* plugin, void* data) {
 
 int pep_plugin_print_initializer(plugin_t* plugin, void* options) {
   dev_wallet = wallet_create(NODE_URL, NODE_PORT, amazon_ca1_pem, NODE_DEPTH, NODE_MWM, WALLET_SEED);
+  if (dev_wallet == NULL) {
+    printf("\nERROR[%s]: Wallet creation failed.\n", __FUNCTION__);
+    return -1;
+  }
 
   g_action_set.actions[0] = print_terminal;
   strncpy(g_action_set.action_names[0], "action#1", ACTION_NAME_SIZE);

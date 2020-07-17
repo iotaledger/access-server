@@ -93,7 +93,7 @@ static bool transaction_store_transaction(char* policy_id, int policy_id_len, ch
 
 static int demo_wallet_transfer_tokens(pdp_action_t* action, int should_log) {
   char bundle[81];
-  wallet_send(dev_wallet, action->wallet_address, action->balance, NULL, bundle);
+  wallet_send(dev_wallet, "MXHYKULAXKWBY9JCNVPVSOSZHMBDJRWTTXZCTKHLHKSJARDADHJSTCKVQODBVWCYDNGWFGWVTUVENB9UA", action->balance, NULL, bundle);
   return 0;
 }
 
@@ -188,8 +188,8 @@ int pep_plugin_wallet_initializer(plugin_t* plugin, void* options) {
 
   g_action_set.actions[0] = demo_wallet_transfer_tokens;
   g_action_set.actions[1] = demo_wallet_store_transaction;
-  strncpy(g_action_set.action_names[0], "transfer_tokens", RES_ACTION_NAME_SIZE);
-  strncpy(g_action_set.action_names[1], "store_transaction", RES_ACTION_NAME_SIZE);
+  strncpy(g_action_set.action_names[0], "action#3", RES_ACTION_NAME_SIZE);
+  strncpy(g_action_set.action_names[1], "action#4", RES_ACTION_NAME_SIZE);
   g_action_set.count = 2;
 
   plugin->destroy = destroy_cb;
