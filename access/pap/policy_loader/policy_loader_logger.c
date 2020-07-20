@@ -35,14 +35,14 @@
 
 #define POLICY_LOADER_LOGGER_ID "policy_loader"
 
-logger_id_t pap_logger_id;
+logger_id_t policy_loader_logger_id;
 
 void logger_init_policy_loader(logger_level_t level) {
-  pap_logger_id = logger_helper_enable(POLICY_LOADER_LOGGER_ID, level, true);
-  log_info(pap_logger_id, "[%s:%d] enable logger %s.\n", __func__, __LINE__, POLICY_LOADER_LOGGER_ID);
+  policy_loader_logger_id = logger_helper_enable(POLICY_LOADER_LOGGER_ID, level, true);
+  log_info(policy_loader_logger_id, "[%s:%d] enable logger %s.\n", __func__, __LINE__, POLICY_LOADER_LOGGER_ID);
 }
 
 void logger_destroy_policy_loader() {
-  log_info(pap_logger_id, "[%s:%d] destroy logger %s.\n", __func__, __LINE__, POLICY_LOADER_LOGGER_ID);
-  logger_helper_release(pap_logger_id);
+  log_info(policy_loader_logger_id, "[%s:%d] destroy logger %s.\n", __func__, __LINE__, POLICY_LOADER_LOGGER_ID);
+  logger_helper_release(policy_loader_logger_id);
 }

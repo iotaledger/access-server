@@ -33,6 +33,8 @@
 
 #include "network.h"
 #include "network_logger.h"
+#include "asn_logger.h"
+#include "crypto_logger.h"
 
 #include <arpa/inet.h>
 #include <pthread.h>
@@ -118,6 +120,8 @@ int network_init(network_ctx_t *network_context) {
 
   logger_helper_init(LOGGER_INFO);
   logger_init_network(LOGGER_INFO);
+  logger_init_asn(LOGGER_INFO);
+  logger_init_crypto(LOGGER_INFO);
 
   return 0;
 }

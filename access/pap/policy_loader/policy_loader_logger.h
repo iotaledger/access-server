@@ -41,7 +41,7 @@
  * @brief logger ID
  *
  */
-extern logger_id_t pap_logger_id;
+extern logger_id_t policy_loader_logger_id;
 
 /**
  * @brief init Policy Loader logger
