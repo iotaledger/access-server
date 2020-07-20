@@ -11,7 +11,7 @@ enable_testing()
 link_directories("${CMAKE_INSTALL_PREFIX}/lib")
 
 # your source files
-add_library(access_wallet "wallet.c" "wallet_errors.c")
+add_library(access_wallet "wallet.c" "wallet_errors.c" "wallet_logger.c")
 
 target_link_directories(access_wallet PUBLIC
   "${CMAKE_INSTALL_PREFIX}/lib"
