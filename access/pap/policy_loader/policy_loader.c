@@ -18,6 +18,7 @@
  */
 
 #include "policy_loader.h"
+#include "policy_loader_logger.h"
 
 #include <pthread.h>
 #include <stdlib.h>
@@ -25,7 +26,6 @@
 #include <unistd.h>
 
 #include "config_manager.h"
-#include "dlog.h"
 #include "json_helper.h"
 #include "pap.h"
 #include "time_manager.h"
@@ -254,18 +254,18 @@ static int parse_policy_struct(const char *p_policy, char **signed_policy_buff, 
   r = jsmn_parse(&p, p_policy, strlen(p_policy), t, POLICY_LOADER_TOK_NUM);
 
   if (r < 0) {
-    dlog_printf("Failed to parse policy JSON: %d\n", r);
+    log_error(pap_logger_id, "[%s:%d] Failed to parse policy JSON: %d\n", __func__, __LINE__, r);
     return 0;
   }
 
   /* Assume the top-level element is an object */
   if (r < 1 || t[0].type != JSMN_OBJECT) {
-    dlog_printf("Object expected in policy\n");
+    log_error(pap_logger_id, "[%s:%d] Object expected in policy\n", __func__, __LINE__);
     return 0;
   }
 
   if (memcmp(p_policy + t[1].start, "error", strlen("error")) == 0) {
-    dlog_printf("\nPolicy not found!");
+    log_error(pap_logger_id, "[%s:%d] Policy not found!\n", __func__, __LINE__);
   } else {
     for (int i = 0; i < r; i++) {
       if (memcmp(p_policy + t[i].start, "signature", strlen("signature")) == 0 &&
@@ -291,7 +291,7 @@ static int parse_policy_struct(const char *p_policy, char **signed_policy_buff, 
   }
 
   if (policy_retrieved == POLICY_LOADER_POL_FULLY_RETRIEVED) {
-    dlog_printf("\nPut policy\n");
+    log_info(pap_logger_id, "[%s:%d] Policy loaded.\n", __func__, __LINE__);
     *signed_policy_buff = calloc(POLICY_LOADER_SIGNATURE_LEN + policy_len + 1, 1);
     *o_policy_len = POLICY_LOADER_SIGNATURE_LEN + policy_len + 1;
     memcpy(*signed_policy_buff, policy_signature_decoded, POLICY_LOADER_SIGNATURE_LEN);
@@ -325,19 +325,19 @@ static void parse_policy_service_list() {
         memcpy(g_policy_store_version + (POLICY_LOADER_STR_LEN - 1), "\0", 1);
       } else if (response_type == POLICY_LOADER_POL_RESPONSE_TYPE_STRING) {
         if (memcmp(g_policy_list + jsonhelper_get_token_start(response), "ok", strlen("ok")) == 0) {
-          dlog_printf("\nPolicy store up to date");
+          log_info(pap_logger_id, "[%s:%d] Policy Store up to date.\n", __func__, __LINE__);
         } else {
-          dlog_printf("\nERROR: unknown response");
+          log_error(pap_logger_id, "[%s:%d] Unkonwn response!\n", __func__, __LINE__);
         }
       }
     } else {
       char buf[POLICY_LOADER_TIME_BUF_LEN];
 
       timemanager_get_time_string(buf, POLICY_LOADER_TIME_BUF_LEN);
-      printf("%s %s\tError: Response from policy service not received\n", buf, g_action_ps);
+      log_error(pap_logger_id, "[%s:%d] Response from policy service not received.\n", __func__, __LINE__);
     }
   } else {
-    dlog_printf("\nERROR: parsing");
+    log_error(pap_logger_id, "[%s:%d] Error during parsing.\n", __func__, __LINE__);
   }
 }
 
@@ -442,6 +442,10 @@ int policyloader_start() {
 
   g_end = 0;
   pthread_create(&g_thread, NULL, policy_loader_thread_function, NULL);
+
+  logger_helper_init(LOGGER_INFO);
+  logger_init_policy_loader(LOGGER_INFO);
+
   return 0;
 }
 

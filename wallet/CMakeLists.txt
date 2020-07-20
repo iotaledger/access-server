@@ -7,30 +7,6 @@ project(access_wallet DESCRIPTION "Access Wallet Module")
 enable_language(C)
 enable_testing()
 
-# fetch iota.c
-include(FetchContent)
-FetchContent_Declare(
-  iota.c
-  GIT_REPOSITORY http://github.com/iotaledger/iota.c.git
-  GIT_TAG 5d4433f7b936822f7d4c5bfc4f3e25899f7a3ce8
-)
-
-if(${CMAKE_VERSION} VERSION_LESS 3.14)
-    macro(FetchContent_MakeAvailable NAME)
-        FetchContent_GetProperties(${NAME})
-        if(NOT ${NAME}_POPULATED)
-            FetchContent_Populate(${NAME})
-            add_subdirectory(${${NAME}_SOURCE_DIR} ${${NAME}_BINARY_DIR})
-        endif()
-    endmacro()
-endif()
-
-message(STATUS "Fetching iota.c")
-FetchContent_MakeAvailable(iota.c)
-
-# fetch external libs
-include(ExternalProject)
-
 # libs in the sandbox
 link_directories("${CMAKE_INSTALL_PREFIX}/lib")
 

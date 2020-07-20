@@ -37,6 +37,14 @@ FetchContent_Declare(
   GIT_TAG 9be05e13408dd8cf8dafe8f11b1700a28194e07e
 )
 
+# fetch iota.c
+include(FetchContent)
+FetchContent_Declare(
+        iota.c
+        GIT_REPOSITORY http://github.com/iotaledger/iota.c.git
+        GIT_TAG 5d4433f7b936822f7d4c5bfc4f3e25899f7a3ce8
+)
+
 if(${CMAKE_VERSION} VERSION_LESS 3.14)
     macro(FetchContent_MakeAvailable NAME)
         FetchContent_GetProperties(${NAME})
@@ -52,6 +60,12 @@ FetchContent_MakeAvailable(pigpio)
 
 message(STATUS "Fetching sqlite3")
 FetchContent_MakeAvailable(sqlite3)
+
+message(STATUS "Fetching iota.c")
+FetchContent_MakeAvailable(iota.c)
+
+# fetch external libs
+include(ExternalProject)
 
 # Global includes
 include_directories(utils/misc plugins/data/dataset)

@@ -30,7 +30,9 @@ set(sources
   user/implementations/${user_management_implementation}/user_implementation.c
   validator/parser.c
   validator/validator.c
-  policy_loader/policy_loader.c)
+  policy_loader/policy_loader.c
+  policy_loader/policy_loader_logger.c
+)
 
 set(include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}
@@ -51,5 +53,8 @@ set(libs
   misc)
 
 add_library(${target} ${sources})
-target_include_directories(${target} PUBLIC ${include_dirs})
+target_include_directories(${target} PUBLIC
+  "${include_dirs}"
+  "${iota_common_SOURCE_DIR}"
+)
 target_link_libraries(${target} PUBLIC ${libs})

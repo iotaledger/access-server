@@ -26,30 +26,6 @@ project(access_wallet DESCRIPTION "Access Network Module")
 enable_language(C)
 enable_testing()
 
-# fetch iota_common
-include(FetchContent)
-FetchContent_Declare(
-        iota_common
-        GIT_REPOSITORY http://github.com/iotaledger/iota_common.git
-        GIT_TAG cf649803757abf48432d4fa60e9f27ac119bae5f
-)
-
-if(${CMAKE_VERSION} VERSION_LESS 3.14)
-    macro(FetchContent_MakeAvailable NAME)
-        FetchContent_GetProperties(${NAME})
-        if(NOT ${NAME}_POPULATED)
-            FetchContent_Populate(${NAME})
-            add_subdirectory(${${NAME}_SOURCE_DIR} ${${NAME}_BINARY_DIR})
-        endif()
-    endmacro()
-endif()
-
-message(STATUS "Fetching iota_common")
-FetchContent_MakeAvailable(iota_common)
-
-# fetch external libs
-include(ExternalProject)
-
 # libs in the sandbox
 link_directories("${CMAKE_INSTALL_PREFIX}/lib")
 
