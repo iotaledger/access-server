@@ -33,7 +33,7 @@
 
 #include "network_logger.h"
 
-#define NETWORK_LOGGER_ID "network"
+#define NETWORK_LOGGER_ID "access_network"
 
 logger_id_t network_logger_id;
 
