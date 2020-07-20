@@ -19,11 +19,14 @@
 
 cmake_minimum_required(VERSION 3.11)
 
+# libs in the sandbox
+link_directories("${CMAKE_INSTALL_PREFIX}/lib")
+
 set(target asn)
 
 set(asn_implementation tinyembedded CACHE STRING "ASN implementation choice")
 
-set(libs json_parser cryptography)
+set(libs json_parser cryptography common)
 
 # Depends on system libcrypto for libCrypto (ssl) variant
 if(asn_implementation STREQUAL libCrypto)
@@ -44,5 +47,10 @@ set(include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}/implementations/${asn_implementation})
 
 add_library(${target} ${sources})
+
+target_link_directories(asn PUBLIC
+  "${CMAKE_INSTALL_PREFIX}/lib"
+  "${iota_common_BUILD_DIR}")
+
 target_include_directories(${target} PUBLIC ${include_dirs})
 target_link_libraries(${target} PUBLIC ${libs})
