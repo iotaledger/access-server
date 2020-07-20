@@ -32,8 +32,7 @@
  * 06.12.2018. Implemented ed25519 signature algorithm
  ****************************************************************************/
 #include "asn_utils.h"
-
-#include "dlog.h"
+#include "asn_logger.h"
 
 #define ENC_DATA_LEN 2
 #define SEC_NUM_LEN 1
@@ -142,8 +141,7 @@ int asnutils_compute_signature_s(unsigned char *sig, asn_ctx_t *session, unsigne
 
   crypto_sign(sig, &smlen, hash, DH_SHARED_SECRET_L, ASN_GET_INTERNAL_PRIVATE_KEY(session));
 
-  dlog_printf("\nSMLEN: %d", smlen);
-
+  log_info(asn_logger_id, "[%s:%d] SMLEN: %d\n", __func__, __LINE__, smlen);
   return 0;
 }
 
@@ -152,7 +150,7 @@ int asnutils_verify_signature(unsigned char *sig, unsigned char *public_key, uns
   int ret = crypto_sign_open(hash, &mlen, sig, SIGNED_MESSAGE_L, public_key);
 
   if (ret == -1) {
-    dlog_printf("\nVerification failed!\n");
+    log_error(asn_logger_id, "[%s:%d] Verification failed.\n", __func__, __LINE__);
   }
 
   return -ret;
@@ -299,7 +297,7 @@ int asnutils_read(asn_ctx_t *session, unsigned char **msg, unsigned short *messa
   encrypted_msg_buffer = malloc(encrypted_data_length + 3);
 
   if (NULL == encrypted_msg_buffer) {
-    dlog_printf("MALLOC failed encrypted_msg_buffer");
+    log_error(asn_logger_id, "[%s:%d] MALLOC failed encrypted_msg_buffer.\n", __func__, __LINE__);
     return 1;
   }
 
@@ -333,11 +331,11 @@ int asnutils_read(asn_ctx_t *session, unsigned char **msg, unsigned short *messa
       *msg = ss;
       ASN_GET_INTERNAL_SEQ_NUM_DECRYPT(session)++;
     } else {
-      dlog_printf("ERROR with malloc ss!");
+      log_error(asn_logger_id, "[%s:%d] MALLOC failed ss.\n", __func__, __LINE__);
       return 1;
     }
   } else {
-    dlog_printf("Data integrity not confirmed");
+    log_error(asn_logger_id, "[%s:%d] Data integrity not confirmed.\n", __func__, __LINE__);
     return 1;
   }
 

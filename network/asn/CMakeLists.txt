@@ -31,6 +31,7 @@ set(libs ${libs} -lcrypto)
 endif()
 
 set(sources
+  asn_logger.c
   asn_auth.c
   asn_auth_helper.c
   implementations/${asn_implementation}/asn_client.c
