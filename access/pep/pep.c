@@ -44,7 +44,7 @@
 #include <string.h>
 #include "pdp.h"
 #include "pep_plugin.h"
-#include "pluginmanager.h"
+#include "plugin_manager.h"
 #include "utils.h"
 
 /****************************************************************************
@@ -188,7 +188,7 @@ static int list_to_string(pap_action_list_t *action_list, char *output_str) {
  * CALLBACK FUNCTIONS
  ****************************************************************************/
 #define MAX_PEP_PLUGINS 5
-static pluginmanager_t g_plugin_manager;
+static plugin_manager_t g_plugin_manager;
 
 /****************************************************************************
  * API FUNCTIONS
@@ -207,7 +207,7 @@ bool pep_init() {
   }
 
   // initialize plugin manager for pep
-  pluginmanager_init(&g_plugin_manager, MAX_PEP_PLUGINS);
+  plugin_manager_init(&g_plugin_manager, MAX_PEP_PLUGINS);
 
   return TRUE;
 }
@@ -229,7 +229,7 @@ bool pep_register_plugin(plugin_t *plugin) {
   pthread_mutex_lock(&pep_mutex);
 
   // Register plugin
-  pluginmanager_register(&g_plugin_manager, plugin);
+  plugin_manager_register(&g_plugin_manager, plugin);
 
   pthread_mutex_unlock(&pep_mutex);
 
@@ -283,7 +283,7 @@ bool pep_request_access(char *request, void *response) {
   } else {
     plugin_t *plugin = NULL;
     for (int i = 0; i < g_plugin_manager.plugins_num; i++) {
-      pluginmanager_get(&g_plugin_manager, i, &plugin);
+      plugin_manager_get(&g_plugin_manager, i, &plugin);
       int callback_status = -1;
       if (plugin != NULL) {
         callback_status = plugin_call(plugin, PEP_PLUGIN_ACTION_CB, &plugin_args);

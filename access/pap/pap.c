@@ -34,7 +34,6 @@
  * INCLUDES
  ****************************************************************************/
 #include "pap.h"
-#include "pap_logger.h"
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <pthread.h>
@@ -45,8 +44,9 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include "apiorig.h"
+#include "pap_logger.h"
 #include "pap_plugin.h"
-#include "pluginmanager.h"
+#include "plugin_manager.h"
 #include "sha256.h"
 #include "utils.h"
 #include "validator.h"
@@ -72,7 +72,7 @@
 static unsigned char public_key[PAP_PUBLIC_KEY_LEN];
 static unsigned char private_key[PAP_PRIVATE_KEY_LEN];
 static pthread_mutex_t pap_mutex;
-static pluginmanager_t g_plugin_manager;
+static plugin_manager_t g_plugin_manager;
 
 /****************************************************************************
  * LOCAL FUNCTIONS
@@ -125,7 +125,7 @@ static void get_SHA256_hash(char *msg, int msg_len, char *hash_val) {
  * API FUNCTIONS
  ****************************************************************************/
 pap_error_e pap_init(void) {
-  pluginmanager_init(&g_plugin_manager, PAP_PLUGIN_MAX_COUNT);
+  plugin_manager_init(&g_plugin_manager, PAP_PLUGIN_MAX_COUNT);
 
   // Generate keypair
   crypto_sign_keypair(public_key, private_key);
@@ -159,7 +159,7 @@ pap_error_e pap_term(void) {
 pap_error_e pap_register_plugin(plugin_t *plugin) {
   pthread_mutex_lock(&pap_mutex);
 
-  pluginmanager_register(&g_plugin_manager, plugin);
+  plugin_manager_register(&g_plugin_manager, plugin);
 
   pthread_mutex_unlock(&pap_mutex);
   return PAP_NO_ERROR;
@@ -270,7 +270,7 @@ pap_error_e pap_add_policy(char *signed_policy, int signed_policy_size, char *pa
         has_args.policy_id = put_args.policy_id;
         int callback_fired = 0;
         for (int i = 0; i < g_plugin_manager.plugins_num; i++) {
-          pluginmanager_get(&g_plugin_manager, i, &plugin);
+          plugin_manager_get(&g_plugin_manager, i, &plugin);
           int callback_status = -1;
           if (plugin != NULL) {
             callback_status = plugin_call(plugin, PAP_PLUGIN_HAS_CB, &has_args);
@@ -374,7 +374,7 @@ pap_error_e pap_add_policy(char *signed_policy, int signed_policy_size, char *pa
   plugin_t *plugin = NULL;
   int callback_fired = 0;
   for (int i = 0; i < g_plugin_manager.plugins_num; i++) {
-    pluginmanager_get(&g_plugin_manager, i, &plugin);
+    plugin_manager_get(&g_plugin_manager, i, &plugin);
     int callback_status = -1;
     if (plugin != NULL) {
       callback_status = plugin_call(plugin, PAP_PLUGIN_PUT_CB, &put_args);
@@ -424,7 +424,7 @@ pap_error_e pap_get_policy(char *policy_id, int policy_id_len, pap_policy_t *pol
   plugin_t *plugin = NULL;
   int callback_fired = 0;
   for (int i = 0; i < g_plugin_manager.plugins_num; i++) {
-    pluginmanager_get(&g_plugin_manager, i, &plugin);
+    plugin_manager_get(&g_plugin_manager, i, &plugin);
     int callback_status = -1;
     if (plugin != NULL) {
       callback_status = plugin_call(plugin, PAP_PLUGIN_GET_CB, &get_args);
@@ -499,7 +499,7 @@ bool pap_has_policy(char *policy_id, int policy_id_len) {
   has_args.policy_id = policy_id_hex;
   int callback_fired = 0;
   for (int i = 0; i < g_plugin_manager.plugins_num; i++) {
-    pluginmanager_get(&g_plugin_manager, i, &plugin);
+    plugin_manager_get(&g_plugin_manager, i, &plugin);
     int callback_status = -1;
     if (plugin != NULL) {
       callback_status = plugin_call(plugin, PAP_PLUGIN_HAS_CB, &has_args);
@@ -543,7 +543,7 @@ pap_error_e pap_remove_policy(char *policy_id, int policy_id_len) {
   plugin_t *plugin = NULL;
   int callback_fired = 0;
   for (int i = 0; i < g_plugin_manager.plugins_num; i++) {
-    pluginmanager_get(&g_plugin_manager, i, &plugin);
+    plugin_manager_get(&g_plugin_manager, i, &plugin);
     int callback_status = -1;
     if (plugin != NULL) {
       callback_status = plugin_call(plugin, PAP_PLUGIN_DEL_CB, policy_id_hex);
@@ -585,7 +585,7 @@ pap_error_e pap_get_policy_obj_len(char *policy_id, int policy_id_len, int *pol_
   args.policy_id = policy_id_hex;
   int callback_fired = 0;
   for (int i = 0; i < g_plugin_manager.plugins_num; i++) {
-    pluginmanager_get(&g_plugin_manager, i, &plugin);
+    plugin_manager_get(&g_plugin_manager, i, &plugin);
     int callback_status = -1;
     if (plugin != NULL) {
       callback_status = plugin_call(plugin, PAP_PLUGIN_GET_POL_OBJ_LEN_CB, &args);
@@ -631,7 +631,7 @@ pap_error_e pap_get_subjects_list_of_actions(char *subject_id, int subject_id_le
   plugin_t *plugin = NULL;
   int callback_fired = 0;
   for (int i = 0; i < g_plugin_manager.plugins_num; i++) {
-    pluginmanager_get(&g_plugin_manager, i, &plugin);
+    plugin_manager_get(&g_plugin_manager, i, &plugin);
     int callback_status = -1;
     if (plugin != NULL) {
       callback_status = plugin_call(plugin, PAP_PLUGIN_GET_ALL_CB, &pol_id_list);
@@ -666,7 +666,7 @@ pap_error_e pap_get_subjects_list_of_actions(char *subject_id, int subject_id_le
     args.policy_id = pol_id_list->policy_id;
     int callback_fired = 0;
     for (int i = 0; i < g_plugin_manager.plugins_num; i++) {
-      pluginmanager_get(&g_plugin_manager, i, &plugin);
+      plugin_manager_get(&g_plugin_manager, i, &plugin);
       int callback_status = -1;
       if (plugin != NULL) {
         callback_status = plugin_call(plugin, PAP_PLUGIN_GET_POL_OBJ_LEN_CB, &args);
@@ -690,7 +690,7 @@ pap_error_e pap_get_subjects_list_of_actions(char *subject_id, int subject_id_le
     plugin = NULL;
     callback_fired = 0;
     for (int i = 0; i < g_plugin_manager.plugins_num; i++) {
-      pluginmanager_get(&g_plugin_manager, i, &plugin);
+      plugin_manager_get(&g_plugin_manager, i, &plugin);
       int callback_status = -1;
       if (plugin != NULL) {
         callback_status = plugin_call(plugin, PAP_PLUGIN_GET_CB, &get_args);

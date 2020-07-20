@@ -23,7 +23,7 @@ set(target pip)
 
 set(libs
   pdp
-  pluginmanager)
+  plugin_manager)
 
 add_library(${target} pip.c)
 target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

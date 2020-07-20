@@ -24,7 +24,7 @@ set(target pep_plugins)
 set(libs
   access_wallet
   pdp
-  pluginmanager
+  plugin_manager
   platform_interface)
 
 set(sources

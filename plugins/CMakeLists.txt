@@ -25,11 +25,11 @@ add_subdirectory(pap)
 add_subdirectory(pip)
 add_subdirectory(pep)
 
-set(target pluginmanager)
+set(target plugin_manager)
 
 set(sources
   plugin.c
-  pluginmanager.c)
+        plugin_manager.c)
 
 set(include_dirs ${CMAKE_CURRENT_SOURCE_DIR})
 

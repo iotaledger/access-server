@@ -25,7 +25,7 @@ set(libs
   -pthread
   access_wallet
   pdp
-  pluginmanager
+  plugin_manager
   json_parser
   pip
   access_wallet

@@ -27,7 +27,7 @@ set(include_dirs ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(libs
   pdp
-  pluginmanager)
+  plugin_manager)
 
 add_library(${target} pep.c)
 target_include_directories(${target} PUBLIC ${include_dirs})
