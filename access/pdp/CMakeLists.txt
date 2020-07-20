@@ -21,7 +21,7 @@ cmake_minimum_required(VERSION 3.11)
 
 set(target pdp)
 
-set(sources pdp.c)
+set(sources pdp.c pdp_logger.c)
 
 set(include_dirs ${CMAKE_CURRENT_SOURCE_DIR})
 

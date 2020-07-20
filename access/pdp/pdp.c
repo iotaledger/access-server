@@ -39,10 +39,10 @@
  * INCLUDES
  ****************************************************************************/
 #include "pdp.h"
+#include "pdp_logger.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "dlog.h"
 #include "json_helper.h"
 #include "pip.h"
 
@@ -189,7 +189,7 @@ static int resolve_condition(char *policy_object, char *policy_id, int attribute
     sprintf(uri, "iota:%s/%s?%s", policy_id, data_type, data_value);
 
     if (pip_get_data(uri, &attribute) != PIP_NO_ERROR) {
-      dlog_printf("\n\nERROR[%s]: Getting data from PIP failed.\n\n", __FUNCTION__);
+      log_error(pdp_logger_id, "[%s:%d] Getting data from PIP failed.\n", __func__, __LINE__);
       return FALSE;
     }
   } else { // No request, just copy attribute 2
@@ -210,7 +210,7 @@ static int resolve_condition(char *policy_object, char *policy_id, int attribute
             (strncasecmp(policy_object + jsonhelper_get_token_start(value1), attribute.value, size_of_value1) == 0))) {
         ret = TRUE;
       } else {
-        dlog_printf("\n FALSE \n");
+        log_info(pdp_logger_id, "[%s:%d] PDP condition FALSE.\n", __func__, __LINE__);
       }
       break;
     }
@@ -276,7 +276,7 @@ static int resolve_condition(char *policy_object, char *policy_id, int attribute
 static void get_time_from_attr(char *policy_object, int atribute_position, pdp_operation_e attr_operation,
                                unsigned long *start_time, unsigned long *end_time) {
   if (policy_object == NULL) {
-    dlog_printf("\n\nERROR[%s]: Wrong input parameters\n\n", __FUNCTION__);
+    log_error(pdp_logger_id, "[%s:%d] Wrong input parameters.\n", __func__, __LINE__);
     return;
   }
 
@@ -505,7 +505,7 @@ static int resolve_obligation(char *policy_object, char *policy_id, char *user, 
   pdp_operation_e opt;
 
   if (policy_object == NULL || obligation == NULL) {
-    dlog_printf("\n\nERROR[%s]: Wrong input parameters\n\n", __FUNCTION__);
+    log_error(pdp_logger_id, "[%s:%d] Wrong input parameters.\n", __func__, __LINE__);
     return ret;
   }
 
@@ -612,7 +612,7 @@ pdp_decision_e pdp_calculate_decision(char *request_norm, char *obligation, pdp_
 
   // Check input parameters
   if (request_norm == NULL || obligation == NULL || action == NULL || action->value == NULL) {
-    dlog_printf("\n\nERROR[%s]: Invalid input parameters\n\n", __FUNCTION__);
+    log_error(pdp_logger_id, "[%s:%d] Invalid input parameters.\n", __func__, __LINE__);
     return ret;
   }
 
@@ -621,7 +621,7 @@ pdp_decision_e pdp_calculate_decision(char *request_norm, char *obligation, pdp_
   // Get user id
   user = jsonhelper_get_value(request_norm, 0, "user_id");
   if (user == -1) {
-    dlog_printf("\n\nERROR[%s]: Invalid request. No user id.\n\n", __FUNCTION__);
+    log_error(pdp_logger_id, "[%s:%d] Invalid request. No user id.\n", __func__, __LINE__);
     return ret;
   }
   else {
@@ -677,7 +677,7 @@ pdp_decision_e pdp_calculate_decision(char *request_norm, char *obligation, pdp_
 
   // Get pol. object size and allocate policy object
   if (pap_get_policy_obj_len(action->pol_id_str, size, &pol_obj_len) == PAP_ERROR) {
-    dlog_printf("\nERROR[%s]: Could not get the policy object length.\n", __FUNCTION__);
+    log_error(pdp_logger_id, "[%s:%d] Could not get the policy object length.\n", __func__, __LINE__);
     return PDP_ERROR;
   }
 
@@ -707,7 +707,7 @@ pdp_decision_e pdp_calculate_decision(char *request_norm, char *obligation, pdp_
 
   // Get policy from PAP
   if (pap_get_policy(action->pol_id_str, size, &policy) == PAP_ERROR) {
-    dlog_printf("\nERROR[%s]: Could not get the policy.\n", __FUNCTION__);
+    log_error(pdp_logger_id, "[%s:%d] Could not get the policy.\n", __func__, __LINE__);
     free(policy_object);
     return PDP_ERROR;
   }
@@ -721,19 +721,19 @@ pdp_decision_e pdp_calculate_decision(char *request_norm, char *obligation, pdp_
   int policy_dobl = jsonhelper_get_token_index(policy.policy_object.policy_object, "obligation_deny");
 
   if (policy_goc == -1) {
-    dlog_printf("\nPOLICY policy_goc IS NULL\n");
+    log_info(pdp_logger_id, "[%s:%d] POLICY policy_goc IS NULL.\n", __func__, __LINE__);
   }
 
   if (policy_doc == -1) {
-    dlog_printf("\nPOLICY policy_doc IS NULL\n");
+    log_info(pdp_logger_id, "[%s:%d] POLICY policy_doc IS NULL.\n", __func__, __LINE__);
   }
 
   if (policy_gobl == -1) {
-    dlog_printf("\nOBLIGATION obligation_grant IS NULL\n");
+    log_info(pdp_logger_id, "[%s:%d] OBLIGATION obligation_grant IS NULL.\n", __func__, __LINE__);
   }
 
   if (policy_dobl == -1) {
-    dlog_printf("\nOBLIGATION obligation_deny IS NULL\n");
+    log_info(pdp_logger_id, "[%s:%d] OBLIGATION obligation_deny IS NULL.\n", __func__, __LINE__);
   }
 
   // Resolve attributes
@@ -763,9 +763,9 @@ pdp_decision_e pdp_calculate_decision(char *request_norm, char *obligation, pdp_
     }
   }
 
-  dlog_printf("\nPOLICY GOC RESOLVED: %d", pol_goc);
-  dlog_printf("\nPOLICY DOC RESOLVED: %d", pol_doc);
-  dlog_printf("\nPOLICY RESOLVED: %d\n", ret);
+  log_info(pdp_logger_id, "[%s:%d] POLICY GoC RESOLVED: %d\n", __func__, __LINE__, pol_goc);
+  log_info(pdp_logger_id, "[%s:%d] POLICY DoC RESOLVED: %d\n", __func__, __LINE__, pol_doc);
+  log_info(pdp_logger_id, "[%s:%d] POLICY RESOLVED: %d\n", __func__, __LINE__, ret);
 
   free(policy_object);
   return ret;
