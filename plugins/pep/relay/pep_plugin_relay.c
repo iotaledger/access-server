@@ -104,8 +104,8 @@ static int action_cb(plugin_t* plugin, void* data) {
   return status;
 }
 
-int pep_plugin_relay_initializer(plugin_t* plugin, void* options) {
-  dev_wallet = wallet_create(NODE_URL, NODE_PORT, amazon_ca1_pem, NODE_DEPTH, NODE_MWM, WALLET_SEED);
+int pep_plugin_relay_initializer(plugin_t* plugin, void* wallet_context) {
+  dev_wallet = wallet_context;
 
   g_action_set.actions[0] = relay_on;
   g_action_set.actions[1] = relay_off;
