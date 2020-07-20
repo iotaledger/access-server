@@ -30,14 +30,14 @@
 
 typedef struct CfgMgr {
   char data[CONFIG_MANAGER_DATA_SIZE];
-  configmanager_token_t tokens[CONFIG_MANAGER_MAX_TOKENS];
+  config_manager_token_t tokens[CONFIG_MANAGER_MAX_TOKENS];
   int tokens_count;
-} configmanager_t;
+} config_manager_t;
 
-configmanager_t g_config = {0};
+config_manager_t g_config = {0};
 
-int configmanagerimplementation_init_cb(void *in_parameter) {
-  configmanager_t *configuration = &g_config;
+int config_manager_implementation_init_cb(void *in_parameter) {
+  config_manager_t *configuration = &g_config;
   const char *config_file = (const char *)in_parameter;
   FILE *fp = fopen(config_file, "r");
   if (fp == NULL) return CONFIG_MANAGER_INIT_ERROR;
@@ -48,8 +48,8 @@ int configmanagerimplementation_init_cb(void *in_parameter) {
   int total_bytes_read = 0;
   int token_index = 0;
   int comment_line = 0;
-  configmanager_token_t *this_token = &configuration->tokens[token_index];
-  configmanager_token_t *group_token = &configuration->tokens[token_index];
+  config_manager_token_t *this_token = &configuration->tokens[token_index];
+  config_manager_token_t *group_token = &configuration->tokens[token_index];
   configuration->tokens_count = 0;
   do {
     this_token = &configuration->tokens[token_index];
@@ -104,13 +104,13 @@ int configmanagerimplementation_init_cb(void *in_parameter) {
   return CONFIG_MANAGER_OK;
 }
 
-int configmanagerimplementation_get_string_cb(const char *module_name, const char *option_name, char *option_value,
+int config_manager_implementation_get_string_cb(const char *module_name, const char *option_name, char *option_value,
                                               size_t option_value_size) {
-  configmanager_t *configuration = &g_config;
+  config_manager_t *configuration = &g_config;
   int found_module = -1;
   int found_config = -1;
   char *cfg_data = configuration->data;
-  configmanager_token_t *tok;
+  config_manager_token_t *tok;
 
   for (int i = 0; i < configuration->tokens_count; i++) {
     tok = &configuration->tokens[i];
@@ -141,10 +141,10 @@ int configmanagerimplementation_get_string_cb(const char *module_name, const cha
   return CONFIG_MANAGER_OK;
 }
 
-int configmanagerimplementation_get_int_cb(const char *module_name, const char *option_name, int *option_value) {
+int config_manager_implementation_get_int_cb(const char *module_name, const char *option_name, int *option_value) {
   const size_t string_value_len = 32;
   char string_value[string_value_len];
-  int status = configmanagerimplementation_get_string_cb(module_name, option_name, string_value, string_value_len);
+  int status = config_manager_implementation_get_string_cb(module_name, option_name, string_value, string_value_len);
   if (CONFIG_MANAGER_OK != status) return status;
 
   *option_value = atoi(string_value);
@@ -152,10 +152,10 @@ int configmanagerimplementation_get_int_cb(const char *module_name, const char *
   return CONFIG_MANAGER_OK;
 }
 
-int configmanagerimplementation_get_float_cb(const char *module_name, const char *option_name, float *option_value) {
+int config_manager_implementation_get_float_cb(const char *module_name, const char *option_name, float *option_value) {
   const size_t string_value_len = 32;
   char string_value[string_value_len];
-  int status = configmanagerimplementation_get_string_cb(module_name, option_name, string_value, string_value_len);
+  int status = config_manager_implementation_get_string_cb(module_name, option_name, string_value, string_value_len);
   if (CONFIG_MANAGER_OK != status) return status;
 
   *option_value = atof(string_value);

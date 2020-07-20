@@ -241,8 +241,8 @@ void canreceiver_init(can01_vehicle_dataset_t* dataset, pthread_mutex_t* json_mu
   wanted_signals = dataset;
   datadumper_add_module_init_cb(can_json_filler, &fj_obj_can, CAN_JSON_NAME);
   json_sync_lock = datadumper_get_mutex();
-  configmanager_get_option_string("can_receiver", "can_body_channel", body_chan, MAX_STR_SIZE);
-  configmanager_get_option_string("can_receiver", "can_chas_channel", chas_chan, MAX_STR_SIZE);
+  config_manager_get_option_string("can_receiver", "can_body_channel", body_chan, MAX_STR_SIZE);
+  config_manager_get_option_string("can_receiver", "can_chas_channel", chas_chan, MAX_STR_SIZE);
 
   canthread_init(&can_body_instance, body_chan, can_body_frame_read_cb);
   canthread_init(&can_chas_instance, chas_chan, can_chas_frame_read_cb);

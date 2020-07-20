@@ -72,10 +72,10 @@ int main(int argc, char **argv) {
   signal(SIGINT, signal_handler);
   sigaction(SIGPIPE, &(struct sigaction){SIG_IGN}, NULL);
 
-  configmanager_init("config.ini");
-  configmanager_get_option_string("config", "client", client_name, MAX_CLIENT_NAME);
+  config_manager_init("config.ini");
+  config_manager_get_option_string("config", "client", client_name, MAX_CLIENT_NAME);
 
-  int status = configmanager_get_option_int("config", "thread_sleep_period", &g_task_sleep_time);
+  int status = config_manager_get_option_int("config", "thread_sleep_period", &g_task_sleep_time);
   if (status != CONFIG_MANAGER_OK) g_task_sleep_time = 1000;  // 1 second
 
   access_init(&access_context);

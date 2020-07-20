@@ -23,10 +23,10 @@
 #include "config_manager_cmn.h"
 #include "config_manager_implementation.h"
 
-int configmanager_init(void *in_parameter);
-int configmanager_get_option_string(const char *module_name, const char *option_name, char *option_value,
+int config_manager_init(void *in_parameter);
+int config_manager_get_option_string(const char *module_name, const char *option_name, char *option_value,
                                     size_t option_size);
-int configmanager_get_option_int(const char *module_name, const char *option_name, int *option_value);
-int configmanager_get_option_float(const char *module_name, const char *option_name, float *option_value);
+int config_manager_get_option_int(const char *module_name, const char *option_name, int *option_value);
+int config_manager_get_option_float(const char *module_name, const char *option_name, float *option_value);
 
 #endif

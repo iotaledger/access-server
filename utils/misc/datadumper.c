@@ -126,9 +126,9 @@ fjson_object *datadumper_init() {
   json_started = time(NULL);
   fj_root = fjson_object_new_object();
 
-  configmanager_get_option_string("json_interface", "ipaddr", ipaddr, DATADUMPER_STR_LEN);
-  configmanager_get_option_string("config", "device_id", device_id, DATADUMPER_STR_LEN);
-  configmanager_get_option_int("json_interface", "ipport", &ipport);
+  config_manager_get_option_string("json_interface", "ipaddr", ipaddr, DATADUMPER_STR_LEN);
+  config_manager_get_option_string("config", "device_id", device_id, DATADUMPER_STR_LEN);
+  config_manager_get_option_int("json_interface", "ipport", &ipport);
   call_all_filler_callbacks();
 
   return fj_root;

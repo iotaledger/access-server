@@ -98,9 +98,9 @@ static void *network_thread_function(void *ptr);
 int network_init(network_ctx_t *network_context) {
   network_ctx_internal_t *ctx = malloc(sizeof(network_ctx_internal_t));
 
-  configmanager_init("config.ini");
+  config_manager_init("config.ini");
   int tcp_port;
-  if (CONFIG_MANAGER_OK != configmanager_get_option_int("network", "tcp_port", &tcp_port)) {
+  if (CONFIG_MANAGER_OK != config_manager_get_option_int("network", "tcp_port", &tcp_port)) {
     ctx->port = 9998;
   } else {
     ctx->port = tcp_port;
