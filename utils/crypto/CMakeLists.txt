@@ -22,6 +22,7 @@ cmake_minimum_required(VERSION 3.11)
 set(target cryptography)
 
 set(sources
+  crypto_logger.c
   sha512.c
   curve25519-donna.c
   aes.c
@@ -37,7 +38,9 @@ set(sources
 
 set(include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/ref)
+  ${CMAKE_CURRENT_SOURCE_DIR}/ref
+  ${iota_common_SOURCE_DIR}
+)
 
 add_library(${target} ${sources})
 target_include_directories(${target} PUBLIC ${include_dirs})
