@@ -51,8 +51,6 @@
 #include "pap_plugin.h"
 #include "utils.h"
 
-#define dlog_printf printf
-
 #define SEND_BUFF_LEN 4096
 #define READ_BUFF_LEN 1025
 #define BUF_LEN 80
@@ -140,7 +138,7 @@ int network_start(network_ctx_t network_context) {
 
   int retstat = bind(ctx->listenfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
   if (retstat != 0) {
-    perror("bind failed");
+    log_error(network_logger_id, "[%s:%d] bind failed.\n", __func__, __LINE__);
     free(ctx);
     return ERROR_BIND_FAILED;
   }
@@ -148,14 +146,14 @@ int network_start(network_ctx_t network_context) {
   if (ctx->end != 1) {
     retstat = listen(ctx->listenfd, CONNECTION_BACKLOG_LEN);
     if (retstat != 0) {
-      perror("listen failed");
+      log_error(network_logger_id, "[%s:%d] listen failed.\n", __func__, __LINE__);
       free(ctx);
       return ERROR_LISTEN_FAILED;
     }
   }
 
   if (pthread_create(&ctx->thread, NULL, network_thread_function, ctx)) {
-    fprintf(stderr, "Error creating thread\n");
+    log_error(network_logger_id, "[%s:%d] error creating thread.\n", __func__, __LINE__);
     free(ctx);
     return ERROR_CREATE_THREAD_FAILED;
   }
@@ -306,7 +304,7 @@ static unsigned int calculate_decision(char **recv_data, network_ctx_internal_t 
       }
     }
 
-    printf("get user\n");
+    log_info(network_logger_id, "[%s:%d] get user\n", __func__, __LINE__);
     pap_user_management_action(PAP_USERMNG_GET_USER, username, ctx->send_buffer);
     *recv_data = ctx->send_buffer;
     buffer_position = strlen(ctx->send_buffer);
@@ -321,7 +319,7 @@ static unsigned int calculate_decision(char **recv_data, network_ctx_internal_t 
       }
     }
 
-    printf("get_auth_id\n");
+    log_info(network_logger_id, "[%s:%d] get auth id\n", __func__, __LINE__);
     pap_user_management_action(PAP_USERMNG_GET_USER_ID, username, ctx->send_buffer);
     *recv_data = ctx->send_buffer;
     buffer_position = strlen(ctx->send_buffer);
@@ -335,22 +333,22 @@ static unsigned int calculate_decision(char **recv_data, network_ctx_internal_t 
       }
     }
 
-    printf("put user\n");
+    log_info(network_logger_id, "[%s:%d] put user\n", __func__, __LINE__);
     pap_user_management_action(PAP_USERMNG_PUT_USER, user_data, ctx->send_buffer);
     *recv_data = ctx->send_buffer;
     buffer_position = strlen(ctx->send_buffer);
   } else if (request_code == COMMAND_GET_ALL_USER) {
-    printf("get all users\n");
+    log_info(network_logger_id, "[%s:%d] get all users\n", __func__, __LINE__);
     pap_user_management_action(PAP_USERMNG_GET_ALL_USR, ctx->send_buffer);
     *recv_data = ctx->send_buffer;
     buffer_position = strlen(ctx->send_buffer);
   } else if (request_code == COMMAND_CLEAR_ALL_USER) {
-    printf("clear all users\n");
+    log_info(network_logger_id, "[%s:%d] clear all users\n", __func__, __LINE__);
     pap_user_management_action(PAP_USERMNG_CLR_ALL_USR, ctx->send_buffer);
     *recv_data = ctx->send_buffer;
     buffer_position = strlen(ctx->send_buffer);
   } else {
-    dlog_printf("\nRequest message format not valid\n > %s\n", *recv_data);
+    log_info(network_logger_id, "[%s:%d] request message format not valid\n > %s\n", __func__, __LINE__, *recv_data);
     memset(*recv_data, '0', sizeof(ctx->send_buffer));
     memcpy(ctx->send_buffer, deny, sizeof(deny));
     *recv_data = ctx->send_buffer;
@@ -418,7 +416,7 @@ static void *network_thread_function(void *ptr) {
           ts = *localtime(&now);
           strftime(buf, sizeof(buf), "%h:%M:%S", &ts);
 
-          printf("\n%s <Network status>\tError: Authentication failed\n", buf);
+          log_error(network_logger_id, "[%s:%d] Authentication failed.\n", __func__, __LINE__);
 
           decision = 0;
           int size = 34;
