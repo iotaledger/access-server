@@ -1,5 +1,5 @@
 /****************************************************************************
- *  Copyright (c) 2018 XAIN
+ *  Copyright (c) 2020 IOTA Stiftung
  *
  *  All Rights Reserved
  *

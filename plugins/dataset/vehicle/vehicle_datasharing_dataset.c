@@ -2,7 +2,7 @@
  * This file is part of the DAC distribution
  * (https://github.com/iotaledger/access)
  *
- * Copyright (c) 2020 IOTA Foundation
+ * Copyright (c) 2020 IOTA Stiftung
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
