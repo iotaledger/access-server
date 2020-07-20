@@ -33,7 +33,7 @@
 
 #include "asn_logger.h"
 
-#define ASN_LOGGER_ID "access_secure_network"
+#define ASN_LOGGER_ID "asn"
 
 logger_id_t asn_logger_id;
 
