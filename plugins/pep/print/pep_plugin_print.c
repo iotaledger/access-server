@@ -32,15 +32,12 @@
  ****************************************************************************/
 
 #include "pep_plugin_print.h"
+#include "plugin_logger.h"
 
 #include <string.h>
 #include <unistd.h>
 
 #include "config_manager.h"
-#include "datadumper.h"
-#include "dlog.h"
-#include "relay_interface.h"
-#include "time_manager.h"
 #include "wallet.h"
 
 #define RES_BUFF_LEN 80
@@ -69,14 +66,11 @@ static int log_tangle(){
               0,
               "hello world from access!",
               bundle);
-  timemanager_get_time_string(buf, RES_BUFF_LEN);
-  dlog_printf("%s Obligation of logging action to tangle. Bundle hash: %s \n", buf, bundle);
+  log_info(plugin_logger_id, "[%s:%d] Obligation of logging action to tangle. Bundle hash: %s .\n", __func__, __LINE__, bundle);
 }
 
 static int print_terminal(pdp_action_t* action){
-  char buf[RES_BUFF_LEN];
-  timemanager_get_time_string(buf, RES_BUFF_LEN);
-  dlog_printf("%s %s\tPrinting from PEP plugin\n", buf, action->value);
+  log_info(plugin_logger_id, "[%s:%d] Printing from PEP plugin as part of Action: %s\n", __func__, __LINE__, action->value);
   return 0;
 }
 
@@ -87,7 +81,6 @@ static int action_cb(plugin_t* plugin, void* data) {
   pdp_action_t* action = &args->action;
   char* obligation = args->obligation;
   bool should_log = FALSE;
-  char buf[RES_BUFF_LEN];
   int status = 0;
 
   // handle obligations
@@ -98,8 +91,7 @@ static int action_cb(plugin_t* plugin, void* data) {
   // execute action
   for (int i = 0; i < g_action_set.count; i++) {
     if (memcmp(action->value, g_action_set.action_names[i], strlen(g_action_set.action_names[i])) == 0) {
-      timemanager_get_time_string(buf, RES_BUFF_LEN);
-      dlog_printf("%s %s\t<Action performed>\n", buf, action->value);
+      log_info(plugin_logger_id, "[%s:%d] Action performed: %s\n", __func__, __LINE__, action->value);
       status = g_action_set.actions[i](action, should_log);
       break;
     }
@@ -110,7 +102,7 @@ static int action_cb(plugin_t* plugin, void* data) {
 int pep_plugin_print_initializer(plugin_t* plugin, void* wallet_context) {
   dev_wallet = wallet_context;
   if (dev_wallet == NULL) {
-    printf("\nERROR[%s]: Wallet creation failed.\n", __FUNCTION__);
+    log_error(plugin_logger_id, "[%s:%d] Wallet creation failed. %s\n", __func__, __LINE__);
     return -1;
   }
 

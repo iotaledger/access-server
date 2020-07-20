@@ -32,15 +32,13 @@
  ****************************************************************************/
 
 #include "pep_plugin_relay.h"
+#include "plugin_logger.h"
 
 #include <string.h>
 #include <unistd.h>
 
 #include "config_manager.h"
-#include "datadumper.h"
-#include "dlog.h"
 #include "relay_interface.h"
-#include "time_manager.h"
 #include "wallet.h"
 
 #define RES_BUFF_LEN 80
@@ -95,8 +93,7 @@ static int action_cb(plugin_t* plugin, void* data) {
   // execute action
   for (int i = 0; i < g_action_set.count; i++) {
     if (memcmp(action->value, g_action_set.action_names[i], strlen(g_action_set.action_names[i])) == 0) {
-      timemanager_get_time_string(buf, RES_BUFF_LEN);
-      dlog_printf("%s %s\t<Action performed>\n", buf, action->value);
+      log_info(plugin_logger_id, "[%s:%d] Action performed: %s\n", __func__, __LINE__, action->value);
       status = g_action_set.actions[i](action, should_log);
       break;
     }

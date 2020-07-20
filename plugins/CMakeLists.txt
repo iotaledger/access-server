@@ -29,9 +29,14 @@ set(target plugin_manager)
 
 set(sources
   plugin.c
-        plugin_manager.c)
+  plugin_manager.c
+  plugin_logger.c
+)
 
-set(include_dirs ${CMAKE_CURRENT_SOURCE_DIR})
+set(include_dirs
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${iota_common_SOURCE_DIR}
+)
 
 add_library(${target} ${sources})
 target_include_directories(${target} PUBLIC ${include_dirs})
