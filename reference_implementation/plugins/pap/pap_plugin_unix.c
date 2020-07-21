@@ -43,6 +43,7 @@
 #include <unistd.h>
 #include "pap.h"
 #include "utils.h"
+#include <sys/stat.h>
 
 /****************************************************************************
  * MACROS
@@ -81,7 +82,7 @@ typedef enum {
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
-static bool rpistorage_store_policy(char* policy_id, char* policy_object, int policy_object_size, char* policy_cost,
+static bool unix_store_policy(char* policy_id, char* policy_object, int policy_object_size, char* policy_cost,
                                     char* signature, char* public_key, char* signature_algorithm, char* hash_function) {
   char pol_path[RPI_MAX_STR_LEN] = {0};
   char pol_id_str[RPI_POL_ID_MAX_LEN * 2 + 1] = {0};
@@ -100,7 +101,12 @@ static bool rpistorage_store_policy(char* policy_id, char* policy_object, int po
   }
 
   // Write policy data to a file
-  sprintf(pol_path, "../plugins/pap/platforms/unix/policies/%s.txt", pol_id_str);
+  struct stat st = {0};
+  if (stat("stored_policies", &st) == -1) {
+    mkdir("stored_policies", 0700);
+  }
+
+  sprintf(pol_path, "stored_policies/%s.txt", pol_id_str);
   f = fopen(pol_path, "w+");
   if (f == NULL) {
     printf("\nERROR[%s]: Invalid path to file.\n", __FUNCTION__);
@@ -126,7 +132,7 @@ static bool rpistorage_store_policy(char* policy_id, char* policy_object, int po
 
   // Store policy ID in stored policies file
   memset(pol_path, 0, RPI_MAX_STR_LEN * sizeof(char));
-  sprintf(pol_path, "../plugins/pap/platforms/unix/policies/stored_policies.txt");
+  sprintf(pol_path, "stored_policies/stored_policies.txt");
 
   f = fopen(pol_path, "a");
   if (f == NULL) {
@@ -142,7 +148,7 @@ static bool rpistorage_store_policy(char* policy_id, char* policy_object, int po
   return TRUE;
 }
 
-static bool rpistorage_acquire_policy(char* policy_id, char* policy_object, int* policy_object_size, char* policy_cost,
+static bool unix_acquire_policy(char* policy_id, char* policy_object, int* policy_object_size, char* policy_cost,
                                       char* signature, char* public_key, char* signature_algorithm,
                                       char* hash_function) {
   char pol_path[RPI_MAX_STR_LEN] = {0};
@@ -166,7 +172,7 @@ static bool rpistorage_acquire_policy(char* policy_id, char* policy_object, int*
   }
 
   // Open file
-  sprintf(pol_path, "../plugins/pap/platforms/unix/policies/%s.txt", pol_id_str);
+  sprintf(pol_path, "stored_policies/%s.txt", pol_id_str);
   f = fopen(pol_path, "r");
   if (f == NULL) {
     printf("\nERROR[%s]: Invalid path to file.\n", __FUNCTION__);
@@ -216,7 +222,7 @@ static bool rpistorage_acquire_policy(char* policy_id, char* policy_object, int*
   return TRUE;
 }
 
-static bool rpistorage_check_if_stored_policy(char* policy_id) {
+static bool unix_check_if_stored_policy(char* policy_id) {
   char pol_path[RPI_MAX_STR_LEN] = {0};
   char pol_id_str[RPI_POL_ID_MAX_LEN * 2 + 1] = {0};
 
@@ -231,7 +237,7 @@ static bool rpistorage_check_if_stored_policy(char* policy_id) {
     return FALSE;
   }
 
-  sprintf(pol_path, "../plugins/pap/platforms/unix/policies/%s.txt", pol_id_str);
+  sprintf(pol_path, "stored_policies/%s.txt", pol_id_str);
 
   // Check file existance
   if (access(pol_path, F_OK) != RPI_ACCESS_ERR) {
@@ -243,7 +249,7 @@ static bool rpistorage_check_if_stored_policy(char* policy_id) {
   }
 }
 
-static bool rpistorage_flush_policy(char* policy_id) {
+static bool unix_flush_policy(char* policy_id) {
   char pol_path[RPI_MAX_STR_LEN] = {0};
   char pol_id_str[RPI_POL_ID_MAX_LEN * 2 + 1] = {0};
   char* stored_pol_buff = NULL;
@@ -262,12 +268,12 @@ static bool rpistorage_flush_policy(char* policy_id) {
     return FALSE;
   }
 
-  sprintf(pol_path, "../plugins/pap/platforms/unix/policies/%s.txt", pol_id_str);
+  sprintf(pol_path, "stored_policies/%s.txt", pol_id_str);
 
   if (remove(pol_path) == 0) {
     // Remove policy ID from stored policies file
     memset(pol_path, 0, RPI_MAX_STR_LEN * sizeof(char));
-    sprintf(pol_path, "../plugins/pap/platforms/unix/policies/stored_policies.txt");
+    sprintf(pol_path, "stored_policies/stored_policies.txt");
     f = fopen(pol_path, "r");
     if (f == NULL) {
       printf("\nERROR[%s]: Invalid path to stored_policies file.\n", __FUNCTION__);
@@ -312,7 +318,7 @@ static bool rpistorage_flush_policy(char* policy_id) {
   }
 }
 
-static int rpistorage_get_pol_obj_len(char* policy_id) {
+static int unix_get_pol_obj_len(char* policy_id) {
   char pol_path[RPI_MAX_STR_LEN] = {0};
   char pol_id_str[RPI_POL_ID_MAX_LEN * 2 + 1] = {0};
   char* buffer;
@@ -332,7 +338,7 @@ static int rpistorage_get_pol_obj_len(char* policy_id) {
   }
 
   // Open file
-  sprintf(pol_path, "../plugins/pap/platforms/unix/policies/%s.txt", pol_id_str);
+  sprintf(pol_path, "stored_policies/%s.txt", pol_id_str);
   f = fopen(pol_path, "r");
   if (f == NULL) {
     printf("\nERROR[%s]: Invalid path to file.\n", __FUNCTION__);
@@ -385,7 +391,7 @@ static bool store_policy(char* policy_id, pap_policy_object_t policy_object,
   }
 
   // Call function for storing policy on used platform
-  return rpistorage_store_policy(policy_id, policy_object.policy_object, policy_object.policy_object_size,
+  return unix_store_policy(policy_id, policy_object.policy_object, policy_object.policy_object_size,
                                  policy_object.cost, policy_id_signature.signature, policy_id_signature.public_key,
                                  sign_algorithm, hash_function);
 }
@@ -402,7 +408,7 @@ static bool acquire_policy(char* policy_id, pap_policy_object_t* policy_object,
   }
 
   // Call function for storing policy on used platform
-  if (rpistorage_acquire_policy(policy_id, policy_object->policy_object, &(policy_object->policy_object_size),
+  if (unix_acquire_policy(policy_id, policy_object->policy_object, &(policy_object->policy_object_size),
                                 policy_object->cost, policy_id_signature->signature, policy_id_signature->public_key,
                                 sign_algorithm, hash_function) == FALSE) {
     printf("\nERROR[%s]: Could not acquire policy from R-Pi.\n", __FUNCTION__);
@@ -434,7 +440,7 @@ bool check_if_stored_policy(char* policy_id) {
   }
 
   // Call function for checking if policy is stored on used platform
-  return rpistorage_check_if_stored_policy(policy_id);
+  return unix_check_if_stored_policy(policy_id);
 }
 
 static bool flush_policy(char* policy_id) {
@@ -445,7 +451,7 @@ static bool flush_policy(char* policy_id) {
   }
 
   // Call function for checking if policy is stored on used platform
-  return rpistorage_flush_policy(policy_id);
+  return unix_flush_policy(policy_id);
 }
 
 static bool acquire_pol_obj_len(char* policy_id, int* pol_obj_len) {
@@ -456,7 +462,7 @@ static bool acquire_pol_obj_len(char* policy_id, int* pol_obj_len) {
   }
 
   // Call function for geting if policy object length
-  *pol_obj_len = rpistorage_get_pol_obj_len(policy_id);
+  *pol_obj_len = unix_get_pol_obj_len(policy_id);
 
   return TRUE;
 }
@@ -471,7 +477,7 @@ static bool acquire_all_policies(pap_policy_id_list_t** pol_list_head) {
   pap_policy_id_list_t* temp = NULL;
   FILE* f;
 
-  f = fopen("../plugins/pap/platforms/unix/policies/stored_policies.txt", "r");
+  f = fopen("stored_policies/stored_policies.txt", "r");
   if (f == NULL) {
     printf("\nERROR[%s]: No stored policies info file.\n", __FUNCTION__);
     return FALSE;

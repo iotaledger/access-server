@@ -19,18 +19,28 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-set(target plugin_manager)
+project(access_reference_implementation)
 
-set(sources
-  plugin.c
-  plugin_manager.c
-  plugin_logger.c
+set(target main)
+
+set(libs
+  sqlite3
+  json_parser
+  vehicle_dataset
+  network
+  misc
+  access_actor)
+
+add_executable(${target} main.c)
+target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(${target} PUBLIC ${libs})
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.ini
+  ${CMAKE_CURRENT_BINARY_DIR} COPYONLY
 )
 
-set(include_dirs
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${iota_common_SOURCE_DIR}
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/wallet_pem.txt
+  ${CMAKE_CURRENT_BINARY_DIR} COPYONLY
 )
 
-add_library(${target} ${sources})
-target_include_directories(${target} PUBLIC ${include_dirs})
+add_subdirectory(plugins)
