@@ -28,11 +28,13 @@
 #include "pep_plugin_print.h"
 #include "pap_plugin_unix.h"
 
+#define MAX_CLIENT_NAME 32
 #define MAX_STR_LEN 512
 #define SEED_LEN 81+1
 #define MAX_PEM_LEN 4 * 1024
 
-int g_task_sleep_time = 1000;
+static char client_name[MAX_CLIENT_NAME];
+int g_task_sleep_time;
 
 static volatile int running = 1;
 static void signal_handler(int _) { running = 0; }

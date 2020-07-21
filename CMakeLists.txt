@@ -19,7 +19,7 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-project(Access)
+project(access_sdk)
 
 # fetch pigpio
 include(FetchContent)
@@ -76,21 +76,4 @@ add_subdirectory(plugins)
 add_subdirectory(wallet)
 add_subdirectory(utils)
 add_subdirectory(tests)
-
-set(target main)
-
-set(libs
-  sqlite3
-  json_parser
-  vehicle_dataset
-  network
-  misc
-  access_actor)
-
-add_executable(${target} main.c)
-target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(${target} PUBLIC ${libs})
-
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.ini
-  ${CMAKE_CURRENT_BINARY_DIR} COPYONLY
-)
+add_subdirectory(reference_implementation)
