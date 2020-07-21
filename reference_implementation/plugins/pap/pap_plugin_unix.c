@@ -82,7 +82,7 @@ typedef enum {
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
-static bool rpistorage_store_policy(char* policy_id, char* policy_object, int policy_object_size, char* policy_cost,
+static bool unix_store_policy(char* policy_id, char* policy_object, int policy_object_size, char* policy_cost,
                                     char* signature, char* public_key, char* signature_algorithm, char* hash_function) {
   char pol_path[RPI_MAX_STR_LEN] = {0};
   char pol_id_str[RPI_POL_ID_MAX_LEN * 2 + 1] = {0};
@@ -148,7 +148,7 @@ static bool rpistorage_store_policy(char* policy_id, char* policy_object, int po
   return TRUE;
 }
 
-static bool rpistorage_acquire_policy(char* policy_id, char* policy_object, int* policy_object_size, char* policy_cost,
+static bool unix_acquire_policy(char* policy_id, char* policy_object, int* policy_object_size, char* policy_cost,
                                       char* signature, char* public_key, char* signature_algorithm,
                                       char* hash_function) {
   char pol_path[RPI_MAX_STR_LEN] = {0};
@@ -222,7 +222,7 @@ static bool rpistorage_acquire_policy(char* policy_id, char* policy_object, int*
   return TRUE;
 }
 
-static bool rpistorage_check_if_stored_policy(char* policy_id) {
+static bool unix_check_if_stored_policy(char* policy_id) {
   char pol_path[RPI_MAX_STR_LEN] = {0};
   char pol_id_str[RPI_POL_ID_MAX_LEN * 2 + 1] = {0};
 
@@ -249,7 +249,7 @@ static bool rpistorage_check_if_stored_policy(char* policy_id) {
   }
 }
 
-static bool rpistorage_flush_policy(char* policy_id) {
+static bool unix_flush_policy(char* policy_id) {
   char pol_path[RPI_MAX_STR_LEN] = {0};
   char pol_id_str[RPI_POL_ID_MAX_LEN * 2 + 1] = {0};
   char* stored_pol_buff = NULL;
@@ -318,7 +318,7 @@ static bool rpistorage_flush_policy(char* policy_id) {
   }
 }
 
-static int rpistorage_get_pol_obj_len(char* policy_id) {
+static int unix_get_pol_obj_len(char* policy_id) {
   char pol_path[RPI_MAX_STR_LEN] = {0};
   char pol_id_str[RPI_POL_ID_MAX_LEN * 2 + 1] = {0};
   char* buffer;
@@ -391,7 +391,7 @@ static bool store_policy(char* policy_id, pap_policy_object_t policy_object,
   }
 
   // Call function for storing policy on used platform
-  return rpistorage_store_policy(policy_id, policy_object.policy_object, policy_object.policy_object_size,
+  return unix_store_policy(policy_id, policy_object.policy_object, policy_object.policy_object_size,
                                  policy_object.cost, policy_id_signature.signature, policy_id_signature.public_key,
                                  sign_algorithm, hash_function);
 }
@@ -408,7 +408,7 @@ static bool acquire_policy(char* policy_id, pap_policy_object_t* policy_object,
   }
 
   // Call function for storing policy on used platform
-  if (rpistorage_acquire_policy(policy_id, policy_object->policy_object, &(policy_object->policy_object_size),
+  if (unix_acquire_policy(policy_id, policy_object->policy_object, &(policy_object->policy_object_size),
                                 policy_object->cost, policy_id_signature->signature, policy_id_signature->public_key,
                                 sign_algorithm, hash_function) == FALSE) {
     printf("\nERROR[%s]: Could not acquire policy from R-Pi.\n", __FUNCTION__);
@@ -440,7 +440,7 @@ bool check_if_stored_policy(char* policy_id) {
   }
 
   // Call function for checking if policy is stored on used platform
-  return rpistorage_check_if_stored_policy(policy_id);
+  return unix_check_if_stored_policy(policy_id);
 }
 
 static bool flush_policy(char* policy_id) {
@@ -451,7 +451,7 @@ static bool flush_policy(char* policy_id) {
   }
 
   // Call function for checking if policy is stored on used platform
-  return rpistorage_flush_policy(policy_id);
+  return unix_flush_policy(policy_id);
 }
 
 static bool acquire_pol_obj_len(char* policy_id, int* pol_obj_len) {
@@ -462,7 +462,7 @@ static bool acquire_pol_obj_len(char* policy_id, int* pol_obj_len) {
   }
 
   // Call function for geting if policy object length
-  *pol_obj_len = rpistorage_get_pol_obj_len(policy_id);
+  *pol_obj_len = unix_get_pol_obj_len(policy_id);
 
   return TRUE;
 }
