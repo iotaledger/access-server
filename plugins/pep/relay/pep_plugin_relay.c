@@ -47,7 +47,7 @@
 #define POLICY_ID_SIZE 64
 #define ADDR_SIZE 128
 
-typedef int (*action_t)(pdp_action_t* action, int should_log);
+typedef int (*action_t)(pdp_action_t* action);
 
 typedef struct {
   char action_names[MAX_ACTIONS][ACTION_NAME_SIZE];
@@ -81,20 +81,18 @@ static int action_cb(plugin_t* plugin, void* data) {
   pep_plugin_args_t* args = (pep_plugin_args_t*)data;
   pdp_action_t* action = &args->action;
   char* obligation = args->obligation;
-  bool should_log = FALSE;
   char buf[RES_BUFF_LEN];
   int status = 0;
 
   // handle obligations
-  if (0 == memcmp(obligation, "obligation#1", strlen("obligation#1"))) {
-    should_log = TRUE;
-  }
+  //if (0 == memcmp(obligation, "obligation#1", strlen("obligation#1"))) {
+  //}
 
   // execute action
   for (int i = 0; i < g_action_set.count; i++) {
     if (memcmp(action->value, g_action_set.action_names[i], strlen(g_action_set.action_names[i])) == 0) {
       log_info(plugin_logger_id, "[%s:%d] Action performed: %s\n", __func__, __LINE__, action->value);
-      status = g_action_set.actions[i](action, should_log);
+      status = g_action_set.actions[i](action);
       break;
     }
   }
