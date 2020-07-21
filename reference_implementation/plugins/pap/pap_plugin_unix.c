@@ -43,6 +43,7 @@
 #include <unistd.h>
 #include "pap.h"
 #include "utils.h"
+#include <sys/stat.h>
 
 /****************************************************************************
  * MACROS
@@ -100,7 +101,12 @@ static bool rpistorage_store_policy(char* policy_id, char* policy_object, int po
   }
 
   // Write policy data to a file
-  sprintf(pol_path, "../../plugins/pap/platforms/unix/policies/%s.txt", pol_id_str);
+  struct stat st = {0};
+  if (stat("stored_policies", &st) == -1) {
+    mkdir("stored_policies", 0700);
+  }
+
+  sprintf(pol_path, "stored_policies/%s.txt", pol_id_str);
   f = fopen(pol_path, "w+");
   if (f == NULL) {
     printf("\nERROR[%s]: Invalid path to file.\n", __FUNCTION__);
@@ -126,7 +132,7 @@ static bool rpistorage_store_policy(char* policy_id, char* policy_object, int po
 
   // Store policy ID in stored policies file
   memset(pol_path, 0, RPI_MAX_STR_LEN * sizeof(char));
-  sprintf(pol_path, "../../plugins/pap/platforms/unix/policies/stored_policies.txt");
+  sprintf(pol_path, "stored_policies/stored_policies.txt");
 
   f = fopen(pol_path, "a");
   if (f == NULL) {
@@ -166,7 +172,7 @@ static bool rpistorage_acquire_policy(char* policy_id, char* policy_object, int*
   }
 
   // Open file
-  sprintf(pol_path, "../../plugins/pap/platforms/unix/policies/%s.txt", pol_id_str);
+  sprintf(pol_path, "stored_policies/%s.txt", pol_id_str);
   f = fopen(pol_path, "r");
   if (f == NULL) {
     printf("\nERROR[%s]: Invalid path to file.\n", __FUNCTION__);
@@ -231,7 +237,7 @@ static bool rpistorage_check_if_stored_policy(char* policy_id) {
     return FALSE;
   }
 
-  sprintf(pol_path, "../../plugins/pap/platforms/unix/policies/%s.txt", pol_id_str);
+  sprintf(pol_path, "stored_policies/%s.txt", pol_id_str);
 
   // Check file existance
   if (access(pol_path, F_OK) != RPI_ACCESS_ERR) {
@@ -262,12 +268,12 @@ static bool rpistorage_flush_policy(char* policy_id) {
     return FALSE;
   }
 
-  sprintf(pol_path, "../../plugins/pap/platforms/unix/policies/%s.txt", pol_id_str);
+  sprintf(pol_path, "stored_policies/%s.txt", pol_id_str);
 
   if (remove(pol_path) == 0) {
     // Remove policy ID from stored policies file
     memset(pol_path, 0, RPI_MAX_STR_LEN * sizeof(char));
-    sprintf(pol_path, "../../plugins/pap/platforms/unix/policies/stored_policies.txt");
+    sprintf(pol_path, "stored_policies/stored_policies.txt");
     f = fopen(pol_path, "r");
     if (f == NULL) {
       printf("\nERROR[%s]: Invalid path to stored_policies file.\n", __FUNCTION__);
@@ -332,7 +338,7 @@ static int rpistorage_get_pol_obj_len(char* policy_id) {
   }
 
   // Open file
-  sprintf(pol_path, "../../plugins/pap/platforms/unix/policies/%s.txt", pol_id_str);
+  sprintf(pol_path, "stored_policies/%s.txt", pol_id_str);
   f = fopen(pol_path, "r");
   if (f == NULL) {
     printf("\nERROR[%s]: Invalid path to file.\n", __FUNCTION__);
@@ -471,7 +477,7 @@ static bool acquire_all_policies(pap_policy_id_list_t** pol_list_head) {
   pap_policy_id_list_t* temp = NULL;
   FILE* f;
 
-  f = fopen("../../plugins/pap/platforms/unix/policies/stored_policies.txt", "r");
+  f = fopen("stored_policies/stored_policies.txt", "r");
   if (f == NULL) {
     printf("\nERROR[%s]: No stored policies info file.\n", __FUNCTION__);
     return FALSE;

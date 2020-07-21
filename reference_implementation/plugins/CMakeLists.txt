@@ -19,28 +19,8 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-project(access_reference_implementation)
-
-set(target main)
-
-set(libs
-  sqlite3
-  json_parser
-  vehicle_dataset
-  network
-  misc
-  access_actor)
-
-add_executable(${target} main.c)
-target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(${target} PUBLIC ${libs})
-
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.ini
-  ${CMAKE_CURRENT_BINARY_DIR} COPYONLY
-)
-
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/wallet_pem.txt
-  ${CMAKE_CURRENT_BINARY_DIR} COPYONLY
-)
-
-add_subdirectory(plugins)
+add_subdirectory(dataset)
+add_subdirectory(platform_interface)
+add_subdirectory(pap)
+add_subdirectory(pip)
+add_subdirectory(pep)
