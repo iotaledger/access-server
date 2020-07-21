@@ -107,8 +107,8 @@ static int action_cb(plugin_t* plugin, void* data) {
   return status;
 }
 
-int pep_plugin_print_initializer(plugin_t* plugin, void* options) {
-  dev_wallet = wallet_create(NODE_URL, NODE_PORT, amazon_ca1_pem, NODE_DEPTH, NODE_MWM, WALLET_SEED);
+int pep_plugin_print_initializer(plugin_t* plugin, void* wallet_context) {
+  dev_wallet = wallet_context;
   if (dev_wallet == NULL) {
     printf("\nERROR[%s]: Wallet creation failed.\n", __FUNCTION__);
     return -1;

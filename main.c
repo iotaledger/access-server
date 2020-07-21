@@ -29,6 +29,9 @@
 #include "pap_plugin_unix.h"
 
 #define MAX_CLIENT_NAME 32
+#define MAX_STR_LEN 512
+#define SEED_LEN 81+1
+#define MAX_PEM_LEN 4 * 1024
 
 static char client_name[MAX_CLIENT_NAME];
 int g_task_sleep_time;
@@ -36,11 +39,50 @@ int g_task_sleep_time;
 static volatile int running = 1;
 static void signal_handler(int _) { running = 0; }
 
-static network_ctx_t network_context = 0;
-static access_ctx_t access_context = 0;
+static network_ctx_t network_context;
+static access_ctx_t access_context;
+static wallet_ctx_t *wallet_context;
+
+int wallet_init(){
+  char node_url[MAX_STR_LEN] = {0};
+  char seed[SEED_LEN] = {0};
+  uint8_t node_mwm;
+  uint16_t port;
+  uint32_t node_depth;
+  char pem_file[MAX_STR_LEN] = {0};
+  char ca_pem[MAX_PEM_LEN] = {0};
+
+  config_manager_get_option_string("wallet", "url", node_url, MAX_STR_LEN);
+  config_manager_get_option_string("wallet", "seed", seed, 81 + 1);
+  config_manager_get_option_string("wallet", "pem_file_path", pem_file, MAX_STR_LEN);
+  config_manager_get_option_int("wallet", "mwm", (int*)&node_mwm);
+  config_manager_get_option_int("wallet", "port", (int*)&port);
+  config_manager_get_option_int("wallet", "depth", (int*)&node_depth);
+
+  if (strlen(pem_file) == 0) {
+    printf("\nERROR[%s]: PEM file for wallet not defined in config.\n", __FUNCTION__);
+    return -1;
+  }
+
+  FILE* f = fopen(pem_file, "r");
+  if (f == NULL) {
+    printf("\nERROR[%s]: PEM file (%s) not found.\n", __FUNCTION__, pem_file);
+    return -1;
+  }
+  fread(ca_pem, MAX_PEM_LEN, 1, f);
+  fclose(f);
+
+  wallet_context = wallet_create(node_url, port, ca_pem, node_depth, node_mwm, seed);
+  if (wallet_context == NULL) {
+    printf("\nERROR[%s]: Wallet creation failed.\n", __FUNCTION__);
+    return -1;
+  }
+
+  return 0;
+}
 
 int main(int argc, char **argv) {
-  dataset_state_t ddstate;
+  config_manager_init("config.ini");
 
   signal(SIGINT, signal_handler);
   sigaction(SIGPIPE, &(struct sigaction){SIG_IGN}, NULL);
@@ -52,11 +94,14 @@ int main(int argc, char **argv) {
   if (status != CONFIG_MANAGER_OK) g_task_sleep_time = 1000;  // 1 second
 
   access_init(&access_context);
+  if (wallet_init() != 0){
+    printf("\nERROR[%s]: Wallet creation failed. Aborting.\n", __FUNCTION__);
+  }
 
   // register plugins
   plugin_t plugin;
 
-  if (plugin_init(&plugin, pep_plugin_print_initializer, NULL) == 0) {
+  if (plugin_init(&plugin, pep_plugin_print_initializer, wallet_context) == 0) {
     access_register_pep_plugin(access_context, &plugin);
   }
 
@@ -81,6 +126,8 @@ int main(int argc, char **argv) {
 
   // Deinit modules
   access_deinit(access_context);
+
+  wallet_destory(&wallet_context);
 
   return 0;
 }
