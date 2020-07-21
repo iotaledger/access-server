@@ -2,7 +2,7 @@
  * This file is part of the Frost distribution
  * (https://github.com/xainag/frost)
  *
- * Copyright (c) 2019 XAIN AG.
+ * Copyright (c) 2020 IOTA Stiftung
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -260,7 +260,7 @@ static void *gps_thread_loop(void *ptr) {
 }
 
 int gpsreceiver_init(pthread_mutex_t *json_mutex) {
-  configmanager_get_option_string("gps_recv", "serialportname", targs.portname, GPS_PORTNAME_LEN);
+  config_manager_get_option_string("gps_recv", "serialportname", targs.portname, GPS_PORTNAME_LEN);
 
   datadumper_add_module_init_cb(gps_json_filler, &fj_obj_gps, GPS_JSON_NAME);
 

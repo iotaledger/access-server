@@ -2,7 +2,7 @@
  * This file is part of the Frost distribution
  * (https://github.com/xainag/frost)
  *
- * Copyright (c) 2019 XAIN AG.
+ * Copyright (c) 2020 IOTA Stiftung
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -110,7 +110,7 @@ static fjson_object* modbus_json_filler() {
 
 void modbusreceiver_init(canopen01_vehicle_dataset_t* dataset, pthread_mutex_t* json_mutex) {
   char buff[MODBUS_BUFF_LEN] = {0};
-  configmanager_get_option_string("modbus", "serial_device", targs.serial_device, MODBUS_SERIAL_DEV_LEN);
+  config_manager_get_option_string("modbus", "serial_device", targs.serial_device, MODBUS_SERIAL_DEV_LEN);
 
   datadumper_add_module_init_cb(modbus_json_filler, &fj_obj_modbus, MODBUS_JSON_NAME);
 

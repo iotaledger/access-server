@@ -176,12 +176,12 @@ int pip_plugin_wallet_initializer(plugin_t *plugin, void *user_data) {
   char pem_file[TRANS_MAX_STR_LEN] = {0};
   char ca_pem[TRANS_MAX_PEM_LEN] = {0};
 
-  configmanager_get_option_string("wallet", "url", node_url, TRANS_MAX_STR_LEN);
-  configmanager_get_option_string("wallet", "seed", seed, TRANS_SEED_LEN);
-  configmanager_get_option_string("wallet", "pem_file_path", pem_file, TRANS_MAX_STR_LEN);
-  configmanager_get_option_int("wallet", "mwm", (int *)&node_mwm);
-  configmanager_get_option_int("wallet", "port", (int *)&port);
-  configmanager_get_option_int("wallet", "depth", (int *)&node_depth);
+  config_manager_get_option_string("wallet", "url", node_url, TRANS_MAX_STR_LEN);
+  config_manager_get_option_string("wallet", "seed", seed, TRANS_SEED_LEN);
+  config_manager_get_option_string("wallet", "pem_file_path", pem_file, TRANS_MAX_STR_LEN);
+  config_manager_get_option_int("wallet", "mwm", (int *)&node_mwm);
+  config_manager_get_option_int("wallet", "port", (int *)&port);
+  config_manager_get_option_int("wallet", "depth", (int *)&node_depth);
 
   if (strlen(pem_file) == 0) {
     printf("\nERROR[%s]: PEM file for wallet not defined in config.\n", __FUNCTION__);

@@ -1,6 +1,6 @@
 /*
  * This file is part of the DAC distribution (https://github.com/xainag/frost)
- * Copyright (c) 2019 XAIN AG.
+ * Copyright (c) 2020 IOTA Stiftung
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

@@ -146,11 +146,11 @@ void policyupdater_get_policy(char *policy_id, char *p_policy) {
 }
 
 void policyupdater_init() {
-  configmanager_get_option_string("pap", "policy_store_service_ip", g_policy_updater_address,
+  config_manager_get_option_string("pap", "policy_store_service_ip", g_policy_updater_address,
                                   POLICY_UPDATER_ADDRESS_SIZE);
-  configmanager_get_option_int("pap", "policy_store_service_port", &g_policy_updater_port);
-  configmanager_get_option_string("pap", "user_ip", g_user_address, POLICY_UPDATER_ADDRESS_SIZE);
-  configmanager_get_option_int("pap", "user_port", &g_user_port);
+  config_manager_get_option_int("pap", "policy_store_service_port", &g_policy_updater_port);
+  config_manager_get_option_string("pap", "user_ip", g_user_address, POLICY_UPDATER_ADDRESS_SIZE);
+  config_manager_get_option_int("pap", "user_port", &g_user_port);
 }
 
 int policyupdater_start() {}

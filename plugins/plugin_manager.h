@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 
-#ifndef _PLUGINMANAGER_H_
-#define _PLUGINMANAGER_H_
+#ifndef _PLUGIN_MANAGER_H_
+#define _PLUGIN_MANAGER_H_
 
 #include "plugin.h"
 
@@ -26,10 +26,10 @@ typedef struct {
   plugin_t* plugins;
   size_t plugins_num;
   size_t plugins_max_num;
-} pluginmanager_t;
+} plugin_manager_t;
 
-int pluginmanager_init(pluginmanager_t*, size_t plugins_max_num);
-int pluginmanager_register(pluginmanager_t*, plugin_t*);
-int pluginmanager_get(pluginmanager_t*, size_t idx, plugin_t**);
+int plugin_manager_init(plugin_manager_t*, size_t plugins_max_num);
+int plugin_manager_register(plugin_manager_t*, plugin_t*);
+int plugin_manager_get(plugin_manager_t*, size_t idx, plugin_t**);
 
-#endif
+#endif //_PLUGIN_MANAGER_H_

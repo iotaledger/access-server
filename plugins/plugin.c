@@ -18,10 +18,18 @@
  */
 
 #include "plugin.h"
+#include "plugin_logger.h"
 
 #include <stdio.h>
 
-int plugin_init(plugin_t *plugin, plugin_cb initializer, void *data) { initializer(plugin, data); }
+int plugin_init(plugin_t *plugin, plugin_cb initializer, void *data) {
+  if (plugin_logger_id == NULL){
+    logger_helper_init(LOGGER_INFO);
+    logger_init_plugin(LOGGER_INFO);
+  }
+
+  initializer(plugin, data);
+}
 
 int plugin_destroy(plugin_t *plugin) { return plugin->destroy(plugin, NULL); }
 

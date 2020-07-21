@@ -2,7 +2,7 @@
  * This file is part of the Frost distribution
  * (https://github.com/xainag/frost)
  *
- * Copyright (c) 2019 XAIN AG.
+ * Copyright (c) 2020 IOTA Stiftung
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@
 #include "asn_debug.h"
 #include "asn_internal.h"
 #include "asn_utils.h"
+#include "asn_logger.h"
 
 /////////////////////////////////////
 /// Macros and defines
@@ -119,7 +120,7 @@ int authserver_compute(asn_ctx_t *session) {
   // Server computes signature s = sign( sks, h )
   int signature_computed = asnutils_compute_signature_s(s_signed, session, ASN_GET_INTERNAL_EXCHANGE_HASH(session));
   if (signature_computed == 1) {
-    dlog_printf("\nERROR signing failed\n");
+    log_error(asn_logger_id, "[%s:%d] signing failed.\n", __func__, __LINE__);
 
     return next_stage;
   }
@@ -153,9 +154,9 @@ int authserver_compute(asn_ctx_t *session) {
       (read_second_message == PUBLIC_KEY_L + SIGNED_MESSAGE_L) && (key_verified == 0) && (hc_computed == 0) &&
       (signature_verified == 0)) {
     next_stage = AUTH_FINISH;
-    dlog_printf("\nAuthentication successful\n");
+    log_info(asn_logger_id, "[%s:%d] Authentication successful.\n", __func__, __LINE__);
   } else {
-    dlog_printf("\nERROR authentication failed\n");
+    log_error(asn_logger_id, "[%s:%d] Authentication failed.\n", __func__, __LINE__);
   }
 
   return next_stage;

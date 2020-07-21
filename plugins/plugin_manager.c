@@ -17,19 +17,19 @@
  * limitations under the License.
  */
 
-#include "pluginmanager.h"
+#include "plugin_manager.h"
 
 #include <stdlib.h>
 #include <string.h>
 
-int pluginmanager_init(pluginmanager_t* pluginmgr, size_t plugins_max_num) {
-  pluginmgr->plugins = malloc(sizeof(plugin_t) * plugins_max_num);
-  pluginmgr->plugins_num = 0;
-  pluginmgr->plugins_max_num = plugins_max_num;
+int plugin_manager_init(plugin_manager_t* plugin_manager, size_t plugins_max_num) {
+  plugin_manager->plugins = malloc(sizeof(plugin_t) * plugins_max_num);
+  plugin_manager->plugins_num = 0;
+  plugin_manager->plugins_max_num = plugins_max_num;
   return 0;
 }
 
-int pluginmanager_register(pluginmanager_t* pm, plugin_t* plugin) {
+int plugin_manager_register(plugin_manager_t* pm, plugin_t* plugin) {
   if (pm->plugins_num < pm->plugins_max_num && plugin != NULL) {
     memcpy(&pm->plugins[pm->plugins_num], plugin, sizeof(plugin_t));
     pm->plugins_num++;
@@ -39,7 +39,7 @@ int pluginmanager_register(pluginmanager_t* pm, plugin_t* plugin) {
   }
 }
 
-int pluginmanager_get(pluginmanager_t* pm, size_t idx, plugin_t** plugin) {
+int plugin_manager_get(plugin_manager_t* pm, size_t idx, plugin_t** plugin) {
   if ((pm->plugins_num > 0) && (idx < pm->plugins_num)) {
     *plugin = &pm->plugins[idx];
     return 0;

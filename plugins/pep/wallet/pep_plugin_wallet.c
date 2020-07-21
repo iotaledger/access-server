@@ -2,7 +2,7 @@
  * This file is part of the IOTA Access distribution
  * (https://github.com/iotaledger/access)
  *
- * Copyright (c) 2020 IOTA Foundation
+ * Copyright (c) 2020 IOTA Stiftung
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,7 +70,7 @@ typedef struct serv_confirm {
   bool transaction_confirmed;
 } transaction_serv_confirm_t;
 
-typedef int (*action_t)(pdp_action_t* action, int should_log);
+typedef int (*action_t)(pdp_action_t* action);
 
 typedef struct {
   char action_names[RES_MAX_RESOLVER_ACTIONS][RES_ACTION_NAME_SIZE];
@@ -91,13 +91,13 @@ static void transaction_confirmation(uint32_t time, bool is_confirmed, pthread_t
 static bool transaction_store_transaction(char* policy_id, int policy_id_len, char* transaction_hash,
                                           int transaction_hash_len);
 
-static int demo_wallet_transfer_tokens(pdp_action_t* action, int should_log) {
+static int demo_wallet_transfer_tokens(pdp_action_t* action) {
   char bundle[81];
   wallet_send(dev_wallet, "MXHYKULAXKWBY9JCNVPVSOSZHMBDJRWTTXZCTKHLHKSJARDADHJSTCKVQODBVWCYDNGWFGWVTUVENB9UA", action->balance, NULL, bundle);
   return 0;
 }
 
-static int demo_wallet_store_transaction(pdp_action_t* action, int should_log) {
+static int demo_wallet_store_transaction(pdp_action_t* action) {
   transaction_store_transaction(action->pol_id_str, RES_POL_ID_STR_LEN, action->transaction_hash,
                                 action->transaction_hash_len);
   return 0;
@@ -114,21 +114,19 @@ static int action_cb(plugin_t* plugin, void* data) {
   pep_plugin_args_t* args = (pep_plugin_args_t*)data;
   pdp_action_t* action = &args->action;
   char* obligation = args->obligation;
-  bool should_log = FALSE;
   char buf[RES_BUFF_LEN];
   int status = 0;
 
   // handle obligations
-  if (0 == memcmp(obligation, "log_event", strlen("log_event"))) {
-    should_log = TRUE;
-  }
+  //if (0 == memcmp(obligation, "obligation#1", strlen("obligation#1"))) {
+  //}
 
   // execute action
   for (int i = 0; i < g_action_set.count; i++) {
     if (memcmp(action->value, g_action_set.action_names[i], strlen(g_action_set.action_names[i])) == 0) {
       timemanager_get_time_string(buf, RES_BUFF_LEN);
       dlog_printf("%s %s\t<Action performed>\n", buf, action->value);
-      status = g_action_set.actions[i](action, should_log);
+      status = g_action_set.actions[i](action);
       break;
     }
   }
@@ -148,12 +146,12 @@ int pep_plugin_wallet_initializer(plugin_t* plugin, void* options) {
   char pem_file[RES_MAX_STR_LEN] = {0};
   char ca_pem[RES_MAX_PEM_LEN] = {0};
 
-  configmanager_get_option_string("wallet", "url", node_url, RES_MAX_STR_LEN);
-  configmanager_get_option_string("wallet", "seed", seed, RES_SEED_LEN);
-  configmanager_get_option_string("wallet", "pem_file_path", pem_file, RES_MAX_STR_LEN);
-  configmanager_get_option_int("wallet", "mwm", (int*)&node_mwm);
-  configmanager_get_option_int("wallet", "port", (int*)&port);
-  configmanager_get_option_int("wallet", "depth", (int*)&node_depth);
+  config_manager_get_option_string("wallet", "url", node_url, RES_MAX_STR_LEN);
+  config_manager_get_option_string("wallet", "seed", seed, RES_SEED_LEN);
+  config_manager_get_option_string("wallet", "pem_file_path", pem_file, RES_MAX_STR_LEN);
+  config_manager_get_option_int("wallet", "mwm", (int*)&node_mwm);
+  config_manager_get_option_int("wallet", "port", (int*)&port);
+  config_manager_get_option_int("wallet", "depth", (int*)&node_depth);
 
   if (strlen(pem_file) == 0) {
     printf("\nERROR[%s]: PEM file for wallet not defined in config.\n", __FUNCTION__);

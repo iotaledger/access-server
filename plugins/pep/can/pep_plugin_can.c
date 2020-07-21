@@ -2,7 +2,7 @@
  * This file is part of the IOTA Access distribution
  * (https://github.com/iotaledger/access)
  *
- * Copyright (c) 2020 IOTA Foundation
+ * Copyright (c) 2020 IOTA Stiftung
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@
 #define POLICY_ID_SIZE 64
 #define ADDR_SIZE 128
 
-typedef int (*action_t)(pdp_action_t* action, int should_log);
+typedef int (*action_t)(pdp_action_t* action);
 
 typedef struct {
   char action_names[MAX_ACTIONS][ACTION_NAME_SIZE];
@@ -59,22 +59,22 @@ typedef struct {
 
 static action_set_t g_action_set;
 
-static int car_lock(pdp_action_t* action, int should_log) {
+static int car_lock(pdp_action_t* action) {
   relayinterface_pulse(0);
   return 0;
 }
 
-static int car_unlock(pdp_action_t* action, int should_log) {
+static int car_unlock(pdp_action_t* action) {
   relayinterface_pulse(1);
   return 0;
 }
 
-static int start_engine(pdp_action_t* action, int should_log) {
+static int start_engine(pdp_action_t* action) {
   relayinterface_pulse(2);
   return 0;
 }
 
-static int open_trunk(pdp_action_t* action, int should_log) {
+static int open_trunk(pdp_action_t* action) {
   relayinterface_pulse(3);
   return 0;
 }
@@ -85,21 +85,19 @@ static int action_cb(plugin_t* plugin, void* data) {
   pep_plugin_args_t* args = (pep_plugin_args_t*)data;
   pdp_action_t* action = &args->action;
   char* obligation = args->obligation;
-  bool should_log = FALSE;
   char buf[RES_BUFF_LEN];
   int status = 0;
 
   // handle obligations
-  if (0 == memcmp(obligation, "log_event", strlen("log_event"))) {
-    should_log = TRUE;
-  }
+  //if (0 == memcmp(obligation, "obligation#1", strlen("obligation#1"))) {
+  //}
 
   // execute action
   for (int i = 0; i < g_action_set.count; i++) {
     if (memcmp(action->value, g_action_set.action_names[i], strlen(g_action_set.action_names[i])) == 0) {
       timemanager_get_time_string(buf, RES_BUFF_LEN);
       dlog_printf("%s %s\t<Action performed>\n", buf, action->value);
-      status = g_action_set.actions[i](action, should_log);
+      status = g_action_set.actions[i](action);
       break;
     }
   }

@@ -2,7 +2,7 @@
  * This file is part of the Frost distribution
  * (https://github.com/xainag/frost)
  *
- * Copyright (c) 2019 XAIN AG.
+ * Copyright (c) 2020 IOTA Stiftung
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -506,8 +506,8 @@ void canopenreceiver_init(canopen01_vehicle_dataset_t *dataset, pthread_mutex_t 
   wanted_signals = dataset;
   datadumper_add_module_init_cb(can_json_filler, &fj_obj_canopen, CANOPEN_JSON_NAME);
   json_sync_lock = datadumper_get_mutex();
-  configmanager_get_option_string("canopen", "port_name", port_name, CANOPEN_MAX_STR_SIZE);
-  configmanager_get_option_int("canopen", "node_id", &node_id);
+  config_manager_get_option_string("canopen", "port_name", port_name, CANOPEN_MAX_STR_SIZE);
+  config_manager_get_option_int("canopen", "node_id", &node_id);
   canthread_init(&can_instance, port_name, can_read_callback);
   is_in_use = TRUE;
 }

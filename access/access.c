@@ -31,6 +31,7 @@
 #include "policy_loader.h"
 #include "timer.h"
 
+// placeholder context structure
 typedef struct {
 } access_ctx_t_;
 
