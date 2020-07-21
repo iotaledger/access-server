@@ -1,33 +1,33 @@
-#ifndef _PAPPLUGIN_H_
-#define _PAPPLUGIN_H_
+#ifndef _PAP_PLUGIN_H_
+#define _PAP_PLUGIN_H_
 
 #include "pap.h"
 
-#define PAPPLUGIN_MAX_COUNT 5
+#define PAP_PLUGIN_MAX_COUNT 5
 
 typedef enum {
-  PAPPLUGIN_PUT_CB = 0,
-  PAPPLUGIN_GET_CB,
-  PAPPLUGIN_HAS_CB,
-  PAPPLUGIN_DEL_CB,
-  PAPPLUGIN_GET_POL_OBJ_LEN_CB,
-  PAPPLUGIN_GET_ALL_CB,
-  PAPPLUGIN_CALLBACK_COUNT
-} papplugin_e;
+  PAP_PLUGIN_PUT_CB = 0,
+  PAP_PLUGIN_GET_CB,
+  PAP_PLUGIN_HAS_CB,
+  PAP_PLUGIN_DEL_CB,
+  PAP_PLUGIN_GET_POL_OBJ_LEN_CB,
+  PAP_PLUGIN_GET_ALL_CB,
+  PAP_PLUGIN_CALLBACK_COUNT
+} pap_plugin_e;
 
 typedef struct {
   char policy_id[PAP_POL_ID_MAX_LEN + 1];
   pap_policy_t* policy;
-} papplugin_get_args_t;
+} pap_plugin_get_args_t;
 
 typedef struct {
   char* policy_id;
   int does_have;
-} papplugin_has_args_t;
+} pap_plugin_has_args_t;
 
 typedef struct {
   char* policy_id;
   int len;
-} papplugin_len_args_t;
+} pap_plugin_len_args_t;
 
 #endif

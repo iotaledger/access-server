@@ -2,7 +2,7 @@
 # This file is part of the IOTA Access distribution
 # (https://github.com/iotaledger/access)
 #
-# Copyright (c) 2020 IOTA Foundation
+# Copyright (c) 2020 IOTA Stiftung
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,14 +19,14 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-project(Access)
+project(access_sdk)
 
 # fetch pigpio
 include(FetchContent)
 FetchContent_Declare(
   pigpio
   GIT_REPOSITORY https://github.com/joan2937/pigpio.git
-  GIT_TAG bb352d2000d8a4f38bab430927a85b7af4f70a01
+  GIT_TAG b6fe5874516eb67745fa6277d2060b715dac09a9
 )
 
 # fetch sqlite-amalgamation
@@ -35,6 +35,14 @@ FetchContent_Declare(
   sqlite3
   GIT_REPOSITORY https://github.com/azadkuh/sqlite-amalgamation.git
   GIT_TAG 9be05e13408dd8cf8dafe8f11b1700a28194e07e
+)
+
+# fetch iota.c
+include(FetchContent)
+FetchContent_Declare(
+        iota.c
+        GIT_REPOSITORY http://github.com/iotaledger/iota.c.git
+        GIT_TAG 5d4433f7b936822f7d4c5bfc4f3e25899f7a3ce8
 )
 
 if(${CMAKE_VERSION} VERSION_LESS 3.14)
@@ -53,6 +61,12 @@ FetchContent_MakeAvailable(pigpio)
 message(STATUS "Fetching sqlite3")
 FetchContent_MakeAvailable(sqlite3)
 
+message(STATUS "Fetching iota.c")
+FetchContent_MakeAvailable(iota.c)
+
+# fetch external libs
+include(ExternalProject)
+
 # Global includes
 include_directories(utils/misc plugins/data/dataset)
 
@@ -62,17 +76,4 @@ add_subdirectory(plugins)
 add_subdirectory(wallet)
 add_subdirectory(utils)
 add_subdirectory(tests)
-
-set(target main)
-
-set(libs
-  sqlite3
-  json_parser
-  vehicle_dataset
-  network
-  misc
-  access_actor)
-
-add_executable(${target} main.c)
-target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(${target} PUBLIC ${libs})
+add_subdirectory(reference_implementation)

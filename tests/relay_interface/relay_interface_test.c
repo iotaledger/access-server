@@ -2,7 +2,7 @@
  * This file is part of the IOTA Access distribution
  * (https://github.com/iotaledger/access)
  *
- * Copyright (c) 2020 IOTA Foundation
+ * Copyright (c) 2020 IOTA Stiftung
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,13 +47,13 @@ int main(int argc, char **argv) {
   }
 
   if (strncmp(argv[1], "on", strlen("on")) == 0) {
-    RelayInterface_on(atoi(argv[2]));
+    relayinterface_on(atoi(argv[2]));
   } else if (strncmp(argv[1], "off", strlen("off")) == 0) {
-    RelayInterface_off(atoi(argv[2]));
+    relayinterface_off(atoi(argv[2]));
   } else if (strncmp(argv[1], "toggle", strlen("toggle")) == 0) {
-    RelayInterface_toggle(atoi(argv[2]));
+    relayinterface_toggle(atoi(argv[2]));
   } else if (strncmp(argv[1], "pulse", strlen("pulse")) == 0) {
-    RelayInterface_pulse(atoi(argv[2]));
+    relayinterface_pulse(atoi(argv[2]));
   } else {
     printf("unrecognized command: '%s'\n", argv[1]);
     printf(

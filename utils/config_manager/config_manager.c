@@ -2,7 +2,7 @@
  * This file is part of the IOTA Access distribution
  * (https://github.com/iotaledger/access)
  *
- * Copyright (c) 2020 IOTA Foundation
+ * Copyright (c) 2020 IOTA Stiftung
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,17 +19,17 @@
 
 #include "config_manager.h"
 
-int configmanager_init(void *in_parameter) { return configmanagerimplementation_init_cb(in_parameter); }
+int config_manager_init(void *in_parameter) { return config_manager_implementation_init_cb(in_parameter); }
 
-int configmanager_get_option_string(const char *module_name, const char *option_name, char *option_value,
+int config_manager_get_option_string(const char *module_name, const char *option_name, char *option_value,
                                     size_t option_size) {
-  return configmanagerimplementation_get_string_cb(module_name, option_name, option_value, option_size);
+  return config_manager_implementation_get_string_cb(module_name, option_name, option_value, option_size);
 }
 
-int configmanager_get_option_int(const char *module_name, const char *option_name, int *option_value) {
-  return configmanagerimplementation_get_int_cb(module_name, option_name, option_value);
+int config_manager_get_option_int(const char *module_name, const char *option_name, int *option_value) {
+  return config_manager_implementation_get_int_cb(module_name, option_name, option_value);
 }
 
-int configmanager_get_option_float(const char *module_name, const char *option_name, float *option_value) {
-  return configmanagerimplementation_get_float_cb(module_name, option_name, option_value);
+int config_manager_get_option_float(const char *module_name, const char *option_name, float *option_value) {
+  return config_manager_implementation_get_float_cb(module_name, option_name, option_value);
 }

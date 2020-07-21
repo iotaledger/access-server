@@ -2,7 +2,7 @@
 # This file is part of the IOTA Access distribution
 # (https://github.com/iotaledger/access)
 #
-# Copyright (c) 2020 IOTA Foundation
+# Copyright (c) 2020 IOTA Stiftung
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ cmake_minimum_required(VERSION 3.11)
 set(target cryptography)
 
 set(sources
+  crypto_logger.c
   sha512.c
   curve25519-donna.c
   aes.c
@@ -37,7 +38,9 @@ set(sources
 
 set(include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/ref)
+  ${CMAKE_CURRENT_SOURCE_DIR}/ref
+  ${iota_common_SOURCE_DIR}
+)
 
 add_library(${target} ${sources})
 target_include_directories(${target} PUBLIC ${include_dirs})

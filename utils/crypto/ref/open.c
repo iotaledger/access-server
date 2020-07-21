@@ -3,6 +3,7 @@
 #include "crypto_verify_32.h"
 #include "dlog.h"
 #include "ge25519.h"
+#include "crypto_logger.h"
 
 /* Packed coordinates of the base point */
 const ge25519 ge25519_base = {
@@ -26,13 +27,13 @@ int crypto_sign_open(unsigned char *m, unsigned long long *mlen, const unsigned 
   sc25519 schram, scs;
 
   if (smlen < 64) {
-    dlog_printf("\nerror 1");
+    log_error(crypto_logger_id, "[%s:%d] Error 1.\n", __func__, __LINE__);
   } else if (sm[63] & 224) {
-    dlog_printf("\nerror 2");
+    log_error(crypto_logger_id, "[%s:%d] Error 2.\n", __func__, __LINE__);
   } else if (ge25519_unpackneg_vartime(&get1, pk)) {
-    dlog_printf("\nerror 3");
+    log_error(crypto_logger_id, "[%s:%d] Error 3.\n", __func__, __LINE__);
   } else {
-    dlog_printf("\nNo error");
+    log_info(crypto_logger_id, "[%s:%d] No error.\n", __func__, __LINE__);
   }
 
   if (smlen < 64) goto badsig;

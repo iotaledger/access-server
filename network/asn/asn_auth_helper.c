@@ -2,7 +2,7 @@
  * This file is part of the Frost distribution
  * (https://github.com/xainag/frost)
  *
- * Copyright (c) 2019 XAIN AG.
+ * Copyright (c) 2020 IOTA Stiftung
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
  */
 
 /****************************************************************************
- * \project Decentralized Access Control
+ * \project IOTA Access
  * \file asn_auth_helper.c
  * \brief
  * Implementation of helper functions for pep module

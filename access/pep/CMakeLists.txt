@@ -2,7 +2,7 @@
 # This file is part of the IOTA Access distribution
 # (https://github.com/iotaledger/access)
 #
-# Copyright (c) 2020 IOTA Foundation
+# Copyright (c) 2020 IOTA Stiftung
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ set(include_dirs ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(libs
   pdp
-  pluginmanager)
+  plugin_manager)
 
 add_library(${target} pep.c)
 target_include_directories(${target} PUBLIC ${include_dirs})

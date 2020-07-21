@@ -2,7 +2,7 @@
 # This file is part of the IOTA Access distribution
 # (https://github.com/iotaledger/access)
 #
-# Copyright (c) 2020 IOTA Foundation
+# Copyright (c) 2020 IOTA Stiftung
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,19 +19,18 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-add_subdirectory(dataset)
-add_subdirectory(platform_interface)
-add_subdirectory(pap)
-add_subdirectory(pip)
-add_subdirectory(pep)
-
-set(target pluginmanager)
+set(target plugin_manager)
 
 set(sources
   plugin.c
-  pluginmanager.c)
+  plugin_manager.c
+  plugin_logger.c
+)
 
-set(include_dirs ${CMAKE_CURRENT_SOURCE_DIR})
+set(include_dirs
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${iota_common_SOURCE_DIR}
+)
 
 add_library(${target} ${sources})
 target_include_directories(${target} PUBLIC ${include_dirs})

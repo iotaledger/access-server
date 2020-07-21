@@ -4,11 +4,14 @@
 #include "pdp.h"
 #include "pep.h"
 
-typedef enum { PEPPLUGIN_ACTION_CB = 0, PEPPLUGIN_CALLBACK_COUNT } pepplugin_e;
+typedef enum {
+  PEP_PLUGIN_ACTION_CB = 0,
+  PEP_PLUGIN_CALLBACK_COUNT
+} pep_plugin_e;
 
 typedef struct {
   pdp_action_t action;
   char obligation[PDP_OBLIGATION_LEN];
-} pepplugin_args_t;
+} pep_plugin_args_t;
 
 #endif

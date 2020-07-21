@@ -1,5 +1,5 @@
 /****************************************************************************
- *  Copyright (c) 2018 XAIN
+ *  Copyright (c) 2020 IOTA Stiftung
  *
  *  All Rights Reserved
  *
@@ -9,7 +9,7 @@
  *  https://xain.io/
  *  -----------------------------------------------------
  *
- * \project Decentralized Access Control
+ * \project IOTA Access
  * \file asn_utils.h
  * \brief
  * Header file with function definitions for ASN authentication.

@@ -18,6 +18,7 @@
  */
 
 #include "policy_loader.h"
+#include "policy_loader_logger.h"
 
 #include <pthread.h>
 #include <stdlib.h>
@@ -25,7 +26,6 @@
 #include <unistd.h>
 
 #include "config_manager.h"
-#include "dlog.h"
 #include "json_helper.h"
 #include "pap.h"
 #include "time_manager.h"
@@ -33,7 +33,7 @@
 
 #include "policy_updater.h"
 
-#define POLICY_LOADER_REPLY_LIST_SIZE (1024)
+#define POLICY_LOADER_REPLY_LIST_SIZE (2048)
 
 #define POLICY_LOADER_REPLY_POLICY_SIZE (2048)
 
@@ -87,7 +87,7 @@ static char g_policy[POLICY_LOADER_REPLY_POLICY_SIZE] = {
     0,
 };
 
-static char g_owner_public_key[POLICY_LOADER_PUBLIC_KEY_B64_LEN] = {0};
+static char g_owner_public_key[POLICY_LOADER_PUBLIC_KEY_B64_LEN + 1] = {0};
 
 static char g_action_ps[] = "<policy service connection>";
 
@@ -213,7 +213,7 @@ static int b64_isvalidchar(char c) {
   return 0;
 }
 
-static int b64_decode(const char *in, int len, unsigned char *out) {
+static int b64_decode(const char *in, int in_len, unsigned char *out, int out_len) {
   int i, j, v;
   int b64invs[] = { 62, -1, -1, -1, 63, 52, 53, 54, 55, 56, 57, 58,
 	59, 60, 61, -1, -1, -1, -1, -1, -1, -1, 0, 1, 2, 3, 4, 5,
@@ -224,11 +224,11 @@ static int b64_decode(const char *in, int len, unsigned char *out) {
 
   if (in == NULL || out == NULL) return 0;
 
-  for (i=0; i<len; i++) {
+  for (i=0; i<in_len; i++) {
     if (!b64_isvalidchar(in[i])) return 0;
   }
 
-  for (i=0, j=0; i<len; i+=4, j+=3) {
+  for (i=0, j=0; i<in_len, j<out_len; i+=4, j+=3) {
     v = b64invs[in[i]-43];
     v = (v << 6) | b64invs[in[i+1]-43];
     v = in[i+2]=='=' ? v << 6 : (v << 6) | b64invs[in[i+2]-43];
@@ -242,11 +242,11 @@ static int b64_decode(const char *in, int len, unsigned char *out) {
   return 1;
 }
 
-static int parse_policy_struct(const char *p_policy, char *signed_policy_buff, size_t *o_policy_len) {
+static int parse_policy_struct(const char *p_policy, char **signed_policy_buff, size_t *o_policy_len) {
   int policy_len = 0;
   char *policy_buff = NULL;
   char *policy_signature_buff = NULL;
-  char policy_signature_decoded[POLICY_LOADER_SIGNATURE_LEN];
+  char policy_signature_decoded[POLICY_LOADER_SIGNATURE_LEN] = {0};
   int policy_signature_len = 0;
   int policy_retrieved = 0;
 
@@ -254,31 +254,33 @@ static int parse_policy_struct(const char *p_policy, char *signed_policy_buff, s
   r = jsmn_parse(&p, p_policy, strlen(p_policy), t, POLICY_LOADER_TOK_NUM);
 
   if (r < 0) {
-    dlog_printf("Failed to parse policy JSON: %d\n", r);
+    log_error(policy_loader_logger_id, "[%s:%d] Failed to parse policy JSON: %d\n", __func__, __LINE__, r);
     return 0;
   }
 
   /* Assume the top-level element is an object */
   if (r < 1 || t[0].type != JSMN_OBJECT) {
-    dlog_printf("Object expected in policy\n");
+    log_error(policy_loader_logger_id, "[%s:%d] Object expected in policy\n", __func__, __LINE__);
     return 0;
   }
 
   if (memcmp(p_policy + t[1].start, "error", strlen("error")) == 0) {
-    dlog_printf("\nPolicy not found!");
+    log_error(policy_loader_logger_id, "[%s:%d] Policy not found!\n", __func__, __LINE__);
   } else {
     for (int i = 0; i < r; i++) {
-      if (memcmp(p_policy + t[i].start, "policy_signature", strlen("policy_signature")) == 0) {
+      if (memcmp(p_policy + t[i].start, "signature", strlen("signature")) == 0 &&
+          (t[i].end - t[i].start) == strlen("signature")) {
         policy_signature_len = t[i + 1].end - t[i + 1].start;
         policy_signature_buff = calloc(policy_signature_len + 1, 1);
         memcpy(policy_signature_buff, p_policy + t[i + 1].start, policy_signature_len);
-        if (!b64_decode(policy_signature_buff, policy_signature_len, policy_signature_decoded)) return 0;
+        if (!b64_decode(policy_signature_buff, policy_signature_len, policy_signature_decoded, POLICY_LOADER_SIGNATURE_LEN)) return 0;
         policy_retrieved++;
         break;
       }
     }
     for (int i = 0; i < r; i++) {
-      if (memcmp(p_policy + t[i].start, "policy", strlen("policy")) == 0) {
+      if (memcmp(p_policy + t[i].start, "policy", strlen("policy")) == 0 &&
+          (t[i].end - t[i].start) == strlen("policy")) {
         policy_len = t[i + 1].end - t[i + 1].start;
         policy_buff = calloc(policy_len + 1, 1);
         memcpy(policy_buff, p_policy + t[i + 1].start, policy_len);
@@ -289,10 +291,11 @@ static int parse_policy_struct(const char *p_policy, char *signed_policy_buff, s
   }
 
   if (policy_retrieved == POLICY_LOADER_POL_FULLY_RETRIEVED) {
-    dlog_printf("\nPut policy\n");
-    signed_policy_buff = calloc(POLICY_LOADER_SIGNATURE_LEN + policy_len + 1, 1);
-    memcpy(signed_policy_buff, policy_signature_decoded, POLICY_LOADER_SIGNATURE_LEN);
-    memcpy(&signed_policy_buff[POLICY_LOADER_SIGNATURE_LEN], policy_buff, policy_len);
+    log_info(policy_loader_logger_id, "[%s:%d] Policy loaded.\n", __func__, __LINE__);
+    *signed_policy_buff = calloc(POLICY_LOADER_SIGNATURE_LEN + policy_len + 1, 1);
+    *o_policy_len = POLICY_LOADER_SIGNATURE_LEN + policy_len + 1;
+    memcpy(*signed_policy_buff, policy_signature_decoded, POLICY_LOADER_SIGNATURE_LEN);
+    memcpy(&(*signed_policy_buff)[POLICY_LOADER_SIGNATURE_LEN], policy_buff, policy_len);
   }
 
   free(policy_signature_buff);
@@ -322,19 +325,19 @@ static void parse_policy_service_list() {
         memcpy(g_policy_store_version + (POLICY_LOADER_STR_LEN - 1), "\0", 1);
       } else if (response_type == POLICY_LOADER_POL_RESPONSE_TYPE_STRING) {
         if (memcmp(g_policy_list + jsonhelper_get_token_start(response), "ok", strlen("ok")) == 0) {
-          dlog_printf("\nPolicy store up to date");
+          log_info(policy_loader_logger_id, "[%s:%d] Policy Store up to date.\n", __func__, __LINE__);
         } else {
-          dlog_printf("\nERROR: unknown response");
+          log_error(policy_loader_logger_id, "[%s:%d] Unkonwn response!\n", __func__, __LINE__);
         }
       }
     } else {
       char buf[POLICY_LOADER_TIME_BUF_LEN];
 
       timemanager_get_time_string(buf, POLICY_LOADER_TIME_BUF_LEN);
-      printf("%s %s\tError: Response from policy service not received\n", buf, g_action_ps);
+      log_error(policy_loader_logger_id, "[%s:%d] Response from policy service not received.\n", __func__, __LINE__);
     }
   } else {
-    dlog_printf("\nERROR: parsing");
+    log_error(policy_loader_logger_id, "[%s:%d] Error during parsing.\n", __func__, __LINE__);
   }
 }
 
@@ -370,13 +373,14 @@ static unsigned int receive_policies(void) {
   char *policy_buff = NULL;
   int policy_len = 0;
   int status = 0;
+
   while (num_of_policies > 0) {
     int current_policy = num_of_policies - 1;
 
     policyupdater_get_policy(g_policy_list + jsonhelper_get_token_start(3 + current_policy), g_policy);
-    int status = parse_policy_struct(g_policy, policy_buff, &policy_len);
+    int status = parse_policy_struct(g_policy, &policy_buff, &policy_len);
     if (status == 1) {
-      if (!b64_decode(g_owner_public_key, POLICY_LOADER_PUBLIC_KEY_B64_LEN, owner_public_key)) return 0;
+      if (!b64_decode(g_owner_public_key, POLICY_LOADER_PUBLIC_KEY_B64_LEN, owner_public_key, POLICY_LOADER_PUBLIC_KEY_LEN)) return 0;
       pap_add_policy(policy_buff, policy_len, NULL, owner_public_key);
     }
     if (policy_buff != NULL) {
@@ -430,13 +434,18 @@ static int cycle_fsm() {
 static void *policy_loader_thread_function(void *arg);
 
 int policyloader_start() {
-  configmanager_get_option_string("config", "device_id", g_device_id, POLICY_LOADER_STR_LEN);
-  int status = configmanager_get_option_int("config", "thread_sleep_period", &g_task_sleep_time);
+  config_manager_get_option_string("config", "device_id", g_device_id, POLICY_LOADER_STR_LEN);
+  int status = config_manager_get_option_int("config", "thread_sleep_period", &g_task_sleep_time);
   if (status != CONFIG_MANAGER_OK) g_task_sleep_time = 1000;  // 1 second
   //Owner's public key should be stored on device, after owner is assigned to a device
-  configmanager_get_option_string("config", "owner_public_key", g_owner_public_key, POLICY_LOADER_PUBLIC_KEY_B64_LEN);
+  config_manager_get_option_string("config", "owner_public_key", g_owner_public_key, POLICY_LOADER_PUBLIC_KEY_B64_LEN + 1);
+
   g_end = 0;
   pthread_create(&g_thread, NULL, policy_loader_thread_function, NULL);
+
+  logger_helper_init(LOGGER_INFO);
+  logger_init_policy_loader(LOGGER_INFO);
+
   return 0;
 }
 
@@ -449,6 +458,7 @@ int policyloader_stop() {
 static void *policy_loader_thread_function(void *arg) {
   int period_counter = 0;
   while (!g_end) {
+
     if (period_counter++ == (5000000 / g_task_sleep_time) || (5000000 / g_task_sleep_time) == 0) {  // 5 seconds
       period_counter = 0;
       cycle_fsm();
