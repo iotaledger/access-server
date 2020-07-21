@@ -57,16 +57,21 @@ typedef struct {
 static wallet_ctx_t* dev_wallet = NULL;
 static action_set_t g_action_set;
 
-static int log_tangle(){
+static int log_tangle(pdp_action_t* action){
   char bundle[81];
   char buf[RES_BUFF_LEN];
 
-  wallet_send(dev_wallet,
+  wallet_err_t ret = wallet_send(dev_wallet,
               "MXHYKULAXKWBY9JCNVPVSOSZHMBDJRWTTXZCTKHLHKSJARDADHJSTCKVQODBVWCYDNGWFGWVTUVENB9UA",
               0,
               "hello world from access!",
               bundle);
-  log_info(plugin_logger_id, "[%s:%d] Obligation of logging action to tangle. Bundle hash: %s .\n", __func__, __LINE__, bundle);
+  if (ret != WALLET_OK){
+    log_error(plugin_logger_id, "[%s:%d] Could not fulfill obligation of logging action to Tangle. %s .\n", __func__, __LINE__);
+    return -1;
+  }
+
+  log_info(plugin_logger_id, "[%s:%d] Obligation of logging Action %s to Tangle. Bundle hash: %s .\n", __func__, __LINE__, action->value, bundle);
 }
 
 static int print_terminal(pdp_action_t* action){
@@ -85,7 +90,7 @@ static int action_cb(plugin_t* plugin, void* data) {
 
   // handle obligations
   if (0 == memcmp(obligation, "obligation#1", strlen("obligation#1"))) {
-    log_tangle();
+    log_tangle(action);
   }
 
   // execute action
