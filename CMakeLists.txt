@@ -78,7 +78,7 @@ FetchContent_MakeAvailable(iota.c)
 # fetch external libs
 include(ExternalProject)
 
-set(target main)
+set(target acsri)
 
 set(libs
   sqlite3
@@ -114,3 +114,4 @@ add_subdirectory(network)
 add_subdirectory(config_manager)
 add_subdirectory(data_dumper)
 add_subdirectory(policy_loader)
+add_subdirectory(policy_updater)
