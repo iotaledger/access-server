@@ -12,7 +12,7 @@ Access-control framework on the IOTA Distributed Ledger.
     <img src="https://github.com/iotaledger/access/workflows/C/C++%20CI/badge.svg" alt="C/C++ CI">
 </p>
 
-**IOTA Access** is a lightweight and highly flexible access-control framework tailored for resource-constrained settings, such as embedded devices and the infrastructure in which they are used.
+**IOTA Access** is a lightweight access-control framework tailored for resource-constrained settings, such as embedded devices and the infrastructure in which they are used.
 
 The framework is also expanded with relevant concepts, such as obligations and the delegation of access-control policies, to particularly address the needs of reliable and secure human-machine interactions in commercial settings of the IoT and mobility space.
 
@@ -25,10 +25,15 @@ In automotive and smart mobility contexts, none of this works reliably. Vehicles
 
 For example, a vehicle with IOTA Access enabled, could connect to a parking entry station with IOTA Access enabled, and that entry station could directly allow the vehicle to enter and park based on the policy language if it has been approved. Or if there is a payment requirement, the wallet integration built into IOTA Access can allow for direct M2M payments between that vehicle and the parking entry station. No human interaction directly required. The station gives access to the vehicle. The vehicle pays for that access in a predetermined fashion, which could be as granular as by the second charge rates. When the vehicle leaves, the payment stops, and the transaction is concluded. This can work for EV charging, tolling, parking, fast food, usage-based road tax, mobility as a service use cases, or even delivery services. A user want’s a package dropped off in the trunk of their car while they are at work instead of at their house, Access could enable it. A user wants to rent out an autonomous vehicle in the future to make money while they work, then Access could enable that. A homeowner wants a smart lock to directly and securely manage access and payment for that access to a home they are renting out as an AirBnB. Access could enable that. All of these direct, frictionless use cases and more rely on access and permissions systems. And most cannot be done securely or reliably with centralized systems. 
 
+## Disclaimer
+IOTA Access is a Work-in-Progress, and the project should be seen as a [*Minimum Viable Product*](https://en.wikipedia.org/wiki/Minimum_viable_product) (MVP).
+
 ## Repositories
 IOTA Access is divided into a few repositories:
- - [github.com/iotaledger/access](https://github.com/iotaledger/access.git) (this repo) contains the [Access Server Reference Implementation](/docs/02-engineering-specs.md#access-server-reference-implementation-asri).
- - [github.com/iotaledger/access-sdk](https://github.com/iotaledger/access-sdk.git) contains 
+ - [github.com/iotaledger/access](https://github.com/iotaledger/access.git) (this repo) contains the **Access Core Server Reference Implementation** (ACSRI). It consists of the embedded software meant to be executed on the target device for which access will be delegated.
+ - [github.com/iotaledger/access-sdk](https://github.com/iotaledger/access-sdk.git) contains the **Access Core Software Development Kit** (ACSDK). It consists of the Core SDK components used as building pieces for the ACSRI, and is meant to be used as the starting point to write new IOTA Access applications.
+ - [github.com/iotaledger/access-mobile-client](https://github.com/iotaledger/access-mobile-client.git) contains an Android-based **Access Client Reference Implementation**. It is meant to work as the User Interface both for creating policies and initiating access requests. It will eventually be replaced by a cross-platform implementation.
+ - [github.com/iotaledger/access-policy-store](https://github.com/iotaledger/access-policy-store) contains the **Access Policy Store**. It consists of interface servers for managing policies. It will eventually be rendered obsolete when a Permanode solution is rolled out.
 
 ## Documentation
 For newcomers, documentation is the ideal place to start. It will give you an overview of how the project is structured.
@@ -39,13 +44,11 @@ The [docs](/docs) directory contains markdown files for documentation:
  - [Policy Language](/docs/03-policy-language.md)
  - [Getting Started](/docs/04-getting-started.md)
 
-## Disclaimer
-IOTA Access is a Work-in-Progress, and the project should be seen as a [*Minimum Viable Product*](https://en.wikipedia.org/wiki/Minimum_viable_product) (MVP).
-
 ## Build Instructions
 Development of the PoC is currently focused on [Raspbian Buster](https://www.raspberrypi.org/blog/buster-the-new-version-of-raspbian/).
 
-This repository only contains source code for the **Access Server**. The Access framework also includes the [Access Client](https://github.com/iotaledger/access-mobile), which is used to create the user experience for Policy Creation and Access Requests.
+These instructions are only related to the source code for the **Access Core Server**. The Access framework also includes the [Access Client](https://github.com/iotaledger/access-mobile), which is used to create the user experience for Policy Creation and Access Requests.
+
 1. SSH into Raspbian.
 2. Install dependencies:
 ```
@@ -67,7 +70,7 @@ $ make
 
 ## Contributing  
 
-Pull Requests are welcomed.  
+Pull Requests are welcome.  
 This project uses clang-format to format C/C++ code. Before you make any changes please install the format script via running `./git_hooks/pre_commit_install.sh`.  
 
 ## XAIN FROST
