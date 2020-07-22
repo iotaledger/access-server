@@ -19,7 +19,15 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-project(access_sdk)
+project(access_reference_implementation)
+
+# fetch access-sdk
+include(FetchContent)
+FetchContent_Declare(
+  access-sdk
+  GIT_REPOSITORY https://github.com/bernardoaraujor/access-sdk
+  GIT_TAG 0557204ec4918cd4a227df1c88d3dd65db275d90
+)
 
 # fetch pigpio
 include(FetchContent)
@@ -55,6 +63,9 @@ if(${CMAKE_VERSION} VERSION_LESS 3.14)
     endmacro()
 endif()
 
+message(STATUS "Fetching access-sdk")
+FetchContent_MakeAvailable(access-sdk)
+
 message(STATUS "Fetching pigpio")
 FetchContent_MakeAvailable(pigpio)
 
@@ -67,13 +78,5 @@ FetchContent_MakeAvailable(iota.c)
 # fetch external libs
 include(ExternalProject)
 
-# Global includes
-include_directories(utils/misc plugins/data/dataset)
-
-add_subdirectory(access_core_api)
-add_subdirectory(access_secure_network_api)
-add_subdirectory(plugins)
-add_subdirectory(wallet)
-add_subdirectory(utils)
 add_subdirectory(tests)
 add_subdirectory(reference_implementation)

@@ -30,6 +30,7 @@ set(libs
   config_manager
   json_parser
   pap
+  policy_updater
 )
 
 set(include_dirs

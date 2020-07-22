@@ -29,7 +29,14 @@ set(sources
 
 set(include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/implementations/${config_manager_implementation})
+  ${CMAKE_CURRENT_SOURCE_DIR}/implementations/${config_manager_implementation}
+  "${access-sdk_SOURCE_DIR}"
+)
+
+set(libs
+  misc
+)
 
 add_library(${target} ${sources})
 target_include_directories(${target} PUBLIC ${include_dirs})
+target_link_libraries(${target} PUBLIC ${libs})
