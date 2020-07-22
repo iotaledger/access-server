@@ -33,7 +33,3 @@ set(include_dirs
 
 add_library(${target} ${sources})
 target_include_directories(${target} PUBLIC ${include_dirs})
-
-# Config manager implementation test
-set(target config_manager_test)
-add_executable(${target} implementations/${config_manager_implementation}/test.c)
