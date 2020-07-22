@@ -140,7 +140,7 @@ The Access Secure Network API is used to authenticate clients, ensure (off-Tangl
 
 The ASN authentication protocol is used to secure communication channel of the device. It is based on stripped version of SSH protocol. In order to be used in embedded system protocol must fulfill following requirements:
 - Independent of physical communication layer
-- Small memory footprint
+- Small memory bartprint
 - No OS dependencies
 - Fast execution
 - Off-Tangle communication between server and client
