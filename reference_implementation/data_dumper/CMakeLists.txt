@@ -19,17 +19,10 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-set(target misc)
+set(target data_dumper)
 
-set(sources
-  utils.c
-  time_manager.c
-  timer.c
-)
-
-set(libs
-  -pthread
-  config_manager)
+set(sources data_dumper.c)
+set(libs -pthread config_manager)
 
 add_library(${target} ${sources})
 target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

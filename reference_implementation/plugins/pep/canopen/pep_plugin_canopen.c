@@ -37,7 +37,6 @@
 
 #include <string.h>
 
-#include "datadumper.h"
 #include "dlog.h"
 #include "pep_plugin.h"
 #include "relay_interface.h"

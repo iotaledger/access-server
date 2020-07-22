@@ -36,6 +36,7 @@
 
 #include <string.h>
 #include <unistd.h>
+#include "stdlib.h"
 
 #include "config_manager.h"
 #include "wallet.h"
@@ -58,20 +59,21 @@ static wallet_ctx_t* dev_wallet = NULL;
 static action_set_t g_action_set;
 
 static int log_tangle(pdp_action_t* action){
-  char bundle[81];
-  char buf[RES_BUFF_LEN];
+  char bundle_hash[NUM_TRYTES_BUNDLE + 1] = {};
 
   wallet_err_t ret = wallet_send(dev_wallet,
               "MXHYKULAXKWBY9JCNVPVSOSZHMBDJRWTTXZCTKHLHKSJARDADHJSTCKVQODBVWCYDNGWFGWVTUVENB9UA",
               0,
               "hello world from access!",
-              bundle);
+              bundle_hash);
+
+  bundle_hash[NUM_TRYTES_BUNDLE] = '\0';
   if (ret != WALLET_OK){
     log_error(plugin_logger_id, "[%s:%d] Could not fulfill obligation of logging action to Tangle. %s .\n", __func__, __LINE__);
     return -1;
   }
 
-  log_info(plugin_logger_id, "[%s:%d] Obligation of logging Action %s to Tangle. Bundle hash: %s .\n", __func__, __LINE__, action->value, bundle);
+  log_info(plugin_logger_id, "[%s:%d] Obligation of logging Action %s to Tangle. Bundle hash: %s.\n", __func__, __LINE__, action->value, bundle_hash);
 }
 
 static int print_terminal(pdp_action_t* action){

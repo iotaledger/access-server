@@ -35,7 +35,7 @@
 #include "pip_plugin_canopen.h"
 #include "can_thread.h"
 #include "canopen_sdo.h"
-#include "datadumper.h"
+#include "data_dumper.h"
 
 #include "config_manager.h"
 #include "globals_declarations.h"
