@@ -139,13 +139,10 @@ pap_error_e pap_init(void) {
     return PAP_ERROR;
   }
 
-  policyloader_start();
-
   return PAP_NO_ERROR;
 }
 
 pap_error_e pap_term(void) {
-  policyloader_stop();
 
   // Term User Management
   user_deinit();

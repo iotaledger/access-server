@@ -19,37 +19,23 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-set(target pap)
-
-set(user_management_implementation sqlite3_example CACHE STRING
-  "User management implementation choice")
+set(target policy_loader)
 
 set(sources
-  pap.c
-  pap_logger.c
-  user/user.c
-  user/implementations/${user_management_implementation}/user_implementation.c
-  validator/parser.c
-  validator/validator.c
+  policy_loader.c
+  policy_loader_logger.c
+)
+
+set(libs
+  config_manager
+  json_parser
+  pap
 )
 
 set(include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/validator
-  ${CMAKE_CURRENT_SOURCE_DIR}/user
-  ${CMAKE_CURRENT_SOURCE_DIR}/user/implementations/${user_management_implementation}
-  ${CMAKE_CURRENT_SOURCE_DIR}/policy_loader
   ${sqlite3_SOURCE_DIR}
 )
-
-set(libs
-  fastjson
-  sqlite3
-  json_parser
-  cryptography
-  config_manager
-  policy_updater
-  misc)
 
 add_library(${target} ${sources})
 target_include_directories(${target} PUBLIC

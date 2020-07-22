@@ -27,7 +27,6 @@
 #include "pep.h"
 #include "pep_plugin.h"
 #include "pip.h"
-#include "policy_loader.h"
 #include "timer.h"
 
 // placeholder context structure

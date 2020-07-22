@@ -25,6 +25,7 @@
 #include "config_manager.h"
 #include "dataset.h"
 #include "network.h"
+#include "policy_loader.h"
 #include "pep_plugin_print.h"
 #include "pap_plugin_unix.h"
 
@@ -93,6 +94,8 @@ int main(int argc, char **argv) {
   int status = config_manager_get_option_int("config", "thread_sleep_period", &g_task_sleep_time);
   if (status != CONFIG_MANAGER_OK) g_task_sleep_time = 1000;  // 1 second
 
+  policyloader_start();
+
   access_init(&access_context);
   if (wallet_init() != 0){
     printf("\nERROR[%s]: Wallet creation failed. Aborting.\n", __FUNCTION__);
@@ -126,6 +129,8 @@ int main(int argc, char **argv) {
 
   // Deinit modules
   access_deinit(access_context);
+
+  policyloader_stop();
 
   wallet_destory(&wallet_context);
 

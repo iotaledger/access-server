@@ -38,7 +38,6 @@
 #include <stdarg.h>
 #include <stdint.h>
 #include "plugin.h"
-#include "policy_loader.h"
 #include "user.h"
 
 /****************************************************************************
