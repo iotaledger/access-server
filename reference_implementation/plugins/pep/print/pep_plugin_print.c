@@ -36,6 +36,7 @@
 
 #include <string.h>
 #include <unistd.h>
+#include "stdlib.h"
 
 #include "config_manager.h"
 #include "wallet.h"
