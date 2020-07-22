@@ -44,3 +44,4 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/wallet_pem.txt
 )
 
 add_subdirectory(plugins)
+add_subdirectory(network)

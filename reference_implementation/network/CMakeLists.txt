@@ -29,7 +29,6 @@ enable_testing()
 # libs in the sandbox
 link_directories("${CMAKE_INSTALL_PREFIX}/lib")
 
-add_subdirectory(asn)
 add_subdirectory(policy_updater)
 
 set(target network)
