@@ -29,7 +29,7 @@ set(libs
   vehicle_dataset
   network
   misc
-  access_actor)
+  access_core)
 
 add_executable(${target} main.c)
 target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

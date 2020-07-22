@@ -24,7 +24,7 @@ add_subdirectory(pip)
 add_subdirectory(pap)
 add_subdirectory(pep)
 
-set(target access_actor)
+set(target access_core)
 
 set(libs
   config_manager
