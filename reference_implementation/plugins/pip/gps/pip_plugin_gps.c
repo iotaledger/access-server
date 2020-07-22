@@ -41,7 +41,7 @@
 #include "minmea.h"
 
 #include "config_manager.h"
-#include "datadumper.h"
+#include "data_dumper.h"
 #include "globals_declarations.h"
 
 #define GPS_JSON_NAME "gps_data"

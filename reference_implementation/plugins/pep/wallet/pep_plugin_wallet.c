@@ -38,7 +38,6 @@
 #include <unistd.h>
 
 #include "config_manager.h"
-#include "datadumper.h"
 #include "dlog.h"
 #include "rpi_trans.h"
 #include "time_manager.h"

@@ -25,7 +25,7 @@ set(sources
   utils.c
   time_manager.c
   timer.c
-  datadumper.c)
+)
 
 set(libs
   -pthread

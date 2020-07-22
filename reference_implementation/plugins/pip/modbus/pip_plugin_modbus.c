@@ -38,7 +38,7 @@
 #include <unistd.h>
 
 #include "config_manager.h"
-#include "datadumper.h"
+#include "data_dumper.h"
 #include "globals_declarations.h"
 
 #define MODBUS_JSON_NAME "modbus_data"

@@ -23,7 +23,6 @@
 #include <string.h>
 
 #include "config_manager.h"
-#include "datadumper.h"
 #include "pap_plugin.h"
 #include "pep.h"
 #include "pep_plugin.h"

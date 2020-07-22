@@ -19,32 +19,11 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-project(access_reference_implementation)
+set(target data_dumper)
 
-set(target main)
+set(sources data_dumper.c)
+set(libs -pthread config_manager)
 
-set(libs
-  sqlite3
-  json_parser
-  vehicle_dataset
-  network
-  data_dumper
-  misc
-  access_core)
-
-add_executable(${target} main.c)
+add_library(${target} ${sources})
 target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(${target} PUBLIC ${libs})
-
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.ini
-  ${CMAKE_CURRENT_BINARY_DIR} COPYONLY
-)
-
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/wallet_pem.txt
-  ${CMAKE_CURRENT_BINARY_DIR} COPYONLY
-)
-
-add_subdirectory(plugins)
-add_subdirectory(network)
-add_subdirectory(config_manager)
-add_subdirectory(data_dumper)
