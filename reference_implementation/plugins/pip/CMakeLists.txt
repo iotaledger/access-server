@@ -31,6 +31,7 @@ set(libs
   access_wallet
   vehicle_dataset
   config_manager
+  data_dumper
   platform_interface)
 
 set(sources

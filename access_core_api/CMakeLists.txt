@@ -19,18 +19,22 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-set(target misc)
+add_subdirectory(pdp)
+add_subdirectory(pip)
+add_subdirectory(pap)
+add_subdirectory(pep)
 
-set(sources
-  utils.c
-  time_manager.c
-  timer.c
-)
+set(target access_core)
 
 set(libs
-  -pthread
-  config_manager)
+  config_manager
+  pep
+  misc
+  fastjson
+  platform_interface
+  pip_plugins
+  pep_plugins)
 
-add_library(${target} ${sources})
+add_library(${target} access.c)
 target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(${target} PUBLIC ${libs})

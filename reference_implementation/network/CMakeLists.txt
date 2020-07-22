@@ -19,43 +19,31 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-set(target pap)
+cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
 
-set(user_management_implementation sqlite3_example CACHE STRING
-  "User management implementation choice")
+project(access_wallet DESCRIPTION "Access Network Module")
 
-set(sources
-  pap.c
-  pap_logger.c
-  user/user.c
-  user/implementations/${user_management_implementation}/user_implementation.c
-  validator/parser.c
-  validator/validator.c
-  policy_loader/policy_loader.c
-  policy_loader/policy_loader_logger.c
-)
+enable_language(C)
+enable_testing()
 
-set(include_dirs
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/validator
-  ${CMAKE_CURRENT_SOURCE_DIR}/user
-  ${CMAKE_CURRENT_SOURCE_DIR}/user/implementations/${user_management_implementation}
-  ${CMAKE_CURRENT_SOURCE_DIR}/policy_loader
-  ${sqlite3_SOURCE_DIR}
-)
+# libs in the sandbox
+link_directories("${CMAKE_INSTALL_PREFIX}/lib")
+
+add_subdirectory(policy_updater)
+
+set(target network)
 
 set(libs
-  fastjson
-  sqlite3
   json_parser
-  cryptography
-  config_manager
-  policy_updater
-  misc)
+  asn
+  pep
+  pap_plugin
+  policy_updater)
 
-add_library(${target} ${sources})
+add_library(${target} network.c network_logger.c)
 target_include_directories(${target} PUBLIC
-  "${include_dirs}"
+  "${CMAKE_CURRENT_SOURCE_DIR}"
   "${iota_common_SOURCE_DIR}"
 )
+
 target_link_libraries(${target} PUBLIC ${libs})

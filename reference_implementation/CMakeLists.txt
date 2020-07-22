@@ -27,12 +27,20 @@ set(libs
   sqlite3
   json_parser
   vehicle_dataset
+  policy_loader
   network
+  data_dumper
   misc
-  access_actor)
+  access_core)
+
+set(include_dirs
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/policy_loader
+  ${CMAKE_CURRENT_SOURCE_DIR}/config_manager
+)
 
 add_executable(${target} main.c)
-target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(${target} PUBLIC ${include_dirs})
 target_link_libraries(${target} PUBLIC ${libs})
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.ini
@@ -44,3 +52,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/wallet_pem.txt
 )
 
 add_subdirectory(plugins)
+add_subdirectory(network)
+add_subdirectory(config_manager)
+add_subdirectory(data_dumper)
+add_subdirectory(policy_loader)

@@ -70,8 +70,8 @@ include(ExternalProject)
 # Global includes
 include_directories(utils/misc plugins/data/dataset)
 
-add_subdirectory(access)
-add_subdirectory(network)
+add_subdirectory(access_core_api)
+add_subdirectory(access_secure_network_api)
 add_subdirectory(plugins)
 add_subdirectory(wallet)
 add_subdirectory(utils)

@@ -19,32 +19,21 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
+set(config_manager_implementation ini CACHE STRING "Config manager implementation choice")
 
-project(access_wallet DESCRIPTION "Access Network Module")
+set(target config_manager)
 
-enable_language(C)
-enable_testing()
+set(sources
+  config_manager.c
+  implementations/${config_manager_implementation}/config_manager_implementation.c)
 
-# libs in the sandbox
-link_directories("${CMAKE_INSTALL_PREFIX}/lib")
+set(include_dirs
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/implementations/${config_manager_implementation})
 
-add_subdirectory(asn)
-add_subdirectory(policy_updater)
+add_library(${target} ${sources})
+target_include_directories(${target} PUBLIC ${include_dirs})
 
-set(target network)
-
-set(libs
-  json_parser
-  asn
-  pep
-  pap_plugin
-  policy_updater)
-
-add_library(${target} network.c network_logger.c)
-target_include_directories(${target} PUBLIC
-  "${CMAKE_CURRENT_SOURCE_DIR}"
-  "${iota_common_SOURCE_DIR}"
-)
-
-target_link_libraries(${target} PUBLIC ${libs})
+# Config manager implementation test
+set(target config_manager_test)
+add_executable(${target} implementations/${config_manager_implementation}/test.c)

@@ -38,7 +38,6 @@
 #include <unistd.h>
 
 #include "config_manager.h"
-#include "datadumper.h"
 #include "dlog.h"
 #include "relay_interface.h"
 #include "time_manager.h"

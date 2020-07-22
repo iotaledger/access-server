@@ -36,7 +36,7 @@
 #include <unistd.h>
 
 #include "config_manager.h"
-#include "datadumper.h"
+#include "data_dumper.h"
 
 #define DATADUMPER_STR_LEN 128
 #define DATADUMPER_NAME_LEN 64

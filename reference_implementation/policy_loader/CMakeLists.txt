@@ -19,22 +19,27 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-add_subdirectory(pdp)
-add_subdirectory(pip)
-add_subdirectory(pap)
-add_subdirectory(pep)
+set(target policy_loader)
 
-set(target access_actor)
+set(sources
+  policy_loader.c
+  policy_loader_logger.c
+)
 
 set(libs
   config_manager
-  pep
-  misc
-  fastjson
-  platform_interface
-  pip_plugins
-  pep_plugins)
+  json_parser
+  pap
+)
 
-add_library(${target} access.c)
-target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+set(include_dirs
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${sqlite3_SOURCE_DIR}
+)
+
+add_library(${target} ${sources})
+target_include_directories(${target} PUBLIC
+  "${include_dirs}"
+  "${iota_common_SOURCE_DIR}"
+)
 target_link_libraries(${target} PUBLIC ${libs})
