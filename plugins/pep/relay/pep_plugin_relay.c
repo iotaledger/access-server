@@ -46,6 +46,8 @@
 #define ACTION_NAME_SIZE 16
 #define POLICY_ID_SIZE 64
 #define ADDR_SIZE 128
+#define OBLIGATION_ADDRESS "MXHYKULAXKWBY9JCNVPVSOSZHMBDJRWTTXZCTKHLHKSJARDADHJSTCKVQODBVWCYDNGWFGWVTUVENB9UA"
+#define OBLIGATION_MSG_MAX_SIZE 512
 
 typedef int (*action_t)(pdp_action_t* action);
 
@@ -58,18 +60,40 @@ typedef struct {
 static wallet_ctx_t* dev_wallet = NULL;
 static action_set_t g_action_set;
 
-static int log_tangle() {
-  char bundle[81];
-  wallet_send(dev_wallet, ADDR, 0, NULL, bundle);
+static int log_tangle(pdp_action_t* action) {
+  char bundle_hash[NUM_TRYTES_BUNDLE + 1] = {};
+
+  char msg[OBLIGATION_MSG_MAX_SIZE] = {};
+  sprintf(msg, "Performed Action %s.", action->value);
+
+  wallet_err_t ret = wallet_send(dev_wallet, OBLIGATION_ADDRESS, 0, msg, bundle_hash);
+
+  bundle_hash[NUM_TRYTES_BUNDLE] = '\0';
+  if (ret != WALLET_OK) {
+    log_error(plugin_logger_id, "[%s:%d] Could not fulfill obligation of logging action to Tangle. %s .\n", __func__,
+              __LINE__);
+    return -1;
+  }
+
+  log_info(plugin_logger_id, "[%s:%d] Obligation of logging Action %s to Tangle. Bundle hash: %s.\n", __func__,
+           __LINE__, action->value, bundle_hash);
 }
 
 static int relay_on() {
-  relayinterface_on(0);
+  int relay_index = 0;
+  relayinterface_on(relay_index);
+
+  log_info(plugin_logger_id, "[%s:%d] Relay %d ON.\n", __func__, __LINE__, relay_index);
+
   return 0;
 }
 
 static int relay_off() {
-  relayinterface_off(0);
+  int relay_index = 0;
+  relayinterface_off(relay_index);
+
+  log_info(plugin_logger_id, "[%s:%d] Relay %d OFF.\n", __func__, __LINE__, relay_index);
+
   return 0;
 }
 
@@ -83,8 +107,9 @@ static int action_cb(plugin_t* plugin, void* data) {
   int status = 0;
 
   // handle obligations
-  // if (0 == memcmp(obligation, "obligation#1", strlen("obligation#1"))) {
-  //}
+  if (0 == memcmp(obligation, "obligation#1", strlen("obligation#1"))) {
+    log_tangle(action);
+  }
 
   // execute action
   for (int i = 0; i < g_action_set.count; i++) {
@@ -99,6 +124,10 @@ static int action_cb(plugin_t* plugin, void* data) {
 
 int pep_plugin_relay_initializer(plugin_t* plugin, void* wallet_context) {
   dev_wallet = wallet_context;
+  if (dev_wallet == NULL) {
+    log_error(plugin_logger_id, "[%s:%d] Wallet creation failed. %s\n", __func__, __LINE__);
+    return -1;
+  }
 
   g_action_set.actions[0] = relay_on;
   g_action_set.actions[1] = relay_off;
