@@ -19,10 +19,30 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-add_subdirectory(can)
-add_subdirectory(canopen)
-add_subdirectory(gpio)
-add_subdirectory(gps)
-add_subdirectory(modbus)
-add_subdirectory(obdii)
-add_subdirectory(wallet)
+set(target pip_plugin_modbus)
+
+set(libs
+  -pthread
+  access_wallet
+  pdp
+  plugin_manager
+  json_parser
+  pip
+  access_wallet
+  vehicle_dataset
+  config_manager
+  data_dumper
+  platform_interface)
+
+set(sources
+  pip_plugin_modbus.c
+  modbus.c
+)
+
+set(include_dirs
+  ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_library(${target} ${sources})
+target_include_directories(${target} PUBLIC ${include_dirs})
+target_link_libraries(${target} PUBLIC ${libs})
