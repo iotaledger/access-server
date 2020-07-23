@@ -26,7 +26,7 @@ include(FetchContent)
 FetchContent_Declare(
   access-sdk
   GIT_REPOSITORY https://github.com/bernardoaraujor/access-sdk
-  GIT_TAG 0557204ec4918cd4a227df1c88d3dd65db275d90
+  GIT_TAG bbb7ee98449d41b20ca9d71152f8f6cfe50269c8
 )
 
 # fetch pigpio
