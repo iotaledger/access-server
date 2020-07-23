@@ -25,7 +25,7 @@ project(access_reference_implementation)
 include(FetchContent)
 FetchContent_Declare(
   access-sdk
-  GIT_REPOSITORY https://github.com/bernardoaraujor/access-sdk
+  GIT_REPOSITORY https://github.com/iotaledger/access-sdk
   GIT_TAG bbb7ee98449d41b20ca9d71152f8f6cfe50269c8
 )
 
@@ -88,7 +88,9 @@ set(libs
   network
   data_dumper
   misc
-  access_core)
+  access_core
+  pep_plugin_print
+)
 
 set(include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}
