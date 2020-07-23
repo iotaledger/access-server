@@ -89,6 +89,9 @@ set(libs
   data_dumper
   misc
   access_core
+)
+
+set(plugins
   pep_plugin_print
   pap_plugin_unix
 )
@@ -101,7 +104,10 @@ set(include_dirs
 
 add_executable(${target} main.c)
 target_include_directories(${target} PUBLIC ${include_dirs})
-target_link_libraries(${target} PUBLIC ${libs})
+target_link_libraries(${target} PUBLIC
+  ${libs}
+  ${plugins}
+)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.ini
   ${CMAKE_CURRENT_BINARY_DIR} COPYONLY
