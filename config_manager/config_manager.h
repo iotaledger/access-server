@@ -25,7 +25,7 @@
 
 int config_manager_init(void *in_parameter);
 int config_manager_get_option_string(const char *module_name, const char *option_name, char *option_value,
-                                    size_t option_size);
+                                     size_t option_size);
 int config_manager_get_option_int(const char *module_name, const char *option_name, int *option_value);
 int config_manager_get_option_float(const char *module_name, const char *option_name, float *option_value);
 

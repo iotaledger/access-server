@@ -92,7 +92,8 @@ static bool transaction_store_transaction(char* policy_id, int policy_id_len, ch
 
 static int demo_wallet_transfer_tokens(pdp_action_t* action) {
   char bundle[81];
-  wallet_send(dev_wallet, "MXHYKULAXKWBY9JCNVPVSOSZHMBDJRWTTXZCTKHLHKSJARDADHJSTCKVQODBVWCYDNGWFGWVTUVENB9UA", action->balance, NULL, bundle);
+  wallet_send(dev_wallet, "MXHYKULAXKWBY9JCNVPVSOSZHMBDJRWTTXZCTKHLHKSJARDADHJSTCKVQODBVWCYDNGWFGWVTUVENB9UA",
+              action->balance, NULL, bundle);
   return 0;
 }
 
@@ -117,7 +118,7 @@ static int action_cb(plugin_t* plugin, void* data) {
   int status = 0;
 
   // handle obligations
-  //if (0 == memcmp(obligation, "obligation#1", strlen("obligation#1"))) {
+  // if (0 == memcmp(obligation, "obligation#1", strlen("obligation#1"))) {
   //}
 
   // execute action

@@ -18,18 +18,18 @@
  */
 
 /****************************************************************************
-* \project IOTA Access
-* \file pip_plugin_canopen.c
-* \brief
-* PIP Plugin for CAN open
-*
+ * \project IOTA Access
+ * \file pip_plugin_canopen.c
+ * \brief
+ * PIP Plugin for CAN open
+ *
  * @Author Djordje Golubovic, Bernardo Araujo
-*
-* \notes
-*
-* \history
-* 04.03.2020. Initial version.
-* 15.07.2020. Renaming
+ *
+ * \notes
+ *
+ * \history
+ * 04.03.2020. Initial version.
+ * 15.07.2020. Renaming
  ****************************************************************************/
 
 #include "pip_plugin_canopen.h"

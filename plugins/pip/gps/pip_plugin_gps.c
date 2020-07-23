@@ -18,18 +18,18 @@
  */
 
 /****************************************************************************
-* \project IOTA Access
-* \file pip_plugin_gps.h
-* \brief
-* PIP plugin for GPS module
-*
-* @Author Djordje Golubovic, Bernardo Araujo
-*
-* \notes
-*
-* \history
-* 04.15.2019. Initial version.
-* 15.07.2020. Renaming.
+ * \project IOTA Access
+ * \file pip_plugin_gps.h
+ * \brief
+ * PIP plugin for GPS module
+ *
+ * @Author Djordje Golubovic, Bernardo Araujo
+ *
+ * \notes
+ *
+ * \history
+ * 04.15.2019. Initial version.
+ * 15.07.2020. Renaming.
  ****************************************************************************/
 #include <fcntl.h>
 #include <string.h>

@@ -43,4 +43,4 @@
  */
 int pep_plugin_can_initializer(plugin_t* plugin, void* options);
 
-#endif //_PEP_PLUGIN_CAN_H_
+#endif  //_PEP_PLUGIN_CAN_H_

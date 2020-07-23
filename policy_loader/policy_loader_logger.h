@@ -31,7 +31,6 @@
  * 17.07.2020. Initial version.
  ****************************************************************************/
 
-
 #ifndef POLICY_LOADER_LOGGER_H
 #define POLICY_LOADER_LOGGER_H
 

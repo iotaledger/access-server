@@ -42,4 +42,4 @@
  */
 int pep_plugin_print_initializer(plugin_t* plugin, void* options);
 
-#endif //_PEP_PLUGIN_PRINT_H_
+#endif  //_PEP_PLUGIN_PRINT_H_

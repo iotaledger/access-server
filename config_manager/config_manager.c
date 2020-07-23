@@ -22,7 +22,7 @@
 int config_manager_init(void *in_parameter) { return config_manager_implementation_init_cb(in_parameter); }
 
 int config_manager_get_option_string(const char *module_name, const char *option_name, char *option_value,
-                                    size_t option_size) {
+                                     size_t option_size) {
   return config_manager_implementation_get_string_cb(module_name, option_name, option_value, option_size);
 }
 

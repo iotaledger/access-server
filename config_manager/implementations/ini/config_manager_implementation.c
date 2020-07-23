@@ -56,17 +56,17 @@ int config_manager_implementation_init_cb(void *in_parameter) {
     char *this_chunk = configuration->data + total_bytes_read;
     bytes_read = fread(this_chunk, 1, READ_CHUNK_SIZE, fp);
     for (int i = 0; i < bytes_read; i++) {
-      if (new_line == 1 && this_chunk[i] == '#')  {// comment line
+      if (new_line == 1 && this_chunk[i] == '#') {  // comment line
         comment_line = 1;
         new_line = 0;
       } else if (new_line == 1) {
-        if (this_chunk[i] == '[')  {// start of group token
+        if (this_chunk[i] == '[') {  // start of group token
           group_token = this_token;
           this_token->start = total_bytes_read + i + 1;
           this_token->end = total_bytes_read + i + 1;
           this_token->size = 0;
           this_token->level = CONFIG_MANAGER_TOKEN_GROUP;
-        } else  {// start of option=value token
+        } else {  // start of option=value token
           group_token->size++;
 
           int new_token_start = total_bytes_read + i;
@@ -77,10 +77,10 @@ int config_manager_implementation_init_cb(void *in_parameter) {
           this_token->level = CONFIG_MANAGER_TOKEN_OPTION;
         }
         new_line = 0;
-      } else if (this_chunk[i] == '=' && value_started == 0)  {// start of value
+      } else if (this_chunk[i] == '=' && value_started == 0) {  // start of value
         value_started = 1;
         this_token->eq_sign_idx = total_bytes_read + i;
-      } else if (this_chunk[i] == '\n')  {// end of token
+      } else if (this_chunk[i] == '\n') {  // end of token
         value_started = 0;
         if (comment_line == 1) {
           comment_line = 0;
@@ -105,7 +105,7 @@ int config_manager_implementation_init_cb(void *in_parameter) {
 }
 
 int config_manager_implementation_get_string_cb(const char *module_name, const char *option_name, char *option_value,
-                                              size_t option_value_size) {
+                                                size_t option_value_size) {
   config_manager_t *configuration = &g_config;
   int found_module = -1;
   int found_config = -1;

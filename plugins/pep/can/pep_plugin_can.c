@@ -88,7 +88,7 @@ static int action_cb(plugin_t* plugin, void* data) {
   int status = 0;
 
   // handle obligations
-  //if (0 == memcmp(obligation, "obligation#1", strlen("obligation#1"))) {
+  // if (0 == memcmp(obligation, "obligation#1", strlen("obligation#1"))) {
   //}
 
   // execute action

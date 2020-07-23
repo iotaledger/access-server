@@ -58,19 +58,17 @@ typedef struct {
 static wallet_ctx_t* dev_wallet = NULL;
 static action_set_t g_action_set;
 
-static int log_tangle(){
+static int log_tangle() {
   char bundle[81];
   wallet_send(dev_wallet, ADDR, 0, NULL, bundle);
 }
 
-static int relay_on()
-{
+static int relay_on() {
   relayinterface_on(0);
   return 0;
 }
 
-static int relay_off()
-{
+static int relay_off() {
   relayinterface_off(0);
   return 0;
 }
@@ -85,7 +83,7 @@ static int action_cb(plugin_t* plugin, void* data) {
   int status = 0;
 
   // handle obligations
-  //if (0 == memcmp(obligation, "obligation#1", strlen("obligation#1"))) {
+  // if (0 == memcmp(obligation, "obligation#1", strlen("obligation#1"))) {
   //}
 
   // execute action

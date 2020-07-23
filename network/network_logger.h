@@ -31,7 +31,6 @@
  * 17.07.2020. Initial version.
  ****************************************************************************/
 
-
 #ifndef ACCESS_NETWORK_LOGGER_H
 #define ACCESS_NETWORK_LOGGER_H
 

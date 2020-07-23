@@ -42,4 +42,4 @@
  */
 int pep_plugin_relay_initializer(plugin_t* plugin, void* options);
 
-#endif //_PEP_PLUGIN_RELAY_H_
+#endif  //_PEP_PLUGIN_RELAY_H_

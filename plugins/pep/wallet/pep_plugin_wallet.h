@@ -42,4 +42,4 @@
  */
 int pep_plugin_wallet_initializer(plugin_t* plugin, void* options);
 
-#endif //_PEP_PLUGIN_WALLET_H_
+#endif  //_PEP_PLUGIN_WALLET_H_

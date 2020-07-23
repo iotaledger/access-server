@@ -18,17 +18,17 @@
  */
 
 /****************************************************************************
-* \project IOTA Access
-* \file pep_plugin_print.c
-* \brief
-* PEP plugin that only prints on the terminal (for development purposes).
-*
-* @Author Bernardo Araujo
-*
-* \notes
-*
-* \history
-* 17.07.2020. Initial version.
+ * \project IOTA Access
+ * \file pep_plugin_print.c
+ * \brief
+ * PEP plugin that only prints on the terminal (for development purposes).
+ *
+ * @Author Bernardo Araujo
+ *
+ * \notes
+ *
+ * \history
+ * 17.07.2020. Initial version.
  ****************************************************************************/
 
 #include "pep_plugin_print.h"
@@ -58,26 +58,27 @@ typedef struct {
 static wallet_ctx_t* dev_wallet = NULL;
 static action_set_t g_action_set;
 
-static int log_tangle(pdp_action_t* action){
+static int log_tangle(pdp_action_t* action) {
   char bundle_hash[NUM_TRYTES_BUNDLE + 1] = {};
 
-  wallet_err_t ret = wallet_send(dev_wallet,
-              "MXHYKULAXKWBY9JCNVPVSOSZHMBDJRWTTXZCTKHLHKSJARDADHJSTCKVQODBVWCYDNGWFGWVTUVENB9UA",
-              0,
-              "hello world from access!",
-              bundle_hash);
+  wallet_err_t ret =
+      wallet_send(dev_wallet, "MXHYKULAXKWBY9JCNVPVSOSZHMBDJRWTTXZCTKHLHKSJARDADHJSTCKVQODBVWCYDNGWFGWVTUVENB9UA", 0,
+                  "hello world from access!", bundle_hash);
 
   bundle_hash[NUM_TRYTES_BUNDLE] = '\0';
-  if (ret != WALLET_OK){
-    log_error(plugin_logger_id, "[%s:%d] Could not fulfill obligation of logging action to Tangle. %s .\n", __func__, __LINE__);
+  if (ret != WALLET_OK) {
+    log_error(plugin_logger_id, "[%s:%d] Could not fulfill obligation of logging action to Tangle. %s .\n", __func__,
+              __LINE__);
     return -1;
   }
 
-  log_info(plugin_logger_id, "[%s:%d] Obligation of logging Action %s to Tangle. Bundle hash: %s.\n", __func__, __LINE__, action->value, bundle_hash);
+  log_info(plugin_logger_id, "[%s:%d] Obligation of logging Action %s to Tangle. Bundle hash: %s.\n", __func__,
+           __LINE__, action->value, bundle_hash);
 }
 
-static int print_terminal(pdp_action_t* action){
-  log_info(plugin_logger_id, "[%s:%d] Printing from PEP plugin as part of Action: %s\n", __func__, __LINE__, action->value);
+static int print_terminal(pdp_action_t* action) {
+  log_info(plugin_logger_id, "[%s:%d] Printing from PEP plugin as part of Action: %s\n", __func__, __LINE__,
+           action->value);
   return 0;
 }
 

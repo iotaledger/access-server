@@ -43,4 +43,4 @@ int gpsreceiver_init(pthread_mutex_t* json_mutex);
 int gpsreceiver_start();
 int gpsreceiver_end();
 
-#endif //_PIP_PLUGIN_GPS_H_
+#endif  //_PIP_PLUGIN_GPS_H_

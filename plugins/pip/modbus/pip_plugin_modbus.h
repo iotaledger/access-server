@@ -43,4 +43,4 @@ void modbusreceiver_init(canopen01_vehicle_dataset_t *dataset, pthread_mutex_t *
 int modbusreceiver_start();
 void modbusreceiver_stop();
 
-#endif //_PIP_PLUGIN_MODBUS_H_
+#endif  //_PIP_PLUGIN_MODBUS_H_

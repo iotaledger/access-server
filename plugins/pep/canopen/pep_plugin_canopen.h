@@ -44,4 +44,4 @@
  */
 int pep_plugin_canopen_initializer(plugin_t* action_set, void* options);
 
-#endif //_PEP_PLUGIN_CANOPEN_H_
+#endif  //_PEP_PLUGIN_CANOPEN_H_

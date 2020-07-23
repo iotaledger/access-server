@@ -31,8 +31,8 @@
  * 04.03.2020. Initial version.
  * 15.07.2020. Renaming
  ****************************************************************************/
- #ifndef _PIP_PLUGIN_CANOPEN_H_
- #define _PIP_PLUGIN_CANOPEN_H_
+#ifndef _PIP_PLUGIN_CANOPEN_H_
+#define _PIP_PLUGIN_CANOPEN_H_
 
 #include <pthread.h>
 #include "vehicle_dataset.h"
@@ -53,4 +53,4 @@ bool canopenreceiver_is_in_use();
 void canopenreceiver_get_port_name(char *p_name_buff, int p_name_buff_len);
 int canopenreceiver_get_node_id(void);
 
-#endif //_PIP_PLUGIN_CANOPEN_H_
+#endif  //_PIP_PLUGIN_CANOPEN_H_

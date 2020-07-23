@@ -30,8 +30,8 @@
  * 15.07.2020. Renaming
   ****************************************************************************/
 
-  #ifndef _PIP_PLUGIN_OBDII_H_
-  #define _PIP_PLUGIN_OBDII_H_
+#ifndef _PIP_PLUGIN_OBDII_H_
+#define _PIP_PLUGIN_OBDII_H_
 
 #include <pthread.h>
 #include "pip_plugin.h"

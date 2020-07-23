@@ -37,7 +37,7 @@ typedef struct {
 
 int config_manager_implementation_init_cb(void *in_parameter);
 int config_manager_implementation_get_string_cb(const char *module_name, const char *option_name, char *option_value,
-                                              size_t option_value_size);
+                                                size_t option_value_size);
 int config_manager_implementation_get_int_cb(const char *module_name, const char *option_name, int *option_value);
 int config_manager_implementation_get_float_cb(const char *module_name, const char *option_name, float *option_value);
 

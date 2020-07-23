@@ -18,18 +18,18 @@
  */
 
 /****************************************************************************
-* \project IOTA Access
-* \file pip_plugin_modbus.c
-* \brief
-* Modbus receiver module interface
-*
-* @Author Djordje Golubovic, Bernardo Araujo
-*
-* \notes
-*
-* \history
-* 07.29.2019. Initial version.
-* 15.07.2020. Renaming.
+ * \project IOTA Access
+ * \file pip_plugin_modbus.c
+ * \brief
+ * Modbus receiver module interface
+ *
+ * @Author Djordje Golubovic, Bernardo Araujo
+ *
+ * \notes
+ *
+ * \history
+ * 07.29.2019. Initial version.
+ * 15.07.2020. Renaming.
  ****************************************************************************/
 
 #include "pip_plugin_modbus.h"

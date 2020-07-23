@@ -31,8 +31,8 @@
  * 19.06.2020. Initial version.
  ****************************************************************************/
 #include "gpio_interface.h"
-#include <stdio.h> 
 #include <pigpio.h>
+#include <stdio.h>
 
 #define LOW 0
 #define HIGH 1

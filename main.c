@@ -25,13 +25,13 @@
 #include "config_manager.h"
 #include "dataset.h"
 #include "network.h"
-#include "policy_loader.h"
-#include "pep_plugin_print.h"
 #include "pap_plugin_unix.h"
+#include "pep_plugin_print.h"
+#include "policy_loader.h"
 
 #define MAX_CLIENT_NAME 32
 #define MAX_STR_LEN 512
-#define SEED_LEN 81+1
+#define SEED_LEN 81 + 1
 #define MAX_PEM_LEN 4 * 1024
 
 static char client_name[MAX_CLIENT_NAME];
@@ -44,7 +44,7 @@ static network_ctx_t network_context;
 static access_ctx_t access_context;
 static wallet_ctx_t *wallet_context;
 
-int wallet_init(){
+int wallet_init() {
   char node_url[MAX_STR_LEN] = {0};
   char seed[SEED_LEN] = {0};
   uint8_t node_mwm;
@@ -56,16 +56,16 @@ int wallet_init(){
   config_manager_get_option_string("wallet", "url", node_url, MAX_STR_LEN);
   config_manager_get_option_string("wallet", "seed", seed, 81 + 1);
   config_manager_get_option_string("wallet", "pem_file_path", pem_file, MAX_STR_LEN);
-  config_manager_get_option_int("wallet", "mwm", (int*)&node_mwm);
-  config_manager_get_option_int("wallet", "port", (int*)&port);
-  config_manager_get_option_int("wallet", "depth", (int*)&node_depth);
+  config_manager_get_option_int("wallet", "mwm", (int *)&node_mwm);
+  config_manager_get_option_int("wallet", "port", (int *)&port);
+  config_manager_get_option_int("wallet", "depth", (int *)&node_depth);
 
   if (strlen(pem_file) == 0) {
     printf("\nERROR[%s]: PEM file for wallet not defined in config.\n", __FUNCTION__);
     return -1;
   }
 
-  FILE* f = fopen(pem_file, "r");
+  FILE *f = fopen(pem_file, "r");
   if (f == NULL) {
     printf("\nERROR[%s]: PEM file (%s) not found.\n", __FUNCTION__, pem_file);
     return -1;
@@ -97,7 +97,7 @@ int main(int argc, char **argv) {
   policyloader_start();
 
   access_init(&access_context);
-  if (wallet_init() != 0){
+  if (wallet_init() != 0) {
     printf("\nERROR[%s]: Wallet creation failed. Aborting.\n", __FUNCTION__);
   }
 
