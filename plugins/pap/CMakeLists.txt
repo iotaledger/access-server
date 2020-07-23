@@ -19,19 +19,4 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-set(target pap_plugin)
-
-set(sources
-  pap_plugin_unix
-  test_internal.c)
-
-set(include_dirs
-  ${CMAKE_CURRENT_SOURCE_DIR})
-
-set(libs
-  pap
-  misc)
-
-add_library(${target} ${sources})
-target_include_directories(${target} PUBLIC ${include_dirs})
-target_link_libraries(${target} PUBLIC ${libs})
+add_subdirectory(unix)

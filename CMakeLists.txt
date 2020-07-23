@@ -90,6 +90,7 @@ set(libs
   misc
   access_core
   pep_plugin_print
+  pap_plugin_unix
 )
 
 set(include_dirs

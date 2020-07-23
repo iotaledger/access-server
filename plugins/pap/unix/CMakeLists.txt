@@ -19,29 +19,19 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
+set(target pap_plugin_unix)
 
-project(access_wallet DESCRIPTION "Access Network Module")
+set(sources
+  pap_plugin_unix
+  test_internal.c)
 
-enable_language(C)
-enable_testing()
-
-# libs in the sandbox
-link_directories("${CMAKE_INSTALL_PREFIX}/lib")
-
-set(target network)
+set(include_dirs
+  ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(libs
-  json_parser
-  asn
-  pep
-  pap_plugin_unix
-  policy_updater)
+  pap
+  misc)
 
-add_library(${target} network.c network_logger.c)
-target_include_directories(${target} PUBLIC
-  "${CMAKE_CURRENT_SOURCE_DIR}"
-  "${iota_common_SOURCE_DIR}"
-)
-
+add_library(${target} ${sources})
+target_include_directories(${target} PUBLIC ${include_dirs})
 target_link_libraries(${target} PUBLIC ${libs})

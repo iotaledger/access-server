@@ -40,10 +40,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #include "pap.h"
 #include "utils.h"
-#include <sys/stat.h>
 
 /****************************************************************************
  * MACROS
@@ -73,7 +73,7 @@ typedef enum {
 /****************************************************************************
  * MACROS
  ****************************************************************************/
-#define RPI_MAX_STR_LEN 2*1024
+#define RPI_MAX_STR_LEN 2 * 1024
 #define RPI_ACCESS_ERR -1
 #define RPI_POL_ID_MAX_LEN 32
 #define RPI_PUBLIC_KEY_LEN 32 * 2
@@ -83,7 +83,7 @@ typedef enum {
  * API FUNCTIONS
  ****************************************************************************/
 static bool unix_store_policy(char* policy_id, char* policy_object, int policy_object_size, char* policy_cost,
-                                    char* signature, char* public_key, char* signature_algorithm, char* hash_function) {
+                              char* signature, char* public_key, char* signature_algorithm, char* hash_function) {
   char pol_path[RPI_MAX_STR_LEN] = {0};
   char pol_id_str[RPI_POL_ID_MAX_LEN * 2 + 1] = {0};
   FILE* f = NULL;
@@ -149,8 +149,7 @@ static bool unix_store_policy(char* policy_id, char* policy_object, int policy_o
 }
 
 static bool unix_acquire_policy(char* policy_id, char* policy_object, int* policy_object_size, char* policy_cost,
-                                      char* signature, char* public_key, char* signature_algorithm,
-                                      char* hash_function) {
+                                char* signature, char* public_key, char* signature_algorithm, char* hash_function) {
   char pol_path[RPI_MAX_STR_LEN] = {0};
   char pol_id_str[RPI_POL_ID_MAX_LEN * 2 + 1] = {0};
   char* buffer;
@@ -206,7 +205,8 @@ static bool unix_acquire_policy(char* policy_id, char* policy_object, int* polic
   memcpy(signature, substr + strlen("policy id signature:"), substr_len);
 
   substr = strstr(buffer, "policy id signature public key:");
-  substr_len = strstr(buffer, "\npolicy id signature sign. algorithm:") - (substr + strlen("policy id signature public key:"));
+  substr_len =
+      strstr(buffer, "\npolicy id signature sign. algorithm:") - (substr + strlen("policy id signature public key:"));
   memcpy(public_key, substr + strlen("policy id signature public key:"), substr_len);
 
   substr = strstr(buffer, "policy id signature sign. algorithm:");
@@ -391,9 +391,9 @@ static bool store_policy(char* policy_id, pap_policy_object_t policy_object,
   }
 
   // Call function for storing policy on used platform
-  return unix_store_policy(policy_id, policy_object.policy_object, policy_object.policy_object_size,
-                                 policy_object.cost, policy_id_signature.signature, policy_id_signature.public_key,
-                                 sign_algorithm, hash_function);
+  return unix_store_policy(policy_id, policy_object.policy_object, policy_object.policy_object_size, policy_object.cost,
+                           policy_id_signature.signature, policy_id_signature.public_key, sign_algorithm,
+                           hash_function);
 }
 
 static bool acquire_policy(char* policy_id, pap_policy_object_t* policy_object,
@@ -409,8 +409,8 @@ static bool acquire_policy(char* policy_id, pap_policy_object_t* policy_object,
 
   // Call function for storing policy on used platform
   if (unix_acquire_policy(policy_id, policy_object->policy_object, &(policy_object->policy_object_size),
-                                policy_object->cost, policy_id_signature->signature, policy_id_signature->public_key,
-                                sign_algorithm, hash_function) == FALSE) {
+                          policy_object->cost, policy_id_signature->signature, policy_id_signature->public_key,
+                          sign_algorithm, hash_function) == FALSE) {
     printf("\nERROR[%s]: Could not acquire policy from R-Pi.\n", __FUNCTION__);
     return FALSE;
   }
