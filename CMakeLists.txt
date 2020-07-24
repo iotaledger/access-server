@@ -26,7 +26,15 @@ include(FetchContent)
 FetchContent_Declare(
   access-sdk
   GIT_REPOSITORY https://github.com/iotaledger/access-sdk
-  GIT_TAG bbb7ee98449d41b20ca9d71152f8f6cfe50269c8
+  GIT_TAG 372818d01170b9c3c10250bb9763b81ef76030a5
+)
+
+# fetch iota.c
+include(FetchContent)
+FetchContent_Declare(
+        iota.c
+        GIT_REPOSITORY http://github.com/iotaledger/iota.c.git
+        GIT_TAG 5d4433f7b936822f7d4c5bfc4f3e25899f7a3ce8
 )
 
 # fetch pigpio
@@ -118,9 +126,11 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/wallet_pem.txt
 )
 
 add_subdirectory(tests)
-add_subdirectory(plugins)
 add_subdirectory(network)
+add_subdirectory(plugins)
 add_subdirectory(config_manager)
 add_subdirectory(data_dumper)
 add_subdirectory(policy_loader)
 add_subdirectory(policy_updater)
+add_subdirectory(wallet)
+add_subdirectory(access)
