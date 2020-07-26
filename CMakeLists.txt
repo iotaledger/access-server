@@ -29,14 +29,6 @@ FetchContent_Declare(
   GIT_TAG 372818d01170b9c3c10250bb9763b81ef76030a5
 )
 
-# fetch iota.c
-include(FetchContent)
-FetchContent_Declare(
-        iota.c
-        GIT_REPOSITORY http://github.com/iotaledger/iota.c.git
-        GIT_TAG 5d4433f7b936822f7d4c5bfc4f3e25899f7a3ce8
-)
-
 # fetch pigpio
 include(FetchContent)
 FetchContent_Declare(
