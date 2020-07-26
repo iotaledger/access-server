@@ -19,6 +19,4 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-add_subdirectory(asn_test)
-add_subdirectory(user_management)
 add_subdirectory(relay_interface)

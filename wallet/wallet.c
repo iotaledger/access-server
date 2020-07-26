@@ -219,7 +219,8 @@ static void *balance_service(void *arg) {
   if ((err = wallet_check_balance(serv->wallet, serv->addr, &serv->current_balance)) == WALLET_OK) {
     uint64_t old_balance = serv->current_balance;
     serv->status = 1;
-    log_info(wallet_logger_id, "[%s:%d] [%ld] Balance service start at balance %" PRIu64 "\n", __func__, __LINE__, pthread_self(), serv->current_balance);
+    log_info(wallet_logger_id, "[%s:%d] [%ld] Balance service start at balance %" PRIu64 "\n", __func__, __LINE__,
+             pthread_self(), serv->current_balance);
     while ((serv->current_balance - old_balance) < serv->threshold) {
       sleep(serv->interval);
       if (serv->status == 2) {
@@ -228,11 +229,13 @@ static void *balance_service(void *arg) {
       }
 
       if ((err = wallet_check_balance(serv->wallet, serv->addr, &serv->current_balance)) != WALLET_OK) {
-        log_info(wallet_logger_id, "[%s:%d] [%ld] Balance service get balance failed.\n", __func__, __LINE__, pthread_self());
+        log_info(wallet_logger_id, "[%s:%d] [%ld] Balance service get balance failed.\n", __func__, __LINE__,
+                 pthread_self());
         break;
       }
-      log_info(wallet_logger_id, "[%s:%d] [%ld] Starting: %\" PRIu64 \", current :%\" PRIu64 \", threshold: %\" PRIu64 \"\n", __func__, __LINE__,
-               pthread_self(), old_balance, serv->current_balance, serv->threshold);
+      log_info(wallet_logger_id,
+               "[%s:%d] [%ld] Starting: %\" PRIu64 \", current :%\" PRIu64 \", threshold: %\" PRIu64 \"\n", __func__,
+               __LINE__, pthread_self(), old_balance, serv->current_balance, serv->threshold);
     }
 
     if (serv->cb) {
@@ -244,7 +247,8 @@ static void *balance_service(void *arg) {
     printf("[%ld] Err: \n", pthread_self());
   }
 
-  log_info(wallet_logger_id, "[%s:%d] [%ld] terminating :%\" PRIu64 \"\n", __func__, __LINE__, pthread_self(), serv->current_balance);
+  log_info(wallet_logger_id, "[%s:%d] [%ld] terminating :%\" PRIu64 \"\n", __func__, __LINE__, pthread_self(),
+           serv->current_balance);
 }
 
 balance_service_t *balance_service_start(wallet_ctx_t const *wallet, char const *const address, uint32_t interval,
@@ -335,7 +339,8 @@ static void *confirmation_service(void *arg) {
   if ((is_confirmed = wallet_check_confirmation(serv->wallet, serv->tx)) == false) {
     while (1) {
       if (time >= serv->timeout) {
-        log_error(wallet_logger_id, "[%s:%d] [%ld] Confirmation service stop due to timeout.\n", __func__, __LINE__, pthread_self());
+        log_error(wallet_logger_id, "[%s:%d] [%ld] Confirmation service stop due to timeout.\n", __func__, __LINE__,
+                  pthread_self());
         break;
       }
 
@@ -345,7 +350,8 @@ static void *confirmation_service(void *arg) {
       }
 
       if (is_confirmed = wallet_check_confirmation(serv->wallet, serv->tx) == true) {
-        log_info(wallet_logger_id, "[%s:%d] [%ld] Transaction has been confirmed.\n", __func__, __LINE__, pthread_self());
+        log_info(wallet_logger_id, "[%s:%d] [%ld] Transaction has been confirmed.\n", __func__, __LINE__,
+                 pthread_self());
         break;
       }
 

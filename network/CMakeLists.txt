@@ -29,16 +29,13 @@ enable_testing()
 # libs in the sandbox
 link_directories("${CMAKE_INSTALL_PREFIX}/lib")
 
-add_subdirectory(asn)
-add_subdirectory(policy_updater)
-
 set(target network)
 
 set(libs
   json_parser
   asn
   pep
-  pap_plugin
+  pap_plugin_unix
   policy_updater)
 
 add_library(${target} network.c network_logger.c)

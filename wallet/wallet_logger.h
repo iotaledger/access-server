@@ -31,7 +31,6 @@
  * 20.07.2020. Initial version.
  ****************************************************************************/
 
-
 #ifndef WALLET_LOGGER_H
 #define WALLET_LOGGER_H
 

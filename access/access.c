@@ -22,23 +22,19 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "config_manager.h"
-#include "datadumper.h"
 #include "pap_plugin.h"
 #include "pep.h"
 #include "pep_plugin.h"
 #include "pip.h"
-#include "policy_loader.h"
 #include "timer.h"
 
-// placeholder context structure
+// currently empty
+// placeholder context structure for future use
 typedef struct {
 } access_ctx_t_;
 
 void access_init(access_ctx_t *access_context) {
   access_ctx_t_ *ctx = calloc(1, sizeof(access_ctx_t_));
-
-  timer_init();
 
   pep_init();
 
@@ -57,11 +53,6 @@ void access_deinit(access_ctx_t access_context) {
 
   // stop and terminate plugins
   pep_term();
-  timer_deinit();
-}
-
-void access_get_ddstate(access_ctx_t access_context, dataset_state_t **ddstate) {
-  access_ctx_t_ *ctx = (access_ctx_t_ *)access_context;
 }
 
 int access_register_pep_plugin(access_ctx_t access_context, plugin_t *plugin) {

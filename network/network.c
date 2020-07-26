@@ -1,6 +1,6 @@
 /*
- * This file is part of the Frost distribution
- * (https://github.com/xainag/frost)
+ * This file is part of the IOTA Access distribution
+ * (https://github.com/iotaledger/access)
  *
  * Copyright (c) 2020 IOTA Stiftung
  *
@@ -32,9 +32,9 @@
  ****************************************************************************/
 
 #include "network.h"
-#include "network_logger.h"
 #include "asn_logger.h"
 #include "crypto_logger.h"
+#include "network_logger.h"
 
 #include <arpa/inet.h>
 #include <pthread.h>
@@ -47,10 +47,10 @@
 #include "globals_declarations.h"
 #include "json_helper.h"
 #include "pap.h"
+#include "pap_plugin.h"
 #include "pep.h"
 #include "pip.h"
 #include "policy_updater.h"
-#include "pap_plugin.h"
 #include "utils.h"
 
 #define SEND_BUFF_LEN 4096

@@ -19,21 +19,13 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-add_subdirectory(pdp)
-add_subdirectory(pip)
-add_subdirectory(pap)
-add_subdirectory(pep)
-
-set(target access_actor)
+set(target access_core)
 
 set(libs
-  config_manager
   pep
   misc
   fastjson
-  platform_interface
-  pip_plugins
-  pep_plugins)
+  access_wallet)
 
 add_library(${target} access.c)
 target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

@@ -1,6 +1,6 @@
 /*
- * This file is part of the Frost distribution
- * (https://github.com/xainag/frost)
+ * This file is part of the IOTA Access distribution
+ * (https://github.com/iotaledger/access)
  *
  * Copyright (c) 2020 IOTA Stiftung
  *
@@ -30,7 +30,6 @@
  * \history
  * 17.07.2020. Initial version.
  ****************************************************************************/
-
 
 #ifndef ACCESS_NETWORK_LOGGER_H
 #define ACCESS_NETWORK_LOGGER_H

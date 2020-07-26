@@ -19,7 +19,23 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-project(access_sdk)
+project(access_reference_implementation)
+
+# fetch access-sdk
+include(FetchContent)
+FetchContent_Declare(
+  access-sdk
+  GIT_REPOSITORY https://github.com/iotaledger/access-sdk
+  GIT_TAG 372818d01170b9c3c10250bb9763b81ef76030a5
+)
+
+# fetch iota.c
+include(FetchContent)
+FetchContent_Declare(
+        iota.c
+        GIT_REPOSITORY http://github.com/iotaledger/iota.c.git
+        GIT_TAG 5d4433f7b936822f7d4c5bfc4f3e25899f7a3ce8
+)
 
 # fetch pigpio
 include(FetchContent)
@@ -55,6 +71,9 @@ if(${CMAKE_VERSION} VERSION_LESS 3.14)
     endmacro()
 endif()
 
+message(STATUS "Fetching access-sdk")
+FetchContent_MakeAvailable(access-sdk)
+
 message(STATUS "Fetching pigpio")
 FetchContent_MakeAvailable(pigpio)
 
@@ -67,13 +86,51 @@ FetchContent_MakeAvailable(iota.c)
 # fetch external libs
 include(ExternalProject)
 
-# Global includes
-include_directories(utils/misc plugins/data/dataset)
+set(target acsri)
 
-add_subdirectory(access)
+set(libs
+  sqlite3
+  json_parser
+  vehicle_dataset
+  policy_loader
+  network
+  data_dumper
+  misc
+  access_core
+)
+
+set(plugins
+  pep_plugin_print
+  pap_plugin_unix
+)
+
+set(include_dirs
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/policy_loader
+  ${CMAKE_CURRENT_SOURCE_DIR}/config_manager
+)
+
+add_executable(${target} main.c)
+target_include_directories(${target} PUBLIC ${include_dirs})
+target_link_libraries(${target} PUBLIC
+  ${libs}
+  ${plugins}
+)
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.ini
+  ${CMAKE_CURRENT_BINARY_DIR} COPYONLY
+)
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/wallet_pem.txt
+  ${CMAKE_CURRENT_BINARY_DIR} COPYONLY
+)
+
+add_subdirectory(tests)
 add_subdirectory(network)
 add_subdirectory(plugins)
+add_subdirectory(config_manager)
+add_subdirectory(data_dumper)
+add_subdirectory(policy_loader)
+add_subdirectory(policy_updater)
 add_subdirectory(wallet)
-add_subdirectory(utils)
-add_subdirectory(tests)
-add_subdirectory(reference_implementation)
+add_subdirectory(access)

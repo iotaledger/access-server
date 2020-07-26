@@ -19,18 +19,8 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-set(target plugin_manager)
-
-set(sources
-  plugin.c
-  plugin_manager.c
-  plugin_logger.c
-)
-
-set(include_dirs
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${iota_common_SOURCE_DIR}
-)
-
-add_library(${target} ${sources})
-target_include_directories(${target} PUBLIC ${include_dirs})
+add_subdirectory(dataset)
+add_subdirectory(platform_interface)
+add_subdirectory(pap)
+add_subdirectory(pip)
+add_subdirectory(pep)
