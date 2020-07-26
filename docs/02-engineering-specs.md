@@ -10,7 +10,7 @@
       - [Policy Decision Point](#policy-decision-point)
     + [Platform Plugins](#platform-plugins)
       - [Input](#input)
-        * [Data Acquisition Plugins](#data-acquisition-plugins)
+        * [PIP Plugins](#pip-plugins)
         * [PAP Plugins](#pap-plugins)
       - [Output](#output)
         * [PEP Plugins](#pep-plugins)
@@ -20,7 +20,7 @@
       - [Server authentication key exchange](#server-authentication-key-exchange)
       - [Client public key authentication protocol](#client-public-key-authentication-protocol)
       - [Data encryption, decryption and validation](#data-encryption--decryption-and-validation)
-  * [Access Server Reference Implementation (ASRI)](#access-server-reference-implementation--asri-)
+  * [Access Core Server Reference Implementation (ACSRI)](#access-core-server-reference-implementation--acsri-)
     + [Access Actor](#access-actor)
     + [Wallet Actor](#wallet-actor)
     + [Network Actor](#network-actor)
@@ -39,7 +39,6 @@
     + [Policy Information Point](#policy-information-point-1)
     + [Policy Decision Point](#policy-decision-point-1)
   * [Access Secure Network API](#access-secure-network-api-1)
-
 
 ## Summary
 
@@ -141,7 +140,7 @@ The Access Secure Network API is used to authenticate clients, ensure (off-Tangl
 
 The ASN authentication protocol is used to secure communication channel of the device. It is based on stripped version of SSH protocol. In order to be used in embedded system protocol must fulfill following requirements:
 - Independent of physical communication layer
-- Small memory footprint
+- Small memory bartprint
 - No OS dependencies
 - Fast execution
 - Off-Tangle communication between server and client
@@ -234,7 +233,7 @@ On the reception side, the reverse operation is performed in order to decrypt th
 
 Sizes `packet_length` and `encrypted_packet_length` are 2 bytes in big endian format and size of `sequence_number` is 1 byte.
 
-### Access Server Reference Implementation (ASRI)
+### Access Core Server Reference Implementation (ACSRI)
 The Access Server Reference Implementation is meant to act as a reference for developers who want to write their own applications based on IOTA Access.
 
 It runs on a Raspberry Pi, which means it is easily reproducible by Open Source Software Development Communities.
