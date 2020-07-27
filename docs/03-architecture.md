@@ -1,14 +1,14 @@
 # Architecture
 
-The Figure below demonstrates the conceptual relationship between different Access components.
+The Figure below demonstrates the conceptual relationship between different ACSRI components.
 
 It can be divided in 4 stacked layers:
 - Application Layer
-- Actor Layer
+- Session Layer
 - API Layer
 - Portability Layer
 
-![drawing](/docs/images/access_structure.png)
+![drawing](/docs/images/arch.svg)
 
 The **Portability Layer** implements platform-dependent code. Anything related to drivers, Operating Systems and base libraries.
 
