@@ -19,24 +19,20 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-set(target pep_plugin_can)
-
-set(libs
-  access_wallet
-  pep
-  pdp
-  config_manager
-  plugin_manager
-  raspberrypi
-)
+set(target raspberrypi)
 
 set(sources
-  pep_plugin_can.c
+  relay_interface.c
+  gpio_interface.c
 )
 
-add_library(${target} ${sources})
 set(include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}
+  ${pigpio_SOURCE_DIR}
 )
+
+set(libs pigpio)
+
+add_library(${target} ${sources})
 target_include_directories(${target} PUBLIC ${include_dirs})
 target_link_libraries(${target} PUBLIC ${libs})

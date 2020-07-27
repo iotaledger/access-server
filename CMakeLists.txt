@@ -117,6 +117,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/wallet_pem.txt
   ${CMAKE_CURRENT_BINARY_DIR} COPYONLY
 )
 
+add_subdirectory(portability)
 add_subdirectory(tests)
 add_subdirectory(network)
 add_subdirectory(plugins)

@@ -19,23 +19,5 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-set(target platform_interface)
-
-set(sources
-  r_pi/relay_interface.c
-  r_pi/rpi_trans.c)
-
-set(include_dirs
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/r_pi
-  ${pigpio_SOURCE_DIR}
-)
-
-set(libs
-  pep
-  pap
-  pigpio)
-
-add_library(${target} ${sources})
-target_include_directories(${target} PUBLIC ${include_dirs})
-target_link_libraries(${target} PUBLIC ${libs})
+add_subdirectory(unix)
+add_subdirectory(raspberrypi)
