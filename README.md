@@ -23,7 +23,7 @@ Existing access and permissions solutions revolve around having a connection to 
 
 In automotive and smart mobility contexts, none of this works reliably. Vehicles do not have a consistent connection all the time. Constantly checking in with a centralized structure requires high use of bandwidth and poses slew of single points of failure along the data pipeline. With the use of IOTA Access, we look to solve this. IOTA Access decentralizes access and permission structures and is working towards allowing them to be embedded into the devices and the individual processors on those devices directly. This is done with a new policy-based management structure that focuses on device and human interactions in a direct peer to peer context. Policies can be embedded into devices and devices they come in contact with. These policies can be directly managed by the device owner and can allow for a slew of improvements in security and usability.
 
-For example, a vehicle with IOTA Access enabled, could connect to a parking entry station with IOTA Access enabled, and that entry station could directly allow the vehicle to enter and park based on the policy language if it has been approved. Or if there is a payment requirement, the wallet integration built into IOTA Access can allow for direct M2M payments between that vehicle and the parking entry station. No human interaction directly required. The station gives access to the vehicle. The vehicle pays for that access in a predetermined fashion, which could be as granular as by the second charge rates. When the vehicle leaves, the payment stops, and the transaction is concluded. This can work for EV charging, tolling, parking, fast food, usage-based road tax, mobility as a service use cases, or even delivery services. A user want’s a package dropped off in the trunk of their car while they are at work instead of at their house, Access could enable it. A user wants to rent out an autonomous vehicle in the future to make money while they work, then Access could enable that. A homeowner wants a smart lock to directly and securely manage access and payment for that access to a home they are renting out as an AirBnB. Access could enable that. All of these direct, frictionless use cases and more rely on access and permissions systems. And most cannot be done securely or reliably with centralized systems. 
+For example, a vehicle with IOTA Access enabled, could connect to a parking entry station with IOTA Access enabled, and that entry station could directly allow the vehicle to enter and park based on the policy language if it has been approved. Or if there is a payment requirement, the wallet integration built into IOTA Access can allow for direct M2M payments between that vehicle and the parking entry station. No human interaction directly required. The station gives access to the vehicle. The vehicle pays for that access in a predetermined fashion, which could be as granular as by the second charge rates. When the vehicle leaves, the payment stops, and the transaction is concluded. This can work for EV charging, tolling, parking, fast food, usage-based road tax, mobility as a service use cases, or even delivery services. A user want’s a package dropped off in the trunk of their car while they are at work instead of at their house, Access could enable it. A user wants to rent out an autonomous vehicle in the future to make money while they work, then Access could enable that. A homeowner wants a smart lock to directly and securely manage access and payment for that access to a home they are renting out as an AirBnB. Access could enable that. All of these direct, frictionless use cases and more rely on access and permissions systems. And most cannot be done securely or reliably with centralized systems.
 
 ## Disclaimer
 IOTA Access is a Work-in-Progress, and the project should be seen as a [*Minimum Viable Product*](https://en.wikipedia.org/wiki/Minimum_viable_product) (MVP).
@@ -41,8 +41,13 @@ For newcomers, documentation is the ideal place to start. It will give you an ov
 The [docs](/docs) directory contains markdown files for documentation:
  - [Introduction](/docs/01-introduction.md)
  - [Engineering Specification](/docs/02-engineering-specs.md)
- - [Policy Language](/docs/03-policy-language.md)
- - [Getting Started](/docs/04-getting-started.md)
+ - [Architecture](/docs/03-architecture.md)
+ - [Plugin Specs](/docs/04-plugin-specs.md)
+ - [Network Specs](/docs/05-asn-specs.md)
+ - [Access Core Server Reference Implementation](/docs/07-acsri.md)
+ - [Access Core Policy Updater](/docs/08-acpu.md)
+ - [Policy Language](/docs/policy-language.md)
+ - [Getting Started](/docs/getting-started.md)
 
 ## Build Instructions
 Development of the PoC is currently focused on [Raspbian Buster](https://www.raspberrypi.org/blog/buster-the-new-version-of-raspbian/).
