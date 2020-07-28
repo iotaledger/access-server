@@ -19,24 +19,22 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-set(target pep_plugin_can)
-
-set(libs
-  access_wallet
-  pep
-  pdp
-  config_manager
-  plugin_manager
-  raspberrypi
-)
+set(target unix)
 
 set(sources
-  pep_plugin_can.c
+  unix_transaction.c
+)
+
+set(include_dirs
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/unix
+)
+
+set (libs
+  pap
+  pep
 )
 
 add_library(${target} ${sources})
-set(include_dirs
-  ${CMAKE_CURRENT_SOURCE_DIR}
-)
 target_include_directories(${target} PUBLIC ${include_dirs})
 target_link_libraries(${target} PUBLIC ${libs})

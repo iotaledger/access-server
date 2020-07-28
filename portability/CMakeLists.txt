@@ -19,24 +19,15 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-set(target pep_plugin_can)
+# OS Portability
+add_subdirectory(unix)
+add_subdirectory(zephyr)
+add_subdirectory(freertos)
 
-set(libs
-  access_wallet
-  pep
-  pdp
-  config_manager
-  plugin_manager
-  raspberrypi
-)
+# BSP Portability
+add_subdirectory(raspberrypi)
+add_subdirectory(telemaco3p)
 
-set(sources
-  pep_plugin_can.c
-)
-
-add_library(${target} ${sources})
-set(include_dirs
-  ${CMAKE_CURRENT_SOURCE_DIR}
-)
-target_include_directories(${target} PUBLIC ${include_dirs})
-target_link_libraries(${target} PUBLIC ${libs})
+# IO Portability
+add_subdirectory(stronghold)
+add_subdirectory(hsm)

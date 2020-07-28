@@ -83,8 +83,7 @@ int wallet_init() {
 }
 
 int main(int argc, char **argv) {
-  config_manager_init("config.ini");
-
+  
   signal(SIGINT, signal_handler);
   sigaction(SIGPIPE, &(struct sigaction){SIG_IGN}, NULL);
 

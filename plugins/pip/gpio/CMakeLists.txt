@@ -32,7 +32,7 @@ set(libs
   vehicle_dataset
   config_manager
   data_dumper
-  platform_interface)
+  raspberrypi)
 
 set(sources
   pip_plugin_gpio.c
