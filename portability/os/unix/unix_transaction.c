@@ -19,16 +19,17 @@
 
 /****************************************************************************
  * \project IOTA Access
- * \file rpi_trans.h
+ * \file unix_trans.h
  * \brief
- * Implementation of API for transactions storage to RPI
+ * Implementation of API for transactions storage to unix
  *
- * @Author Strahinja Golic
+ * @Author Strahinja Golic, Bernardo Araujo.
  *
  * \notes
  *
  * \history
  * 10.06.2020. Initial version.
+ * 28.07.2020. Renaming.
  ****************************************************************************/
 
 /****************************************************************************
@@ -42,7 +43,7 @@
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
-bool rpitransaction_store(char *policy_id, int policy_id_len) {
+bool unix_transaction_store(char *policy_id, int policy_id_len) {
   char *line = NULL;
   int line_len = 0;
   FILE *f = NULL;
@@ -73,7 +74,7 @@ bool rpitransaction_store(char *policy_id, int policy_id_len) {
   return TRUE;
 }
 
-bool rpitransaction_update_payment_status(char *policy_id, int policy_id_len, bool is_verified) {
+bool unix_transaction_update_payment_status(char *policy_id, int policy_id_len, bool is_verified) {
   char *buff = NULL;
   char *transaction = NULL;
   char *line = NULL;
@@ -130,7 +131,7 @@ bool rpitransaction_update_payment_status(char *policy_id, int policy_id_len, bo
   return TRUE;
 }
 
-bool rpitransaction_is_stored(char *policy_id) {
+bool unix_transaction_is_stored(char *policy_id) {
   char *buff = NULL;
   int buff_len = 0;
   FILE *f = NULL;
@@ -165,7 +166,7 @@ bool rpitransaction_is_stored(char *policy_id) {
   }
 }
 
-bool rpitransaction_is_verified(char *policy_id, int policy_id_len) {
+bool unix_transaction_is_verified(char *policy_id, int policy_id_len) {
   char *buff = NULL;
   char *line = NULL;
   char *transaction = NULL;
