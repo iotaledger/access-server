@@ -19,6 +19,5 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-add_subdirectory(os)
-add_subdirectory(bsp)
-add_subdirectory(io)
+add_subdirectory(raspberrypi)
+add_subdirectory(telemaco3p)
