@@ -78,7 +78,7 @@ FetchContent_MakeAvailable(iota.c)
 # fetch external libs
 include(ExternalProject)
 
-set(target acsri)
+set(target asri)
 
 set(libs
   sqlite3
@@ -117,6 +117,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/wallet_pem.txt
   ${CMAKE_CURRENT_BINARY_DIR} COPYONLY
 )
 
+add_subdirectory(portability)
 add_subdirectory(tests)
 add_subdirectory(network)
 add_subdirectory(plugins)

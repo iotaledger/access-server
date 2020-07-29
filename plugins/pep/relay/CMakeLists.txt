@@ -27,7 +27,7 @@ set(libs
   pdp
   config_manager
   plugin_manager
-  platform_interface
+  raspberrypi
 )
 
 set(sources

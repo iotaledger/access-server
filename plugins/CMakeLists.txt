@@ -20,7 +20,6 @@
 cmake_minimum_required(VERSION 3.11)
 
 add_subdirectory(dataset)
-add_subdirectory(platform_interface)
 add_subdirectory(pap)
 add_subdirectory(pip)
 add_subdirectory(pep)

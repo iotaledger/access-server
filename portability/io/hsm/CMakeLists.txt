@@ -19,24 +19,36 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-set(target pep_plugin_can)
+set(target hsm)
 
-set(libs
-  access_wallet
-  pep
-  pdp
-  config_manager
-  plugin_manager
-  raspberrypi
-)
+# choose between st33, stsafe and riddlencode
+set(hsm_implementation st33 CACHE STRING "HSM implementation choice")
 
-set(sources
-  pep_plugin_can.c
-)
+if(hsm_implementation STREQUAL st33)
+  set(sources st33/st33.c)
+  set(hsm_include ${CMAKE_CURRENT_SOURCE_DIR}/st33)
+  #set(hsm_libs xxx)
+endif()
 
-add_library(${target} ${sources})
+if(hsm_implementation STREQUAL stsafe)
+  set(sources stsafe/stsafe.c)
+  set(hsm_include ${CMAKE_CURRENT_SOURCE_DIR}/stsafe)
+  #set(hsm_libs xxx)
+endif()
+
+if(hsm_implementation STREQUAL riddlencode)
+  set(sources riddlencode/riddlencode.c)
+  set(hsm_include ${CMAKE_CURRENT_SOURCE_DIR}/riddlencode)
+  #set(hsm_libs xxx)
+endif()
+
 set(include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}
+  ${hsm_include}
 )
+
+#set(libs ${hsm_libs})
+
+add_library(${target} ${sources})
 target_include_directories(${target} PUBLIC ${include_dirs})
 target_link_libraries(${target} PUBLIC ${libs})

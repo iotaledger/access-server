@@ -26,7 +26,7 @@ set(sources relay_interface_test.c)
 add_executable(${target} ${sources})
 
 set(libs
-  platform_interface
+  raspberrypi
 )
 
 set(include_dirs ${CMAKE_CURRENT_SOURCE_DIR}/../../plugins/platform_interface/r_pi)
