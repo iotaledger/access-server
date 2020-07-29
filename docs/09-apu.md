@@ -1,6 +1,8 @@
 # Policy Update Protocol
 The Figure below shows a visual representation of the Policy Update Protocol:
 
+ToDo: refactor this.
+
 ![drawing](/docs/images/update.png)
 1. Supervisor creates Access, Wallet and Network Actors. Network Actor starts Policy Update and Request Listener Daemons.
 2. Access Actor registers Platform Plugin callbacks.
