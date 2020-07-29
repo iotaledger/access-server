@@ -32,6 +32,6 @@ Alice owns a company that functions in a building with smart locks. Alice writes
 
 Employees' ability to access the building is dictated by the Policy written by Alice.
 
-Alice uses Access Mobile Client to create the Policy that delegates device access to renters. Alice stores the Policy on an IOTA Permanode.
+Alice uses Access Mobile Client to create the Policy that delegates device access to renters.
 
 Employees use Access Mobile Client to initiate Access Requests, and their requests are stored on the Tangle.
