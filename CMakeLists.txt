@@ -78,7 +78,7 @@ FetchContent_MakeAvailable(iota.c)
 # fetch external libs
 include(ExternalProject)
 
-set(target acsri)
+set(target asri)
 
 set(libs
   sqlite3
