@@ -21,9 +21,9 @@
       - [Client public key authentication protocol](#client-public-key-authentication-protocol)
       - [Data encryption, decryption and validation](#data-encryption--decryption-and-validation)
   * [Access Server Reference Implementation (ASRI)](#access-server-reference-implementation--asri-)
-    + [Access Actor](#access-actor)
-    + [Wallet Actor](#wallet-actor)
-    + [Network Actor](#network-actor)
+    + [Access Context](#access-context)
+    + [Wallet Context](#wallet-context)
+    + [Network Context](#network-context)
     + [Application Supervisor](#application-supervisor)
   * [Access Policy](#access-policy)
   * [Access Request Protocol](#access-request-protocol)
@@ -52,7 +52,7 @@ The Figure below demonstrates the conceptual relationship between different Acce
 
 It can be divided in 4 stacked layers:
 - Application Layer
-- Actor Layer
+- Context Layer
 - API Layer
 - Portability Layer
 
@@ -281,30 +281,30 @@ The Figure below shows a visual representation of the Access Request Protocol:
 
 ![drawing](/docs/images/request.png)
 
-1. Supervisor creates Access, Wallet and Network Actors. Network Actor starts Policy Update and Request Listener Daemons.
-2. Access Actor registers Platform Plugin callbacks.
-3. Access Actor's PEP Listener and Network Actor's Request Listener Daemon loop.
-4. Client and Server exchange keys and a secure connection is established. ASN Request Listener Daemon receives Access Request and forwards to Access Actor's PEP.
+1. Supervisor creates Access, Wallet and Network Contexts. Network Context starts Request Listener Daemons.
+2. Access Context registers Platform Plugin callbacks.
+3. Access Context's PEP Listener and Network Context's Request Listener Daemon loop.
+4. Client and Server exchange keys and a secure connection is established. ASN Request Listener Daemon receives Access Request and forwards to Access Context's PEP.
 5. PEP requests decision from PDP.
 6. PAP retrieves Policy from non-volatile memory via PAP Plugin.
 7. PIP retrieves Attributes via Data Acquisition Plugin.
 8. PDP decies actions + obligations.
 9. PEP enforces actions + obligations via PEP Plugin.
-10. Action is logged on the Tangle. Access and Network Actors go back to Listen mode.
+10. Action is logged on the Tangle. Access and Network Contexts go back to Listen mode.
 
 ### Policy Update Protocol
 The Figure below shows a visual representation of the Policy Update Protocol:
 
 ![drawing](/docs/images/update.png)
-1. Supervisor creates Access, Wallet and Network Actors. Network Actor starts Policy Update and Request Listener Daemons.
-2. Access Actor registers Platform Plugin callbacks.
-3. PAP sends Storage Checksum to Network Actor, who forwards it to the Tangle Policy Store (TPS). If ID sent by PAP matches with the Checksum of Policy List stored on the TPS, then TPS replies ok (nothing to update). If the ID differs, the TPS replies with Policy List (update required).
+1. Supervisor creates Access, Wallet and Network Contexts. Policy Updater starts.
+2. Access Context registers Platform Plugin callbacks.
+3. PAP sends Local Storage Checksum to Policy Updater, who forwards it to the Policy Store. If ID sent by PAP matches with the Checksum of Policy List stored on the Policy Store, then Policy Store replies ok (nothing to update). If the ID differs, the Policy Store replies with Policy List (update required).
 4. PAP Updater compares the received Policy List with all Policies stored locally. This is done via PAP Plugin.
-5. PAP initiates the request for the Policies that differ. Request is relayed to Network Actor, who forwards it to TPS. TPS fetches Policy from IOTA Permanode and replies back.
+5. PAP initiates the request for the Policies that differ. Request is relayed to Policy Updater, who forwards it to Policy Store. Policy Store fetches Policy from Database and replies back.
 6. PAP parses and validates the new Policies it receives.
 7. PAP stores new Policies via PAP Plugin. PAP goes back to Checksum poll mode.
 
-Note: The protocol described in this section will eventually evolve into a different approach. The entity called `Tangle Policy Store` is a Cloud Server that was inherited by the Legacy Design of early FROST implementations. Eventually this centralized entity will be completely removed and Policy Updates will be done via interactions between Access Actor and Wallet Actor, where the Wallet communicates with an IOTA Permanode.
+Note: The protocol described in this section will eventually evolve into a different approach. The entity called `Tangle Policy Store` is a Cloud Server that was inherited by the Legacy Design of early FROST implementations. Eventually this centralized entity will be completely removed and Policy Updates will be done via interactions between Access Context and Wallet Context, where the Wallet communicates with an IOTA Permanode.
 
 #### Policy Validation
 Policy Validation is the process where Policy structure is checked in order to:
