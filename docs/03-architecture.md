@@ -14,13 +14,13 @@ The **Portability Layer** implements platform-dependent code. Anything related t
 
 The **API Layer** implements platform-agnostic code. It's where Access Core, Access Secure Network, and IOTA functionality are implemented.
 
-The **Actor Layer** is where different functionality gets implemented as [Actors](https://en.wikipedia.org/wiki/Actor_model) abstractions. It's where API calls are put together into cohesive blocks of specific functionality.
+The **Context Layer** is where different functionality gets implemented as Context abstractions. It's where API calls are put together into cohesive blocks of specific functionality.
 
-The **Application Layer** is where the Supervisor works as the main orchestrator that makes all Actors interact with each other. User Configurations are set in place, threads are initiated, and Actors are set up.
+The **Application Layer** is where the Supervisor works as the main orchestrator that makes all Contexts interact with each other. Runtime Configurations are set in place, threads are initiated, and Contexts are set up.
 
 Together, the Portability and API Layers form the **Access Core Software Development Kit**.
 
-Together, the Actor and Application Layers form the **Access Server Reference Implementation**.
+Together, the Context and Application Layers form the **Access Server Reference Implementation**.
 
 ###  Access Core Software Development Kit (ACSDK)
 
