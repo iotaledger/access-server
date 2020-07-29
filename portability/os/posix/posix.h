@@ -31,8 +31,8 @@
  * 10.06.2020. Initial version.
  * 29.07.2020. Renaming.
  ****************************************************************************/
-#ifndef _POSIX_TRANSACTION_H_
-#define _POSIX_TRANSACTION_H_
+#ifndef _POSIX_H_
+#define _POSIX_H_
 
 /****************************************************************************
  * MACROS
@@ -98,4 +98,4 @@ bool posix_transaction_is_stored(char* policy_id);
  */
 bool posix_transaction_is_verified(char* policy_id, int policy_id_len);
 
-#endif  //_POSIX_TRANSACTION_H_
+#endif  //_POSIX_H_
