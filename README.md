@@ -50,7 +50,7 @@ The [docs](/docs) directory contains markdown files for documentation:
  - [Getting Started](/docs/09-getting-started.md)
 
 ## Build Instructions
-Development of the PoC is currently focused on [Raspbian Buster](https://www.raspberrypi.org/blog/buster-the-new-version-of-raspbian/).
+Development of the MVP is currently focused on [Raspbian Buster](https://www.raspberrypi.org/blog/buster-the-new-version-of-raspbian/).
 
 These instructions are only related to the source code for the **Access Core Server**. The Access framework also includes the [Access Client](https://github.com/iotaledger/access-mobile), which is used to create the user experience for Policy Creation and Access Requests.
 
