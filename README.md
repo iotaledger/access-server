@@ -44,10 +44,10 @@ The [docs](/docs) directory contains markdown files for documentation:
  - [Architecture](/docs/03-architecture.md)
  - [Plugin Specs](/docs/04-plugin-specs.md)
  - [Network Specs](/docs/05-asn-specs.md)
- - [Access Core Server Reference Implementation](/docs/07-acsri.md)
- - [Access Core Policy Updater](/docs/08-acpu.md)
- - [Policy Language](/docs/policy-language.md)
- - [Getting Started](/docs/getting-started.md)
+ - [Policy Specs](/docs/06-policy-specs.md)
+ - [Access Server Reference Implementation](/docs/07-asri.md)
+ - [Access Policy Updater](/docs/08-apu.md)
+ - [Getting Started](/docs/09-getting-started.md)
 
 ## Build Instructions
 Development of the PoC is currently focused on [Raspbian Buster](https://www.raspberrypi.org/blog/buster-the-new-version-of-raspbian/).
