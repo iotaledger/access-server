@@ -49,11 +49,13 @@ The Access Core API is divided into 4 different modules (and a few submodules):
 
 **PDP** is responsible for calculating the output for access requests. The API only consumed internally by other Core API modules.
 
-On action request, Policy Enforcement Point (PEP) requests decision from Policy Decision Point (PDP), providing a `policyID` from the request. Based on the requested `policyID`, PDP  requests policy from the policy store and, if response is valid policy, it proceeds with calculation of decision. For both `policy goc` and `policy doc`, PDP calculates result of the policy, `true` or `false`, and then combines those results into decision, which can be one of four defined values: `grant`, `deny`, `conflict` or `undef`, and returns this result to PEP.
+On action request, Policy Enforcement Point (PEP) requests decision from Policy Decision Point (PDP), providing a `policyID` from the request. Based on the requested `policyID`, PDP  requests policy from the policy store and, if response is valid policy, it proceeds with calculation of decision. For both `policy GoC` and `policy DoC`, PDP calculates result of the policy, `true` or `false`, and then combines those results into decision, which can be one of four defined values: `grant`, `deny`, `conflict` or `undef`, and returns this result to PEP.
+
+Note: `GoC` stands for `Grant OR Conflict`, while `DoC` stands for `Denial OR Conflict`. This comes from the logical foundation behind the [Policy Language](/docs/policy-language.md).
 
 ![drawing](/docs/images/pdp.png)
 
-Calculation of `policy goc` and `policy doc` are modules that recursively solve every operation in the policy and return result at the end. The module is executed recursively as long as attributes in the attribute list of the policy contain predefined operations.
+Calculation of `policy GoC` and `policy DoC` are modules that recursively solve every operation in the policy and return result at the end. The module is executed recursively as long as attributes in the attribute list of the policy contain predefined operations.
 
 ![drawing](/docs/images/pdp2.png)
 
