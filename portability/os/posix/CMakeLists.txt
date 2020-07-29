@@ -22,7 +22,7 @@ cmake_minimum_required(VERSION 3.11)
 set(target posix)
 
 set(sources
-  posix_transaction.c
+  posix.c
 )
 
 set(include_dirs
