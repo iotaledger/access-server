@@ -1,14 +1,16 @@
-# Policy Language
+# Access Policy Specification
 
 ## Overview
+
+Access Policies are used by the device owner to express under which circumstances his devices will be accessed, and by whom.
 
 The Policy Language may be seen as an instance of the language [PBel](http://www.doc.ic.ac.uk/~mrh/talks/BelnapTalk.pdf) (pronounced “pebble”). A basic form of policy is captured in a rule. Two simple types of rules are proposed from which more complex policies can be formed:
 
  - `grant if cond`
  - `deny if cond`
- 
+
 where `cond` is a logical expression built from attributes, their values and comparisons, as well as logical operators.
- 
+
 For example, we may specify an access-control rule:
  ```
 grant if (object == vehicle) && (subject == vehicle.owner.daughter) &&

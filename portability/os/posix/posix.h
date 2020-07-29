@@ -19,9 +19,9 @@
 
 /****************************************************************************
  * \project IOTA Access
- * \file posix_trans.h
+ * \file posix.h
  * \brief
- * Implementation of API for transactions storage to posix
+ * Implementation POSIX abstractions.
  *
  * @Author Strahinja Golic, Bernardo Araujo.
  *
