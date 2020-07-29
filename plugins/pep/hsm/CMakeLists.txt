@@ -19,20 +19,19 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-set(target posix)
+set(target pep_plugin_hsm)
+
+set(libs
+  -pthread
+  hsm
+)
 
 set(sources
-  posix.c
+  pep_plugin_hsm.c
 )
 
 set(include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/posix
-)
-
-set (libs
-  pap
-  pep
 )
 
 add_library(${target} ${sources})
