@@ -19,9 +19,9 @@
 
 /****************************************************************************
  * \project IOTA Access
- * \file unix_trans.h
+ * \file posix_trans.h
  * \brief
- * Implementation of API for transactions storage to unix
+ * Implementation of API for transactions storage to posix
  *
  * @Author Strahinja Golic, Bernardo Araujo.
  *
@@ -29,13 +29,13 @@
  *
  * \history
  * 10.06.2020. Initial version.
- * 28.07.2020. Renaming.
+ * 29.07.2020. Renaming.
  ****************************************************************************/
 
 /****************************************************************************
  * INCLUDES
  ****************************************************************************/
-#include "unix_transaction.h"
+#include "posix_transaction.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -43,7 +43,7 @@
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
-bool unix_transaction_store(char *policy_id, int policy_id_len) {
+bool posix_transaction_store(char *policy_id, int policy_id_len) {
   char *line = NULL;
   int line_len = 0;
   FILE *f = NULL;
@@ -74,7 +74,7 @@ bool unix_transaction_store(char *policy_id, int policy_id_len) {
   return TRUE;
 }
 
-bool unix_transaction_update_payment_status(char *policy_id, int policy_id_len, bool is_verified) {
+bool posix_transaction_update_payment_status(char *policy_id, int policy_id_len, bool is_verified) {
   char *buff = NULL;
   char *transaction = NULL;
   char *line = NULL;
@@ -131,7 +131,7 @@ bool unix_transaction_update_payment_status(char *policy_id, int policy_id_len, 
   return TRUE;
 }
 
-bool unix_transaction_is_stored(char *policy_id) {
+bool posix_transaction_is_stored(char *policy_id) {
   char *buff = NULL;
   int buff_len = 0;
   FILE *f = NULL;
@@ -166,7 +166,7 @@ bool unix_transaction_is_stored(char *policy_id) {
   }
 }
 
-bool unix_transaction_is_verified(char *policy_id, int policy_id_len) {
+bool posix_transaction_is_verified(char *policy_id, int policy_id_len) {
   char *buff = NULL;
   char *line = NULL;
   char *transaction = NULL;

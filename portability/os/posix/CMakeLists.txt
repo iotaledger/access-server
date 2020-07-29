@@ -19,15 +19,15 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-set(target unix)
+set(target posix)
 
 set(sources
-  unix_transaction.c
+  posix_transaction.c
 )
 
 set(include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/unix
+  ${CMAKE_CURRENT_SOURCE_DIR}/posix
 )
 
 set (libs
