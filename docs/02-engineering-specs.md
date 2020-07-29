@@ -20,7 +20,7 @@
       - [Server authentication key exchange](#server-authentication-key-exchange)
       - [Client public key authentication protocol](#client-public-key-authentication-protocol)
       - [Data encryption, decryption and validation](#data-encryption--decryption-and-validation)
-  * [Access Core Server Reference Implementation (ACSRI)](#access-core-server-reference-implementation--acsri-)
+  * [Access Server Reference Implementation (ASRI)](#access-server-reference-implementation--asri-)
     + [Access Actor](#access-actor)
     + [Wallet Actor](#wallet-actor)
     + [Network Actor](#network-actor)
@@ -62,13 +62,13 @@ The **Portability Layer** implements platform-dependent code. Anything related t
 
 The **API Layer** implements platform-agnostic code. It's where Access Core, Access Secure Network, and IOTA functionality are implemented.
 
-The **Actor Layer** is where different functionality gets implemented as [Actors](https://en.wikipedia.org/wiki/Actor_model) abstractions. It's where API calls are put together into cohesive blocks of specific functionality.
+The **Context Layer** is where different functionality gets implemented as Contexts abstractions. It's where API calls are put together into cohesive blocks of specific functionality.
 
-The **Application Layer** is where the Supervisor works as the main orchestrator that makes all Actors interact with each other. User Configurations are set in place, threads are initiated, and Actors are set up.
+The **Application Layer** is where the Supervisor works as the main orchestrator that makes all Contexts interact with each other. User Configurations are set in place, threads are initiated, and Contexts are set up.
 
 Together, the Portability and API Layers form the **Access Core Software Development Kit**.
 
-Together, the Actor and Application Layers form the **Access Server Reference Implementation**.
+Together, the Context and Application Layers form the **Access Server Reference Implementation**.
 
 ###  Access Core Software Development Kit (ACSDK)
 
@@ -233,30 +233,26 @@ On the reception side, the reverse operation is performed in order to decrypt th
 
 Sizes `packet_length` and `encrypted_packet_length` are 2 bytes in big endian format and size of `sequence_number` is 1 byte.
 
-### Access Core Server Reference Implementation (ACSRI)
+### Access Server Reference Implementation (ASRI)
 The Access Server Reference Implementation is meant to act as a reference for developers who want to write their own applications based on IOTA Access.
 
 It runs on a Raspberry Pi, which means it is easily reproducible by Open Source Software Development Communities.
 
 It showcases how to put together the different pieces from the Access Core SDK into a functional Application.
 
-#### Access Actor
-The Access Actor is mainly responsible for consuming the Access Core API. It puts together the different function calls such that Access Requests are properly addressed, and Policies are managed adequately.
+#### Access Context
+The Access Context is mainly responsible for consuming the Access Core API. It puts together the different function calls such that Access Requests are properly addressed, and Policies are managed adequately.
 
-#### Wallet Actor
-The Wallet Actor is responsible for interacting with the IOTA Tangle. It initiates and checks IOTA Transactions while communicating with an IOTA Node.
+#### Wallet Context
+The Wallet Context is responsible for interacting with the IOTA Tangle. It initiates and checks IOTA Transactions while communicating with an IOTA Node.
 
-The Wallet Actor is also responsible for managing the IOTA seed.
+The Wallet Context is also responsible for managing the IOTA seed.
 
-While the initial ASRI does not support a Secure Element for safe seed storage, this feature is in our roadmap for future integration. Probably, this will be achieved in a modular fashion via Secure Element Plugins for the Wallet Actor.
-
-#### Network Actor
-The Access Secure Network Actor works as a Daemon that listens for incoming Access Requests.
-
-It is mainly responsible for consuming the Access Secure Network API in order to handle Ed25519 signatures, OpenSSL sessions and validating Access Requests.
+#### Network Context
+The Access Secure Network Context is used to manage the communication between Client and Server. This connection happens over a Local Area Network. Authentication and Access Requests are handled here.
 
 #### Application Supervisor
-The Application Supervisor works as the main orchestrator that makes all Actors interact with each other. User Configurations are set in place, threads and daemons are initiated, and Actors are set up.
+The Application Supervisor works as the main orchestrator that makes all Contexts interact with each other. Runtime configurations are set in place, threads and daemons are initiated, and Contexts are set up.
 
 ### Access Policy
 Access Policies are used by the device owner to express under which circumstances his devices will be accessed, and by whom.

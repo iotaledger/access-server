@@ -19,19 +19,20 @@
 
 /****************************************************************************
  * \project IOTA Access
- * \file rpi_trans.h
+ * \file posix_trans.h
  * \brief
- * Implementation of API for transactions storage to RPI
+ * Implementation of API for transactions storage to posix
  *
- * @Author Strahinja Golic
+ * @Author Strahinja Golic, Bernardo Araujo.
  *
  * \notes
  *
  * \history
  * 10.06.2020. Initial version.
+ * 29.07.2020. Renaming.
  ****************************************************************************/
-#ifndef _RPI_TRANSACTION_H_
-#define _RPI_TRANSACTION_H_
+#ifndef _POSIX_TRANSACTION_H_
+#define _POSIX_TRANSACTION_H_
 
 /****************************************************************************
  * MACROS
@@ -50,21 +51,21 @@
  * API FUNCTIONS
  ****************************************************************************/
 /**
- * @fn      rpitransaction_store
+ * @fn      posix_transaction_store
  *
- * @brief   Store trnasaction on RPI
+ * @brief   Store trnasaction on posix
  *
  * @param   policy_id - Policy ID string
  * @param   policy_id_len - Length of policy ID string
  *
  * @return  TRUE - success, FALSE - fail
  */
-bool rpitransaction_store(char* policy_id, int policy_id_len);
+bool posix_transaction_store(char* policy_id, int policy_id_len);
 
 /**
- * @fn      rpitransaction_store
+ * @fn      posix_transaction_store
  *
- * @brief   Store transaction on RPI
+ * @brief   Store transaction on posix
  *
  * @param   policy_id - Policy ID string
  * @param   policy_id_len - Length of policy ID string
@@ -72,21 +73,21 @@ bool rpitransaction_store(char* policy_id, int policy_id_len);
  *
  * @return  TRUE - success, FALSE - fail
  */
-bool rpitransaction_update_payment_status(char* policy_id, int policy_id_len, bool is_verified);
+bool posix_transaction_update_payment_status(char* policy_id, int policy_id_len, bool is_verified);
 
 /**
- * @fn      rpitransaction_is_stored
+ * @fn      posix_transaction_is_stored
  *
- * @brief   Check if transaction is stored on RPI
+ * @brief   Check if transaction is stored on posix
  *
  * @param   policy_id - Policy ID string
  *
  * @return  TRUE - stored, FALSE - not stored
  */
-bool rpitransaction_is_stored(char* policy_id);
+bool posix_transaction_is_stored(char* policy_id);
 
 /**
- * @fn      rpitransaction_is_verified
+ * @fn      posix_transaction_is_verified
  *
  * @brief   Check if transaction payment is verified
  *
@@ -95,6 +96,6 @@ bool rpitransaction_is_stored(char* policy_id);
  *
  * @return  TRUE - verified, FALSE - not verified
  */
-bool rpitransaction_is_verified(char* policy_id, int policy_id_len);
+bool posix_transaction_is_verified(char* policy_id, int policy_id_len);
 
-#endif  //_RPI_TRANSACTION_H_
+#endif  //_POSIX_TRANSACTION_H_

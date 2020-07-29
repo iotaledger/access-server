@@ -29,14 +29,6 @@ FetchContent_Declare(
   GIT_TAG 372818d01170b9c3c10250bb9763b81ef76030a5
 )
 
-# fetch iota.c
-include(FetchContent)
-FetchContent_Declare(
-        iota.c
-        GIT_REPOSITORY http://github.com/iotaledger/iota.c.git
-        GIT_TAG 5d4433f7b936822f7d4c5bfc4f3e25899f7a3ce8
-)
-
 # fetch pigpio
 include(FetchContent)
 FetchContent_Declare(
@@ -86,7 +78,7 @@ FetchContent_MakeAvailable(iota.c)
 # fetch external libs
 include(ExternalProject)
 
-set(target acsri)
+set(target asri)
 
 set(libs
   sqlite3
@@ -125,6 +117,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/wallet_pem.txt
   ${CMAKE_CURRENT_BINARY_DIR} COPYONLY
 )
 
+add_subdirectory(portability)
 add_subdirectory(tests)
 add_subdirectory(network)
 add_subdirectory(plugins)
