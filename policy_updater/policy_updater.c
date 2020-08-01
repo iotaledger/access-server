@@ -148,6 +148,11 @@ void policyupdater_get_policy(char *policy_id, char *p_policy) {
 }
 
 void policyupdater_init() {
+  logger_helper_init(LOGGER_INFO);
+  logger_helper_init(LOGGER_DEBUG);
+  logger_init_policy_updater(LOGGER_INFO);
+  logger_init_policy_updater(LOGGER_DEBUG);
+
   config_manager_get_option_string("pap", "policy_store_service_ip", g_policy_updater_address,
                                    POLICY_UPDATER_ADDRESS_SIZE);
   config_manager_get_option_int("pap", "policy_store_service_port", &g_policy_updater_port);
@@ -180,9 +185,9 @@ static int hostname_to_ip(const char *hostname, char *ip_address) {
 unsigned int policyupdater_get_policy_list(const char *policy_store_version, const char *device_id, char *policy_list,
                                            int *policy_list_len, int *new_policy_list_flag) {
   char policy_request[POLICY_UPDATER_REQ_GET_LIST_SIZE];
-  log_info(policy_updater_logger_id, "[%s:%d] asking for policy list.\n", __func__, __LINE__);
-  log_info(policy_updater_logger_id, "[%s:%d] policy_store_version: %s\n", __func__, __LINE__, policy_store_version);
-  log_info(policy_updater_logger_id, "[%s:%d] device_id: %s\n", __func__, __LINE__, device_id);
+  log_debug(policy_updater_logger_id, "[%s:%d] asking for policy list.\n", __func__, __LINE__);
+  log_debug(policy_updater_logger_id, "[%s:%d] policy_store_version: %s\n", __func__, __LINE__, policy_store_version);
+  log_debug(policy_updater_logger_id, "[%s:%d] device_id: %s\n", __func__, __LINE__, device_id);
   snprintf(policy_request, POLICY_UPDATER_REQ_GET_LIST_SIZE,
            "{\"cmd\":\"get_policy_list\",\"policyStoreId\":\"%s\",\"deviceId\":\"%s\"}", policy_store_version,
            device_id);

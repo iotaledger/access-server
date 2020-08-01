@@ -26,7 +26,7 @@ include(FetchContent)
 FetchContent_Declare(
   access-sdk
   GIT_REPOSITORY https://github.com/iotaledger/access-sdk
-  GIT_TAG 372818d01170b9c3c10250bb9763b81ef76030a5
+  GIT_TAG 02a1909e11aae45fcc9e4db4e250d3ff47dbccdd
 )
 
 # fetch pigpio
@@ -48,9 +48,9 @@ FetchContent_Declare(
 # fetch iota.c
 include(FetchContent)
 FetchContent_Declare(
-        iota.c
-        GIT_REPOSITORY http://github.com/iotaledger/iota.c.git
-        GIT_TAG 5d4433f7b936822f7d4c5bfc4f3e25899f7a3ce8
+  iota.c
+  GIT_REPOSITORY http://github.com/iotaledger/iota.c.git
+  GIT_TAG 5d4433f7b936822f7d4c5bfc4f3e25899f7a3ce8
 )
 
 if(${CMAKE_VERSION} VERSION_LESS 3.14)
