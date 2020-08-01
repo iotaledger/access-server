@@ -26,7 +26,7 @@ include(FetchContent)
 FetchContent_Declare(
   access-sdk
   GIT_REPOSITORY https://github.com/iotaledger/access-sdk
-  GIT_TAG 372818d01170b9c3c10250bb9763b81ef76030a5
+  GIT_TAG 18c0e1d7c4ef4ea4b4b41175dcbab1dfee16cca4
 )
 
 # fetch pigpio
