@@ -122,6 +122,7 @@ int network_init(network_ctx_t *network_context) {
   logger_init_network(LOGGER_INFO);
   logger_init_asn(LOGGER_INFO);
   logger_init_crypto(LOGGER_INFO);
+  logger_init_policy_updater(LOGGER_INFO);
 
   return 0;
 }

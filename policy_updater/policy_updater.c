@@ -18,6 +18,7 @@
  */
 
 #include "policy_updater.h"
+#include "policy_updater_logger.h"
 
 #include <arpa/inet.h>
 #include <netdb.h>
@@ -131,6 +132,7 @@ void policyupdater_get_policy(char *policy_id, char *p_policy) {
       0,
   };
 
+  log_info(policy_updater_logger_id, "[%s:%d] asking for policy %.*s\n", __func__, __LINE__, POLICY_UPDATER_POL_ID_BUF_LEN, policy_id);
   snprintf(policy_request, POLICY_UPDATER_REQ_GET_LIST_SIZE, "{\"cmd\":\"get_policy\",\"policyId\":\"%.*s\"}",
            POLICY_UPDATER_POL_ID_BUF_LEN, policy_id);
   int response_length;
@@ -178,6 +180,9 @@ static int hostname_to_ip(const char *hostname, char *ip_address) {
 unsigned int policyupdater_get_policy_list(const char *policy_store_version, const char *device_id, char *policy_list,
                                            int *policy_list_len, int *new_policy_list_flag) {
   char policy_request[POLICY_UPDATER_REQ_GET_LIST_SIZE];
+  log_info(policy_updater_logger_id, "[%s:%d] asking for policy list.\n", __func__, __LINE__);
+  log_info(policy_updater_logger_id, "[%s:%d] policy_store_version: %s\n", __func__, __LINE__, policy_store_version);
+  log_info(policy_updater_logger_id, "[%s:%d] device_id: %s\n", __func__, __LINE__, device_id);
   snprintf(policy_request, POLICY_UPDATER_REQ_GET_LIST_SIZE,
            "{\"cmd\":\"get_policy_list\",\"policyStoreId\":\"%s\",\"deviceId\":\"%s\"}", policy_store_version,
            device_id);
