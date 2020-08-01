@@ -1,27 +1,27 @@
-#### Access Secure Network API
-The Access Secure Network API is used to authenticate clients, ensure (off-Tangle) channel security and perform message validation.
+#### Access Authentication API
+The Access Authentication API is used to authenticate clients, ensure (off-Tangle) channel security and perform message validation.
 
-The ASN authentication protocol is used to secure communication channel of the device. It is based on stripped version of SSH protocol. In order to be used in embedded system protocol must fulfill following requirements:
+The authentication protocol is used to secure communication channel of the device. It is based on stripped version of SSH protocol. In order to be used in embedded system protocol must fulfill following requirements:
 - Independent of physical communication layer
 - Small memory bartprint
 - No OS dependencies
 - Fast execution
 - Off-Tangle communication between server and client
 
-The ASN authentication protocol is designed as a module that can be used by both client and server applications. A top level ANS API unifies the usage and encapsulates the design, hiding the differences that client and server side facilitate and implement.
+The authentication protocol is designed as a module that can be used by both client and server applications. A top level Authentication API unifies the usage and encapsulates the design, hiding the differences that client and server side facilitate and implement.
 
 Client and server use-cases require different paths in authentication methodology. This leads to diversification of authentication steps for each case.
 
-![drawing](/docs/images/ASN.png)
+![drawing](/docs/images/auth.png)
 
 In order to meet requirements on different Embedded Systems, two versions of internal module realizations have been defined:
 
 - **libCrypto**: module uses the derivative subset of [OpenSSL](https://www.openssl.org/), which is widely used, maintained and verified by the open source community.
-- **Tiny embedded** module (based on 3rd party libs) is an even smaller realization of necessary functions required for ASN Authentication. Used when the target Embedded System's constrained resources are not able to support OpenSSL.
+- **Tiny embedded** module (based on 3rd party libs) is an even smaller realization of necessary functions required for Authentication. Used when the target Embedded System's constrained resources are not able to support OpenSSL.
 - HW acceleration is mentioned as an upgrade where applicable (depends of HW).
 
 ##### libCrypto module
-libCrypto is the internal ASN realization based on OpenSSL. It is used in scenarios where Embedded resources are not scarce:
+libCrypto is the internal authentication realization based on OpenSSL. It is used in scenarios where Embedded resources are not scarce:
 
 - **Diffie-Hellman key exchange**: used for generation and computation of the shared secret.
 - **RSA**: used for signing and verification of the shared secrets.
@@ -30,7 +30,7 @@ libCrypto is the internal ASN realization based on OpenSSL. It is used in scenar
 - **HMAC-SHA256**: used for data integrity during message exchange via Message Authentication Code (MAC).
 
 ##### Tiny Embedded module
-Tiny Embedded is the internal ASN realization based on 3rd party libraries. It is used in scenarios where Embedded resources are scarce:
+Tiny Embedded is the internal authentication realization based on 3rd party libraries. It is used in scenarios where Embedded resources are scarce:
 - **Curve25519 elliptic curve function**: to compute public key and shared secret for DH exchange.
 - **ECDSA secp160r1**: for signing and signature validation.
 - **SHA256**: for hashing.

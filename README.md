@@ -43,7 +43,7 @@ The [docs](/docs) directory contains markdown files for documentation:
  - [Engineering Specification](/docs/02-engineering-specs.md)
  - [Architecture](/docs/03-architecture.md)
  - [Plugin Specs](/docs/04-plugin-specs.md)
- - [Network Specs](/docs/05-asn-specs.md)
+ - [Authentication Specs](/docs/05-auth-specs.md)
  - [Policy Specs](/docs/06-policy-specs.md)
  - [Access Server Reference Implementation](/docs/07-asri.md)
  - [Access Policy Updater](/docs/08-apu.md)
