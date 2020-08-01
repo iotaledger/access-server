@@ -32,7 +32,7 @@
  ****************************************************************************/
 
 #include "network.h"
-#include "asn_logger.h"
+#include "auth_logger.h"
 #include "crypto_logger.h"
 #include "network_logger.h"
 
@@ -42,7 +42,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "asn_auth_helper.h"
+#include "auth_helper.h"
 #include "config_manager.h"
 #include "globals_declarations.h"
 #include "json_helper.h"
@@ -83,7 +83,7 @@
 
 typedef struct {
   pthread_t thread;
-  asn_ctx_t session;
+  auth_ctx_t session;
   int state;
   int DAC_AUTH;
   char send_buffer[SEND_BUFF_LEN];
@@ -120,7 +120,7 @@ int network_init(network_ctx_t *network_context) {
 
   logger_helper_init(LOGGER_INFO);
   logger_init_network(LOGGER_INFO);
-  logger_init_asn(LOGGER_INFO);
+  logger_init_auth(LOGGER_INFO);
   logger_init_crypto(LOGGER_INFO);
 
   return 0;
@@ -198,7 +198,7 @@ static unsigned int calculate_decision(char **recv_data, network_ctx_internal_t 
 
   int num_of_tokens = jsonhelper_parser_init(*recv_data);
 
-  request_code = asnauthhelper_check_msg_format(*recv_data);
+  request_code = auth_helper_check_msg_format(*recv_data);
 
   if (request_code == COMMAND_RESOLVE) {
     char decision[BUF_LEN] = {0};
@@ -401,18 +401,18 @@ static void *network_thread_function(void *ptr) {
         int auth = -1;
         int decision = -1;
 
-        asnauth_init_server(&ctx->session, &ctx->connfd);
+        auth_init_server(&ctx->session, &ctx->connfd);
 
         ctx->session.f_read = read_socket;
         ctx->session.f_write = write_socket;
         ctx->session.f_verify = verify;
 
-        auth = asnauth_authenticate(&ctx->session);
+        auth = auth_authenticate(&ctx->session);
 
         if (auth == 0) {
-          asnauth_receive(&ctx->session, (unsigned char **)&recv_data, &recv_len);
+          auth_receive(&ctx->session, (unsigned char **)&recv_data, &recv_len);
           decision = calculate_decision(&recv_data, ctx);
-          asnauthhelper_send_decision(decision, &ctx->session, recv_data, decision);
+          auth_helper_send_decision(decision, &ctx->session, recv_data, decision);
         } else {
           time(&now);
 
@@ -429,7 +429,7 @@ static void *network_thread_function(void *ptr) {
 
         ctx->state = 0;
 
-        asnauth_release(&ctx->session);
+        auth_release(&ctx->session);
 
         unsigned char try_count = 0;
         while ((get_server_state(ctx) != 0) && (try_count++ < MAX_TRY_NUM))
