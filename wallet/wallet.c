@@ -51,13 +51,23 @@ wallet_ctx_t *wallet_create(char const *const node_url, uint16_t port_number, ch
       return NULL;
     }
 
-#ifdef IOTA_CLIENT_DEBUG
     logger_helper_init(LOGGER_DEBUG);
     logger_init_client_core(LOGGER_DEBUG);
     logger_init_client_extended(LOGGER_DEBUG);
     logger_init_json_serializer(LOGGER_ERR);
-    logger_init_wallet(LOGGER_INFO);
-#endif
+    logger_init_wallet(LOGGER_DEBUG);
+
+    char *int2str = malloc(8);
+    log_debug(wallet_logger_id, "[%s:%d] wallet initialized.\n", __func__, __LINE__);
+    snprintf(int2str, 2, "%d", node_depth);
+    log_debug(wallet_logger_id, "[%s:%d] wallet depth: %s\n", __func__, __LINE__, int2str);
+    snprintf(int2str, 3, "%d", node_mwm);
+    log_debug(wallet_logger_id, "[%s:%d] wallet mwm: %s\n", __func__, __LINE__, int2str);
+    snprintf(int2str, 8, "%d", port_number);
+    log_debug(wallet_logger_id, "[%s:%d] wallet node url: %s:%s\n", __func__, __LINE__, node_url, int2str);
+
+    free(int2str);
+
     return ctx;
   }
 
