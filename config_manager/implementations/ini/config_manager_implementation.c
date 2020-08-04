@@ -134,8 +134,9 @@ int config_manager_implementation_get_string_cb(const char *module_name, const c
   }
 
   if (found_config == -1) return CONFIG_MANAGER_OPTION_NOT_FOUND;
-  size_t copy_len = MIN(tok->end - tok->eq_sign_idx - 1, option_value_size - 1);
-  strncpy(option_value, &cfg_data[tok->eq_sign_idx + 1], copy_len);
+
+  size_t copy_len = MIN(tok->end - tok->eq_sign_idx, option_value_size);
+  snprintf(option_value, copy_len, "%s", &cfg_data[tok->eq_sign_idx + 1]);
   option_value[copy_len + 1] = '\0';
 
   return CONFIG_MANAGER_OK;

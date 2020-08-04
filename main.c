@@ -25,7 +25,7 @@
 #include "config_manager.h"
 #include "dataset.h"
 #include "network.h"
-#include "pap_plugin_unix.h"
+#include "pap_plugin_posix.h"
 #include "pep_plugin_print.h"
 #include "policy_loader.h"
 
@@ -107,7 +107,7 @@ int main(int argc, char **argv) {
     access_register_pep_plugin(access_context, &plugin);
   }
 
-  if (plugin_init(&plugin, pap_plugin_unix_initializer, NULL) == 0) {
+  if (plugin_init(&plugin, pap_plugin_posix_initializer, NULL) == 0) {
     access_register_pap_plugin(access_context, &plugin);
   }
 

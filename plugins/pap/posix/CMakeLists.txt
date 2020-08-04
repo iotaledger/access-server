@@ -19,10 +19,10 @@
 
 cmake_minimum_required(VERSION 3.11)
 
-set(target pap_plugin_unix)
+set(target pap_plugin_posix)
 
 set(sources
-  pap_plugin_unix
+  pap_plugin_posix
   test_internal.c)
 
 set(include_dirs

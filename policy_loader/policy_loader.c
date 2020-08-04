@@ -325,19 +325,19 @@ static void parse_policy_service_list() {
         memcpy(g_policy_store_version + (POLICY_LOADER_STR_LEN - 1), "\0", 1);
       } else if (response_type == POLICY_LOADER_POL_RESPONSE_TYPE_STRING) {
         if (memcmp(g_policy_list + jsonhelper_get_token_start(response), "ok", strlen("ok")) == 0) {
-          log_info(policy_loader_logger_id, "[%s:%d] Policy Store up to date.\n", __func__, __LINE__);
+          log_info(policy_loader_logger_id, "[%s:%d] policy store up to date.\n", __func__, __LINE__);
         } else {
-          log_error(policy_loader_logger_id, "[%s:%d] Unkonwn response!\n", __func__, __LINE__);
+          log_error(policy_loader_logger_id, "[%s:%d] unkonwn response!\n", __func__, __LINE__);
         }
       }
     } else {
       char buf[POLICY_LOADER_TIME_BUF_LEN];
 
       timemanager_get_time_string(buf, POLICY_LOADER_TIME_BUF_LEN);
-      log_error(policy_loader_logger_id, "[%s:%d] Response from policy service not received.\n", __func__, __LINE__);
+      log_error(policy_loader_logger_id, "[%s:%d] response from policy service not received.\n", __func__, __LINE__);
     }
   } else {
-    log_error(policy_loader_logger_id, "[%s:%d] Error during parsing.\n", __func__, __LINE__);
+    log_error(policy_loader_logger_id, "[%s:%d] error during parsing.\n", __func__, __LINE__);
   }
 }
 

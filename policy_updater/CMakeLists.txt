@@ -25,6 +25,6 @@ set(libs
   config_manager
   pep)
 
-add_library(${target} policy_updater.c)
+add_library(${target} policy_updater.c policy_updater_logger.c)
 target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(${target} PUBLIC ${libs})

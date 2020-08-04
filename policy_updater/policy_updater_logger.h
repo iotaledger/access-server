@@ -1,5 +1,5 @@
 /*
- * This file is part of the IOTA Access Distribution
+ * This file is part of the IOTA Access distribution
  * (https://github.com/iotaledger/access)
  *
  * Copyright (c) 2020 IOTA Stiftung
@@ -19,25 +19,41 @@
 
 /****************************************************************************
  * \project IOTA Access
- * \file pap_plugin_unix.h
+ * \file policy_updater_logger.h
  * \brief
- * Implementation of policy storage interface
+ * Logger for policy_updater module
  *
- * @Author Dejan Nedic, Strahinja Golic, Bernardo Araujo
+ * @Author Bernardo Araujo
  *
  * \notes
  *
  * \history
- * 24.08.2018. Initial version.
- * 25.05.2020. Refactoring.
- * 15.07.2020. Renaming.
+ * 01.08.2020. Initial version.
  ****************************************************************************/
-#ifndef _PAP_PLUGIN_UNIX_H_
-#define _PAP_PLUGIN_UNIX_H_
 
-#include "pap_plugin.h"
-#include "plugin.h"
+#ifndef POLICY_LOADER_LOGGER_H
+#define POLICY_LOADER_LOGGER_H
 
-int pap_plugin_unix_initializer(plugin_t *plugin, void *user_data);
+#include "utils/logger_helper.h"
 
-#endif  //_PAP_PLUGIN_UNIX_H_
+/**
+ * @brief logger ID
+ *
+ */
+extern logger_id_t policy_updater_logger_id;
+
+/**
+ * @brief init policy_updater logger
+ *
+ * @param[in] level A level of the logger
+ *
+ */
+void logger_init_policy_updater(logger_level_t level);
+
+/**
+ * @brief cleanup policy_updater logger
+ *
+ */
+void logger_destroy_policy_updater();
+
+#endif  // POLICY_UPDATER_LOGGER_H
