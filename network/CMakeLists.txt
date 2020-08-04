@@ -35,7 +35,7 @@ set(libs
   json_parser
   asn
   pep
-  pap_plugin_unix
+  pap_plugin_posix
   policy_updater)
 
 add_library(${target} network.c network_logger.c)

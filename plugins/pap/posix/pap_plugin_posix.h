@@ -19,7 +19,7 @@
 
 /****************************************************************************
  * \project IOTA Access
- * \file pap_plugin_unix.h
+ * \file pap_plugin_posix.h
  * \brief
  * Implementation of policy storage interface
  *
@@ -32,12 +32,12 @@
  * 25.05.2020. Refactoring.
  * 15.07.2020. Renaming.
  ****************************************************************************/
-#ifndef _PAP_PLUGIN_UNIX_H_
-#define _PAP_PLUGIN_UNIX_H_
+#ifndef _PAP_PLUGIN_POSIX_H_
+#define _PAP_PLUGIN_POSIX_H_
 
 #include "pap_plugin.h"
 #include "plugin.h"
 
-int pap_plugin_unix_initializer(plugin_t *plugin, void *user_data);
+int pap_plugin_posix_initializer(plugin_t *plugin, void *user_data);
 
-#endif  //_PAP_PLUGIN_UNIX_H_
+#endif  //_PAP_PLUGIN_POSIX_H_

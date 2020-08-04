@@ -93,7 +93,7 @@ set(libs
 
 set(plugins
   pep_plugin_print
-  pap_plugin_unix
+  pap_plugin_posix
 )
 
 set(include_dirs

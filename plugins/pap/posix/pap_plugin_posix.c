@@ -19,7 +19,7 @@
 
 /****************************************************************************
  * \project IOTa Access
- * \file pap_plugin_unix.c
+ * \file pap_plugin_posix.c
  * \brief
  * Implementation of policy storage interface
  *
@@ -36,7 +36,8 @@
 /****************************************************************************
  * INCLUDES
  ****************************************************************************/
-#include "pap_plugin_unix.h"
+#include "pap_plugin_posix.h"
+#include "plugin_logger.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -82,7 +83,7 @@ typedef enum {
 /****************************************************************************
  * API FUNCTIONS
  ****************************************************************************/
-static bool unix_store_policy(char* policy_id, char* policy_object, int policy_object_size, char* policy_cost,
+static bool posix_store_policy(char* policy_id, char* policy_object, int policy_object_size, char* policy_cost,
                               char* signature, char* public_key, char* signature_algorithm, char* hash_function) {
   char pol_path[RPI_MAX_STR_LEN] = {0};
   char pol_id_str[RPI_POL_ID_MAX_LEN * 2 + 1] = {0};
@@ -91,12 +92,12 @@ static bool unix_store_policy(char* policy_id, char* policy_object, int policy_o
   // Check input parameters
   if ((policy_id == NULL) || (policy_object == NULL) || (policy_object_size == 0) || (policy_cost == NULL) ||
       (signature == NULL) || (public_key == NULL) || (signature_algorithm == NULL) || (hash_function == NULL)) {
-    printf("\nERROR[%s]: Bad input parameter.\n", __FUNCTION__);
+    log_error(plugin_logger_id, "[%s:%d] bad input parameter.\n", __func__, __LINE__);
     return FALSE;
   }
 
   if (hex_to_str(policy_id, pol_id_str, RPI_POL_ID_MAX_LEN) != UTILS_STRING_SUCCESS) {
-    printf("\nERROR[%s]: Could not convert hex value to string.\n", __FUNCTION__);
+    log_error(plugin_logger_id, "[%s:%d] could not convert hex value to string.\n", __func__, __LINE__);
     return FALSE;
   }
 
@@ -109,7 +110,7 @@ static bool unix_store_policy(char* policy_id, char* policy_object, int policy_o
   sprintf(pol_path, "stored_policies/%s.txt", pol_id_str);
   f = fopen(pol_path, "w+");
   if (f == NULL) {
-    printf("\nERROR[%s]: Invalid path to file.\n", __FUNCTION__);
+    log_error(plugin_logger_id, "[%s:%d] invalid path to file.\n", __func__, __LINE__);
     return FALSE;
   }
 
@@ -136,7 +137,7 @@ static bool unix_store_policy(char* policy_id, char* policy_object, int policy_o
 
   f = fopen(pol_path, "a");
   if (f == NULL) {
-    printf("\nERROR[%s]: Invalid path to stored_policies file.\n", __FUNCTION__);
+    log_error(plugin_logger_id, "[%s:%d] invalid path to stored_policies file.\n", __func__, __LINE__);
     return FALSE;
   }
 
@@ -148,7 +149,7 @@ static bool unix_store_policy(char* policy_id, char* policy_object, int policy_o
   return TRUE;
 }
 
-static bool unix_acquire_policy(char* policy_id, char* policy_object, int* policy_object_size, char* policy_cost,
+static bool posix_acquire_policy(char* policy_id, char* policy_object, int* policy_object_size, char* policy_cost,
                                 char* signature, char* public_key, char* signature_algorithm, char* hash_function) {
   char pol_path[RPI_MAX_STR_LEN] = {0};
   char pol_id_str[RPI_POL_ID_MAX_LEN * 2 + 1] = {0};
@@ -161,12 +162,12 @@ static bool unix_acquire_policy(char* policy_id, char* policy_object, int* polic
   // Check input parameters
   if ((policy_id == NULL) || (policy_object == NULL) || (policy_object_size == NULL) || (policy_cost == NULL) ||
       (signature == NULL) || (public_key == NULL) || (signature_algorithm == NULL) || (hash_function == NULL)) {
-    printf("\nERROR[%s]: Bad input parameter.\n", __FUNCTION__);
+    log_error(plugin_logger_id, "[%s:%d] bad input parameter.\n", __func__, __LINE__);
     return FALSE;
   }
 
   if (hex_to_str(policy_id, pol_id_str, RPI_POL_ID_MAX_LEN) != UTILS_STRING_SUCCESS) {
-    printf("\nERROR[%s]: Could not convert hex value to string.\n", __FUNCTION__);
+    log_error(plugin_logger_id, "[%s:%d] could not convert hex value to string.\n", __func__, __LINE__);
     return FALSE;
   }
 
@@ -174,7 +175,7 @@ static bool unix_acquire_policy(char* policy_id, char* policy_object, int* polic
   sprintf(pol_path, "stored_policies/%s.txt", pol_id_str);
   f = fopen(pol_path, "r");
   if (f == NULL) {
-    printf("\nERROR[%s]: Invalid path to file.\n", __FUNCTION__);
+    log_error(plugin_logger_id, "[%s:%d] invalid path to file: %s.\n", __func__, __LINE__, pol_path);
     return FALSE;
   }
 
@@ -222,18 +223,18 @@ static bool unix_acquire_policy(char* policy_id, char* policy_object, int* polic
   return TRUE;
 }
 
-static bool unix_check_if_stored_policy(char* policy_id) {
+static bool posix_check_if_stored_policy(char* policy_id) {
   char pol_path[RPI_MAX_STR_LEN] = {0};
   char pol_id_str[RPI_POL_ID_MAX_LEN * 2 + 1] = {0};
 
   // Check input parameters
   if (policy_id == NULL) {
-    printf("\nERROR[%s]: Bad input parameter.\n", __FUNCTION__);
+    log_error(plugin_logger_id, "[%s:%d] null policy.\n", __func__, __LINE__);
     return FALSE;
   }
 
   if (hex_to_str(policy_id, pol_id_str, RPI_POL_ID_MAX_LEN) != UTILS_STRING_SUCCESS) {
-    printf("\nERROR[%s]: Could not convert hex value to string.\n", __FUNCTION__);
+    log_error(plugin_logger_id, "[%s:%d] could not convert hex value to string.\n", __func__, __LINE__);
     return FALSE;
   }
 
@@ -249,7 +250,7 @@ static bool unix_check_if_stored_policy(char* policy_id) {
   }
 }
 
-static bool unix_flush_policy(char* policy_id) {
+static bool posix_flush_policy(char* policy_id) {
   char pol_path[RPI_MAX_STR_LEN] = {0};
   char pol_id_str[RPI_POL_ID_MAX_LEN * 2 + 1] = {0};
   char* stored_pol_buff = NULL;
@@ -259,12 +260,12 @@ static bool unix_flush_policy(char* policy_id) {
 
   // Check input parameters
   if (policy_id == NULL) {
-    printf("\nERROR[%s]: Bad input parameter.\n", __FUNCTION__);
+    log_error(plugin_logger_id, "[%s:%d] null policy.\n", __func__, __LINE__);
     return FALSE;
   }
 
   if (hex_to_str(policy_id, pol_id_str, RPI_POL_ID_MAX_LEN) != UTILS_STRING_SUCCESS) {
-    printf("\nERROR[%s]: Could not convert hex value to string.\n", __FUNCTION__);
+    log_error(plugin_logger_id, "[%s:%d] could not convert hex value to string.\n", __func__, __LINE__);
     return FALSE;
   }
 
@@ -276,7 +277,7 @@ static bool unix_flush_policy(char* policy_id) {
     sprintf(pol_path, "stored_policies/stored_policies.txt");
     f = fopen(pol_path, "r");
     if (f == NULL) {
-      printf("\nERROR[%s]: Invalid path to stored_policies file.\n", __FUNCTION__);
+      log_error(plugin_logger_id, "[%s:%d] invalid path to stored_policies file.\n", __func__, __LINE__);
       return FALSE;
     }
 
@@ -299,7 +300,7 @@ static bool unix_flush_policy(char* policy_id) {
 
     f = fopen(pol_path, "w");
     if (f == NULL) {
-      printf("\nERROR[%s]: Invalid path to stored_policies file.\n", __FUNCTION__);
+      log_error(plugin_logger_id, "[%s:%d] invalid path to file: %s.\n", __func__, __LINE__, pol_path);
       return FALSE;
     }
 
@@ -318,7 +319,7 @@ static bool unix_flush_policy(char* policy_id) {
   }
 }
 
-static int unix_get_pol_obj_len(char* policy_id) {
+static int posix_get_pol_obj_len(char* policy_id) {
   char pol_path[RPI_MAX_STR_LEN] = {0};
   char pol_id_str[RPI_POL_ID_MAX_LEN * 2 + 1] = {0};
   char* buffer;
@@ -328,12 +329,12 @@ static int unix_get_pol_obj_len(char* policy_id) {
 
   // Check input parameters
   if (policy_id == NULL) {
-    printf("\nERROR[%s]: Bad input parameter.\n", __FUNCTION__);
+    log_error(plugin_logger_id, "[%s:%d] null policy.\n", __func__, __LINE__);
     return ret;
   }
 
   if (hex_to_str(policy_id, pol_id_str, RPI_POL_ID_MAX_LEN) != UTILS_STRING_SUCCESS) {
-    printf("\nERROR[%s]: Could not convert hex value to string.\n", __FUNCTION__);
+    log_error(plugin_logger_id, "[%s:%d] could not convert hex value to string.\n", __func__, __LINE__);
     return ret;
   }
 
@@ -341,7 +342,7 @@ static int unix_get_pol_obj_len(char* policy_id) {
   sprintf(pol_path, "stored_policies/%s.txt", pol_id_str);
   f = fopen(pol_path, "r");
   if (f == NULL) {
-    printf("\nERROR[%s]: Invalid path to file.\n", __FUNCTION__);
+    log_error(plugin_logger_id, "[%s:%d] invalid path to file: %s.\n", __func__, __LINE__, pol_path);
     return ret;
   }
 
@@ -368,7 +369,7 @@ static bool store_policy(char* policy_id, pap_policy_object_t policy_object,
 
   // Check input parameter
   if (policy_id == NULL) {
-    printf("\nERROR[%s]: Bad input parameter.\n", __FUNCTION__);
+    log_error(plugin_logger_id, "[%s:%d] null policy.\n", __func__, __LINE__);
     return FALSE;
   }
 
@@ -378,7 +379,7 @@ static bool store_policy(char* policy_id, pap_policy_object_t policy_object,
   if (hash_fn == PAP_SHA_256) {
     memcpy(hash_function, "sha-256", strlen("sha-256"));
   } else {
-    printf("\nERROR[%s]: Unsupported hash function.\n", __FUNCTION__);
+    log_error(plugin_logger_id, "[%s:%d] unsupported hash function.\n", __func__, __LINE__);
     return FALSE;
   }
 
@@ -386,12 +387,12 @@ static bool store_policy(char* policy_id, pap_policy_object_t policy_object,
   if (policy_id_signature.signature_algorithm == PAP_ECDSA) {
     memcpy(sign_algorithm, "ECDSA", strlen("ECDSA"));
   } else {
-    printf("\nERROR[%s]: Unsupported signature algorithm.\n", __FUNCTION__);
+    log_error(plugin_logger_id, "[%s:%d] unsupported signature algorithm.\n", __func__, __LINE__);
     return FALSE;
   }
 
   // Call function for storing policy on used platform
-  return unix_store_policy(policy_id, policy_object.policy_object, policy_object.policy_object_size, policy_object.cost,
+  return posix_store_policy(policy_id, policy_object.policy_object, policy_object.policy_object_size, policy_object.cost,
                            policy_id_signature.signature, policy_id_signature.public_key, sign_algorithm,
                            hash_function);
 }
@@ -403,29 +404,29 @@ static bool acquire_policy(char* policy_id, pap_policy_object_t* policy_object,
 
   // Check input parameter
   if ((policy_id == NULL) || (policy_object == NULL) || (policy_id_signature == NULL) || (hash_fn == NULL)) {
-    printf("\nERROR[%s]: Bad input parameter.\n", __FUNCTION__);
+    log_error(plugin_logger_id, "[%s:%d] bad input parameter.\n", __func__, __LINE__);
     return FALSE;
   }
 
   // Call function for storing policy on used platform
-  if (unix_acquire_policy(policy_id, policy_object->policy_object, &(policy_object->policy_object_size),
+  if (posix_acquire_policy(policy_id, policy_object->policy_object, &(policy_object->policy_object_size),
                           policy_object->cost, policy_id_signature->signature, policy_id_signature->public_key,
                           sign_algorithm, hash_function) == FALSE) {
-    printf("\nERROR[%s]: Could not acquire policy from R-Pi.\n", __FUNCTION__);
+    log_error(plugin_logger_id, "[%s:%d] could not acquire policy from disk.\n", __func__, __LINE__);
     return FALSE;
   }
 
   if (memcmp(sign_algorithm, "ECDSA", strlen("ECDSA")) == 0) {
     policy_id_signature->signature_algorithm = PAP_ECDSA;
   } else {
-    printf("\nERROR[%s]: Unsupported signature algorithm.\n", __FUNCTION__);
+    log_error(plugin_logger_id, "[%s:%d] unsuported signature algorithm.\n", __func__, __LINE__);
     return FALSE;
   }
 
   if (memcmp(hash_function, "sha-256", strlen("sha-256")) == 0) {
     *hash_fn = PAP_SHA_256;
   } else {
-    printf("\nERROR[%s]: Unsupported hash function.\n", __FUNCTION__);
+    log_error(plugin_logger_id, "[%s:%d] hash function.\n", __func__, __LINE__);
     return FALSE;
   }
 
@@ -435,34 +436,34 @@ static bool acquire_policy(char* policy_id, pap_policy_object_t* policy_object,
 bool check_if_stored_policy(char* policy_id) {
   // Check input parameter
   if (policy_id == NULL) {
-    printf("\nERROR[%s]: Bad input parameter.\n", __FUNCTION__);
+    log_error(plugin_logger_id, "[%s:%d] null policy.\n", __func__, __LINE__);
     return FALSE;
   }
 
   // Call function for checking if policy is stored on used platform
-  return unix_check_if_stored_policy(policy_id);
+  return posix_check_if_stored_policy(policy_id);
 }
 
 static bool flush_policy(char* policy_id) {
   // Check input parameter
   if (policy_id == NULL) {
-    printf("\nERROR[%s]: Bad input parameter.\n", __FUNCTION__);
+    log_error(plugin_logger_id, "[%s:%d] null policy.\n", __func__, __LINE__);
     return FALSE;
   }
 
   // Call function for checking if policy is stored on used platform
-  return unix_flush_policy(policy_id);
+  return posix_flush_policy(policy_id);
 }
 
 static bool acquire_pol_obj_len(char* policy_id, int* pol_obj_len) {
   // Check input parameter
   if (policy_id == NULL || pol_obj_len == NULL) {
-    printf("\nERROR[%s]: Bad input parameter.\n", __FUNCTION__);
+    log_error(plugin_logger_id, "[%s:%d] null policy.\n", __func__, __LINE__);
     return FALSE;
   }
 
   // Call function for geting if policy object length
-  *pol_obj_len = unix_get_pol_obj_len(policy_id);
+  *pol_obj_len = posix_get_pol_obj_len(policy_id);
 
   return TRUE;
 }
@@ -479,7 +480,7 @@ static bool acquire_all_policies(pap_policy_id_list_t** pol_list_head) {
 
   f = fopen("stored_policies/stored_policies.txt", "r");
   if (f == NULL) {
-    printf("\nERROR[%s]: No stored policies info file.\n", __FUNCTION__);
+    log_error(plugin_logger_id, "[%s:%d] file empty.\n", __func__, __LINE__);
     return FALSE;
   }
 
@@ -500,7 +501,7 @@ static bool acquire_all_policies(pap_policy_id_list_t** pol_list_head) {
     memset(pol_id_hex, 0, PAP_POL_ID_MAX_LEN);
 
     if (str_to_hex(tok, pol_id_hex, PAP_POL_ID_MAX_LEN * 2) != UTILS_STRING_SUCCESS) {
-      printf("\nERROR[%s]: Could not convert string to hex value.\n", __FUNCTION__);
+      log_error(plugin_logger_id, "[%s:%d] could not convert string to hex value.\n", __func__, __LINE__);
       return FALSE;
     }
 
@@ -570,7 +571,7 @@ static int get_all_cb(plugin_t* plugin, void* data) {
   return 0;
 }
 
-int pap_plugin_unix_initializer(plugin_t* plugin, void* data) {
+int pap_plugin_posix_initializer(plugin_t* plugin, void* data) {
   plugin->destroy = destroy_cb;
   plugin->callbacks = malloc(sizeof(void*) * PAP_PLUGIN_CALLBACK_COUNT);
   plugin->plugin_specific_data = NULL;
