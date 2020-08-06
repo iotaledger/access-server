@@ -4,7 +4,11 @@
 
 Access Policies are used by the device owner to express under which circumstances his devices will be accessed, and by whom.
 
-The Policy Language may be seen as an instance of the language [PBel](http://www.doc.ic.ac.uk/~mrh/talks/BelnapTalk.pdf) (pronounced “pebble”). A basic form of policy is captured in a rule. Two simple types of rules are proposed from which more complex policies can be formed:
+The Access Policy Language may be seen as an instance of the language [PBel](http://www.doc.ic.ac.uk/~mrh/talks/BelnapTalk.pdf) (pronounced “pebble”).
+
+In the 1970s, Nuel Belnap suggested the use of a four-valued logic where ordinary truth values are used for truth and falsity. It also encodes a third truth value that expresses lack of knowledge. A fourth truth value expresses inconsistent knowledge. Belnap developed a semantics and a sound and complete Hilbert style proof system for this logic. Belnap logic extends naturally to first- and higher-order logics.
+
+ A basic form of policy is captured in a rule and encoded in terms of `subject`, `object` and `action`, which are all forms of attributes. Two simple types of rules are proposed from which more complex policies can be formed:
 
  - `grant if cond`
  - `deny if cond`
