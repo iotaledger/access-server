@@ -184,6 +184,7 @@ static ssize_t write_socket(void *ext, void *data, unsigned short len) {
   return write(*sockfd, data, len);
 }
 
+// ToDo: implement proper verification.
 static int verify(unsigned char *key, int len) { return 0; }
 
 static int get_server_state(network_ctx_internal_t *ctx) { return ctx->state; }
