@@ -16,12 +16,12 @@ Client and server use-cases require different paths in authentication methodolog
 
 In order to meet requirements on different Embedded Systems, two versions of internal module realizations have been defined:
 
-- **libCrypto**: module uses the derivative subset of [OpenSSL](https://www.openssl.org/), which is widely used, maintained and verified by the open source community.
+- **OpenSSL**: module uses the derivative subset of [OpenSSL](https://www.openssl.org/), which is widely used, maintained and verified by the open source community.
 - **Tiny embedded** module (based on 3rd party libs) is an even smaller realization of necessary functions required for Authentication. Used when the target Embedded System's constrained resources are not able to support OpenSSL.
 - HW acceleration is mentioned as an upgrade where applicable (depends of HW).
 
-##### libCrypto module
-libCrypto is the internal authentication realization based on OpenSSL. It is used in scenarios where Embedded resources are not scarce:
+##### OpenSSL module
+The first option is the internal authentication realization based on OpenSSL. It is used in scenarios where Embedded resources are not scarce:
 
 - **Diffie-Hellman key exchange**: used for generation and computation of the shared secret.
 - **RSA**: used for signing and verification of the shared secrets.
@@ -45,7 +45,7 @@ After physical connection is established, client generates a [Diffie-Hellman](ht
 
 Client sends its DH public key to the server running on the Target Device.
 
-Server generates the DH key pair using the same algorithm used by client (dictated by the choice of either libCrypto or TinyEmbedded).
+Server generates the DH key pair using the same algorithm used by client (dictated by the choice of either OpenSSL or TinyEmbedded).
 
 Server computes the DH-shared secret `K` and hash `H = hash (client ID || server ID || server public key || client DH public key || server DH public key || shared secret K)`, where Client ID and server ID are identification strings of client and server.
 
