@@ -59,6 +59,7 @@ IOTA Access is based on [XAIN](https://www.xain.io/)'s **FROST** project, which 
 
 Here's a list of resources on XAIN FROST:
 
+* [Paper] **Access Control via Belnap Logic:Intuitive, Expressive, and Analyzable Policy Composition**: https://www.doc.ic.ac.uk/research/technicalreports/2011/DTR11-6.pdf
 * [Conference Paper] **Owner-centric sharing of physical resources, data, and data-driven insights in digital ecosystems**: https://spiral.imperial.ac.uk:8443/handle/10044/1/77522
 * [ReadTheDocs] **FROST — Xain Documentation**: https://xain-documentation.readthedocs.io/en/latest/Frost/
 * [Video Presentation] **Michael Huth (CTO) presents FROST at Birmingham**: https://www.youtube.com/watch?v=2mHQrmGt7CA
