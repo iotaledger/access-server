@@ -21,14 +21,6 @@ cmake_minimum_required(VERSION 3.11)
 
 project(access_reference_implementation)
 
-# fetch access-sdk
-include(FetchContent)
-FetchContent_Declare(
-  access-sdk
-  GIT_REPOSITORY https://github.com/iotaledger/access-sdk
-  GIT_TAG 02a1909e11aae45fcc9e4db4e250d3ff47dbccdd
-)
-
 # fetch pigpio
 include(FetchContent)
 FetchContent_Declare(
@@ -62,9 +54,6 @@ if(${CMAKE_VERSION} VERSION_LESS 3.14)
         endif()
     endmacro()
 endif()
-
-message(STATUS "Fetching access-sdk")
-FetchContent_MakeAvailable(access-sdk)
 
 message(STATUS "Fetching pigpio")
 FetchContent_MakeAvailable(pigpio)
@@ -117,6 +106,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/wallet_pem.txt
   ${CMAKE_CURRENT_BINARY_DIR} COPYONLY
 )
 
+add_subdirectory(access-sdk)
 add_subdirectory(portability)
 add_subdirectory(tests)
 add_subdirectory(network)

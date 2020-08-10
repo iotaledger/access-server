@@ -1,0 +1,3 @@
+[submodule "access-sdk"]
+	path = access-sdk
+	url = https://github.com/iotaledger/access-sdk.git
