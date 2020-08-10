@@ -33,7 +33,7 @@ set(target network)
 
 set(libs
   json_parser
-  asn
+  auth
   pep
   pap_plugin_posix
   policy_updater)
