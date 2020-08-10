@@ -43,35 +43,11 @@ The [docs](/docs) directory contains markdown files for documentation:
  - [Engineering Specification](/docs/02-engineering-specs.md)
  - [Architecture](/docs/03-architecture.md)
  - [Plugin Specs](/docs/04-plugin-specs.md)
- - [Network Specs](/docs/05-asn-specs.md)
+ - [Authentication Specs](/docs/05-auth-specs.md)
  - [Policy Specs](/docs/06-policy-specs.md)
  - [Access Server Reference Implementation](/docs/07-asri.md)
  - [Access Policy Updater](/docs/08-apu.md)
  - [Getting Started](/docs/09-getting-started.md)
-
-## Build Instructions
-Development of the MVP is currently focused on [Raspbian Buster](https://www.raspberrypi.org/blog/buster-the-new-version-of-raspbian/).
-
-These instructions are only related to the source code for the **Access Core Server**. The Access framework also includes the [Access Client](https://github.com/iotaledger/access-mobile), which is used to create the user experience for Policy Creation and Access Requests.
-
-1. SSH into Raspbian.
-2. Install dependencies:
-```
-$ sudo apt-get update
-$ sudo apt-get install git python3-distutils libfastjson-dev libcurl4-gnutls-dev libssl-dev
-```
-
-4. Clone and build IOTA Access:
-```
-$ cd ~
-$ git clone https://github.com/iotaledger/access.git
-$ cd access
-$ mkdir build
-$ cd build
-$ cmake .. -DCMAKE_INSTALL_PREFIX=$PWD/ext_install
-$ make
-
-```
 
 ## Contributing  
 
@@ -83,6 +59,7 @@ IOTA Access is based on [XAIN](https://www.xain.io/)'s **FROST** project, which 
 
 Here's a list of resources on XAIN FROST:
 
+* [Paper] **Access Control via Belnap Logic:Intuitive, Expressive, and Analyzable Policy Composition**: https://www.doc.ic.ac.uk/research/technicalreports/2011/DTR11-6.pdf
 * [Conference Paper] **Owner-centric sharing of physical resources, data, and data-driven insights in digital ecosystems**: https://spiral.imperial.ac.uk:8443/handle/10044/1/77522
 * [ReadTheDocs] **FROST — Xain Documentation**: https://xain-documentation.readthedocs.io/en/latest/Frost/
 * [Video Presentation] **Michael Huth (CTO) presents FROST at Birmingham**: https://www.youtube.com/watch?v=2mHQrmGt7CA
