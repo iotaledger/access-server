@@ -37,6 +37,14 @@ FetchContent_Declare(
   GIT_TAG 9be05e13408dd8cf8dafe8f11b1700a28194e07e
 )
 
+# fetch iota_common
+include(FetchContent)
+FetchContent_Declare(
+  iota_common
+  GIT_REPOSITORY http://github.com/iotaledger/iota_common.git
+  GIT_TAG cf649803757abf48432d4fa60e9f27ac119bae5f
+)
+
 # fetch iota.c
 include(FetchContent)
 FetchContent_Declare(
@@ -60,6 +68,9 @@ FetchContent_MakeAvailable(pigpio)
 
 message(STATUS "Fetching sqlite3")
 FetchContent_MakeAvailable(sqlite3)
+
+message(STATUS "Fetching iota_common")
+FetchContent_MakeAvailable(iota_common)
 
 message(STATUS "Fetching iota.c")
 FetchContent_MakeAvailable(iota.c)
@@ -93,6 +104,9 @@ set(include_dirs
 
 add_executable(${target} main.c)
 target_include_directories(${target} PUBLIC ${include_dirs})
+
+target_link_directories(${target} PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/ext_install/lib)
+
 target_link_libraries(${target} PUBLIC
   ${libs}
   ${plugins}
