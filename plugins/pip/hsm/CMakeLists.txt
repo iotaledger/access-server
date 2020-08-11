@@ -23,7 +23,7 @@ set(target pip_plugin_hsm)
 
 set(libs
   -pthread
-  access_wallet
+  wallet
   pdp
   plugin
   ${policy_format}

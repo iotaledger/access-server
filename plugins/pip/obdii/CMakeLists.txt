@@ -23,12 +23,12 @@ set(target pip_plugin_obdii)
 
 set(libs
   -pthread
-  access_wallet
+  wallet
   pdp
   plugin
   ${policy_format}
   pip
-  access_wallet
+  wallet
   vehicle_dataset
   config_manager
   data_dumper

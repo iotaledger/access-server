@@ -22,7 +22,7 @@ cmake_minimum_required(VERSION 3.11)
 set(target pep_plugin_print)
 
 set(libs
-  access_wallet
+  wallet
   pep
   pdp
   config_manager
