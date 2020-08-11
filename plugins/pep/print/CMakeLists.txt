@@ -26,7 +26,7 @@ set(libs
   pep
   pdp
   config_manager
-  plugin_manager
+  plugin
 )
 
 set(sources

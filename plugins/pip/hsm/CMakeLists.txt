@@ -25,7 +25,7 @@ set(libs
   -pthread
   access_wallet
   pdp
-  plugin_manager
+  plugin
   ${policy_format}
   pip
   hsm
