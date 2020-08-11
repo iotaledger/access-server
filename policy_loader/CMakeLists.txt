@@ -28,7 +28,7 @@ set(sources
 
 set(libs
   config_manager
-  json_parser
+  ${policy_format}
   pap
   policy_updater
 )

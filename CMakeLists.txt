@@ -21,6 +21,9 @@ cmake_minimum_required(VERSION 3.11)
 
 project(access_reference_implementation)
 
+set(policy_format json CACHE STRING "Policy Format Choice")
+#set(policy_format protobuf-c CHACE STRING "Policy Format Choice")
+
 # fetch pigpio
 include(FetchContent)
 FetchContent_Declare(
@@ -82,7 +85,7 @@ set(target asri)
 
 set(libs
   sqlite3
-  json_parser
+  ${policy_format}
   vehicle_dataset
   policy_loader
   network
