@@ -32,8 +32,8 @@ link_directories("${CMAKE_INSTALL_PREFIX}/lib")
 set(target network)
 
 set(libs
-  json_parser
-  asn
+  ${policy_format}
+  auth
   pep
   pap_plugin_posix
   policy_updater)

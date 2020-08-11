@@ -22,3 +22,23 @@ For example, imagine a door that is controlled by a relay attached to the board'
 PIP Plugins are used by PIP to gather information about the external environment. They are the main interface for **sensors** that provide information that help determine whether access will be granted or denied.
 
 For example, a Wallet-based PIP Plugin is used to verify whether an IOTA transaction was indeed performed. Another example is of a GPS-based PIP Plugin that checks device location.
+
+## Plugin API
+
+Access Core SDK provides a Plugin API ([`access_plugin_api/plugin.h`](https://github.com/iotaledger/access-sdk/blob/master/access_plugins_api/plugin.h)) with the necessary logical abstractions to
+handle `plugin_t` objects. Let's take a look at the `struct` representation of the plugins:
+```
+typedef struct {
+  plugin_cb destroy;
+  plugin_cb *callbacks;
+  size_t callbacks_num;
+  void *plugin_data;
+} plugin_t;
+```
+
+The type `plugin_cb` is represents a callback function. It receives a reference to the plugin and some input arguments.
+```
+typedef int (*plugin_cb)(plugin_t *plugin, void *data);
+```
+
+So that means each `plugin_t` object has one `destroy` callback (`plugin_cb`), and a pointer array to other functional (also `plugin_cb`) callbacks. There is a `callbacks_num` counter to keep track of the pointer array size. Finally, there is a `void` pointer called `plugin_data`, where any kind of additional plugin information is stored.

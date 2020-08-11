@@ -26,7 +26,7 @@ set(libs
   access_wallet
   pdp
   plugin_manager
-  json_parser
+  ${policy_format}
   pip
   hsm
 )

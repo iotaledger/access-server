@@ -21,13 +21,8 @@ cmake_minimum_required(VERSION 3.11)
 
 project(access_reference_implementation)
 
-# fetch access-sdk
-include(FetchContent)
-FetchContent_Declare(
-  access-sdk
-  GIT_REPOSITORY https://github.com/iotaledger/access-sdk
-  GIT_TAG 02a1909e11aae45fcc9e4db4e250d3ff47dbccdd
-)
+set(policy_format json CACHE STRING "Policy Format Choice")
+#set(policy_format protobuf-c CHACE STRING "Policy Format Choice")
 
 # fetch pigpio
 include(FetchContent)
@@ -43,6 +38,14 @@ FetchContent_Declare(
   sqlite3
   GIT_REPOSITORY https://github.com/azadkuh/sqlite-amalgamation.git
   GIT_TAG 9be05e13408dd8cf8dafe8f11b1700a28194e07e
+)
+
+# fetch iota_common
+include(FetchContent)
+FetchContent_Declare(
+  iota_common
+  GIT_REPOSITORY http://github.com/iotaledger/iota_common.git
+  GIT_TAG cf649803757abf48432d4fa60e9f27ac119bae5f
 )
 
 # fetch iota.c
@@ -63,14 +66,14 @@ if(${CMAKE_VERSION} VERSION_LESS 3.14)
     endmacro()
 endif()
 
-message(STATUS "Fetching access-sdk")
-FetchContent_MakeAvailable(access-sdk)
-
 message(STATUS "Fetching pigpio")
 FetchContent_MakeAvailable(pigpio)
 
 message(STATUS "Fetching sqlite3")
 FetchContent_MakeAvailable(sqlite3)
+
+message(STATUS "Fetching iota_common")
+FetchContent_MakeAvailable(iota_common)
 
 message(STATUS "Fetching iota.c")
 FetchContent_MakeAvailable(iota.c)
@@ -82,7 +85,7 @@ set(target asri)
 
 set(libs
   sqlite3
-  json_parser
+  ${policy_format}
   vehicle_dataset
   policy_loader
   network
@@ -104,6 +107,9 @@ set(include_dirs
 
 add_executable(${target} main.c)
 target_include_directories(${target} PUBLIC ${include_dirs})
+
+target_link_directories(${target} PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/ext_install/lib)
+
 target_link_libraries(${target} PUBLIC
   ${libs}
   ${plugins}
@@ -117,6 +123,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/wallet_pem.txt
   ${CMAKE_CURRENT_BINARY_DIR} COPYONLY
 )
 
+add_subdirectory(access-sdk)
 add_subdirectory(portability)
 add_subdirectory(tests)
 add_subdirectory(network)

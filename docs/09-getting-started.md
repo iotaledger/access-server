@@ -1,12 +1,10 @@
-- [Building Access Server](#building-access-server)
-- [Configuring Access Server](#configuring-access-server)
-- [Starting Access Server](#starting-access-server)
-- [Writing a Policy File](#writing-a-policy-file)
-- [Creating an Access Request](#creating-an-access-request)
-
 # Building Access Server
 
-Reference Implementation is currently focused on [Raspbian Buster](https://www.raspberrypi.org/blog/buster-the-new-version-of-raspbian/).
+This tutorial assumes you have already followed:
+- [Getting Started with Access Mobile Client]()
+- [Getting Started with Access Policy Store]()
+
+Access Server Reference Implementation is currently focused on [Raspbian Buster](https://www.raspberrypi.org/blog/buster-the-new-version-of-raspbian/).
 
 1. SSH into Raspbian.
 2. Install dependencies:
