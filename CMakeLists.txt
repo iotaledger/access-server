@@ -24,8 +24,8 @@ project(access_reference_implementation)
 set(policy_format json CACHE STRING "Policy Format Choice")
 #set(policy_format protobuf-c CHACE STRING "Policy Format Choice")
 
-#set(auth_implementation openssl CACHE STRING "auth implementation choice")
-set(auth_implementation tinyauth CHACE STRING "auth implementation choice")
+#set(auth_flavour rsa CACHE STRING "auth flavour choice")
+set(auth_flavour ecdsa CHACE STRING "auth flavour choice")
 
 # fetch pigpio
 include(FetchContent)
