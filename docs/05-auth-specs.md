@@ -22,7 +22,7 @@ Just `set(auth_flavour rsa)` or `set(auth_flavour ecdsa)` on the appropriate `CM
 - signing/verification: **RSA**
 - pros:
   - OpenSSL compatible.
-  - keypair generated deterministically from IOTA seeds (IOTA 2.0).
+  - keypair generated deterministically from IOTA seeds (IOTA 2.0) (via [dOpenSSL](https://github.com/bernardoaraujor/dopenssl)).
 - cons:
   - RAM hungry.
 - scenarios:
