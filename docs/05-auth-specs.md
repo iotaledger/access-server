@@ -19,7 +19,7 @@ Just `set(auth_flavour rsa)` or `set(auth_flavour ecdsa)` on the appropriate `CM
 
 ## RSA Flavour
 - key exchange: **DH**
-- signing/verification: **RSA**
+- signing/verification: **RSA 2048**
 - pros:
   - OpenSSL compatible.
   - keypair generated deterministically from IOTA seeds (IOTA 2.0) (via [dOpenSSL](https://github.com/bernardoaraujor/dopenssl)).
