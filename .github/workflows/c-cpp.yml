@@ -25,10 +25,12 @@ jobs:
         token: ${{ secrets.PAT }}
 
     - name: Run CMake
-      run: |
-        mkdir build
-        cd build
-        cmake .. -DCMAKE_INSTALL_PREFIX=${{ env.GITHUB_WORKSPACE }}/build/ext_install;
+      uses: lukka/run-cmake@v2.5
+      with:
+        cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
+        buildDirectory: ${{ github.workspace }}/build/
+        cmakeAppendedArgs: '-DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/build/ext_install'
+        buildWithCMake: false
 
     - name: Run make
       run: |
