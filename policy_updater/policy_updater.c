@@ -97,7 +97,7 @@ static int tcp_send(char *msg, int msg_length, char *rec, int *rec_length, char 
 
   memset(recv_buff, '0', sizeof(recv_buff));
   if ((sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
-    printf("\n Error : Could not create socket \n");
+    log_error(policy_updater_logger_id, "[%s:%d] could not create socket.\n", __func__, __LINE__);
     return 1;
   }
 
@@ -115,7 +115,7 @@ static int tcp_send(char *msg, int msg_length, char *rec, int *rec_length, char 
 
     timemanager_get_time_string(buf, BUFF_LEN);
 
-    printf("%s %s\tError: Connection Failed\n", buf, g_module_name);
+    log_error(policy_updater_logger_id, "[%s:%d] connection with server failed.\n", __func__, __LINE__);
 
     return 1;
   }

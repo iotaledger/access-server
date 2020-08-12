@@ -45,7 +45,7 @@ After physical connection is established, client generates a [Diffie-Hellman](ht
 
 Client sends its DH public key to the server running on the Target Device.
 
-Server generates the DH key pair using the same algorithm used by client (dictated by the choice of either OpenSSL or TinyAuth).
+Server generates the DH key pair using the same algorithm used by client (dictated by the choice of either OpenSSL or TinyEmbedded).
 
 Server computes the DH-shared secret `K` and hash `H = hash (client ID || server ID || server public key || client DH public key || server DH public key || shared secret K)`, where Client ID and server ID are identification strings of client and server.
 
