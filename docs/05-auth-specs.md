@@ -1,4 +1,5 @@
 # Access Authentication API
+
 Access Auth API comes in two flavours:
 - RSA flavour
   - [NIST FIPS PUB 800-56A](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-56ar.pdf) Diffie-Hellman (**DH**) key exchange.
@@ -11,6 +12,9 @@ Both flavours share the following cryptographic primitives:
 - [NIST FIPS PUB 198-1](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.198-1.pdf): Keyed-Hash Message Authentication Code (**HMAC**) [**SHA-256**](https://www.cs.princeton.edu/~appel/papers/verif-sha.pdf).
 - [NIST FIPS PUB 197](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.197.pdf): Advanced Encryption Standard 256 (**AES256**).
 
+The choice for Auth API flavour is done at CMake level.
+Just `set(auth_flavour rsa)` or `set(auth_flavour ecdsa)` on the appropriate `CMakeLists.txt` to make your choice.
+
 ![drawing](/docs/images/auth.png)
 
 ## RSA Flavour
@@ -18,7 +22,7 @@ Both flavours share the following cryptographic primitives:
 - signing/verification: **RSA**
 - pros:
   - OpenSSL compatible.
-  - keypair generated deterministically from IOTA seeds.
+  - keypair generated deterministically from IOTA seeds (IOTA 2.0).
 - cons:
   - RAM hungry.
 - scenarios:
@@ -30,6 +34,7 @@ Both flavours share the following cryptographic primitives:
 - signing/verification: **ECDSA** with **secp160r1**.
 - pros:
   - RAM-light.
+  - [Integrates with IOTA 1.5](https://github.com/Wollac/protocol-rfcs/blob/ed25519/text/0009-ed25519-signature-scheme/0009-ed25519-signature-scheme.md).
 - cons:
   - Not Quantum robust.
 -scenarios:
@@ -52,7 +57,7 @@ Both flavours share the following cryptographic primitives:
 
 ![drawing](/docs/images/key_exchange.png)
 
-##### Authentication Protocol
+# Authentication Protocol
 
 The `client_pubkey` authentication is executed after Server authentication key exchange (described above).
 
@@ -63,26 +68,27 @@ The `client_pubkey` authentication is executed after Server authentication key e
 
 ![drawing](/docs/images/client_key.png)
 
-##### Encryption, decryption and validation
+# Encryption, Decryption, Validation
 
 When both Server and Client have shared secret `K` and hash `H`, following encryption keys can be generated:
-- Initial IV client to server: `hash(K||H||”A”)`
-- Initial IV server to client: `hash(K||H||”B”)`
-- Encryption key client to server: `hash(K||H||”C”)`
-- Encryption key server to client: `hash(K||H||”D”)`
-- Integrity key client to server: `hash(K||H||”E”)`
-- Integrity key server to client: `hash(K||H||”F”)`
-Where `"A"`, `"B", ... , `"F"` are constants representing `ASCII` values of those characters.
+- Initial IV client to server: `hash(K | |H| | ”A”)`
+- Initial IV server to client: `hash(K | |H| | ”B”)`
+- Encryption key client to server: `hash(K | |H| | ”C”)`
+- Encryption key server to client: `hash(K | |H| | ”D”)`
+- Integrity key client to server: `hash(K | |H| | ”E”)`
+- Integrity key server to client: `hash(K | |H| | ”F”)`
 
-On sender side, packet length and payload are encrypted with key:
-`encrypted_packet = enc(Key, packet_length||payload)`
-`integrity_packet = mac(key, sequence_number||encrypted_packet_length||encrypted_packet)`
-`transmit_packet = encrypted_data_length||encrypted_packet||integrity_packet`
+Where `"A"`, `"B"`, `...` , `"F"` are constants representing `ASCII` values of those characters.
+
+On sender side, `packet_length` and `payload` are encrypted with key:
+- `encrypted_packet = enc(key, packet_length || payload)`
+- `integrity_packet = mac(key, sequence_number || encrypted_packet_length || encrypted_packet)`
+- `transmit_packet = encrypted_data_length || encrypted_packet || integrity_packet`
 
 On receiver side, the reverse operation is performed in order to decrypt the package. The integrity packet is used for message authentication validation.
 
-`receive_packet = encrypted_data_length||encrypted_packet||integrity_packet`
-`confirm_integrity = mac(key, sequence_number||encrypted_packet_length||encrypted_packet)`
-`decrypted_packet = dec(Key, encrypted_packet)`
+- `receive_packet = encrypted_data_length || encrypted_packet || integrity_packet`
+- `confirm_integrity = mac(key, sequence_number || encrypted_packet_length || encrypted_packet)`
+- `decrypted_packet = dec(Key, encrypted_packet)`
 
 Sizes `packet_length` and `encrypted_packet_length` are 2 bytes in big endian format and size of `sequence_number` is 1 byte.
