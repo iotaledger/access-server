@@ -18,6 +18,9 @@ jobs:
     - uses: actions/checkout@v2
       with:
         submodules: true
+        # This can be removed once access-sdk is made public
+        token: ${{ secrets.PAT }}
+
     - name: Run CMake
       run: mkdir build; cd build; cmake .. -DCMAKE_INSTALL_PREFIX=/home/runner/work/access/build/ext_install;
     - name: Run make
