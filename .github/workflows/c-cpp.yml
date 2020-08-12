@@ -17,7 +17,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install python3-distutils libfastjson-dev libcurl4-gnutls-dev libssl-dev -y
-        
+
     - uses: actions/checkout@v2
       with:
         submodules: true
@@ -28,7 +28,7 @@ jobs:
       run: |
         mkdir build
         cd build
-        cmake .. -DCMAKE_INSTALL_PREFIX=/home/runner/work/access/build/ext_install;
+        cmake .. -DCMAKE_INSTALL_PREFIX=${{ env.GITHUB_WORKSPACE }}/build/ext_install;
 
     - name: Run make
       run: |
