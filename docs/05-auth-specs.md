@@ -1,6 +1,7 @@
 # Access Authentication API
 
-Access Auth API comes in two flavours:
+The Access Auth API is used for Off-Tangle Authentication between Clients and Severs.
+It comes in two flavours:
 - RSA flavour
   - [NIST FIPS PUB 800-56A](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-56ar.pdf) Diffie-Hellman (**DH**) key exchange.
   - [NIST FIPS PUB 800-131A](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-131Ar2.pdf): Rivest-Shamir-Adleman (**RSA**) 2048 signature scheme.
