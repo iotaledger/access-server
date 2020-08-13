@@ -32,6 +32,7 @@
  ****************************************************************************/
 
 #include "network.h"
+#include "auth.h"
 #include "auth_logger.h"
 #include "crypto_logger.h"
 #include "network_logger.h"
@@ -172,19 +173,6 @@ void network_stop(network_ctx_t network_context) {
     free(ctx);
   }
 }
-
-static ssize_t read_socket(void *ext, void *data, unsigned short len) {
-  int *sockfd = (int *)ext;
-  return read(*sockfd, data, len);
-}
-
-static ssize_t write_socket(void *ext, void *data, unsigned short len) {
-  int *sockfd = (int *)ext;
-  return write(*sockfd, data, len);
-}
-
-// ToDo: implement proper verification.
-static int verify(unsigned char *key, int len) { return 0; }
 
 static int get_server_state(network_ctx_internal_t *ctx) { return ctx->state; }
 
@@ -402,10 +390,6 @@ static void *network_thread_function(void *ptr) {
         int decision = -1;
 
         auth_init_server(&ctx->session, &ctx->connfd);
-
-        ctx->session.f_read = read_socket;
-        ctx->session.f_write = write_socket;
-        ctx->session.f_verify = verify;
 
         auth = auth_authenticate(&ctx->session);
 
