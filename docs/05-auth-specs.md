@@ -1,97 +1,95 @@
-#### Access Authentication API
-The Access Authentication API is used to authenticate clients, ensure (off-Tangle) channel security and perform message validation.
+# Access Authentication API
 
-The authentication protocol is used to secure communication channel of the device. It is based on stripped version of SSH protocol. In order to be used in embedded system protocol must fulfill following requirements:
-- Independent of physical communication layer
-- Small memory bartprint
-- No OS dependencies
-- Fast execution
-- Off-Tangle communication between server and client
+The Access Auth API is used for Off-Tangle Authentication between Clients and Severs.
+It comes in two flavours:
+- RSA flavour
+  - [NIST FIPS PUB 800-56A](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-56ar.pdf) Diffie-Hellman (**DH**) key exchange.
+  - [NIST FIPS PUB 800-131A](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-131Ar2.pdf): Rivest-Shamir-Adleman (**RSA**) 2048 signature scheme.
+- ECDSA flavour
+  - [NIST SP 800-186](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-186-draft.pdf): Elliptic Curve Diffie-Hellman (**ECDH**) key exchange.
+  - [NIST SP 800-186](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-186-draft.pdf): Elliptic Curve Digital Signature Algorithm (**ECDSA**) with secp160r1.
 
-The authentication protocol is designed as a module that can be used by both client and server applications. A top level Authentication API unifies the usage and encapsulates the design, hiding the differences that client and server side facilitate and implement.
+Both flavours share the following cryptographic primitives:
+- [NIST FIPS PUB 198-1](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.198-1.pdf): Keyed-Hash Message Authentication Code (**HMAC**) [**SHA-256**](https://www.cs.princeton.edu/~appel/papers/verif-sha.pdf).
+- [NIST FIPS PUB 197](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.197.pdf): Advanced Encryption Standard 256 (**AES256**).
 
-Client and server use-cases require different paths in authentication methodology. This leads to diversification of authentication steps for each case.
+The choice for Auth API flavour is done at CMake level.
+Just `set(auth_flavour rsa)` or `set(auth_flavour ecdsa)` on the appropriate `CMakeLists.txt` to make your choice.
 
 ![drawing](/docs/images/auth.png)
 
-In order to meet requirements on different Embedded Systems, two versions of internal module realizations have been defined:
+## RSA Flavour
+- key exchange: **DH**
+- signing/verification: **RSA 2048**
+- pros:
+  - OpenSSL compatible.
+  - keypair generated deterministically from IOTA seeds (IOTA 2.0) (via [dOpenSSL](https://github.com/bernardoaraujor/dopenssl)).
+- cons:
+  - RAM hungry.
+- scenarios:
+  - **SSL**/**TCP**/**IPv4**/**802.3** Wide Area Network (**WAN**) on **SoC HW-based MMU with 512Mb RAM** (Embedded Linux arm64).
+  - **SSL**/**TCP**/**IPv4**/**802.3** World Wide Web (**WWW**) on **VPS** (Linux x86-64).
 
-- **OpenSSL**: module uses the derivative subset of [OpenSSL](https://www.openssl.org/), which is widely used, maintained and verified by the open source community.
-- **Tiny embedded** module (based on 3rd party libs) is an even smaller realization of necessary functions required for Authentication. Used when the target Embedded System's constrained resources are not able to support OpenSSL.
-- HW acceleration is mentioned as an upgrade where applicable (depends of HW).
+## ECDSA Flavour
+- key exchange: **ECDH** with **Curve25519**
+- signing/verification: **ECDSA** with **secp160r1**.
+- pros:
+  - RAM-light.
+  - [Integrates with IOTA 1.5](https://github.com/Wollac/protocol-rfcs/blob/ed25519/text/0009-ed25519-signature-scheme/0009-ed25519-signature-scheme.md).
+- cons:
+  - Not Quantum robust.
+-scenarios:
+  - **SSL**/**TCP**/**IPv6**/**6LoWPAN** Bluetooth Low Energy (**BLE**) Network on **uC SW-based MMU with 256kb RAM** (FreeRTOS armv7-m).
+  - **SSL**/**TCP**/**IPv4**/**802.11** Local Area Network (**LAN**) on **uC SW-based MMU with 520 KiB SRAM** (ZephyrOS esp32).
 
-##### OpenSSL module
-The first option is the internal authentication realization based on OpenSSL. It is used in scenarios where Embedded resources are not scarce:
+# Key Exchange
 
-- **Diffie-Hellman key exchange**: used for generation and computation of the shared secret.
-- **RSA**: used for signing and verification of the shared secrets.
-- **AES256**: for message encryption and decryption.
-- **SHA256**: for hashing during encryption key generation.
-- **HMAC-SHA256**: used for data integrity during message exchange via Message Authentication Code (MAC).
-
-##### TinyAuth module
-TinyAuth is the internal authentication realization based on 3rd party libraries. It is used in scenarios where Embedded resources are scarce:
-- **Curve25519 elliptic curve function**: to compute public key and shared secret for DH exchange.
-- **ECDSA secp160r1**: for signing and signature validation.
-- **SHA256**: for hashing.
-- **AES256**: for message encryption and decryption.
-- **HMAC-SHA256**: used for data integrity during message exchange via Message Authentication Code (MAC).
-
-##### Server authentication key exchange
-
-After physical connection is established, client generates a [Diffie-Hellman](https://mathworld.wolfram.com/Diffie-HellmanProtocol.html) (DH) private key. Based on the private key, client computes DH public key using following formula.
-
-![drawing](/docs/images/formula.png)
-
-Client sends its DH public key to the server running on the Target Device.
-
-Server generates the DH key pair using the same algorithm used by client (dictated by the choice of either OpenSSL or TinyAuth).
-
-Server computes the DH-shared secret `K` and hash `H = hash (client ID || server ID || server public key || client DH public key || server DH public key || shared secret K)`, where Client ID and server ID are identification strings of client and server.
-
-Using its own private key, server also computes `signature = f(private key, H)`.
-
-Server sends server public key, server DH public key, and signature to client.
-
-Client first verifies the server's public key. It computes DH-shared secret `K`, hash `H = hash (client ID || server ID || server public key || client DH public key || server DH public key || shared secret K)` and verifies signature.
+1. TCP/IP socket is established between Client and Server.
+2. Client generates `client_DH_privkey`.
+3. Client computes `client_DH_pubkey` based on `client_DH_privkey`.
+4. Client sends `client_DH_privkey` to Server.
+5. Server generates`server_DH_privkey` and `server_DH_pubkey` with the same algorithm.
+6. Server computes DH-shared secret `K` and `H = hash (client_id || server_id || server_pubkey || client_DH_pubkey || server_DH_pubkey || K)`, where `client_id` and `server_id` are identification strings of Client and Server.
+7. Server computes `signature = f(server_DH_privkey key, H)`.
+8. Server sends `server_pubkey`, `server_DH_pubkey`, and `signature` to Client.
+9. Client verifies the `server_pubkey`.
+10. Client computes DH-shared secret `K`,`H = hash (client_id || server_id || server_pubkey || client_DH_pubkey || server_DH_pubkey || K)`.
+11. Client verifies `signature`.
 
 ![drawing](/docs/images/key_exchange.png)
 
-##### Client public key authentication protocol
+# Authentication Protocol
 
-The client public key authentication is executed after server authentication key exchange (described above).
+The `client_pubkey` authentication is executed after Server authentication key exchange (described above).
 
-Client calculates hash `H = hash (client ID || server ID || client public key || client DH public key || server DH public key || shared secret K)`, signature `S = f(client private key, hash)`, and sends public key + signature to server.
-
-Server verifies the Client's public key and computes hash `H = hash (client ID || server ID || client public key || client DH public key || server DH public key || shared secret K)`. Then, the server verifies signature `S` on hash.
+1. Client calculates `H = hash (client_id || server_id || client public__key || client_DH_pubkey || server_DH_pubkey || K)`, `signature = f(client_privkey, hash)`
+2.Client sends `client_pubkey` + `signature` to Server.
+3. Server verifies the `client_pubkey` and computes `H = hash (client_id || server_id || client_pubkey || client_DH_pubkey || server_DH_pubkey || K)`.
+4. The server verifies `signature` on hash.
 
 ![drawing](/docs/images/client_key.png)
 
-##### Data encryption, decryption and validation
+# Encryption, Decryption, Validation
 
-When both server and client have shared secret `K` and hash `H`, following encryption keys can be generated:
-- Initial IV client to server: `hash(K||H||”A”)`
-- Initial IV server to client: `hash(K||H||”B”)`
-- Encryption key client to server: `hash(K||H||”C”)`
-- Encryption key server to client: `hash(K||H||”D”)`
-- Integrity key client to server: `hash(K||H||”E”)`
-- Integrity key server to client: `hash(K||H||”F”)`
-"A", "B", ... "F" are constants representing ASCII values of those characters.
+When both Server and Client have shared secret `K` and hash `H`, following encryption keys can be generated:
+- Initial IV client to server: `hash(K | |H| | ”A”)`
+- Initial IV server to client: `hash(K | |H| | ”B”)`
+- Encryption key client to server: `hash(K | |H| | ”C”)`
+- Encryption key server to client: `hash(K | |H| | ”D”)`
+- Integrity key client to server: `hash(K | |H| | ”E”)`
+- Integrity key server to client: `hash(K | |H| | ”F”)`
 
-Encryption key is performed over packet length and payload:
+Where `"A"`, `"B"`, `...` , `"F"` are constants representing `ASCII` values of those characters.
 
-`Encrypted_packet = enc(Key, packet_length||payload)`
+On sender side, `packet_length` and `payload` are encrypted with key:
+- `encrypted_packet = enc(key, packet_length || payload)`
+- `integrity_packet = mac(key, sequence_number || encrypted_packet_length || encrypted_packet)`
+- `transmit_packet = encrypted_data_length || encrypted_packet || integrity_packet`
 
-`Integrity_packet = mac(key, sequence_number||encrypted_packet_length||encrypted_packet)`
+On receiver side, the reverse operation is performed in order to decrypt the package. The integrity packet is used for message authentication validation.
 
-`transmit_packet = encrypted_data_length||encrypted_packet||integrity_packet`
-
-On the reception side, the reverse operation is performed in order to decrypt the package. The integrity packet is used for message authentication validation.
-
-`receive_packet = encrypted_data_length||encrypted_packet||integrity_packet`
-
-`confirm_integrity = mac(key, sequence_number||encrypted_packet_length||encrypted_packet)`
-
-`decrypted_packet=dec(Key, encrypted_packet)`
+- `receive_packet = encrypted_data_length || encrypted_packet || integrity_packet`
+- `confirm_integrity = mac(key, sequence_number || encrypted_packet_length || encrypted_packet)`
+- `decrypted_packet = dec(Key, encrypted_packet)`
 
 Sizes `packet_length` and `encrypted_packet_length` are 2 bytes in big endian format and size of `sequence_number` is 1 byte.

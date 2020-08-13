@@ -25,7 +25,7 @@ set(libs
   pep
   misc
   fastjson
-  access_wallet)
+  wallet)
 
 add_library(${target} access.c)
 target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
