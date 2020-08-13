@@ -1,6 +1,7 @@
 # Access Authentication API
 
-Access Auth API comes in two flavours:
+The Access Auth API is used for Off-Tangle Authentication between Clients and Severs.
+It comes in two flavours:
 - RSA flavour
   - [NIST FIPS PUB 800-56A](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-56ar.pdf) Diffie-Hellman (**DH**) key exchange.
   - [NIST FIPS PUB 800-131A](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-131Ar2.pdf): Rivest-Shamir-Adleman (**RSA**) 2048 signature scheme.
@@ -19,10 +20,10 @@ Just `set(auth_flavour rsa)` or `set(auth_flavour ecdsa)` on the appropriate `CM
 
 ## RSA Flavour
 - key exchange: **DH**
-- signing/verification: **RSA**
+- signing/verification: **RSA 2048**
 - pros:
   - OpenSSL compatible.
-  - keypair generated deterministically from IOTA seeds (IOTA 2.0).
+  - keypair generated deterministically from IOTA seeds (IOTA 2.0) (via [dOpenSSL](https://github.com/bernardoaraujor/dopenssl)).
 - cons:
   - RAM hungry.
 - scenarios:
