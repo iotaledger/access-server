@@ -30,8 +30,3 @@ jobs:
         buildDirectory: ${{ github.workspace }}/build/
         cmakeAppendedArgs: -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/build/ext_install
         buildWithCMake: true
-
-    # - name: Run make
-    #   run: |
-    #     cd build
-    #     make -j8
