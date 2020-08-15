@@ -21,11 +21,15 @@ cmake_minimum_required(VERSION 3.11)
 
 project(access_reference_implementation)
 
-set(policy_format json CACHE STRING "Policy Format Choice")
-#set(policy_format protobuf-c CACHE STRING "Policy Format Choice")
+if(NOT DEFINED policy_format)
+    set(policy_format json CACHE STRING "Policy Format Choice")
+    #set(policy_format protobuf-c CHACE STRING "Policy Format Choice")
+endif()
 
-#set(auth_flavour rsa CACHE STRING "auth flavour choice")
-set(auth_flavour ecdsa CACHE STRING "auth flavour choice")
+if(NOT DEFINED auth_flavour)
+    #set(auth_flavour rsa CACHE STRING "auth flavour choice")
+    set(auth_flavour eddsa CACHE STRING "auth flavour choice")
+endif()
 
 # fetch pigpio
 include(FetchContent)
