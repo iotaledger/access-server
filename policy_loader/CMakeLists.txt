@@ -28,7 +28,7 @@ set(sources
 
 set(libs
   config_manager
-  ${policy_format}
+  ${POLICY_FORMAT}
   pap
   policy_updater
 )

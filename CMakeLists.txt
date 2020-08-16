@@ -21,9 +21,9 @@ cmake_minimum_required(VERSION 3.11)
 
 project(access_reference_implementation)
 
-if(NOT DEFINED policy_format)
-    set(policy_format json CACHE STRING "Policy Format Choice")
-    #set(policy_format protobuf-c CHACE STRING "Policy Format Choice")
+if(NOT DEFINED POLICY_FORMAT)
+    set(POLICY_FORMAT json CACHE STRING "Policy Format Choice")
+    #set(POLICY_FORMAT protobuf-c CHACE STRING "Policy Format Choice")
 endif()
 
 if(NOT DEFINED AUTH_FLAVOUR)
@@ -92,7 +92,7 @@ set(target asri)
 
 set(libs
   sqlite3
-  ${policy_format}
+  ${POLICY_FORMAT}
   vehicle_dataset
   policy_loader
   network

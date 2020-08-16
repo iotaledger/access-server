@@ -32,7 +32,7 @@ link_directories("${CMAKE_INSTALL_PREFIX}/lib")
 set(target network)
 
 set(libs
-  ${policy_format}
+  ${POLICY_FORMAT}
   auth
   pep
   pap_plugin_posix
