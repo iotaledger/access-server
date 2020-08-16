@@ -26,9 +26,9 @@ if(NOT DEFINED policy_format)
     #set(policy_format protobuf-c CHACE STRING "Policy Format Choice")
 endif()
 
-if(NOT DEFINED auth_flavour)
-    #set(auth_flavour rsa CACHE STRING "auth flavour choice")
-    set(auth_flavour eddsa CACHE STRING "auth flavour choice")
+if(NOT DEFINED AUTH_FLAVOUR)
+    #set(AUTH_FLAVOUR rsa CACHE STRING "auth flavour choice")
+    set(AUTH_FLAVOUR eddsa CACHE STRING "auth flavour choice")
 endif()
 
 # fetch pigpio

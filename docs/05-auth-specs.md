@@ -35,7 +35,7 @@ Both flavours share the following cryptographic primitives:
   - Bluetooth Low Energy (**BLE**) Network over **SSL** / **TCP** / **IPv6** / **6LoWPAN** stack on **uC SW-based MMU with 256kb RAM** (FreeRTOS armv7-m).
   - Local Area Network (**LAN**) over **SSL** / **TCP** / **IPv4** / **802.11** stack on **uC SW-based MMU with 520 KiB SRAM** (ZephyrOS esp32).
 
-The choice for Auth API flavour is done via CMake variables. Just add `-Dauth_flavour=rsa` or `-Dauth_flavour=ecdsa` as parameters when calling CMake.
+The choice for Auth API flavour is done via CMake variables. Just add `-DAUTH_FLAVOUR=rsa` or `-DAUTH_FLAVOUR=ecdsa` as parameters when calling CMake.
 
 ![drawing](/docs/images/auth.png)
 
