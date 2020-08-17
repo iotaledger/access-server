@@ -91,6 +91,7 @@ include(ExternalProject)
 set(target asri)
 
 set(libs
+  auth
   sqlite3
   ${POLICY_FORMAT}
   vehicle_dataset
@@ -108,6 +109,7 @@ set(plugins
 
 set(include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/auth
   ${CMAKE_CURRENT_SOURCE_DIR}/policy_loader
   ${CMAKE_CURRENT_SOURCE_DIR}/config_manager
 )
@@ -115,7 +117,11 @@ set(include_dirs
 add_executable(${target} main.c)
 target_include_directories(${target} PUBLIC ${include_dirs})
 
-target_link_directories(${target} PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/ext_install/lib)
+target_link_directories(${target} PUBLIC
+  ${CMAKE_CURRENT_BINARY_DIR}/ext_install/lib
+  ${CMAKE_CURRENT_BINARY_DIR}/access-sdk/auth
+  ${CMAKE_CURRENT_BINARY_DIR}/access-sdk/auth/${AUTH_FLAVOUR})
+message(STATUS ${CMAKE_CURRENT_BINARY_DIR}/access-sdk/auth/${AUTH_FLAVOUR})
 
 target_link_libraries(${target} PUBLIC
   ${libs}
