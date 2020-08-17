@@ -35,6 +35,7 @@ set(libs
   auth
   ${AUTH_FLAVOUR}
   ${POLICY_FORMAT}
+  tcpip
   pep
   pap_plugin_posix
   policy_updater)
