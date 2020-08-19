@@ -21,6 +21,8 @@ cmake_minimum_required(VERSION 3.11)
 
 project(access_reference_implementation)
 
+set(CMAKE_C_STANDARD 99)
+
 if(NOT DEFINED POLICY_FORMAT)
     set(POLICY_FORMAT json CACHE STRING "Policy Format Choice")
     #set(POLICY_FORMAT protobuf-c CHACE STRING "Policy Format Choice")
