@@ -31,6 +31,7 @@
  * 07.11.2019. Initial version.
  ****************************************************************************/
 
+#include "tcpip.h"
 #include "network.h"
 #include "auth.h"
 #include "auth_logger.h"
@@ -408,7 +409,7 @@ static void *network_thread_function(void *ptr) {
 
           decision = 0;
           int size = 34;
-          write_socket(&ctx->connfd, "{\"error\":\"authentication failed\"}", size);
+          tcpip_write_socket(&ctx->connfd, "{\"error\":\"authentication failed\"}", size);
         }
 
         ctx->state = 0;

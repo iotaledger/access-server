@@ -131,8 +131,8 @@ int pep_plugin_relay_initializer(plugin_t* plugin, void* wallet_context) {
 
   g_action_set.actions[0] = relay_on;
   g_action_set.actions[1] = relay_off;
-  strncpy(g_action_set.action_names[0], "action#1", ACTION_NAME_SIZE);
-  strncpy(g_action_set.action_names[1], "action#2", ACTION_NAME_SIZE);
+  strncpy(g_action_set.action_names[0], "action#1", ACTION_NAME_SIZE); // ToDo: fixACTION_NAME_SIZE
+  strncpy(g_action_set.action_names[1], "action#2", ACTION_NAME_SIZE); // ToDo: fixACTION_NAME_SIZE
   g_action_set.count = 2;
 
   plugin->destroy = destroy_cb;
