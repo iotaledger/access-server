@@ -25,7 +25,7 @@ set(sources
   vehicle/vehicle_dataset.c
   vehicle/vehicle_datasharing_dataset.c)
 
-set(libs ${policy_format})
+set(libs ${POLICY_FORMAT})
 
 set(include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}

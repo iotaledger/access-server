@@ -26,7 +26,7 @@ set(libs
   wallet
   pdp
   plugin
-  ${policy_format}
+  ${POLICY_FORMAT}
   pip
   hsm
 )

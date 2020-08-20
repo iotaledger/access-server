@@ -21,11 +21,17 @@ cmake_minimum_required(VERSION 3.11)
 
 project(access_reference_implementation)
 
-set(policy_format json CACHE STRING "Policy Format Choice")
-#set(policy_format protobuf-c CHACE STRING "Policy Format Choice")
+set(CMAKE_C_STANDARD 99)
 
-#set(auth_flavour rsa CACHE STRING "auth flavour choice")
-set(auth_flavour ecdsa CHACE STRING "auth flavour choice")
+if(NOT DEFINED POLICY_FORMAT)
+    set(POLICY_FORMAT json CACHE STRING "Policy Format Choice")
+    #set(POLICY_FORMAT protobuf-c CHACE STRING "Policy Format Choice")
+endif()
+
+if(NOT DEFINED AUTH_FLAVOUR)
+    #set(AUTH_FLAVOUR rsa CACHE STRING "auth flavour choice")
+    set(AUTH_FLAVOUR eddsa CACHE STRING "auth flavour choice")
+endif()
 
 # fetch pigpio
 include(FetchContent)
@@ -87,8 +93,9 @@ include(ExternalProject)
 set(target asri)
 
 set(libs
+  auth
   sqlite3
-  ${policy_format}
+  ${POLICY_FORMAT}
   vehicle_dataset
   policy_loader
   network
@@ -104,6 +111,7 @@ set(plugins
 
 set(include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/auth
   ${CMAKE_CURRENT_SOURCE_DIR}/policy_loader
   ${CMAKE_CURRENT_SOURCE_DIR}/config_manager
 )
@@ -111,7 +119,11 @@ set(include_dirs
 add_executable(${target} main.c)
 target_include_directories(${target} PUBLIC ${include_dirs})
 
-target_link_directories(${target} PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/ext_install/lib)
+target_link_directories(${target} PUBLIC
+  ${CMAKE_CURRENT_BINARY_DIR}/ext_install/lib
+  ${CMAKE_CURRENT_BINARY_DIR}/access-sdk/auth
+  ${CMAKE_CURRENT_BINARY_DIR}/access-sdk/auth/${AUTH_FLAVOUR})
+message(STATUS ${CMAKE_CURRENT_BINARY_DIR}/access-sdk/auth/${AUTH_FLAVOUR})
 
 target_link_libraries(${target} PUBLIC
   ${libs}

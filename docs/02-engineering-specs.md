@@ -23,3 +23,9 @@ IndentWidth: 4
 SpaceBeforeParens: ControlStatements
 
 ```
+
+## Test Driven Development
+
+IOTA Access follows [Test Driven Development](https://ieeexplore.ieee.org/document/1423994).
+
+Framework: [CTest v3.11](https://cmake.org/cmake/help/v3.11/manual/ctest.1.html).
