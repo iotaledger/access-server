@@ -92,7 +92,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/wallet_pem.txt
 add_subdirectory(access-sdk)
 add_subdirectory(portability)
 add_subdirectory(tests)
-add_subdirectory(network)
+add_subdirectory(network) # todo: replace with request_listener
 add_subdirectory(plugins)
 add_subdirectory(config_manager)
 add_subdirectory(data_dumper)
@@ -100,3 +100,4 @@ add_subdirectory(policy_loader)
 add_subdirectory(policy_updater)
 add_subdirectory(wallet)
 add_subdirectory(access)
+add_subdirectory(request_listener)
