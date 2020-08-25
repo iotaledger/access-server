@@ -33,62 +33,13 @@ if(NOT DEFINED AUTH_FLAVOUR)
     set(AUTH_FLAVOUR eddsa CACHE STRING "auth flavour choice")
 endif()
 
-# fetch pigpio
-include(FetchContent)
-FetchContent_Declare(
-  pigpio
-  GIT_REPOSITORY https://github.com/joan2937/pigpio.git
-  GIT_TAG b6fe5874516eb67745fa6277d2060b715dac09a9
-)
+include(cmake/pigpio.cmake)
+include(cmake/sqlite3.cmake)
+include(cmake/iota_common.cmake)
+include(cmake/iota.c.cmake)
 
-# fetch sqlite-amalgamation
-include(FetchContent)
-FetchContent_Declare(
-  sqlite3
-  GIT_REPOSITORY https://github.com/azadkuh/sqlite-amalgamation.git
-  GIT_TAG 9be05e13408dd8cf8dafe8f11b1700a28194e07e
-)
-
-# fetch iota_common
-include(FetchContent)
-FetchContent_Declare(
-  iota_common
-  GIT_REPOSITORY http://github.com/iotaledger/iota_common.git
-  GIT_TAG cf649803757abf48432d4fa60e9f27ac119bae5f
-)
-
-# fetch iota.c
-include(FetchContent)
-FetchContent_Declare(
-  iota.c
-  GIT_REPOSITORY http://github.com/iotaledger/iota.c.git
-  GIT_TAG 5d4433f7b936822f7d4c5bfc4f3e25899f7a3ce8
-)
-
-if(${CMAKE_VERSION} VERSION_LESS 3.14)
-    macro(FetchContent_MakeAvailable NAME)
-        FetchContent_GetProperties(${NAME})
-        if(NOT ${NAME}_POPULATED)
-            FetchContent_Populate(${NAME})
-            add_subdirectory(${${NAME}_SOURCE_DIR} ${${NAME}_BINARY_DIR})
-        endif()
-    endmacro()
-endif()
-
-message(STATUS "Fetching pigpio")
-FetchContent_MakeAvailable(pigpio)
-
-message(STATUS "Fetching sqlite3")
-FetchContent_MakeAvailable(sqlite3)
-
-message(STATUS "Fetching iota_common")
-FetchContent_MakeAvailable(iota_common)
-
-message(STATUS "Fetching iota.c")
-FetchContent_MakeAvailable(iota.c)
-
-# fetch external libs
-include(ExternalProject)
+# submodule while private
+#include(cmake/access-sdk.cmake)
 
 set(target asri)
 
