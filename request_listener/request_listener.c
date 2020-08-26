@@ -1,3 +1,4 @@
+#include <unistd.h>
 #include <pthread.h>
 
 #include "auth.h"

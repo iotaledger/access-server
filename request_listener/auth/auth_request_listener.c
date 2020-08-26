@@ -96,14 +96,14 @@ void *auth_request_listener_thread(bool *serve) {
     // load local_ed25519_sk
     // todo: replace with Stronghold or HSM
     uint8_t local_ed25519_sk[crypto_sign_SECRETKEYBYTES];
-    strcpy(local_ed25519_sk, global_ed25519_sk);
+    memcpy(local_ed25519_sk, global_ed25519_sk, crypto_sign_SECRETKEYBYTES);
 
     // assumes loaded local_ed25519_sk
     auth_authenticate(server, local_ed25519_sk); // erases local_ed25519_sk
 
     // load local_ed25519_sk again
     // todo: replace with Stronghold or HSM
-    strcpy(local_ed25519_sk, global_ed25519_sk);
+    memcpy(local_ed25519_sk, global_ed25519_sk, crypto_sign_SECRETKEYBYTES);
 
     char msg[MSGLEN];
 
