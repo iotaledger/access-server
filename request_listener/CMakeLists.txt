@@ -22,12 +22,19 @@
 
 set(sources
   request_listener.c
-  auth/auth_request_listener.c)
+  auth/auth_request_listener.c
+  decision/request_listener_calculate_decision.c)
 set(libs auth pthread)
+
+set(include_dirs
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/auth
+  ${CMAKE_CURRENT_SOURCE_DIR}/iota
+  ${CMAKE_CURRENT_SOURCE_DIR}/decision)
 
 add_executable(arl ${sources})
 add_dependencies(arl auth)
 
-target_include_directories(arl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/auth ${AUTH_SOURCE_DIR}/${AUTH_FLAVOUR})
+target_include_directories(arl PUBLIC ${include_dirs})
 target_link_directories(arl PUBLIC ${CMAKE_BINARY_DIR}/lib)
 target_link_libraries(arl PUBLIC ${libs})

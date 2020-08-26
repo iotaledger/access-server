@@ -12,6 +12,8 @@
 #include "auth.h"
 #include "auth_logger.h"
 
+#include "request_listener_calculate_decision.h"
+
 #include "tcpip.h"
 
 // todo: replace this global with a stronghold-based or HSM-based approach
@@ -113,9 +115,18 @@ void *auth_request_listener_thread(bool *serve) {
       pthread_exit(NULL);
     }
 
-    log_info(auth_logger_id, "[%s:%d] received authenticated msg: %s\n", __func__, __LINE__, msg);
+    log_info(auth_logger_id, "[%s:%d] received request: %s\n", __func__, __LINE__, msg);
 
     // calculate_decision
+    char *res;
+    size_t reslen;
+    if (request_listener_calculate_decision(msg, strlen(msg), res, &reslen) != REQLIST_OK) {
+      log_error(auth_logger_id, "[%s:%d] failed to calculate decision.\n", __func__, __LINE__);
+      auth_release(server);
+      pthread_exit(NULL);
+    }
+
+    // todo: send res
 
     // cleanup
 
