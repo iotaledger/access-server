@@ -10,7 +10,7 @@ Access Server Reference Implementation is currently focused on [Raspbian Buster]
 2. Install dependencies:
 ```
 $ sudo apt-get update
-$ sudo apt-get install git python3-distutils libfastjson-dev libcurl4-gnutls-dev libsqlite3-dev pigpio
+$ sudo apt-get install git python3-distutils libfastjson-dev libcurl4-gnutls-dev libsqlite3-dev pigpio libtool
 ```
 
 3. Clone and build IOTA Access:
@@ -20,7 +20,6 @@ $ git clone https://github.com/iotaledger/access.git
 $ cd access
 $ mkdir build; cd build
 $ AUTH=rsa # or AUTH=eddsa
-$ POL=json # or POL=protobuf-c
 $ cmake .. -DCMAKE_INSTALL_PREFIX=$PWD/ext_install -DAUTH_FLAVOUR=$AUTH -DPOLICY_FORMAT=$POL -DTEST=ON
 $ make -j4
 ```
