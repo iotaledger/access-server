@@ -22,6 +22,8 @@ static uint8_t global_ed25519_sk[crypto_sign_SECRETKEYBYTES];
 
 void *auth_request_listener_thread(bool *serve) {
 
+  log_info(auth_logger_id, "[%s:%d] creating auth_request_listener_thread.\n", __func__, __LINE__);
+
   // todo: replace this global with a stronghold-based or HSM-based approach
   crypto_sign_keypair(global_ed25519_pk, global_ed25519_sk);
 
@@ -118,22 +120,14 @@ void *auth_request_listener_thread(bool *serve) {
     log_info(auth_logger_id, "[%s:%d] received request: %s\n", __func__, __LINE__, msg);
 
     // calculate_decision
-    char *res;
+    char *res = calloc(1, MSGLEN);
     size_t reslen;
     if (request_listener_calculate_decision(msg, strlen(msg), res, &reslen) != REQLIST_OK) {
       log_error(auth_logger_id, "[%s:%d] failed to calculate decision.\n", __func__, __LINE__);
-      auth_release(server);
-      pthread_exit(NULL);
     }
 
     // todo: send res
 
-    // cleanup
-
-    shutdown(accept_sockfd, SHUT_RDWR);
-    close(accept_sockfd);
-
-    log_info(auth_logger_id, "[%s:%d] released accept_sockfd.\n", __func__, __LINE__);
 
   }
 

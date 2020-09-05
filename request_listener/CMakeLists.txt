@@ -22,9 +22,11 @@
 
 set(sources
   request_listener.c
+  request_listener_logger.c
   auth/auth_request_listener.c
   decision/request_listener_calculate_decision.c)
-set(libs auth pthread)
+
+set(libs auth pep pthread)
 
 set(include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}
