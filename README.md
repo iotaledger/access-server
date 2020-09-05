@@ -17,22 +17,6 @@ The Access Server Reference Implementation is meant to act as a reference for de
 
 It showcases how to put together the different pieces from the Access SDK into a functional dApp.
 
-## Access Context
-The Access Context is mainly responsible for consuming the Access Core API. It puts together the different function calls such that Access Requests are properly addressed, and Policies are managed adequately.
-
-## Wallet Context
-The Wallet Context is responsible for interacting with the IOTA Tangle. It initiates and checks IOTA Transactions while communicating with an IOTA Node.
-
-The Wallet Context is also responsible for managing the IOTA seed.
-
-While the initial ASRI does not support a Secure Element for safe seed storage, this feature is in our roadmap for future integration. Probably, this will be achieved in a modular fashion via Secure Element Plugins for the Wallet Context.
-
-## Network Context
-The Access Secure Network (ASN) Context handles incoming Access Requests. It is built with the ASN Authentication API.
-
-## Application Supervisor
-The Application Supervisor works as the main orchestrator that makes all Contexts interact with each other. Runtime Configurations are set in place, threads are initiated, and Contexts are set up.
-
 # Getting Started
 ## Build
 
@@ -61,7 +45,7 @@ It is important that you set up `policy_store_service_ip` under `[pap]`.
 
 **Warning ⚠️** 
 
-You want to edit `access-server/build/config.ini`, **not** `/access-server/config.ini`.
+You want to edit `access-server/build/config.ini`, **not** `access-server/config.ini`.
 
 ## Run
 Simply invoke the `asri` [ELF](https://man7.org/linux/man-pages/man5/elf.5.html).
