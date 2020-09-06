@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 
-#ifndef REQUEST_LISTENER_LOGGER_H
-#define REQUEST_LISTENER_LOGGER_H
+#ifndef CMD_LISTENER_LOGGER_H
+#define CMD_LISTENER_LOGGER_H
 
 #include "utils/logger_helper.h"
 
@@ -26,20 +26,20 @@
  * @brief logger ID
  *
  */
-extern logger_id_t request_listener_logger_id;
+extern logger_id_t cmd_listener_logger_id;
 
 /**
- * @brief init Request Listener logger
+ * @brief init cmd_listener Listener logger
  *
  * @param[in] level A level of the logger
  *
  */
-void logger_init_request_listener(logger_level_t level);
+void logger_init_cmd_listener(logger_level_t level);
 
 /**
- * @brief cleanup Request Listener logger
+ * @brief cleanup cmd_listener Listener logger
  *
  */
-void logger_destroy_request_listener();
+void logger_destroy_cmd_listener();
 
-#endif  // REQUEST_LISTENER_LOGGER_H
+#endif  // CMD_LISTENER_LOGGER_H

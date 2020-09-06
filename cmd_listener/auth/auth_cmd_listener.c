@@ -12,7 +12,8 @@
 #include "auth.h"
 #include "auth_logger.h"
 
-#include "request_listener_calculate_decision.h"
+#include "cmd_listener.h"
+#include "cmd_decision.h"
 
 #include "tcpip.h"
 
@@ -20,9 +21,9 @@
 static uint8_t global_ed25519_pk[crypto_sign_PUBLICKEYBYTES];
 static uint8_t global_ed25519_sk[crypto_sign_SECRETKEYBYTES];
 
-void *auth_request_listener_thread(bool *serve) {
+void *auth_cmd_listener_thread(bool *serve) {
 
-  log_info(auth_logger_id, "[%s:%d] creating auth_request_listener_thread.\n", __func__, __LINE__);
+  log_info(auth_logger_id, "[%s:%d] creating auth_cmd_listener_thread.\n", __func__, __LINE__);
 
   // todo: replace this global with a stronghold-based or HSM-based approach
   crypto_sign_keypair(global_ed25519_pk, global_ed25519_sk);
@@ -107,22 +108,22 @@ void *auth_request_listener_thread(bool *serve) {
     // todo: replace with Stronghold or HSM
     memcpy(local_ed25519_sk, global_ed25519_sk, crypto_sign_SECRETKEYBYTES);
 
-    char msg[MSGLEN];
+    char cmd[MSGLEN];
 
     // assumes loaded local_ed25519_sk
     // auth_receive erases local_ed25519_sk
-    if (auth_receive(server, local_ed25519_sk, msg, MSGLEN) != AUTH_OK) {
+    if (auth_receive(server, local_ed25519_sk, cmd, MSGLEN) != AUTH_OK) {
       log_error(auth_logger_id, "[%s:%d] failed to receive authenticated msg.\n", __func__, __LINE__);
       auth_release(server);
       pthread_exit(NULL);
     }
 
-    log_info(auth_logger_id, "[%s:%d] received request: %s\n", __func__, __LINE__, msg);
+    log_info(auth_logger_id, "[%s:%d] received cmd_listener: %s\n", __func__, __LINE__, cmd);
 
     // calculate_decision
     char *res = calloc(1, MSGLEN);
     size_t reslen;
-    if (request_listener_calculate_decision(msg, strlen(msg), res, &reslen) != REQLIST_OK) {
+    if (cmd_decision(cmd, strlen(cmd), res, &reslen) != CMD_LISTENER_OK) {
       log_error(auth_logger_id, "[%s:%d] failed to calculate decision.\n", __func__, __LINE__);
     }
 

@@ -17,18 +17,18 @@
  * limitations under the License.
  */
 
-#include "request_listener_logger.h"
+#include "cmd_listener_logger.h"
 
-#define REQUEST_LISTENER_LOGGER_ID "req_list"
+#define CMD_LISTENER_LOGGER_ID "cmd_listener"
 
-logger_id_t request_listener_logger_id;
+logger_id_t cmd_listener_logger_id;
 
-void logger_init_request_listener(logger_level_t level) {
-  request_listener_logger_id = logger_helper_enable(REQUEST_LISTENER_LOGGER_ID, level, true);
-  log_info(request_listener_logger_id, "[%s:%d] enable logger %s.\n", __func__, __LINE__, REQUEST_LISTENER_LOGGER_ID);
+void logger_init_cmd_listener(logger_level_t level) {
+  cmd_listener_logger_id = logger_helper_enable(CMD_LISTENER_LOGGER_ID, level, true);
+  log_info(cmd_listener_logger_id, "[%s:%d] enable logger %s.\n", __func__, __LINE__, CMD_LISTENER_LOGGER_ID);
 }
 
-void logger_destroy_request_listener() {
-  log_info(request_listener_logger_id, "[%s:%d] destroy logger %s.\n", __func__, __LINE__, REQUEST_LISTENER_LOGGER_ID);
-  logger_helper_release(request_listener_logger_id);
+void logger_destroy_cmd_listener() {
+  log_info(cmd_listener_logger_id, "[%s:%d] destroy logger %s.\n", __func__, __LINE__, CMD_LISTENER_LOGGER_ID);
+  logger_helper_release(cmd_listener_logger_id);
 }

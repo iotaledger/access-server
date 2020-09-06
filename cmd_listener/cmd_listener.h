@@ -1,0 +1,7 @@
+#ifndef CMD_LISTENER_H
+#define CMD_LISTENER_H
+
+#define CMD_LISTENER_OK 0
+#define CMD_LISTENER_ERROR -1
+
+#endif  // CMD_LISTENER_H

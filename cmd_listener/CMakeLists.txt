@@ -17,14 +17,11 @@
 # limitations under the License.
 #
 
-#add_subdirectory(auth)
-#add_subdirectory(iota)
-
 set(sources
-  request_listener.c
-  request_listener_logger.c
-  auth/auth_request_listener.c
-  decision/request_listener_calculate_decision.c)
+        cmd_listener.c
+        cmd_listener_logger.c
+        auth/auth_cmd_listener.c
+        decision/cmd_decision.c)
 
 set(libs auth pep pthread)
 
@@ -34,9 +31,9 @@ set(include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}/iota
   ${CMAKE_CURRENT_SOURCE_DIR}/decision)
 
-add_executable(arl ${sources})
-add_dependencies(arl auth)
+add_executable(acl ${sources})
+add_dependencies(acl auth)
 
-target_include_directories(arl PUBLIC ${include_dirs})
-target_link_directories(arl PUBLIC ${CMAKE_BINARY_DIR}/lib)
-target_link_libraries(arl PUBLIC ${libs})
+target_include_directories(acl PUBLIC ${include_dirs})
+target_link_directories(acl PUBLIC ${CMAKE_BINARY_DIR}/lib)
+target_link_libraries(acl PUBLIC ${libs})

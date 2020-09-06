@@ -1,7 +1,0 @@
-#ifndef REQUEST_LISTENER_H
-#define REQUEST_LISTENER_H
-
-#define REQLIST_OK 0
-#define REQLIST_ERROR -1
-
-#endif  // REQUEST_LISTENER_H
