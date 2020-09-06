@@ -18,8 +18,6 @@
 #include "tcpip.h"
 #include "server.h"
 
-#define MAX_CLIENTS 10
-
 // todo: replace this global with a stronghold-based or HSM-based approach
 static uint8_t global_ed25519_pk[crypto_sign_PUBLICKEYBYTES];
 static uint8_t global_ed25519_sk[crypto_sign_SECRETKEYBYTES];
@@ -54,7 +52,7 @@ void *auth_cmd_listener_thread(bool *serve) {
     pthread_exit(NULL);
   }
 
-  ret = listen(listen_sockfd, MAX_CLIENTS);
+  ret = listen(listen_sockfd, CMD_LISTENER_MAX_CLIENTS);
 
   if (ret != 0) {
     log_error(auth_logger_id, "[%s:%d] listen failed.\n", __func__, __LINE__);
