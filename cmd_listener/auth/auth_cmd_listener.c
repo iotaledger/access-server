@@ -16,6 +16,9 @@
 #include "cmd_decision.h"
 
 #include "tcpip.h"
+#include "server.h"
+
+#define MAX_CLIENTS 10
 
 // todo: replace this global with a stronghold-based or HSM-based approach
 static uint8_t global_ed25519_pk[crypto_sign_PUBLICKEYBYTES];
@@ -27,6 +30,9 @@ void *auth_cmd_listener_thread(bool *serve) {
 
   // todo: replace this global with a stronghold-based or HSM-based approach
   crypto_sign_keypair(global_ed25519_pk, global_ed25519_sk);
+
+  ////////////////////////////////////////////////
+  // setup authenticated tcpip server
 
   auth_ctx_t *server = calloc(1, sizeof(auth_ctx_t));
 
@@ -41,24 +47,28 @@ void *auth_cmd_listener_thread(bool *serve) {
   serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
   serv_addr.sin_port = htons(9998);
 
-  int retstat = bind(listen_sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
-  if (retstat != 0) {
+  int ret = bind(listen_sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
+  if (ret != 0) {
     log_error(auth_logger_id, "[%s:%d] bind failed.\n", __func__, __LINE__);
     auth_release(server);
     pthread_exit(NULL);
   }
 
-  retstat = listen(listen_sockfd, 10);
-  if (retstat != 0) {
+  ret = listen(listen_sockfd, MAX_CLIENTS);
+
+  if (ret != 0) {
     log_error(auth_logger_id, "[%s:%d] listen failed.\n", __func__, __LINE__);
     auth_release(server);
     pthread_exit(NULL);
   }
 
+  ///////////////////////////////////////////////////////////
+  // server listener loop
+
   while (serve) {
-    /*
-    * accept: wait for a connection request
-    */
+
+    // accept: wait for a connection request
+
     struct sockaddr_in clientaddr; /* client addr */
     int clientlen = sizeof(clientaddr);
     int accept_sockfd =  tcpip_accept(listen_sockfd, (struct sockaddr *) &clientaddr, &clientlen);
@@ -68,9 +78,8 @@ void *auth_cmd_listener_thread(bool *serve) {
       pthread_exit(NULL);
     }
 
-    /*
-     * gethostbyaddr: determine who sent the message
-     */
+    // gethostbyaddr: determine who sent the message
+
     struct hostent *hostp; /* client host info */
     hostp = gethostbyaddr((const char *)&clientaddr.sin_addr.s_addr,
                           sizeof(clientaddr.sin_addr.s_addr), AF_INET);
@@ -82,6 +91,7 @@ void *auth_cmd_listener_thread(bool *serve) {
 
     char *hostaddrp; /* dotted decimal host addr string */
     hostaddrp = inet_ntoa(clientaddr.sin_addr);
+
     if (hostaddrp == NULL) {
       log_error(auth_logger_id, "[%s:%d] failed to determine auth client's hostaddrp.\n", __func__, __LINE__);
       auth_release(server);
@@ -120,7 +130,7 @@ void *auth_cmd_listener_thread(bool *serve) {
 
     log_info(auth_logger_id, "[%s:%d] received cmd_listener: %s\n", __func__, __LINE__, cmd);
 
-    // calculate_decision
+    // cmd_decision: calculate decision
     char *res = calloc(1, MSGLEN);
     size_t reslen;
     if (cmd_decision(cmd, strlen(cmd), res, &reslen) != CMD_LISTENER_OK) {
@@ -129,8 +139,10 @@ void *auth_cmd_listener_thread(bool *serve) {
 
     // todo: send res
 
-
   }
+
+  //////////////////////////////////////////////
+  // clean up thread
 
   shutdown(listen_sockfd, SHUT_RDWR);
   close(listen_sockfd);
