@@ -18,30 +18,43 @@ The Access Server Reference Implementation is meant to act as a reference for de
 It showcases how to put together the different pieces from the Access SDK into a functional dApp.
 
 # Getting Started
-## Build
+## Clone, Build
 
-ASRI is currently focused on [Raspbian Buster](https://www.raspberrypi.org/blog/buster-the-new-version-of-raspbian/).
+ASRI is currently focused on [Raspberry Pi OS](https://www.raspberrypi.org/downloads/).
 
-1. SSH into Raspbian.
-2. Install dependencies:
+1 - SSH into the Raspberry Pi.
+
+2 - Install dependencies:
 ```
 $ sudo apt-get update
 $ sudo apt-get install git cmake python3-distutils libfastjson-dev libcurl4-gnutls-dev libtool
 ```
 
-3. Clone and build IOTA Access:
+3 - Clone:
 ```
 $ cd ~
 $ git clone --recurse-submodules -j8 https://github.com/iotaledger/access-server.git
 $ cd access-server
+```
+
+**Warning ⚠️** 
+If you want to try out the [Access Mobile Client](https://github.com/iotaledger/access-mobile-client) and the [Access Policy Store](https://github.com/iotaledger/access-policy-store), make sure you check out tag `v0.1.0` before you proceed any further:
+```
+$ git checkout tags/v0.1.0
+``` 
+If you choose to build from `master` or `develop`, beware that you are about to build a **Work-In-Progress**. You are invited to investigate and help us fix the build and runtime errors you will likely encounter.
+
+4 - Build:
+```
 $ mkdir build; cd build
-$ cmake .. -DCMAKE_INSTALL_PREFIX=$PWD/ext_install -DTEST=ON
+$ cmake .. -DCMAKE_INSTALL_PREFIX=$PWD/ext_install
 $ make -j4
 ```
 
 ## Configure
-Edit `config.ini` to set up runtime parameters. 
-It is important that you set up `policy_store_service_ip` under `[pap]`.
+Edit `config.ini` to set up runtime parameters.
+
+In case you are testing Access Policy Store, it is important that you set up `policy_store_service_ip` under `[pap]`.
 
 **Warning ⚠️** 
 
