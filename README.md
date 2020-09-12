@@ -38,9 +38,9 @@ $ cd access-server
 ```
 
 **Warning ⚠️** 
-If you want to try out the [Access Mobile Client](https://github.com/iotaledger/access-mobile-client) and the [Access Policy Store](https://github.com/iotaledger/access-policy-store), make sure you check out tag `v0.1.0` before you proceed any further:
+If you want to try out the [Access Mobile Client](https://github.com/iotaledger/access-mobile-client) and the [Access Policy Store](https://github.com/iotaledger/access-policy-store), make sure you check out tag `v0.1.0-alpha` of this repository before you proceed any further:
 ```
-$ git checkout tags/v0.1.0
+$ git checkout tags/v0.1.0-alpha
 ``` 
 If you choose to build from `master` or `develop`, beware that you are about to build a **Work-In-Progress**. You are invited to investigate and help us fix the build and runtime errors you will likely encounter.
 
