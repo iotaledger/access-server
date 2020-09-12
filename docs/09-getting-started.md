@@ -19,8 +19,7 @@ $ cd ~
 $ git clone https://github.com/iotaledger/access.git
 $ cd access
 $ mkdir build; cd build
-$ AUTH=rsa # or AUTH=eddsa
-$ cmake .. -DCMAKE_INSTALL_PREFIX=$PWD/ext_install -DAUTH_FLAVOUR=$AUTH -DPOLICY_FORMAT=$POL -DTEST=ON
+$ cmake .. -DCMAKE_INSTALL_PREFIX=$PWD/ext_install -DTEST=ON
 $ make -j4
 ```
 
