@@ -15,7 +15,17 @@ Access-control framework on the IOTA Distributed Ledger.
 # Access Server Reference Implementation (ASRI)
 The Access Server Reference Implementation is meant to act as a reference for developers who want to write their own IOTA Access dApps.
 
-It showcases how to put together the different pieces from the Access SDK into a functional dApp.
+It showcases how to put together the different pieces from the Access SDK into a functional application.
+
+Please note that the release `v0.1.0-alpha` is a [Minimal Viable Product (MVP)](https://www.agilealliance.org/glossary/mvp). It is by no means ready for production.
+
+Please also note that the current state of the `master` branch does not necessarily reflect the state of that release tag. In case you want to inspect the source code of the release, make sure you set the correct release tag.
+
+## Documentation
+
+For documentation, please refer to [Access SDK repository](https://github.com/iotaledger/access-sdk.git).
+
+Please note that the documentation refers to `v0.1.0-alpha`, which does not necessarily reflect the current state of the `master` branch.
 
 # Getting Started
 ## Clone, Build
