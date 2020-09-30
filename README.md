@@ -43,15 +43,13 @@ $ sudo apt-get install git cmake python3-distutils libfastjson-dev libcurl4-gnut
 3 - Clone:
 ```
 $ cd ~
-$ git clone --recurse-submodules -j8 https://github.com/iotaledger/access-server.git
+$ git clone --recurse-submodules -j4 --branch v0.1.0-alpha https://github.com/iotaledger/access-server.git
 $ cd access-server
 ```
 
 **Warning ⚠️** 
-If you want to try out the [Access Mobile Client](https://github.com/iotaledger/access-mobile-client) and the [Access Policy Store](https://github.com/iotaledger/access-policy-store), make sure you check out tag `v0.1.0-alpha` of this repository before you proceed any further:
-```
-$ git checkout tags/v0.1.0-alpha
-``` 
+You are checking out a detached head for the release tag `v0.1.0-alpha`, which will allow you to try out the [Access Mobile Client](https://github.com/iotaledger/access-mobile-client) and the [Access Policy Store](https://github.com/iotaledger/access-policy-store).
+
 If you choose to build from `master` or `develop`, beware that you are about to build a **Work-In-Progress**. You are invited to investigate and help us fix the build and runtime errors you will likely encounter.
 
 4 - Build:
