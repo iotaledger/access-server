@@ -33,6 +33,14 @@ if(NOT DEFINED AUTH_FLAVOUR)
     set(AUTH_FLAVOUR eddsa CACHE STRING "auth flavour choice")
 endif()
 
+# fetch access-sdk
+include(FetchContent)
+FetchContent_Declare(
+  access-sdk
+  GIT_REPOSITORY https://github.com/iotaledger/access-sdk.git
+  GIT_TAG 78f56cb11cbf99da061caa619c43192fb9db0a74
+)
+
 # fetch pigpio
 include(FetchContent)
 FetchContent_Declare(
@@ -74,6 +82,9 @@ if(${CMAKE_VERSION} VERSION_LESS 3.14)
         endif()
     endmacro()
 endif()
+
+message(STATUS "Fetching access-sdk")
+FetchContent_MakeAvailable(access-sdk)
 
 message(STATUS "Fetching pigpio")
 FetchContent_MakeAvailable(pigpio)
@@ -123,7 +134,6 @@ target_link_directories(${target} PUBLIC
   ${CMAKE_CURRENT_BINARY_DIR}/ext_install/lib
   ${CMAKE_CURRENT_BINARY_DIR}/access-sdk/auth
   ${CMAKE_CURRENT_BINARY_DIR}/access-sdk/auth/${AUTH_FLAVOUR})
-message(STATUS ${CMAKE_CURRENT_BINARY_DIR}/access-sdk/auth/${AUTH_FLAVOUR})
 
 target_link_libraries(${target} PUBLIC
   ${libs}
@@ -138,7 +148,6 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/wallet_pem.txt
   ${CMAKE_CURRENT_BINARY_DIR} COPYONLY
 )
 
-add_subdirectory(access-sdk)
 add_subdirectory(portability)
 add_subdirectory(tests)
 add_subdirectory(network)
