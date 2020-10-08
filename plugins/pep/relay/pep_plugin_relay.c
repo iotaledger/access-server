@@ -17,20 +17,6 @@
  * limitations under the License.
  */
 
-/****************************************************************************
- * \project IOTA Access
- * \file pep_plugin_relay.c
- * \brief
- * PEP plugin for relay.
- *
- * @Author Bernardo Araujo
- *
- * \notes
- *
- * \history
- * 12.07.2020. Initial version.
- ****************************************************************************/
-
 #include "pep_plugin_relay.h"
 #include "plugin_logger.h"
 
@@ -46,8 +32,8 @@
 #define ACTION_NAME_SIZE 16
 #define POLICY_ID_SIZE 64
 #define ADDR_SIZE 128
-#define OBLIGATION_ADDRESS "MXHYKULAXKWBY9JCNVPVSOSZHMBDJRWTTXZCTKHLHKSJARDADHJSTCKVQODBVWCYDNGWFGWVTUVENB9UA"
-#define OBLIGATION_MSG_MAX_SIZE 512
+#define ACTION_ADDRESS "MXHYKULAXKWBY9JCNVPVSOSZHMBDJRWTTXZCTKHLHKSJARDADHJSTCKVQODBVWCYDNGWFGWVTUVENB9UA"
+#define ACTION_MSG_MAX_SIZE 512
 
 typedef int (*action_t)(pdp_action_t* action);
 
@@ -63,19 +49,19 @@ static action_set_t g_action_set;
 static int log_tangle(pdp_action_t* action) {
   char bundle_hash[NUM_TRYTES_BUNDLE + 1] = {};
 
-  char msg[OBLIGATION_MSG_MAX_SIZE] = {};
+  char msg[ACTION_MSG_MAX_SIZE] = {};
   sprintf(msg, "Performed Action %s.", action->value);
 
-  wallet_err_t ret = wallet_send(dev_wallet, OBLIGATION_ADDRESS, 0, msg, bundle_hash);
+  wallet_err_t ret = wallet_send(dev_wallet, ACTION_ADDRESS, 0, msg, bundle_hash);
 
   bundle_hash[NUM_TRYTES_BUNDLE] = '\0';
   if (ret != WALLET_OK) {
-    log_error(plugin_logger_id, "[%s:%d] Could not fulfill obligation of logging action to Tangle. %s .\n", __func__,
+    log_error(plugin_logger_id, "[%s:%d] Could not log action to Tangle. %s .\n", __func__,
               __LINE__);
     return -1;
   }
 
-  log_info(plugin_logger_id, "[%s:%d] Obligation of logging Action %s to Tangle. Bundle hash: %s.\n", __func__,
+  log_info(plugin_logger_id, "[%s:%d] logging Action %s to Tangle. Bundle hash: %s.\n", __func__,
            __LINE__, action->value, bundle_hash);
 }
 
@@ -108,7 +94,7 @@ static int action_cb(plugin_t* plugin, void* data) {
 
   // handle obligations
   if (0 == memcmp(obligation, "obligation#1", strlen("obligation#1"))) {
-    log_tangle(action);
+    // obligation here
   }
 
   // execute action
@@ -119,6 +105,10 @@ static int action_cb(plugin_t* plugin, void* data) {
       break;
     }
   }
+
+  // log action on tangle
+  log_tangle(action);
+
   return status;
 }
 
@@ -131,8 +121,8 @@ int pep_plugin_relay_initializer(plugin_t* plugin, void* wallet_context) {
 
   g_action_set.actions[0] = relay_on;
   g_action_set.actions[1] = relay_off;
-  strncpy(g_action_set.action_names[0], "action#1", ACTION_NAME_SIZE); // ToDo: fixACTION_NAME_SIZE
-  strncpy(g_action_set.action_names[1], "action#2", ACTION_NAME_SIZE); // ToDo: fixACTION_NAME_SIZE
+  strncpy(g_action_set.action_names[0], "action#1", ACTION_NAME_SIZE);
+  strncpy(g_action_set.action_names[1], "action#2", ACTION_NAME_SIZE);
   g_action_set.count = 2;
 
   plugin->destroy = destroy_cb;
