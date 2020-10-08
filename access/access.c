@@ -28,44 +28,28 @@
 #include "pip.h"
 #include "timer.h"
 
-// currently empty
-// placeholder context structure for future use
-typedef struct {
-} access_ctx_t_;
-
-void access_init(access_ctx_t *access_context) {
-  access_ctx_t_ *ctx = calloc(1, sizeof(access_ctx_t_));
-
+void access_init() {
   pep_init();
-
-  *access_context = (access_ctx_t)ctx;
+  pip_init();
 }
 
-void access_start(access_ctx_t access_context) {
-  access_ctx_t_ *ctx = (access_ctx_t_ *)access_context;
-
-  // call START callbacks of all plugins
+void access_start() {
   pip_start();
 }
 
-void access_deinit(access_ctx_t access_context) {
-  access_ctx_t_ *ctx = (access_ctx_t_ *)access_context;
-
-  // stop and terminate plugins
+void access_term() {
+  pip_term();
   pep_term();
 }
 
-int access_register_pep_plugin(access_ctx_t access_context, plugin_t *plugin) {
-  access_ctx_t_ *ctx = (access_ctx_t_ *)access_context;
+int access_register_pep_plugin(plugin_t *plugin) {
   pep_register_plugin(plugin);
 }
 
-int access_register_pip_plugin(access_ctx_t access_context, plugin_t *plugin) {
-  access_ctx_t_ *ctx = (access_ctx_t_ *)access_context;
+int access_register_pip_plugin(plugin_t *plugin) {
   pip_register_plugin(plugin);
 }
 
-int access_register_pap_plugin(access_ctx_t access_context, plugin_t *plugin) {
-  access_ctx_t_ *ctx = (access_ctx_t_ *)access_context;
+int access_register_pap_plugin(plugin_t *plugin) {
   pap_register_plugin(plugin);
 }

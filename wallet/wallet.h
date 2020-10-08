@@ -149,7 +149,7 @@ wallet_err_t wallet_get_address(wallet_ctx_t *const ctx, char *addr_buf, uint64_
  *
  * @param wallet wallet context
  */
-void wallet_destory(wallet_ctx_t **wallet);
+void wallet_destroy(wallet_ctx_t **wallet);
 
 /**
  * @brief Gets message from a given hash

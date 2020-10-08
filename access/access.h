@@ -23,16 +23,16 @@
 #include "plugin.h"
 #include "wallet.h"
 
-typedef void *access_ctx_t;
+void access_init();
 
-void access_init(access_ctx_t *access_context);
+void access_start();
 
-void access_deinit(access_ctx_t access_context);
+void access_term();
 
-int access_register_pep_plugin(access_ctx_t access_context, plugin_t *plugin);
+int access_register_pep_plugin(plugin_t *plugin);
 
-int access_register_pip_plugin(access_ctx_t access_context, plugin_t *plugin);
+int access_register_pip_plugin(plugin_t *plugin);
 
-int access_register_pap_plugin(access_ctx_t access_context, plugin_t *plugin);
+int access_register_pap_plugin(plugin_t *plugin);
 
 #endif
