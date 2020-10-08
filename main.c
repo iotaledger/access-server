@@ -41,7 +41,6 @@ static volatile int running = 1;
 static void signal_handler(int _) { running = 0; }
 
 static network_ctx_t network_context;
-static access_ctx_t access_context;
 static wallet_ctx_t *wallet_context;
 
 int wallet_init() {
@@ -95,7 +94,7 @@ int main(int argc, char **argv) {
 
   policyloader_start();
 
-  access_init(&access_context);
+  access_init();
   if (wallet_init() != 0) {
     printf("\nERROR[%s]: Wallet creation failed. Aborting.\n", __FUNCTION__);
   }
@@ -104,18 +103,18 @@ int main(int argc, char **argv) {
   plugin_t plugin;
 
   if (plugin_init(&plugin, pep_plugin_print_initializer, wallet_context) == 0) {
-    access_register_pep_plugin(access_context, &plugin);
+    access_register_pep_plugin(&plugin);
   }
 
   if (plugin_init(&plugin, pap_plugin_posix_initializer, NULL) == 0) {
-    access_register_pap_plugin(access_context, &plugin);
+    access_register_pap_plugin(&plugin);
   }
 
   // end register plugins
 
   network_init(&network_context);
 
-  access_start(access_context);
+  access_start();
   if (network_start(network_context) != 0) {
     fprintf(stderr, "Error starting Network actor\n");
     running = 0;
@@ -126,8 +125,7 @@ int main(int argc, char **argv) {
   // Stop threads
   network_stop(network_context);
 
-  // Deinit modules
-  access_deinit(access_context);
+  access_term();
 
   policyloader_stop();
 
