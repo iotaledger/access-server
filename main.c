@@ -129,7 +129,7 @@ int main(int argc, char **argv) {
 
   policyloader_stop();
 
-  wallet_destory(&wallet_context);
+  wallet_destroy(&wallet_context);
 
   return 0;
 }

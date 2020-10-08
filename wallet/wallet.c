@@ -47,7 +47,7 @@ wallet_ctx_t *wallet_create(char const *const node_url, uint16_t port_number, ch
     ctx->unused_idx = 0;
     if (flex_trits_from_trytes(ctx->seed, NUM_TRITS_HASH, seed, NUM_TRYTES_HASH, NUM_TRYTES_HASH) == 0) {
       log_error(wallet_logger_id, "[%s:%d] Converting seed to flex_trit failed.\n", __func__, __LINE__);
-      wallet_destory(&ctx);
+      wallet_destroy(&ctx);
       return NULL;
     }
 
@@ -74,7 +74,7 @@ wallet_ctx_t *wallet_create(char const *const node_url, uint16_t port_number, ch
   return NULL;
 }
 
-void wallet_destory(wallet_ctx_t **wallet) {
+void wallet_destroy(wallet_ctx_t **wallet) {
   if (wallet && *wallet) {
     if ((*wallet)->iota_client) {
       iota_client_core_destroy(&(*wallet)->iota_client);
