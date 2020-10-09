@@ -44,7 +44,7 @@
 #define SLEEP_TIME 0.5
 
 /* BCM Pinout: https://pinout.xyz/ */
-uint8_t idx2bcm[] = {4, 17, 27, 22};
+uint8_t idx2bcm[] = {4, 17, 22, 27};
 
 static int check_idx(int idx) {
   if (idx < MIN_IDX || idx > MAX_IDX) {
