@@ -46,29 +46,33 @@ typedef struct {
 static wallet_ctx_t* dev_wallet = NULL;
 static action_set_t g_action_set;
 
-static int log_tangle(pdp_action_t* action) {
+static int log_tangle(char* msg) {
   char bundle_hash[NUM_TRYTES_BUNDLE + 1] = {};
-
-  char msg[ACTION_MSG_MAX_SIZE] = {};
-  sprintf(msg, "Performed Action %s.", action->value);
 
   wallet_err_t ret = wallet_send(dev_wallet, ACTION_ADDRESS, 0, msg, bundle_hash);
 
   bundle_hash[NUM_TRYTES_BUNDLE] = '\0';
+
   if (ret != WALLET_OK) {
-    log_error(plugin_logger_id, "[%s:%d] Could not log action to Tangle. %s .\n", __func__,
-              __LINE__);
+    log_error(plugin_logger_id, "[%s:%d] Could not log action to Tangle. %s\n", __func__, __LINE__);
     return -1;
   }
 
-  log_info(plugin_logger_id, "[%s:%d] logging Action %s to Tangle. Bundle hash: %s.\n", __func__,
-           __LINE__, action->value, bundle_hash);
+  log_info(plugin_logger_id, "[%s:%d] logging Action to Tangle. Bundle hash: %s\n", __func__, __LINE__, bundle_hash);
+
+  return 0;
 }
 
 static int relay_on() {
   int relay_index = 0;
   relayinterface_on(relay_index);
 
+  // log action on Tangle
+  char msg[ACTION_MSG_MAX_SIZE] = {};
+  sprintf(msg, "Relay %d ON.", relay_index);
+  log_tangle(msg);
+
+  // log action on Terminal
   log_info(plugin_logger_id, "[%s:%d] Relay %d ON.\n", __func__, __LINE__, relay_index);
 
   return 0;
@@ -78,6 +82,12 @@ static int relay_off() {
   int relay_index = 0;
   relayinterface_off(relay_index);
 
+  // log action on Tangle
+  char msg[ACTION_MSG_MAX_SIZE] = {};
+  sprintf(msg, "Relay %d OFF.", relay_index);
+  log_tangle(msg);
+
+  // log action on Terminal
   log_info(plugin_logger_id, "[%s:%d] Relay %d OFF.\n", __func__, __LINE__, relay_index);
 
   return 0;
@@ -106,9 +116,6 @@ static int action_cb(plugin_t* plugin, void* data) {
     }
   }
 
-  // log action on tangle
-  log_tangle(action);
-
   return status;
 }
 
@@ -133,3 +140,4 @@ int pep_plugin_relay_initializer(plugin_t* plugin, void* wallet_context) {
 
   return 0;
 }
+
