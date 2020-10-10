@@ -17,7 +17,7 @@ $ sudo apt-get install git python3-distutils libfastjson-dev libcurl4-gnutls-dev
 ```
 $ cd ~
 $ git clone https://github.com/iotaledger/access-server.git
-$ cd access
+$ cd access-server
 $ mkdir build; cd build
 $ cmake .. -DCMAKE_INSTALL_PREFIX=$PWD/ext_install
 $ make -j4
